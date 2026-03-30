@@ -1,6 +1,21 @@
-# ESAT Practice Delivery Guide
+# ESAT Practice Website
 
-## 1. Run locally
+Learner-facing ESAT practice app built with React + Vite.
+
+## Tech Stack
+
+- React 19
+- TypeScript
+- Vite
+- Zustand (state)
+- IndexedDB via `idb` (local question storage/cache)
+
+## Prerequisites
+
+- Node.js 20+
+- npm 10+
+
+## Run Locally
 
 ```bash
 npm install
@@ -8,89 +23,60 @@ npm run data:prepare
 npm run dev
 ```
 
-`npm run data:prepare` builds:
+`npm run data:prepare` generates:
 
 - `public/data/manifest.json`
 - `public/data/packs/**/*.json`
 
-These are served as static files and loaded by the app at runtime.
+These are loaded by the app at runtime.
 
-## 2. Build production
+## Available Scripts
 
-```bash
-npm run build
-```
+- `npm run dev` - start local dev server
+- `npm run data:prepare` - build static data manifest + packs
+- `npm run verify:loader` - validate loader/data assumptions
+- `npm run build` - run data prep + type-check + production build
+- `npm run preview` - preview the production build locally
 
-`build` already runs `data:prepare` first, then TypeScript + Vite build.
+## Deployment
 
-## 3. What changed
+### Option A: Single-host static deploy
 
-- Question JSON is no longer bundled via `import.meta.glob`.
-- App now loads from `data/manifest.json` and then fetches packs listed there.
-- Loader keeps progress in `localStorage` so previously imported packs are not reprocessed.
+Deploy as a normal Vite static app. Ensure output includes built app assets and generated data files.
 
-Key files:
-
-- `src/lib/loader.ts`
-- `scripts/build-question-data.ts`
-- `package.json` (`data:prepare`, updated `build`)
-
-## 4. Deploy model options
-
-### Option A: single-host deploy (simplest)
-
-Deploy the built site as normal. Ensure static hosting includes:
-
-- `dist/**` (app)
-- `public/data/**` (manifest + packs, copied to final static output)
-
-Works on Vercel, Netlify, Cloudflare Pages, static Nginx, etc.
-
-### Option B: split app + CDN data (recommended for scale)
+### Option B: App + CDN data
 
 1. Upload `public/data/**` to object storage/CDN.
-2. Set build env var:
+2. Set:
 
 ```bash
 VITE_DATA_BASE_URL=https://cdn.yourdomain.com
 ```
 
-3. Build and deploy app normally.
+3. Build/deploy app.
 
-Loader will request:
+The loader then fetches:
 
 - `https://cdn.yourdomain.com/data/manifest.json`
 - `https://cdn.yourdomain.com/data/packs/...`
 
-## 5. Cache headers
-
-Use:
-
-- `data/manifest.json`: short cache (`max-age=60` or similar)
-- `data/packs/*.json`: long immutable cache (`max-age=31536000, immutable`)
-- Enable Brotli/Gzip compression on JSON responses
-
-## 6. Data update workflow
+## Data Update Workflow
 
 1. Add/replace source files in `src/data/**`.
-2. Generate new manifest/packs:
+2. Regenerate static packs:
 
 ```bash
 QUESTION_DATASET_VERSION=2026-03-30 npm run data:prepare
 ```
 
-3. Deploy `public/data/**` first (if using separate CDN).
-4. Deploy app build.
-
-## 7. Validation
+3. Validate + build:
 
 ```bash
 npm run verify:loader
 npm run build
 ```
 
-## 8. Operational notes
+## Notes
 
-- First complete data bootstrap still imports all packs into IndexedDB for full bank features.
-- Architecture now supports moving packs out of JS bundle and onto CDN/static storage.
-- If you later want true selective loading (only chosen years/topics before session start), this loader structure is ready for that next step.
+- First full bootstrap imports packs into IndexedDB for full-bank access.
+- Generated files under `public/data` are ignored in git in this project.
