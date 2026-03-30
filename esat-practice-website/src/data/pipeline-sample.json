@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "file_name": "ESAT 2023 Paper 1",
+  "exported_question_count": 2,
+  "questions": [
+    {
+      "id": "ESAT_2023_P1_04_Q3",
+      "text": "If x^2 = 4, what values can x take?",
+      "page": 4,
+      "part": "Part A",
+      "subject": "Mathematics 1",
+      "source": "ESAT 2023 Paper 1",
+      "year": 2023,
+      "choices": [
+        { "label": "A", "text": "x = 2 only" },
+        { "label": "B", "text": "x = -2 only" },
+        { "label": "C", "text": "x = 2 or x = -2" },
+        { "label": "D", "text": "x = 0" }
+      ],
+      "correctAnswer": "C",
+      "classification": {
+        "primary_topic": "M2. Algebra",
+        "secondary_topics": ["M2. Equations"],
+        "alternative_topics": [],
+        "confidence": 0.94,
+        "verified": true,
+        "model_used": "sonnet"
+      }
+    },
+    {
+      "id": "ESAT_2023_P1_05_Q7",
+      "question_text": "A particle moves with constant acceleration. Which equation relates v, u, a and s?",
+      "page": 5,
+      "part": "Part B",
+      "subject": "Physics",
+      "source": "ESAT 2023 Paper 1",
+      "year": 2023,
+      "choices": [
+        { "label": "A", "text": "v = u + at" },
+        { "label": "B", "text": "v^2 = u^2 + 2as" },
+        { "label": "C", "text": "s = ut + 1/2 at^2" },
+        { "label": "D", "text": "F = ma" }
+      ],
+      "correct_answer": "B",
+      "classification": {
+        "primary_topic": "P4. Mechanics",
+        "secondary_topics": ["P4. Kinematics"],
+        "alternative_topics": [],
+        "confidence": 0.88,
+        "verified": true,
+        "model_used": "opus"
+      }
+    }
+  ]
+}

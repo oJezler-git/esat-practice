@@ -1,0 +1,29 @@
+{
+  "name": "esat-practice",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "data:prepare": "tsx scripts/build-question-data.ts",
+    "build": "npm run data:prepare && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "verify:loader": "tsx scripts/verify-loader.ts"
+  },
+  "dependencies": {
+    "idb": "^8.0.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "tsx": "^4.20.6",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.1"
+  }
+}
