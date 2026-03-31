@@ -37,7 +37,7 @@ function buildCountItems(
 
 export default function QuestionBank() {
   const navigate = useNavigate();
-  const { questions, availableTopics, availableYears, isLoading, loaded } =
+  const { allQuestions, availableTopics, availableYears, isLoading, loaded } =
     useQuestionStore();
   const { createSession } = useSessionStore();
 
@@ -51,61 +51,61 @@ export default function QuestionBank() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = useMemo(
-    () => analyseNsaaDuplicates(questions),
-    [questions],
+    () => analyseNsaaDuplicates(allQuestions),
+    [allQuestions],
   );
   const nsaaDuplicateIds = duplicateAnalysis.hiddenNsaaIds;
 
   const visibleQuestions = useMemo(
     () =>
       hideNsaaDuplicates
-        ? questions.filter((question) => !nsaaDuplicateIds.has(question.id))
-        : questions,
-    [hideNsaaDuplicates, nsaaDuplicateIds, questions],
+        ? allQuestions.filter((question) => !nsaaDuplicateIds.has(question.id))
+        : allQuestions,
+    [allQuestions, hideNsaaDuplicates, nsaaDuplicateIds],
   );
   const hiddenNsaaDuplicateCount = nsaaDuplicateIds.size;
 
   const dataDump = useMemo(() => {
-    const verified = questions.filter(
+    const verified = allQuestions.filter(
       (question) => question.answer.verified,
     ).length;
-    const withImage = questions.filter((question) =>
+    const withImage = allQuestions.filter((question) =>
       Boolean(question.content.image_b64),
     ).length;
 
     const byPrimaryTopic = buildCountItems(
-      questions.map((question) => question.taxonomy.primary_topic),
+      allQuestions.map((question) => question.taxonomy.primary_topic),
     );
     const bySecondaryTopic = buildCountItems(
-      questions.flatMap((question) => question.taxonomy.secondary_topics),
+      allQuestions.flatMap((question) => question.taxonomy.secondary_topics),
     );
     const byYear = buildCountItems(
-      questions.map((question) => question.source.year),
+      allQuestions.map((question) => question.source.year),
     );
     const bySubject = buildCountItems(
-      questions.map((question) => question.source.subject),
+      allQuestions.map((question) => question.source.subject),
     );
     const byPaper = buildCountItems(
-      questions.map(
+      allQuestions.map(
         (question) => `${question.source.paper} (${question.source.year})`,
       ),
     );
     const byPart = buildCountItems(
-      questions.map((question) => question.source.part),
+      allQuestions.map((question) => question.source.part),
     );
     const byCorrectAnswer = buildCountItems(
-      questions.map((question) => question.answer.correct),
+      allQuestions.map((question) => question.answer.correct),
     );
     const byModel = buildCountItems(
-      questions.map((question) => question.taxonomy.model_used),
+      allQuestions.map((question) => question.taxonomy.model_used),
     );
 
     return {
-      totalQuestions: questions.length,
+      totalQuestions: allQuestions.length,
       verifiedQuestions: verified,
-      unverifiedQuestions: Math.max(0, questions.length - verified),
+      unverifiedQuestions: Math.max(0, allQuestions.length - verified),
       questionsWithImage: withImage,
-      questionsWithoutImage: Math.max(0, questions.length - withImage),
+      questionsWithoutImage: Math.max(0, allQuestions.length - withImage),
       byPrimaryTopic,
       bySecondaryTopic,
       byYear,
@@ -115,7 +115,7 @@ export default function QuestionBank() {
       byCorrectAnswer,
       byModel,
     };
-  }, [questions]);
+  }, [allQuestions]);
 
   const filtered = useMemo(() => {
     let result = visibleQuestions;
@@ -242,7 +242,7 @@ export default function QuestionBank() {
         )}
       </div>
 
-      {!isQuestionBankLoading && questions.length > 0 && (
+      {!isQuestionBankLoading && allQuestions.length > 0 && (
         <details className="mb-6 border border-gray-200 bg-white rounded-xl shadow overflow-hidden">
           <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
             <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
@@ -400,7 +400,7 @@ export default function QuestionBank() {
         />
       )}
 
-      {isQuestionBankLoading && questions.length === 0 ? (
+      {isQuestionBankLoading && allQuestions.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           Preparing question bank...
         </div>

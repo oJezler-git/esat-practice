@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import type { Question } from "../types/schema";
 import { getDb } from "./db";
+import { getDedupedQuestions } from "./questionDedup";
 import { ensureBundledQuestionsBootstrapped } from "./loader";
 
 function sortQuestions(left: Question, right: Question): number {
@@ -85,7 +86,7 @@ const useQuestionStoreBase = create<QuestionStoreState>((set) => ({
 }));
 
 export function useQuestionStore() {
-  const questions = useQuestionStoreBase((state) => state.questions);
+  const allQuestions = useQuestionStoreBase((state) => state.questions);
   const isLoading = useQuestionStoreBase((state) => state.isLoading);
   const loaded = useQuestionStoreBase((state) => state.loaded);
   const loadQuestions = useQuestionStoreBase((state) => state.loadQuestions);
@@ -96,6 +97,11 @@ export function useQuestionStore() {
       void loadQuestions();
     }
   }, [isLoading, loadQuestions, loaded]);
+
+  const questions = useMemo(
+    () => getDedupedQuestions(allQuestions),
+    [allQuestions],
+  );
 
   const availableTopics = useMemo(() => {
     const topics = new Set<string>();
@@ -116,6 +122,7 @@ export function useQuestionStore() {
   }, [questions]);
 
   return {
+    allQuestions,
     questions,
     isLoading,
     loaded,

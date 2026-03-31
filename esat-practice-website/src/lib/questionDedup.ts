@@ -260,3 +260,14 @@ export function findNsaaDuplicateIds(
 ): Set<string> {
   return analyseNsaaDuplicates(questions, options).hiddenNsaaIds;
 }
+
+export function getDedupedQuestions(
+  questions: Question[],
+  options: DuplicateMatchOptions = DEFAULT_DUPLICATE_MATCH_OPTIONS,
+): Question[] {
+  const hiddenNsaaIds = findNsaaDuplicateIds(questions, options);
+  if (hiddenNsaaIds.size === 0) {
+    return questions;
+  }
+  return questions.filter((question) => !hiddenNsaaIds.has(question.id));
+}
