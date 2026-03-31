@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  analyseNsaaDuplicates,
+  type DuplicateNearMissDebug,
+  type DuplicatePairDebug,
+} from "../../lib/questionDedup";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import type { Question } from "../../types/schema";
@@ -7,7 +12,9 @@ import type { Question } from "../../types/schema";
 type SortKey = "default" | "topic" | "year" | "accuracy";
 type CountItem = { label: string; count: number };
 
-function buildCountItems(values: Array<string | number | null | undefined>): CountItem[] {
+function buildCountItems(
+  values: Array<string | number | null | undefined>,
+): CountItem[] {
   const counts = new Map<string, number>();
   values.forEach((value) => {
     if (value === null || value === undefined) {
@@ -22,7 +29,10 @@ function buildCountItems(values: Array<string | number | null | undefined>): Cou
 
   return [...counts.entries()]
     .map(([label, count]) => ({ label, count }))
-    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+    .sort(
+      (left, right) =>
+        right.count - left.count || left.label.localeCompare(right.label),
+    );
 }
 
 export default function QuestionBank() {
@@ -35,13 +45,33 @@ export default function QuestionBank() {
   const [topicFilter, setTopicFilter] = useState<string[]>([]);
   const [yearFilter, setYearFilter] = useState<number[]>([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [hideNsaaDuplicates, setHideNsaaDuplicates] = useState(true);
+  const [showDedupDebug, setShowDedupDebug] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("default");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const isQuestionBankLoading = !loaded || isLoading;
+  const duplicateAnalysis = useMemo(
+    () => analyseNsaaDuplicates(questions),
+    [questions],
+  );
+  const nsaaDuplicateIds = duplicateAnalysis.hiddenNsaaIds;
+
+  const visibleQuestions = useMemo(
+    () =>
+      hideNsaaDuplicates
+        ? questions.filter((question) => !nsaaDuplicateIds.has(question.id))
+        : questions,
+    [hideNsaaDuplicates, nsaaDuplicateIds, questions],
+  );
+  const hiddenNsaaDuplicateCount = nsaaDuplicateIds.size;
 
   const dataDump = useMemo(() => {
-    const verified = questions.filter((question) => question.answer.verified).length;
-    const withImage = questions.filter((question) => Boolean(question.content.image_b64)).length;
+    const verified = questions.filter(
+      (question) => question.answer.verified,
+    ).length;
+    const withImage = questions.filter((question) =>
+      Boolean(question.content.image_b64),
+    ).length;
 
     const byPrimaryTopic = buildCountItems(
       questions.map((question) => question.taxonomy.primary_topic),
@@ -49,16 +79,26 @@ export default function QuestionBank() {
     const bySecondaryTopic = buildCountItems(
       questions.flatMap((question) => question.taxonomy.secondary_topics),
     );
-    const byYear = buildCountItems(questions.map((question) => question.source.year));
-    const bySubject = buildCountItems(questions.map((question) => question.source.subject));
-    const byPaper = buildCountItems(
-      questions.map((question) => `${question.source.paper} (${question.source.year})`),
+    const byYear = buildCountItems(
+      questions.map((question) => question.source.year),
     );
-    const byPart = buildCountItems(questions.map((question) => question.source.part));
+    const bySubject = buildCountItems(
+      questions.map((question) => question.source.subject),
+    );
+    const byPaper = buildCountItems(
+      questions.map(
+        (question) => `${question.source.paper} (${question.source.year})`,
+      ),
+    );
+    const byPart = buildCountItems(
+      questions.map((question) => question.source.part),
+    );
     const byCorrectAnswer = buildCountItems(
       questions.map((question) => question.answer.correct),
     );
-    const byModel = buildCountItems(questions.map((question) => question.taxonomy.model_used));
+    const byModel = buildCountItems(
+      questions.map((question) => question.taxonomy.model_used),
+    );
 
     return {
       totalQuestions: questions.length,
@@ -78,7 +118,7 @@ export default function QuestionBank() {
   }, [questions]);
 
   const filtered = useMemo(() => {
-    let result = questions;
+    let result = visibleQuestions;
 
     if (search.trim()) {
       const term = search.toLowerCase();
@@ -90,7 +130,9 @@ export default function QuestionBank() {
       );
     }
     if (topicFilter.length > 0) {
-      result = result.filter((item) => topicFilter.includes(item.taxonomy.primary_topic));
+      result = result.filter((item) =>
+        topicFilter.includes(item.taxonomy.primary_topic),
+      );
     }
     if (yearFilter.length > 0) {
       result = result.filter((item) => yearFilter.includes(item.source.year));
@@ -102,10 +144,14 @@ export default function QuestionBank() {
     switch (sortKey) {
       case "topic":
         return [...result].sort((left, right) =>
-          left.taxonomy.primary_topic.localeCompare(right.taxonomy.primary_topic),
+          left.taxonomy.primary_topic.localeCompare(
+            right.taxonomy.primary_topic,
+          ),
         );
       case "year":
-        return [...result].sort((left, right) => right.source.year - left.source.year);
+        return [...result].sort(
+          (left, right) => right.source.year - left.source.year,
+        );
       case "accuracy":
         return [...result].sort(
           (left, right) => right.meta.accuracy_rate - left.meta.accuracy_rate,
@@ -113,7 +159,14 @@ export default function QuestionBank() {
       default:
         return result;
     }
-  }, [questions, search, sortKey, topicFilter, verifiedOnly, yearFilter]);
+  }, [
+    search,
+    sortKey,
+    topicFilter,
+    verifiedOnly,
+    visibleQuestions,
+    yearFilter,
+  ]);
 
   function toggleTopic(topic: string) {
     setTopicFilter((previous) =>
@@ -132,7 +185,7 @@ export default function QuestionBank() {
   }
 
   async function drillTopic(topic: string) {
-    const ids = questions
+    const ids = visibleQuestions
       .filter((question) => question.taxonomy.primary_topic === topic)
       .map((question) => question.id);
     if (ids.length === 0) {
@@ -168,7 +221,11 @@ export default function QuestionBank() {
           <p className="text-sm text-gray-400 mt-0.5">
             {isQuestionBankLoading
               ? "Preparing question bank..."
-              : `${filtered.length} of ${questions.length} questions`}
+              : `${filtered.length} of ${visibleQuestions.length} questions${
+                  hideNsaaDuplicates && hiddenNsaaDuplicateCount > 0
+                    ? ` (${hiddenNsaaDuplicateCount} NSAA duplicates hidden)`
+                    : ""
+                }`}
           </p>
         </div>
         {filtered.length > 0 && (
@@ -206,22 +263,43 @@ export default function QuestionBank() {
 
           <div className="p-4 border-t border-gray-100">
             <div className="grid grid-cols-3 gap-2 mb-3">
-              <DataStat label="Total questions" value={dataDump.totalQuestions} />
+              <DataStat
+                label="Total questions"
+                value={dataDump.totalQuestions}
+              />
               <DataStat label="Verified" value={dataDump.verifiedQuestions} />
-              <DataStat label="Unverified" value={dataDump.unverifiedQuestions} />
-              <DataStat label="With image" value={dataDump.questionsWithImage} />
-              <DataStat label="Without image" value={dataDump.questionsWithoutImage} />
+              <DataStat
+                label="Unverified"
+                value={dataDump.unverifiedQuestions}
+              />
+              <DataStat
+                label="With image"
+                value={dataDump.questionsWithImage}
+              />
+              <DataStat
+                label="Without image"
+                value={dataDump.questionsWithoutImage}
+              />
               <DataStat label="Years covered" value={dataDump.byYear.length} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <DataList title="Primary topic counts" items={dataDump.byPrimaryTopic} />
-              <DataList title="Secondary topic counts" items={dataDump.bySecondaryTopic} />
+              <DataList
+                title="Primary topic counts"
+                items={dataDump.byPrimaryTopic}
+              />
+              <DataList
+                title="Secondary topic counts"
+                items={dataDump.bySecondaryTopic}
+              />
               <DataList title="Year counts" items={dataDump.byYear} />
               <DataList title="Subject counts" items={dataDump.bySubject} />
               <DataList title="Paper counts" items={dataDump.byPaper} />
               <DataList title="Part counts" items={dataDump.byPart} />
-              <DataList title="Correct answer counts" items={dataDump.byCorrectAnswer} />
+              <DataList
+                title="Correct answer counts"
+                items={dataDump.byCorrectAnswer}
+              />
               <DataList title="Model counts" items={dataDump.byModel} />
             </div>
           </div>
@@ -276,11 +354,31 @@ export default function QuestionBank() {
         <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer ml-auto">
           <input
             type="checkbox"
+            checked={hideNsaaDuplicates}
+            onChange={(event) => setHideNsaaDuplicates(event.target.checked)}
+            className="accent-indigo-500"
+          />
+          Exclude NSAA duplicates
+        </label>
+
+        <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
+          <input
+            type="checkbox"
             checked={verifiedOnly}
             onChange={(event) => setVerifiedOnly(event.target.checked)}
             className="accent-indigo-500"
           />
           Verified only
+        </label>
+
+        <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showDedupDebug}
+            onChange={(event) => setShowDedupDebug(event.target.checked)}
+            className="accent-indigo-500"
+          />
+          Dedupe debug
         </label>
 
         <select
@@ -295,10 +393,21 @@ export default function QuestionBank() {
         </select>
       </div>
 
+      {showDedupDebug && !isQuestionBankLoading && (
+        <DuplicateDebugPanel
+          excludedPairs={duplicateAnalysis.excludedPairs}
+          nearMissPairs={duplicateAnalysis.nearMissPairs}
+        />
+      )}
+
       {isQuestionBankLoading && questions.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">Preparing question bank...</div>
+        <div className="text-center py-20 text-gray-400">
+          Preparing question bank...
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">No questions match your filters.</div>
+        <div className="text-center py-20 text-gray-400">
+          No questions match your filters.
+        </div>
       ) : (
         <div className="space-y-2">
           {filtered.map((question) => (
@@ -306,7 +415,9 @@ export default function QuestionBank() {
               key={question.id}
               question={question}
               expanded={expandedId === question.id}
-              onToggle={() => setExpandedId(expandedId === question.id ? null : question.id)}
+              onToggle={() =>
+                setExpandedId(expandedId === question.id ? null : question.id)
+              }
               onDrillTopic={() => {
                 void drillTopic(question.taxonomy.primary_topic);
               }}
@@ -318,10 +429,137 @@ export default function QuestionBank() {
   );
 }
 
+function formatSimilarity(value: number): string {
+  return `${Math.round(value * 1000) / 10}%`;
+}
+
+function truncateText(value: string, maxLength = 150): string {
+  const trimmed = value.trim();
+  if (trimmed.length <= maxLength) {
+    return trimmed;
+  }
+  return `${trimmed.slice(0, maxLength)}...`;
+}
+
+function DuplicateDebugPanel({
+  excludedPairs,
+  nearMissPairs,
+}: {
+  excludedPairs: DuplicatePairDebug[];
+  nearMissPairs: DuplicateNearMissDebug[];
+}) {
+  return (
+    <details
+      className="mb-6 border border-gray-200 bg-white rounded-xl shadow overflow-hidden"
+      open
+    >
+      <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
+        <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+          Dedupe debug
+        </span>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+            {excludedPairs.length} excluded
+          </span>
+          <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+            {nearMissPairs.length} near miss
+          </span>
+        </div>
+      </summary>
+
+      <div className="p-4 border-t border-gray-100 space-y-4">
+        <section>
+          <h3 className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">
+            Excluded (NSAA hidden)
+          </h3>
+          {excludedPairs.length === 0 ? (
+            <p className="text-xs text-gray-400">
+              No excluded duplicates found.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {excludedPairs.map((pair) => (
+                <div
+                  key={pair.nsaaQuestion.id}
+                  className="border border-gray-100 rounded-lg p-3"
+                >
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-2">
+                    <span className="font-mono">{pair.nsaaQuestion.id}</span>
+                    <span>{"->"}</span>
+                    <span className="font-mono">{pair.engaaQuestion.id}</span>
+                    <span className="ml-auto">
+                      score {formatSimilarity(pair.similarity)} | length ratio{" "}
+                      {formatSimilarity(pair.textLengthRatio)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-700">
+                    <strong>NSAA:</strong>{" "}
+                    {truncateText(pair.nsaaQuestion.content.text)}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    <strong>ENGAA:</strong>{" "}
+                    {truncateText(pair.engaaQuestion.content.text)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <h3 className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">
+            Near misses (not excluded)
+          </h3>
+          {nearMissPairs.length === 0 ? (
+            <p className="text-xs text-gray-400">
+              No near misses above debug floor.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {nearMissPairs.map((pair) => (
+                <div
+                  key={pair.nsaaQuestion.id}
+                  className="border border-gray-100 rounded-lg p-3"
+                >
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-2">
+                    <span className="font-mono">{pair.nsaaQuestion.id}</span>
+                    <span>{"->"}</span>
+                    <span className="font-mono">{pair.engaaQuestion.id}</span>
+                    <span className="ml-auto">
+                      score {formatSimilarity(pair.similarity)} | length ratio{" "}
+                      {formatSimilarity(pair.textLengthRatio)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-amber-700 mb-1">
+                    Reason:{" "}
+                    {pair.reason === "similarity_below_threshold"
+                      ? "similarity below exclusion threshold"
+                      : "length ratio below minimum"}
+                  </p>
+                  <p className="text-xs text-gray-700">
+                    <strong>NSAA:</strong>{" "}
+                    {truncateText(pair.nsaaQuestion.content.text)}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    <strong>ENGAA:</strong>{" "}
+                    {truncateText(pair.engaaQuestion.content.text)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </details>
+  );
+}
+
 function DataStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50">
-      <div className="text-base font-medium text-gray-900 tabular-nums">{value}</div>
+      <div className="text-base font-medium text-gray-900 tabular-nums">
+        {value}
+      </div>
       <div className="text-xs text-gray-500">{label}</div>
     </div>
   );
@@ -331,16 +569,24 @@ function DataList({ title, items }: { title: string; items: CountItem[] }) {
   return (
     <details className="border border-gray-200 rounded-lg bg-gray-50">
       <summary className="px-3 py-2 cursor-pointer flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">{title}</span>
+        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          {title}
+        </span>
         <span className="text-xs text-gray-400">{items.length}</span>
       </summary>
       <div className="px-3 pb-3">
         {items.length === 0 ? (
           <p className="text-xs text-gray-400">No data</p>
         ) : (
-          <div className="space-y-1" style={{ maxHeight: "9rem", overflowY: "auto" }}>
+          <div
+            className="space-y-1"
+            style={{ maxHeight: "9rem", overflowY: "auto" }}
+          >
             {items.map((item) => (
-              <div key={item.label} className="flex items-center justify-between gap-2 text-xs">
+              <div
+                key={item.label}
+                className="flex items-center justify-between gap-2 text-xs"
+              >
                 <span className="text-gray-600">{item.label}</span>
                 <span className="text-gray-900 tabular-nums">{item.count}</span>
               </div>
@@ -421,10 +667,15 @@ function QuestionRow({
             <span>Page {question.source.page}</span>
             <span>-</span>
             <span>
-              Answer: <strong className="text-gray-600">{question.answer.correct}</strong>
+              Answer:{" "}
+              <strong className="text-gray-600">
+                {question.answer.correct}
+              </strong>
             </span>
             <span>-</span>
-            <span>Confidence: {Math.round(question.taxonomy.confidence * 100)}%</span>
+            <span>
+              Confidence: {Math.round(question.taxonomy.confidence * 100)}%
+            </span>
             <button
               type="button"
               onClick={onDrillTopic}
