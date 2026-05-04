@@ -75,7 +75,7 @@ export function completePackLoading(packId: string, bytesLoaded: number) {
     currentPack: packId,
     bytesLoaded,
     percentComplete,
-    message: `Loaded ${packId} • ${formatBytes(bytesLoaded)} / ${formatBytes(currentState.totalBytes)}`,
+    message: `Loaded ${packId} • ${formatBytes(bytesLoaded, 2)} / ${formatBytes(currentState.totalBytes, 2)}`,
   });
 }
 
@@ -103,10 +103,10 @@ export function resetLoadingProgress() {
   });
 }
 
-function formatBytes(bytes: number): string {
+function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return "0 B";
   const k = 1024;
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round((bytes / Math.pow(k, i)) * 10) / 10 + " " + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i];
 }
