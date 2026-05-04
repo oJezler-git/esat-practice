@@ -1,7 +1,51 @@
 import type { ReactNode } from "react";
 import { useSettingsStore } from "../../lib/settingsStore";
-import type { UserSettings } from "../../types/settings";
+import {
+  DEFAULT_SHORTCUTS,
+  formatShortcutKey,
+  normalizeShortcutKey,
+  type ShortcutAction,
+  type ShortcutMap,
+  type UserSettings,
+} from "../../types/settings";
 import { DataManagementSection } from "../../components/DataManagementSection";
+
+const SHORTCUT_FIELDS: Array<{
+  action: ShortcutAction;
+  label: string;
+  description: string;
+}> = [
+  {
+    action: "revealCorrect",
+    label: "Reveal / mark correct",
+    description: "Reveals the answer first, then marks the question correct.",
+  },
+  {
+    action: "incorrect",
+    label: "Mark incorrect",
+    description: "Marks the revealed question as incorrect.",
+  },
+  {
+    action: "prev",
+    label: "Previous question",
+    description: "Moves to the previous question in the session.",
+  },
+  {
+    action: "next",
+    label: "Next question",
+    description: "Moves to the next question.",
+  },
+  {
+    action: "flag",
+    label: "Flag question",
+    description: "Toggles the flagged state for the current question.",
+  },
+  {
+    action: "skip",
+    label: "Skip question",
+    description: "Skips the current question.",
+  },
+];
 
 function getTargetYearOptions(targetYear: number): { value: string; label: string }[] {
   const years = [targetYear - 1, targetYear, targetYear + 1];
@@ -10,6 +54,24 @@ function getTargetYearOptions(targetYear: number): { value: string; label: strin
 
 export default function Settings() {
   const { settings, update, reset } = useSettingsStore();
+
+  function updateShortcut(action: ShortcutAction, key: string) {
+    const nextShortcuts: ShortcutMap = {
+      ...settings.shortcuts,
+      [action]: key,
+    };
+
+    const duplicateAction = Object.entries(nextShortcuts).find(
+      ([candidateAction, candidateKey]) =>
+        candidateAction !== action && candidateKey === key,
+    )?.[0] as ShortcutAction | undefined;
+
+    if (duplicateAction) {
+      nextShortcuts[duplicateAction] = settings.shortcuts[action];
+    }
+
+    update({ shortcuts: nextShortcuts });
+  }
 
   return (
     <div className="page-shell max-w-3xl">
@@ -108,6 +170,21 @@ export default function Settings() {
             onChange={(value) => update({ showKeyboardHints: value })}
           />
         </Field>
+      </Section>
+
+      <Section
+        title="Keyboard shortcuts"
+        description="These shortcuts are saved locally and used during practice sessions."
+      >
+        {SHORTCUT_FIELDS.map(({ action, label, description }) => (
+          <Field key={action} label={label} description={description}>
+            <ShortcutInput
+              value={settings.shortcuts[action]}
+              defaultValue={DEFAULT_SHORTCUTS[action]}
+              onChange={(value) => updateShortcut(action, value)}
+            />
+          </Field>
+        ))}
       </Section>
 
       <Section title="Display" description="Choose your reading comfort preferences.">
@@ -251,5 +328,41 @@ function Select({
         </option>
       ))}
     </select>
+  );
+}
+
+function ShortcutInput({
+  value,
+  defaultValue,
+  onChange,
+}: {
+  value: string;
+  defaultValue: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onKeyDown={(event) => {
+          event.preventDefault();
+          const nextKey = normalizeShortcutKey(event.key);
+          if (nextKey) {
+            onChange(nextKey);
+          }
+        }}
+        className="w-40 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:border-gray-300"
+        title="Focus and press a key to change this shortcut"
+      >
+        {formatShortcutKey(value)}
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange(defaultValue)}
+        className="text-xs text-gray-400 transition-colors hover:text-gray-600"
+      >
+        Reset
+      </button>
+    </div>
   );
 }

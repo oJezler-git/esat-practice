@@ -1,16 +1,37 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
 import { NavControls } from "../../components/session/NavControls";
 import { SessionHeader } from "../../components/session/SessionHeader";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionEngine } from "../../store/sessionSlice";
+import {
+  formatShortcutKey,
+  normalizeShortcutKey,
+  type ShortcutAction,
+} from "../../types/settings";
 import type { SelfMarkResult } from "../../types/schema";
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  const tagName = target.tagName;
+  return (
+    target.isContentEditable ||
+    tagName === "INPUT" ||
+    tagName === "TEXTAREA" ||
+    tagName === "SELECT" ||
+    tagName === "BUTTON"
+  );
+}
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const settings = useSettingsStore((state) => state.settings);
+  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const {
     status,
     currentQuestion,
@@ -33,6 +54,16 @@ export default function SessionPage() {
     md: "text-base",
     lg: "text-lg",
   }[settings.fontSize];
+  const shortcutLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(settings.shortcuts).map(([action, key]) => [
+          action,
+          formatShortcutKey(key),
+        ]),
+      ) as Record<ShortcutAction, string>,
+    [settings.shortcuts],
+  );
 
   const handleMark = useCallback(
     (result: SelfMarkResult) => {
@@ -44,34 +75,80 @@ export default function SessionPage() {
     [currentQuestion, mark],
   );
 
+  const revealAnswer = useCallback(() => {
+    setIsAnswerRevealed(true);
+  }, []);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) {
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        isInteractiveTarget(event.target)
+      ) {
         return;
       }
 
-      const key = event.key.toLowerCase();
-      if (key === "y") {
+      const key = normalizeShortcutKey(event.key);
+      if (!key) {
+        return;
+      }
+
+      const action = (
+        Object.entries(settings.shortcuts).find(([, shortcut]) => shortcut === key)?.[0] ??
+        null
+      ) as ShortcutAction | null;
+
+      if (!action) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (action === "revealCorrect") {
+        if (currentAttemptResult) {
+          return;
+        }
+
+        if (!isAnswerRevealed) {
+          revealAnswer();
+          return;
+        }
+
         handleMark("correct");
-      } else if (key === "n") {
+      } else if (action === "incorrect") {
         handleMark("incorrect");
-      } else if (event.key === "ArrowRight") {
+      } else if (action === "next") {
         void nav("next");
-      } else if (event.key === "ArrowLeft") {
+      } else if (action === "prev") {
         void nav("prev");
-      } else if (key === "f") {
+      } else if (action === "flag") {
         void flag();
-      } else if (key === "s") {
+      } else if (action === "skip") {
         void skip();
       }
     },
-    [flag, handleMark, nav, skip],
+    [
+      currentAttemptResult,
+      flag,
+      handleMark,
+      isAnswerRevealed,
+      nav,
+      revealAnswer,
+      settings.shortcuts,
+      skip,
+    ],
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
+
+  useEffect(() => {
+    setIsAnswerRevealed(Boolean(currentAttemptResult));
+  }, [currentAttemptResult, currentQuestion?.id]);
 
   useEffect(() => {
     if (status === "completed" && id) {
@@ -128,6 +205,11 @@ export default function SessionPage() {
       : `data:image/png;base64,${currentQuestion.content.image_b64}`
     : undefined;
   const questionPreview = currentQuestion.content.text.replace(/\s+/g, " ").trim();
+  const showMetadata = !settings.examMode && (isAnswerRevealed || Boolean(currentAttemptResult));
+  const confidence = Math.round(currentQuestion.taxonomy.confidence * 100);
+  const metadataLine = `${currentQuestion.taxonomy.primary_topic} (${confidence}% confidence)`;
+  const sourceLine = `${currentQuestion.source.paper} ${currentQuestion.source.year} · Page ${currentQuestion.source.page}`;
+  const hintText = `${shortcutLabels.revealCorrect} = reveal/correct | ${shortcutLabels.incorrect} = wrong | ${shortcutLabels.prev}/${shortcutLabels.next} = navigate | ${shortcutLabels.flag} = flag | ${shortcutLabels.skip} = skip`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -142,8 +224,8 @@ export default function SessionPage() {
         }}
       />
 
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
-        <div className="text-sm text-gray-400 mb-4">
+      <main className="session-shell flex-1 mx-auto w-full px-4 py-5">
+        <div className="session-topline text-sm text-gray-400 mb-4">
           Question {currentIndex + 1} of {totalCount}
           {isFlagged && (
             <span className="ml-2 px-2 py-0.5 bg-amber-50 text-amber-600 text-xs rounded-full border border-amber-200">
@@ -154,37 +236,31 @@ export default function SessionPage() {
 
         <div className="session-answer-layout">
           <section className="session-left-panel">
-            {!settings.examMode && (
-              <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
-                <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-full">
-                  {currentQuestion.taxonomy.primary_topic}
-                </span>
-                <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-full">
-                  {currentQuestion.source.paper} {currentQuestion.source.year}
-                </span>
-                <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-full">
-                  Confidence {Math.round(currentQuestion.taxonomy.confidence * 100)}%
-                </span>
-              </div>
-            )}
-
             <p className={`session-question-preview ${fontClass}`}>{questionPreview}</p>
             <p className="text-xs text-gray-500 mt-2">
-              OCR preview only. Use the source image on the right for the full question.
+              OCR is inaccurate. Use the source image on the right for the question.
             </p>
+            {showMetadata && (
+              <div className="session-question-meta">
+                <p className="session-question-topic">{metadataLine}</p>
+                <p className="session-question-source">{sourceLine}</p>
+              </div>
+            )}
 
             <div className="mt-4">
               <SelfMarkPanel
                 correctAnswer={currentQuestion.answer.correct}
                 onMark={handleMark}
+                onReveal={revealAnswer}
+                revealed={isAnswerRevealed}
                 result={currentAttemptResult}
+                revealShortcutLabel={shortcutLabels.revealCorrect}
+                incorrectShortcutLabel={shortcutLabels.incorrect}
               />
             </div>
 
             {settings.showKeyboardHints && (
-              <p className="session-left-hints text-xs text-gray-400 mt-4">
-                Y = correct | N = wrong | Left/Right = navigate | F = flag | S = skip
-              </p>
+              <p className="session-left-hints text-xs text-gray-400 mt-4">{hintText}</p>
             )}
           </section>
 

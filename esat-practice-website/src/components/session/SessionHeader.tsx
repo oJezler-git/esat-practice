@@ -26,7 +26,7 @@ export function SessionHeader({
 
   return (
     <header className="sticky top-0 z-10 bg-gray-50 border-b border-gray-100">
-      <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
+      <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
         <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-indigo-500 rounded-full transition-all duration-300"

@@ -19,7 +19,7 @@ export function NavControls({
 
   return (
     <footer className="sticky bottom-0 bg-gray-50 border-t border-gray-100">
-      <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
         <button
           type="button"
           onClick={onPrev}
