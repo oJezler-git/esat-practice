@@ -19,7 +19,7 @@ export function QuestionCard({
     : undefined;
 
   return (
-    <div className="space-y-4 border border-gray-200 bg-white rounded-xl p-4 shadow">
+    <div className="space-y-4 border border-gray-200 bg-white rounded-xl p-4">
       {showMetadata && (
         <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-full">

@@ -214,10 +214,10 @@ export default function QuestionBank() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="page-shell max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-medium">Question bank</h1>
+          <h1 className="page-title">Question bank</h1>
           <p className="text-sm text-gray-400 mt-0.5">
             {isQuestionBankLoading
               ? "Preparing question bank..."
@@ -243,9 +243,9 @@ export default function QuestionBank() {
       </div>
 
       {!isQuestionBankLoading && allQuestions.length > 0 && (
-        <details className="mb-6 border border-gray-200 bg-white rounded-xl shadow overflow-hidden">
+        <details className="mb-6 border border-gray-200 bg-white rounded-xl overflow-hidden">
           <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+            <span className="text-sm font-medium text-gray-500">
               Data dump
             </span>
             <div className="flex flex-wrap gap-2 text-xs">
@@ -409,7 +409,7 @@ export default function QuestionBank() {
           No questions match your filters.
         </div>
       ) : (
-        <div className="space-y-2">
+      <div className="space-y-2">
           {filtered.map((question) => (
             <QuestionRow
               key={question.id}
@@ -450,11 +450,11 @@ function DuplicateDebugPanel({
 }) {
   return (
     <details
-      className="mb-6 border border-gray-200 bg-white rounded-xl shadow overflow-hidden"
+      className="mb-6 border border-gray-200 bg-white rounded-xl overflow-hidden"
       open
     >
       <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-        <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+        <span className="text-sm font-medium text-gray-500">
           Dedupe debug
         </span>
         <div className="flex flex-wrap gap-2 text-xs">
@@ -469,7 +469,7 @@ function DuplicateDebugPanel({
 
       <div className="p-4 border-t border-gray-100 space-y-4">
         <section>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">
+          <h3 className="text-xs font-medium text-gray-500 mb-2">
             Excluded (NSAA hidden)
           </h3>
           {excludedPairs.length === 0 ? (
@@ -507,7 +507,7 @@ function DuplicateDebugPanel({
         </section>
 
         <section>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">
+          <h3 className="text-xs font-medium text-gray-500 mb-2">
             Near misses (not excluded)
           </h3>
           {nearMissPairs.length === 0 ? (
@@ -569,7 +569,7 @@ function DataList({ title, items }: { title: string; items: CountItem[] }) {
   return (
     <details className="border border-gray-200 rounded-lg bg-gray-50">
       <summary className="px-3 py-2 cursor-pointer flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <span className="text-xs font-medium text-gray-500">
           {title}
         </span>
         <span className="text-xs text-gray-400">{items.length}</span>
@@ -616,7 +616,7 @@ function QuestionRow({
     : undefined;
 
   return (
-    <div className="border border-gray-200 bg-white rounded-lg overflow-hidden shadow">
+    <div className="border border-gray-200 bg-white rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={onToggle}

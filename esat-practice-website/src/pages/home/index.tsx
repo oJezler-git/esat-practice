@@ -78,9 +78,14 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-10">
-        <h1 className="text-3xl font-medium mb-1">ESAT Practice</h1>
+    <div className="page-shell max-w-3xl">
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Prepare with intent</h1>
+          <p className="page-subtitle">
+            Build repeatable exam rhythm with focused mixed and topic sessions.
+          </p>
+        </div>
         <p className="text-gray-400 text-sm">
           {isQuestionBankLoading
             ? "Preparing question bank..."
@@ -95,7 +100,7 @@ export default function Home() {
             void quickStart();
           }}
           disabled={!isQuestionBankReady}
-          className="col-span-2 py-4 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors text-lg disabled:bg-indigo-300 disabled:cursor-not-allowed shadow"
+          className="quickstart-beam col-span-2 py-4 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors text-lg disabled:bg-indigo-300 disabled:cursor-not-allowed"
         >
           {isQuestionBankLoading
             ? "Loading question bank..."
@@ -103,21 +108,21 @@ export default function Home() {
         </button>
         <Link
           to="/practice"
-          className="py-3 border border-gray-200 rounded-xl text-center text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+          className="py-3 border border-gray-200 rounded-xl text-center text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors card"
         >
           Custom session
         </Link>
         <Link
           to="/question-bank"
-          className="py-3 border border-gray-200 rounded-xl text-center text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+          className="py-3 border border-gray-200 rounded-xl text-center text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors card"
         >
           Browse questions
         </Link>
       </div>
 
       {weakTopics.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+        <section className="mb-8 card p-4">
+          <h2 className="text-sm font-medium text-gray-500 mb-3">
             Needs work
           </h2>
           <div className="space-y-2">
@@ -141,8 +146,8 @@ export default function Home() {
       )}
 
       {recentSessions.length > 0 && (
-        <section>
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+        <section className="card p-4">
+          <h2 className="text-sm font-medium text-gray-500 mb-3">
             Recent
           </h2>
           <div className="space-y-2">

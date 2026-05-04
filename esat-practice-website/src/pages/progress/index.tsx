@@ -91,8 +91,8 @@ export default function Progress() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-medium mb-8">Progress</h1>
+    <div className="page-shell max-w-3xl">
+      <h1 className="page-title mb-8">Progress</h1>
 
       {totalAttempts === 0 ? (
         <div className="text-center py-20 text-gray-400">
@@ -135,8 +135,8 @@ export default function Progress() {
             </div>
           )}
 
-          <section className="mb-10">
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
+          <section className="mb-10 card p-4">
+            <h2 className="text-sm font-medium text-gray-500 mb-4">
               Accuracy by topic
             </h2>
             <div className="space-y-3">
@@ -147,10 +147,10 @@ export default function Progress() {
           </section>
 
           {strongTopics.length > 0 && (
-            <section className="mb-10">
-              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-                Strong topics
-              </h2>
+          <section className="mb-10 card p-4">
+            <h2 className="text-sm font-medium text-gray-500 mb-4">
+              Strong topics
+            </h2>
               <div className="flex flex-wrap gap-2">
                 {strongTopics.map((topicStat) => (
                   <span
@@ -164,8 +164,8 @@ export default function Progress() {
             </section>
           )}
 
-          <section>
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
+          <section className="card p-4">
+            <h2 className="text-sm font-medium text-gray-500 mb-4">
               Recent sessions
             </h2>
             {sessions.length === 0 ? (
@@ -224,7 +224,7 @@ export default function Progress() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-gray-200 bg-white rounded-lg px-4 py-4 text-center shadow">
+    <div className="border border-gray-200 bg-white rounded-lg px-4 py-4 text-center">
       <div className="text-2xl font-medium text-gray-900">{value}</div>
       <div className="text-xs text-gray-400 mt-1">{label}</div>
     </div>

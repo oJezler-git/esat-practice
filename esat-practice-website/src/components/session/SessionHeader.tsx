@@ -25,7 +25,7 @@ export function SessionHeader({
   const isLow = timeRemaining !== undefined && timeRemaining < 60_000;
 
   return (
-    <header className="sticky top-0 z-10 bg-white border-b border-gray-100">
+    <header className="sticky top-0 z-10 bg-gray-50 border-b border-gray-100">
       <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
         <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div

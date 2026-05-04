@@ -12,7 +12,7 @@ export default function Settings() {
   const { settings, update, reset } = useSettingsStore();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="page-shell max-w-3xl">
       <div className="flex items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-medium">Settings</h1>
@@ -180,9 +180,9 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="mb-8 border border-gray-200 rounded-xl bg-white overflow-hidden shadow">
+    <section className="mb-8 border border-gray-200 rounded-xl bg-white overflow-hidden">
       <div className="px-4 py-3.5 border-b border-gray-100">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">{title}</h2>
+        <h2 className="text-sm font-medium text-gray-500">{title}</h2>
         <p className="text-xs text-gray-400 mt-1">{description}</p>
       </div>
       <div className="divide-y divide-gray-100">{children}</div>

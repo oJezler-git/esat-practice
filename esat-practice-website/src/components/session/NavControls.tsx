@@ -18,7 +18,7 @@ export function NavControls({
   const isLast = currentIndex === totalCount - 1;
 
   return (
-    <footer className="sticky bottom-0 bg-white border-t border-gray-100">
+    <footer className="sticky bottom-0 bg-gray-50 border-t border-gray-100">
       <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
         <button
           type="button"

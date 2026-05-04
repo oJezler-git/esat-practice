@@ -135,7 +135,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="page-shell max-w-3xl">
       <div className="text-center mb-10">
         <div className="text-6xl font-medium mb-1">{score}%</div>
         <div className="text-gray-500 text-sm">
@@ -146,8 +146,8 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      <section className="mb-10">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
+      <section className="mb-10 card p-4">
+        <h2 className="text-sm font-medium text-gray-500 mb-4">
           By topic
         </h2>
         <div className="space-y-3">
@@ -173,7 +173,7 @@ export default function ResultsPage() {
       </section>
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Review</h2>
+        <h2 className="text-sm font-medium text-gray-500">Review</h2>
         <div className="flex gap-2">
           {(["all", "incorrect"] as const).map((value) => (
             <button

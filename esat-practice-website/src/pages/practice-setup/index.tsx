@@ -92,16 +92,16 @@ export default function PracticeSetup() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-medium mb-1">New practice session</h1>
-      <p className="text-sm text-gray-500 mb-8">
+    <div className="page-shell max-w-3xl">
+      <h1 className="page-title">New practice session</h1>
+      <p className="page-subtitle mb-8">
         {isQuestionBankLoading
           ? "Preparing question bank..."
           : `${questions.length} questions loaded`}
       </p>
 
-      <section className="mb-8">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+      <section className="mb-8 card p-4">
+        <h2 className="text-sm font-medium text-gray-500 mb-3">
           Mode
         </h2>
         <div className="grid grid-cols-2 gap-3">
@@ -123,8 +123,8 @@ export default function PracticeSetup() {
         </div>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+      <section className="mb-8 card p-4">
+        <h2 className="text-sm font-medium text-gray-500 mb-3">
           Topics <span className="normal-case font-normal">(leave empty for all)</span>
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -145,8 +145,8 @@ export default function PracticeSetup() {
         </div>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+      <section className="mb-8 card p-4">
+        <h2 className="text-sm font-medium text-gray-500 mb-3">
           Papers <span className="normal-case font-normal">(leave empty for all)</span>
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -167,8 +167,8 @@ export default function PracticeSetup() {
         </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+      <section className="mb-10 card p-4">
+        <h2 className="text-sm font-medium text-gray-500 mb-3">
           Questions - <span className="text-gray-900 font-medium">{questionCount}</span>
         </h2>
         <input
