@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useSettingsStore } from "../../lib/settingsStore";
 import type { UserSettings } from "../../types/settings";
+import { DataManagementSection } from "../../components/DataManagementSection";
 
 function getTargetYearOptions(targetYear: number): { value: string; label: string }[] {
   const years = [targetYear - 1, targetYear, targetYear + 1];
@@ -163,6 +164,8 @@ export default function Settings() {
           />
         </Field>
       </Section>
+
+      <DataManagementSection />
     </div>
   );
 }
