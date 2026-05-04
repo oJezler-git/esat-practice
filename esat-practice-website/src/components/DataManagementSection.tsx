@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { clearAllData, clearProgressData, generateConfirmationPhrase } from "../lib/dataManagement";
 
 export function DataManagementSection() {
+  const navigate = useNavigate();
   const [showClearAllModal, setShowClearAllModal] = useState(false);
   const [confirmationPhrase, setConfirmationPhrase] = useState("");
   const [userInput, setUserInput] = useState("");
@@ -34,6 +36,7 @@ export function DataManagementSection() {
       await clearAllData();
       setMessage({ type: "success", text: "All data cleared. Reloading..." });
       setTimeout(() => {
+        navigate("/");
         window.location.reload();
       }, 1500);
     } catch (error) {
