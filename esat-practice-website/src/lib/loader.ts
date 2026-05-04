@@ -1,6 +1,12 @@
 import pipelineSample from "../data/pipeline-sample.json";
 import type { Question } from "../types/schema";
 import { getDb } from "./db";
+import {
+  setLoadingStage,
+  startPackLoading,
+  completePackLoading,
+  completeAllLoading,
+} from "./loadingProgress";
 
 const QUESTION_DATA_MANIFEST_PATH = "data/manifest.json";
 const QUESTION_DATA_STATE_KEY = "esat-practice:question-data-state";
@@ -527,11 +533,13 @@ async function loadPackPayload(pack: QuestionPackManifest): Promise<unknown> {
 export async function ensureQuestionPacksBootstrapped(
   packIds: string[],
 ): Promise<LoaderSummary> {
+  setLoadingStage("manifest", "Loading manifest...");
   const manifest = await loadQuestionDataManifest();
   const existingDatabase = await getDb();
   const existing = await existingDatabase.count("questions");
   const targetPackIds = new Set(packIds);
   if (targetPackIds.size === 0) {
+    completeAllLoading();
     return {
       existing,
       inserted: 0,
@@ -546,18 +554,32 @@ export async function ensureQuestionPacksBootstrapped(
       ? new Set(previousState.loaded_pack_ids)
       : new Set<string>();
 
+  // Calculate total bytes to download
+  const packsToLoad = manifest.packs.filter(
+    (pack) => targetPackIds.has(pack.id) && !loadedPackIds.has(pack.id),
+  );
+  const totalBytes = packsToLoad.reduce((sum, pack) => sum + (pack.bytes || 0), 0);
+
   let inserted = 0;
   let skipped = 0;
+  let bytesLoaded = 0;
 
-  for (const pack of manifest.packs) {
+  for (let index = 0; index < manifest.packs.length; index++) {
+    const pack = manifest.packs[index];
     if (!targetPackIds.has(pack.id) || loadedPackIds.has(pack.id)) {
       continue;
     }
+
+    const packIndex = packsToLoad.indexOf(pack);
+    startPackLoading(pack.id, packIndex, packsToLoad.length, totalBytes);
 
     const payload = await loadPackPayload(pack);
     const summary = await bootstrapQuestions(payload);
     inserted += summary.inserted;
     skipped += summary.skipped;
+    bytesLoaded += pack.bytes || 0;
+    completePackLoading(pack.id, bytesLoaded);
+
     loadedPackIds.add(pack.id);
     writeQuestionDataState({
       version: manifest.version,
@@ -565,6 +587,7 @@ export async function ensureQuestionPacksBootstrapped(
     });
   }
 
+  completeAllLoading();
   return {
     existing,
     inserted,

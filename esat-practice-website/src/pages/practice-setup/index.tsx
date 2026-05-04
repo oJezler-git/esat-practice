@@ -40,6 +40,7 @@ export default function PracticeSetup() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [questionCount, setQuestionCount] = useState(settings.defaultQuestionCount);
+  const [setupError, setSetupError] = useState<string | null>(null);
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
 
@@ -61,9 +62,10 @@ export default function PracticeSetup() {
 
   async function handleStart() {
     if (!isQuestionBankReady) {
-      window.alert("Question bank is still loading. Please wait a few seconds.");
+      setSetupError("Question bank is still loading. Please wait a few seconds.");
       return;
     }
+    setSetupError(null);
 
     const config = {
       mode,
@@ -78,7 +80,7 @@ export default function PracticeSetup() {
 
     const questionIds = buildSession(questions, config);
     if (questionIds.length === 0) {
-      window.alert("No questions match your filters. Try broadening your selection.");
+      setSetupError("No questions match your filters. Try broadening your selection.");
       return;
     }
 
@@ -192,6 +194,11 @@ export default function PracticeSetup() {
       >
         {isQuestionBankLoading ? "Loading question bank..." : "Start session"}
       </button>
+      {setupError && (
+        <p className="mt-3 text-sm text-red-600 border border-red-200 bg-red-50 rounded-lg px-3 py-2">
+          {setupError}
+        </p>
+      )}
     </div>
   );
 }

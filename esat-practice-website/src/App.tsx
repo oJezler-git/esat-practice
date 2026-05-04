@@ -1,7 +1,8 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Nav } from "./components/ui/Nav";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
+import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
 import { useSettingsStore } from "./lib/settingsStore";
 import Home from "./pages/home";
 import PracticeSetup from "./pages/practice-setup";
@@ -10,6 +11,7 @@ import ResultsPage from "./pages/results";
 import QuestionBank from "./pages/question-bank";
 import Progress from "./pages/progress";
 import Settings from "./pages/settings";
+import NotFound from "./pages/not-found";
 
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
@@ -20,18 +22,24 @@ export default function App() {
 
   return (
     <>
+      <a href="#app-main" className="skip-link">
+        Skip to content
+      </a>
       <Nav />
       <KeyboardShortcutOverlay />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/practice" element={<PracticeSetup />} />
-        <Route path="/session/:id" element={<SessionPage />} />
-        <Route path="/results/:id" element={<ResultsPage />} />
-        <Route path="/question-bank" element={<QuestionBank />} />
-        <Route path="/progress" element={<Progress />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate replace to="/" />} />
-      </Routes>
+      <LoadingProgressDisplay />
+      <main id="app-main" className="app-main">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/practice" element={<PracticeSetup />} />
+          <Route path="/session/:id" element={<SessionPage />} />
+          <Route path="/results/:id" element={<ResultsPage />} />
+          <Route path="/question-bank" element={<QuestionBank />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
     </>
   );
 }

@@ -42,7 +42,7 @@ function addAnswer(
  * clean inputs but catches real-world failures where line breaks are unreliable.
  *
  * @param {PageData[]} pages Extracted page payloads from the PDF pipeline.
- * @returns {AnswerMapping} Normalized lookup of question number -> answer letter.
+ * @returns {AnswerMapping} normalised lookup of question number -> answer letter.
  */
 export function parseAnswerKey(pages: PageData[]): AnswerMapping {
   const mapping: AnswerMapping = {};
@@ -100,7 +100,7 @@ export function parseAnswerKey(pages: PageData[]): AnswerMapping {
  * for the conventions we use in this dataset.
  *
  * @param {string} filename Source filename from upload/import.
- * @returns {string} Normalized prefix used for paper/answer-key matching.
+ * @returns {string} normalised prefix used for paper/answer-key matching.
  */
 export function getPaperPrefix(filename: string): string {
   // Stop at common suffix markers — this doesn't need to be perfect,

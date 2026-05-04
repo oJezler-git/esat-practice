@@ -4,6 +4,7 @@ import type { Question } from "../types/schema";
 import { getDb } from "./db";
 import { getDedupedQuestions } from "./questionDedup";
 import { ensureBundledQuestionsBootstrapped } from "./loader";
+import { resetLoadingProgress } from "./loadingProgress";
 
 function sortQuestions(left: Question, right: Question): number {
   if (left.source.year !== right.source.year) {
@@ -72,6 +73,7 @@ const useQuestionStoreBase = create<QuestionStoreState>((set) => ({
         questions,
         loaded: true,
       });
+      resetLoadingProgress();
     } finally {
       set({ isLoading: false });
     }

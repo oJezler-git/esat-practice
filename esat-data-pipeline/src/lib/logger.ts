@@ -53,12 +53,12 @@ function log(
   if (!DEV_ENABLED) return;
   const prefix = `[${ROOT_NAMESPACE}:${namespace}]`;
   const method = getConsoleMethod(level);
-  const normalized = normalisePayload(payload);
-  if (normalized === undefined) {
+  const normalised = normalisePayload(payload);
+  if (normalised === undefined) {
     method(`${prefix} ${message}`);
     return;
   }
-  method(`${prefix} ${message}`, normalized);
+  method(`${prefix} ${message}`, normalised);
 }
 
 function makeLogger(namespace: string): Logger {

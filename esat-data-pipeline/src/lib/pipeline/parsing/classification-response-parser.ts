@@ -187,7 +187,7 @@ function extractResultList(parsed: unknown): unknown[] | null {
  * real LLM responses can drift even with strict prompts.
  *
  * @param {string} rawText Raw model output, possibly wrapped in markdown fences.
- * @returns {ClassificationResult[]} Normalized classification records.
+ * @returns {ClassificationResult[]} normalised classification records.
  */
 export function parseClassificationResponse(
   rawText: string,
@@ -199,10 +199,10 @@ export function parseClassificationResponse(
   } catch {
     const recovered = recoverPartialResultObjects(rawText);
     if (recovered.length > 0) {
-      const normalized: Array<ClassificationResult | null> = recovered.map(
+      const normalised: Array<ClassificationResult | null> = recovered.map(
         (item: unknown) => normaliseClassificationItem(item),
       );
-      return normalized.filter(
+      return normalised.filter(
         (item: ClassificationResult | null): item is ClassificationResult =>
           item !== null,
       );
@@ -218,10 +218,10 @@ export function parseClassificationResponse(
     throw new Error("Parsed model response does not include a results array");
   }
 
-  const normalized: Array<ClassificationResult | null> = maybeList.map(
+  const normalised: Array<ClassificationResult | null> = maybeList.map(
     (item: unknown) => normaliseClassificationItem(item),
   );
-  return normalized.filter(
+  return normalised.filter(
     (item: ClassificationResult | null): item is ClassificationResult =>
       item !== null,
   );
