@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   analyseNsaaDuplicates,
@@ -11,6 +11,9 @@ import type { Question } from "../../types/schema";
 
 type SortKey = "default" | "topic" | "year" | "accuracy";
 type CountItem = { label: string; count: number };
+const VIRTUAL_ROW_HEIGHT = 92;
+const VIRTUAL_OVERSCAN = 8;
+const VIRTUAL_BATCH_SIZE = 80;
 
 function buildCountItems(
   values: Array<string | number | null | undefined>,
@@ -49,6 +52,11 @@ export default function QuestionBank() {
   const [showDedupDebug, setShowDedupDebug] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("default");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [virtualCount, setVirtualCount] = useState(VIRTUAL_BATCH_SIZE);
+  const [detailHeight, setDetailHeight] = useState(0);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = useMemo(
     () => analyseNsaaDuplicates(allQuestions),
@@ -168,6 +176,62 @@ export default function QuestionBank() {
     yearFilter,
   ]);
 
+  useEffect(() => {
+    const syncWindowMetrics = () => {
+      const listTop = listRef.current?.getBoundingClientRect().top ?? 0;
+      const absoluteTop = window.scrollY + listTop;
+      setScrollTop(Math.max(0, window.scrollY - absoluteTop));
+      setViewportHeight(window.innerHeight);
+    };
+
+    syncWindowMetrics();
+    window.addEventListener("scroll", syncWindowMetrics, { passive: true });
+    window.addEventListener("resize", syncWindowMetrics);
+
+    return () => {
+      window.removeEventListener("scroll", syncWindowMetrics);
+      window.removeEventListener("resize", syncWindowMetrics);
+    };
+  }, []);
+
+  useEffect(() => {
+    setVirtualCount(Math.min(filtered.length, VIRTUAL_BATCH_SIZE));
+  }, [filtered.length, search, topicFilter, yearFilter, verifiedOnly, sortKey, hideNsaaDuplicates]);
+
+  useEffect(() => {
+    const neededCount =
+      Math.ceil((scrollTop + viewportHeight) / VIRTUAL_ROW_HEIGHT) +
+      VIRTUAL_OVERSCAN * 2;
+    if (neededCount > virtualCount && virtualCount < filtered.length) {
+      setVirtualCount((previous) =>
+        Math.min(filtered.length, Math.max(previous + VIRTUAL_BATCH_SIZE, neededCount)),
+      );
+    }
+  }, [filtered.length, scrollTop, viewportHeight, virtualCount]);
+
+  const selectedQuestion = useMemo(
+    () => filtered.find((question) => question.id === expandedId) ?? null,
+    [expandedId, filtered],
+  );
+  const selectedIndex = useMemo(
+    () => filtered.findIndex((question) => question.id === expandedId),
+    [expandedId, filtered],
+  );
+  const detailGap = 8;
+  const detailBlockHeight =
+    selectedQuestion && selectedIndex >= 0 ? detailHeight + detailGap : 0;
+  const dynamicTotalHeight =
+    Math.min(virtualCount, filtered.length) * VIRTUAL_ROW_HEIGHT +
+    detailBlockHeight;
+  const startIndex = Math.max(
+    0,
+    Math.floor(scrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN,
+  );
+  const visibleCount =
+    Math.ceil(viewportHeight / VIRTUAL_ROW_HEIGHT) + VIRTUAL_OVERSCAN * 2;
+  const endIndex = Math.min(virtualCount, startIndex + visibleCount);
+  const virtualSlice = filtered.slice(startIndex, endIndex);
+
   function toggleTopic(topic: string) {
     setTopicFilter((previous) =>
       previous.includes(topic)
@@ -214,11 +278,11 @@ export default function QuestionBank() {
   }
 
   return (
-    <div className="page-shell max-w-4xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
+    <div className="page-shell question-bank-page max-w-4xl">
+      <div className="question-bank-hero">
+        <div className="question-bank-hero-copy">
           <h1 className="page-title">Question bank</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="question-bank-subtitle">
             {isQuestionBankLoading
               ? "Preparing question bank..."
               : `${filtered.length} of ${visibleQuestions.length} questions${
@@ -235,7 +299,7 @@ export default function QuestionBank() {
               void practiceFiltered();
             }}
             disabled={isQuestionBankLoading}
-            className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-indigo-300 disabled:cursor-not-allowed shadow"
+            className="question-bank-practice btn-primary text-sm shadow disabled:cursor-not-allowed disabled:opacity-50"
           >
             Practice these ({Math.min(filtered.length, 40)})
           </button>
@@ -243,25 +307,25 @@ export default function QuestionBank() {
       </div>
 
       {!isQuestionBankLoading && allQuestions.length > 0 && (
-        <details className="mb-6 border border-gray-200 bg-white rounded-xl overflow-hidden">
+        <details className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm">
           <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-medium text-slate-300">
               Data dump
             </span>
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
                 {dataDump.totalQuestions} total
               </span>
-              <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
                 {dataDump.byPrimaryTopic.length} primary topics
               </span>
-              <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
                 {dataDump.byYear.length} years
               </span>
             </div>
           </summary>
 
-          <div className="p-4 border-t border-gray-100">
+          <div className="border-t border-white/10 p-4">
             <div className="grid grid-cols-3 gap-2 mb-3">
               <DataStat
                 label="Total questions"
@@ -269,7 +333,7 @@ export default function QuestionBank() {
               />
               <DataStat label="Verified" value={dataDump.verifiedQuestions} />
               <DataStat
-                label="Unverified"
+                label="Escalated classifications"
                 value={dataDump.unverifiedQuestions}
               />
               <DataStat
@@ -306,92 +370,104 @@ export default function QuestionBank() {
         </details>
       )}
 
-      <input
-        type="search"
-        placeholder="Search questions, topics, papers..."
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm mb-4 focus:outline-none focus:border-indigo-400"
-      />
+      <section className="question-bank-controls">
+        <input
+          type="search"
+          placeholder="Search questions, topics, papers..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          className="question-bank-search"
+        />
 
-      <div className="flex flex-wrap gap-4 mb-4 text-sm">
-        <div className="flex flex-wrap gap-1.5">
+        <div className="question-bank-filter-section">
+          <p className="question-bank-filter-label">Topics</p>
+          <div className="question-bank-chip-grid">
           {availableTopics.map((topic) => (
             <button
               type="button"
               key={topic}
               onClick={() => toggleTopic(topic)}
-              className={`px-2.5 py-1 rounded-full border text-xs transition-colors ${
+              className={`question-bank-chip ${
                 topicFilter.includes(topic)
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  ? "question-bank-chip-active"
+                  : "question-bank-chip-idle"
               }`}
             >
               {topic}
             </button>
           ))}
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap gap-4 items-center mb-6">
-        <div className="flex gap-1.5">
+        <div className="question-bank-filter-section">
+          <div className="question-bank-filter-row">
+            <div className="question-bank-filter-block">
+              <p className="question-bank-filter-label">Years</p>
+              <div className="question-bank-chip-grid question-bank-chip-grid-compact">
           {availableYears.map((year) => (
             <button
               type="button"
               key={year}
               onClick={() => toggleYear(year)}
-              className={`px-2.5 py-1 rounded-full border text-xs transition-colors ${
+              className={`question-bank-chip ${
                 yearFilter.includes(year)
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  ? "question-bank-chip-active"
+                  : "question-bank-chip-idle"
               }`}
             >
               {year}
             </button>
           ))}
+              </div>
+            </div>
+
+            <div className="question-bank-tools">
+              <div className="question-bank-toggles">
+                <label className="question-bank-toggle">
+                  <input
+                    type="checkbox"
+                    checked={hideNsaaDuplicates}
+                    onChange={(event) => setHideNsaaDuplicates(event.target.checked)}
+                    className="accent-indigo-500"
+                  />
+                  Exclude NSAA duplicates
+                </label>
+
+                <label className="question-bank-toggle">
+                  <input
+                    type="checkbox"
+                    checked={verifiedOnly}
+                    onChange={(event) => setVerifiedOnly(event.target.checked)}
+                    className="accent-indigo-500"
+                  />
+                  Primary-model only
+                </label>
+
+                <label className="question-bank-toggle">
+                  <input
+                    type="checkbox"
+                    checked={showDedupDebug}
+                    onChange={(event) => setShowDedupDebug(event.target.checked)}
+                    className="accent-indigo-500"
+                  />
+                  Dedupe debug
+                </label>
+              </div>
+
+              <select
+                value={sortKey}
+                onChange={(event) => setSortKey(event.target.value as SortKey)}
+                className="question-bank-sort"
+              >
+                <option value="default">Default order</option>
+                <option value="topic">Sort by topic</option>
+                <option value="year">Sort by year</option>
+                <option value="accuracy">Sort by accuracy</option>
+              </select>
+            </div>
+          </div>
         </div>
-
-        <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer ml-auto">
-          <input
-            type="checkbox"
-            checked={hideNsaaDuplicates}
-            onChange={(event) => setHideNsaaDuplicates(event.target.checked)}
-            className="accent-indigo-500"
-          />
-          Exclude NSAA duplicates
-        </label>
-
-        <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={verifiedOnly}
-            onChange={(event) => setVerifiedOnly(event.target.checked)}
-            className="accent-indigo-500"
-          />
-          Verified only
-        </label>
-
-        <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showDedupDebug}
-            onChange={(event) => setShowDedupDebug(event.target.checked)}
-            className="accent-indigo-500"
-          />
-          Dedupe debug
-        </label>
-
-        <select
-          value={sortKey}
-          onChange={(event) => setSortKey(event.target.value as SortKey)}
-          className="text-xs border border-gray-200 rounded px-2 py-1 text-gray-500"
-        >
-          <option value="default">Default order</option>
-          <option value="topic">Sort by topic</option>
-          <option value="year">Sort by year</option>
-          <option value="accuracy">Sort by accuracy</option>
-        </select>
-      </div>
+      </section>
 
       {showDedupDebug && !isQuestionBankLoading && (
         <DuplicateDebugPanel
@@ -401,28 +477,70 @@ export default function QuestionBank() {
       )}
 
       {isQuestionBankLoading && allQuestions.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="py-20 text-center text-slate-500">
           Preparing question bank...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="py-20 text-center text-slate-500">
           No questions match your filters.
         </div>
       ) : (
-      <div className="space-y-2">
-          {filtered.map((question) => (
-            <QuestionRow
-              key={question.id}
-              question={question}
-              expanded={expandedId === question.id}
-              onToggle={() =>
-                setExpandedId(expandedId === question.id ? null : question.id)
-              }
-              onDrillTopic={() => {
-                void drillTopic(question.taxonomy.primary_topic);
-              }}
-            />
-          ))}
+        <div
+          ref={listRef}
+          className="question-bank-list relative rounded-lg"
+        >
+          <div style={{ height: dynamicTotalHeight, position: "relative" }}>
+            {virtualSlice.map((question, offset) => {
+              const index = startIndex + offset;
+              return (
+                <div
+                  key={question.id}
+                  style={{
+                    position: "absolute",
+                    top:
+                      index * VIRTUAL_ROW_HEIGHT +
+                      (selectedQuestion &&
+                      selectedIndex >= 0 &&
+                      index > selectedIndex
+                        ? detailBlockHeight
+                        : 0),
+                    left: 0,
+                    right: 0,
+                  }}
+                >
+                  <QuestionRow
+                    question={question}
+                    selected={expandedId === question.id}
+                    onToggle={() =>
+                      setExpandedId(
+                        expandedId === question.id ? null : question.id,
+                      )
+                    }
+                  />
+                </div>
+              );
+            })}
+            {selectedQuestion && selectedIndex >= 0 && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: selectedIndex * VIRTUAL_ROW_HEIGHT + VIRTUAL_ROW_HEIGHT + 8,
+                  left: 0,
+                  right: 0,
+                  zIndex: 20,
+                }}
+              >
+                <QuestionDetailPanel
+                  question={selectedQuestion}
+                  onClose={() => setExpandedId(null)}
+                  onHeightChange={setDetailHeight}
+                  onDrillTopic={() => {
+                    void drillTopic(selectedQuestion.taxonomy.primary_topic);
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -450,30 +568,30 @@ function DuplicateDebugPanel({
 }) {
   return (
     <details
-      className="mb-6 border border-gray-200 bg-white rounded-xl overflow-hidden"
+      className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
       open
     >
       <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-        <span className="text-sm font-medium text-gray-500">
+        <span className="text-sm font-medium text-slate-300">
           Dedupe debug
         </span>
         <div className="flex flex-wrap gap-2 text-xs">
-          <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
             {excludedPairs.length} excluded
           </span>
-          <span className="px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
             {nearMissPairs.length} near miss
           </span>
         </div>
       </summary>
 
-      <div className="p-4 border-t border-gray-100 space-y-4">
+      <div className="space-y-4 border-t border-white/10 p-4">
         <section>
-          <h3 className="text-xs font-medium text-gray-500 mb-2">
+          <h3 className="mb-2 text-xs font-medium text-slate-300">
             Excluded (NSAA hidden)
           </h3>
           {excludedPairs.length === 0 ? (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-slate-500">
               No excluded duplicates found.
             </p>
           ) : (
@@ -481,9 +599,9 @@ function DuplicateDebugPanel({
               {excludedPairs.map((pair) => (
                 <div
                   key={pair.nsaaQuestion.id}
-                  className="border border-gray-100 rounded-lg p-3"
+                  className="rounded-xl border border-white/10 bg-black/10 p-3"
                 >
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-2">
+                  <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                     <span className="font-mono">{pair.nsaaQuestion.id}</span>
                     <span>{"->"}</span>
                     <span className="font-mono">{pair.engaaQuestion.id}</span>
@@ -492,11 +610,11 @@ function DuplicateDebugPanel({
                       {formatSimilarity(pair.textLengthRatio)}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-700">
+                  <p className="text-xs text-slate-200">
                     <strong>NSAA:</strong>{" "}
                     {truncateText(pair.nsaaQuestion.content.text)}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="mt-1 text-xs text-slate-400">
                     <strong>ENGAA:</strong>{" "}
                     {truncateText(pair.engaaQuestion.content.text)}
                   </p>
@@ -507,11 +625,11 @@ function DuplicateDebugPanel({
         </section>
 
         <section>
-          <h3 className="text-xs font-medium text-gray-500 mb-2">
+          <h3 className="mb-2 text-xs font-medium text-slate-300">
             Near misses (not excluded)
           </h3>
           {nearMissPairs.length === 0 ? (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-slate-500">
               No near misses above debug floor.
             </p>
           ) : (
@@ -519,9 +637,9 @@ function DuplicateDebugPanel({
               {nearMissPairs.map((pair) => (
                 <div
                   key={pair.nsaaQuestion.id}
-                  className="border border-gray-100 rounded-lg p-3"
+                  className="rounded-xl border border-white/10 bg-black/10 p-3"
                 >
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-2">
+                  <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                     <span className="font-mono">{pair.nsaaQuestion.id}</span>
                     <span>{"->"}</span>
                     <span className="font-mono">{pair.engaaQuestion.id}</span>
@@ -530,17 +648,17 @@ function DuplicateDebugPanel({
                       {formatSimilarity(pair.textLengthRatio)}
                     </span>
                   </div>
-                  <p className="text-xs text-amber-700 mb-1">
+                  <p className="mb-1 text-xs text-amber-300">
                     Reason:{" "}
                     {pair.reason === "similarity_below_threshold"
                       ? "similarity below exclusion threshold"
                       : "length ratio below minimum"}
                   </p>
-                  <p className="text-xs text-gray-700">
+                  <p className="text-xs text-slate-200">
                     <strong>NSAA:</strong>{" "}
                     {truncateText(pair.nsaaQuestion.content.text)}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="mt-1 text-xs text-slate-400">
                     <strong>ENGAA:</strong>{" "}
                     {truncateText(pair.engaaQuestion.content.text)}
                   </p>
@@ -556,27 +674,27 @@ function DuplicateDebugPanel({
 
 function DataStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50">
-      <div className="text-base font-medium text-gray-900 tabular-nums">
+    <div className="rounded-xl border border-white/10 bg-black/10 px-2.5 py-2">
+      <div className="text-base font-medium tabular-nums text-slate-100">
         {value}
       </div>
-      <div className="text-xs text-gray-500">{label}</div>
+      <div className="text-xs text-slate-400">{label}</div>
     </div>
   );
 }
 
 function DataList({ title, items }: { title: string; items: CountItem[] }) {
   return (
-    <details className="border border-gray-200 rounded-lg bg-gray-50">
+    <details className="rounded-xl border border-white/10 bg-black/10">
       <summary className="px-3 py-2 cursor-pointer flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-gray-500">
+        <span className="text-xs font-medium text-slate-300">
           {title}
         </span>
-        <span className="text-xs text-gray-400">{items.length}</span>
+        <span className="text-xs text-slate-500">{items.length}</span>
       </summary>
       <div className="px-3 pb-3">
         {items.length === 0 ? (
-          <p className="text-xs text-gray-400">No data</p>
+          <p className="text-xs text-slate-500">No data</p>
         ) : (
           <div
             className="space-y-1"
@@ -587,8 +705,8 @@ function DataList({ title, items }: { title: string; items: CountItem[] }) {
                 key={item.label}
                 className="flex items-center justify-between gap-2 text-xs"
               >
-                <span className="text-gray-600">{item.label}</span>
-                <span className="text-gray-900 tabular-nums">{item.count}</span>
+                <span className="text-slate-400">{item.label}</span>
+                <span className="tabular-nums text-slate-100">{item.count}</span>
               </div>
             ))}
           </div>
@@ -600,15 +718,96 @@ function DataList({ title, items }: { title: string; items: CountItem[] }) {
 
 function QuestionRow({
   question,
-  expanded,
+  selected,
   onToggle,
+}: {
+  question: Question;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const preview = truncateText(question.content.text.replace(/\s+/g, " "), 180);
+
+  return (
+    <div
+      className={`question-bank-row rounded-2xl overflow-hidden transition-colors ${
+        selected
+          ? "question-bank-row-selected"
+          : "question-bank-row-idle"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className="question-bank-row-button"
+      >
+        <span className="question-bank-row-year">
+          {question.source.year}
+        </span>
+        <span className="question-bank-row-preview">
+          {preview}
+        </span>
+        <span className="question-bank-row-meta">
+          <span className="question-bank-row-tag">
+            {question.taxonomy.primary_topic}
+          </span>
+          {!question.answer.verified && (
+            <span className="question-bank-row-warning">
+              default model
+            </span>
+          )}
+          <span className="question-bank-row-open">
+            {selected ? "Selected" : "Open"}
+          </span>
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function QuestionDetailPanel({
+  question,
+  onClose,
+  onHeightChange,
   onDrillTopic,
 }: {
   question: Question;
-  expanded: boolean;
-  onToggle: () => void;
+  onClose: () => void;
+  onHeightChange: (height: number) => void;
   onDrillTopic: () => void;
 }) {
+  const [isDesktop, setIsDesktop] = useState(false);
+  const panelRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const updateIsDesktop = () => {
+      setIsDesktop(window.innerWidth >= 960);
+    };
+
+    updateIsDesktop();
+    window.addEventListener("resize", updateIsDesktop);
+    return () => {
+      window.removeEventListener("resize", updateIsDesktop);
+    };
+  }, []);
+
+  useEffect(() => {
+    const element = panelRef.current;
+    if (!element) {
+      return;
+    }
+
+    const syncHeight = () => {
+      onHeightChange(element.offsetHeight);
+    };
+
+    syncHeight();
+    const observer = new ResizeObserver(syncHeight);
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, [onHeightChange, question.id, isDesktop]);
+
   const imageSrc = question.content.image_b64
     ? question.content.image_b64.startsWith("data:")
       ? question.content.image_b64
@@ -616,76 +815,113 @@ function QuestionRow({
     : undefined;
 
   return (
-    <div className="border border-gray-200 bg-white rounded-lg overflow-hidden">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-      >
-        <span className="text-xs text-gray-400 mt-0.5 w-16 flex-shrink-0 font-mono">
-          {question.source.year}
-        </span>
-        <span className="flex-1 text-sm text-gray-700 line-clamp-2">
-          {question.content.text.slice(0, 140)}
-          {question.content.text.length > 140 ? "..." : ""}
-        </span>
-        <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full flex-shrink-0">
-          {question.taxonomy.primary_topic}
-        </span>
-        {!question.answer.verified && (
-          <span className="text-xs px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full border border-amber-200 flex-shrink-0">
-            unverified
+    <section
+      ref={panelRef}
+      className="overflow-hidden rounded-2xl border border-white/10 bg-[#121816] shadow-[0_24px_50px_rgb(0_0_0_/_0.28)]"
+    >
+        <header className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
+          <span className="font-mono text-xs text-slate-500">{question.id}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-400">
+            {question.source.year}
           </span>
-        )}
-      </button>
-
-      {expanded && (
-        <div className="px-4 pb-4 border-t border-gray-100 space-y-3 pt-3">
-          <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap">
-            {question.content.text}
-          </p>
-          {imageSrc && (
-            <img
-              src={imageSrc}
-              alt="Diagram"
-              className="max-h-48 object-contain border rounded"
-            />
+          <span className="rounded-full border border-[color:var(--accent)]/40 bg-[rgb(154_178_124_/_0.14)] px-2 py-0.5 text-xs text-[color:var(--accent-strong)]">
+            {question.taxonomy.primary_topic}
+          </span>
+          {!question.answer.verified && (
+            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">
+              escalated model
+            </span>
           )}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {question.taxonomy.secondary_topics.map((topic) => (
-              <span
-                key={topic}
-                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full"
-              >
-                {topic}
-              </span>
-            ))}
-          </div>
-          <div className="flex items-center gap-3 text-xs text-gray-400 pt-1">
-            <span>{question.source.paper}</span>
-            <span>-</span>
-            <span>Page {question.source.page}</span>
-            <span>-</span>
-            <span>
-              Answer:{" "}
-              <strong className="text-gray-600">
-                {question.answer.correct}
-              </strong>
-            </span>
-            <span>-</span>
-            <span>
-              Confidence: {Math.round(question.taxonomy.confidence * 100)}%
-            </span>
-            <button
-              type="button"
-              onClick={onDrillTopic}
-              className="ml-auto text-indigo-500 hover:text-indigo-700"
-            >
-              {"Drill this topic ->"}
-            </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-auto rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5"
+          >
+            Close
+          </button>
+        </header>
+
+        <div className="p-4 h-[calc(100%-3.25rem)] overflow-y-auto">
+          <div
+            className={imageSrc && !isDesktop ? "space-y-4" : ""}
+            style={
+              imageSrc && isDesktop
+                ? {
+                    display: "grid",
+                    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+                    gap: "1rem",
+                    alignItems: "start",
+                  }
+                : undefined
+            }
+          >
+            <div className="space-y-3 min-w-0">
+              <p className="text-sm leading-relaxed text-slate-100 whitespace-pre-wrap break-words">
+                {question.content.text}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {question.taxonomy.secondary_topics.map((topic) => (
+                  <span
+                    key={topic}
+                    className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-400"
+                  >
+                    {topic}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+                  {question.source.paper}
+                </span>
+                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+                  Page {question.source.page}
+                </span>
+                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+                  Answer: <strong className="text-slate-100">{question.answer.correct}</strong>
+                </span>
+                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
+                  Confidence: {Math.round(question.taxonomy.confidence * 100)}%
+                </span>
+                <button
+                  type="button"
+                  onClick={onDrillTopic}
+                  className="ml-auto text-[color:var(--accent-strong)] hover:text-[color:var(--accent)]"
+                >
+                  Drill this topic
+                </button>
+              </div>
+            </div>
+            {imageSrc && (
+              <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-black/10 p-2">
+                <div
+                  className="overflow-auto rounded-lg border border-white/10 bg-[#0d1210]"
+                  style={{
+                    width: "100%",
+                    maxWidth: "100%",
+                    height: isDesktop ? "70vh" : "56vh",
+                    minHeight: isDesktop ? "28rem" : "20rem",
+                    overflowX: "hidden",
+                    overflowY: "auto",
+                    overscrollBehavior: "contain",
+                    WebkitOverflowScrolling: "touch",
+                    touchAction: "pan-y",
+                  }}
+                >
+                  <img
+                    src={imageSrc}
+                    alt="Diagram"
+                    className="h-auto block"
+                    style={{
+                      width: "100%",
+                      minWidth: "100%",
+                      maxWidth: "100%",
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
-    </div>
+      </section>
   );
 }
