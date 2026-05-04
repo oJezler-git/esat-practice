@@ -1,9 +1,15 @@
 import { openDB } from "idb";
 import type { DBSchema, IDBPDatabase } from "idb";
-import type { Attempt, Question, Session, TopicStat } from "../types/schema";
+import type {
+  Attempt,
+  ExcludedQuestion,
+  Question,
+  Session,
+  TopicStat,
+} from "../types/schema";
 
 const DB_NAME = "esat-practice-db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 interface EsatPracticeDB extends DBSchema {
   questions: {
@@ -39,6 +45,13 @@ interface EsatPracticeDB extends DBSchema {
     indexes: {
       "by-accuracy": number;
       "by-last-attempted": number;
+    };
+  };
+  excludedQuestions: {
+    key: string;
+    value: ExcludedQuestion;
+    indexes: {
+      "by-excluded-at": number;
     };
   };
 }
@@ -83,6 +96,16 @@ export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
           statsStore.createIndex("by-accuracy", "accuracy");
           statsStore.createIndex("by-last-attempted", "last_attempted");
         }
+
+        if (!database.objectStoreNames.contains("excludedQuestions")) {
+          const excludedQuestionsStore = database.createObjectStore(
+            "excludedQuestions",
+            {
+              keyPath: "question_id",
+            },
+          );
+          excludedQuestionsStore.createIndex("by-excluded-at", "excluded_at");
+        }
       },
     });
   }
@@ -93,7 +116,7 @@ export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
 export async function clearAllStores(): Promise<void> {
   const database = await getDb();
   const transaction = database.transaction(
-    ["questions", "sessions", "attempts", "stats"],
+    ["questions", "sessions", "attempts", "stats", "excludedQuestions"],
     "readwrite",
   );
   await Promise.all([
@@ -101,6 +124,7 @@ export async function clearAllStores(): Promise<void> {
     transaction.objectStore("sessions").clear(),
     transaction.objectStore("attempts").clear(),
     transaction.objectStore("stats").clear(),
+    transaction.objectStore("excludedQuestions").clear(),
   ]);
   await transaction.done;
 }

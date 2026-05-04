@@ -69,3 +69,8 @@ export interface TopicStat {
   ewma_accuracy: number;
   last_attempted: number;
 }
+
+export interface ExcludedQuestion {
+  question_id: string;
+  excluded_at: number;
+}

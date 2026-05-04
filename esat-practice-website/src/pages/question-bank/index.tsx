@@ -5,11 +5,13 @@ import {
   type DuplicateNearMissDebug,
   type DuplicatePairDebug,
 } from "../../lib/questionDedup";
+import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import type { Question } from "../../types/schema";
 
 type SortKey = "default" | "topic" | "year" | "accuracy";
+type QuestionScope = "practice" | "excluded";
 type CountItem = { label: string; count: number };
 const VIRTUAL_ROW_HEIGHT = 92;
 const VIRTUAL_OVERSCAN = 8;
@@ -40,11 +42,22 @@ function buildCountItems(
 
 export default function QuestionBank() {
   const navigate = useNavigate();
-  const { allQuestions, availableTopics, availableYears, isLoading, loaded } =
+  const {
+    allQuestions,
+    fullPracticeBank,
+    excludedQuestions,
+    excludedQuestionIds,
+    availableTopics,
+    availableYears,
+    isLoading,
+    loaded,
+  } =
     useQuestionStore();
   const { createSession } = useSessionStore();
+  const { excludeQuestion, includeQuestion } = useExcludedQuestionStore();
 
   const [search, setSearch] = useState("");
+  const [scope, setScope] = useState<QuestionScope>("practice");
   const [topicFilter, setTopicFilter] = useState<string[]>([]);
   const [yearFilter, setYearFilter] = useState<number[]>([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -63,57 +76,58 @@ export default function QuestionBank() {
     [allQuestions],
   );
   const nsaaDuplicateIds = duplicateAnalysis.hiddenNsaaIds;
+  const sourceQuestions = scope === "excluded" ? excludedQuestions : fullPracticeBank;
 
   const visibleQuestions = useMemo(
     () =>
       hideNsaaDuplicates
-        ? allQuestions.filter((question) => !nsaaDuplicateIds.has(question.id))
-        : allQuestions,
-    [allQuestions, hideNsaaDuplicates, nsaaDuplicateIds],
+        ? sourceQuestions.filter((question) => !nsaaDuplicateIds.has(question.id))
+        : sourceQuestions,
+    [hideNsaaDuplicates, nsaaDuplicateIds, sourceQuestions],
   );
   const hiddenNsaaDuplicateCount = nsaaDuplicateIds.size;
 
   const dataDump = useMemo(() => {
-    const verified = allQuestions.filter(
+    const verified = sourceQuestions.filter(
       (question) => question.answer.verified,
     ).length;
-    const withImage = allQuestions.filter((question) =>
+    const withImage = sourceQuestions.filter((question) =>
       Boolean(question.content.image_b64),
     ).length;
 
     const byPrimaryTopic = buildCountItems(
-      allQuestions.map((question) => question.taxonomy.primary_topic),
+      sourceQuestions.map((question) => question.taxonomy.primary_topic),
     );
     const bySecondaryTopic = buildCountItems(
-      allQuestions.flatMap((question) => question.taxonomy.secondary_topics),
+      sourceQuestions.flatMap((question) => question.taxonomy.secondary_topics),
     );
     const byYear = buildCountItems(
-      allQuestions.map((question) => question.source.year),
+      sourceQuestions.map((question) => question.source.year),
     );
     const bySubject = buildCountItems(
-      allQuestions.map((question) => question.source.subject),
+      sourceQuestions.map((question) => question.source.subject),
     );
     const byPaper = buildCountItems(
-      allQuestions.map(
+      sourceQuestions.map(
         (question) => `${question.source.paper} (${question.source.year})`,
       ),
     );
     const byPart = buildCountItems(
-      allQuestions.map((question) => question.source.part),
+      sourceQuestions.map((question) => question.source.part),
     );
     const byCorrectAnswer = buildCountItems(
-      allQuestions.map((question) => question.answer.correct),
+      sourceQuestions.map((question) => question.answer.correct),
     );
     const byModel = buildCountItems(
-      allQuestions.map((question) => question.taxonomy.model_used),
+      sourceQuestions.map((question) => question.taxonomy.model_used),
     );
 
     return {
-      totalQuestions: allQuestions.length,
+      totalQuestions: sourceQuestions.length,
       verifiedQuestions: verified,
-      unverifiedQuestions: Math.max(0, allQuestions.length - verified),
+      unverifiedQuestions: Math.max(0, sourceQuestions.length - verified),
       questionsWithImage: withImage,
-      questionsWithoutImage: Math.max(0, allQuestions.length - withImage),
+      questionsWithoutImage: Math.max(0, sourceQuestions.length - withImage),
       byPrimaryTopic,
       bySecondaryTopic,
       byYear,
@@ -123,7 +137,7 @@ export default function QuestionBank() {
       byCorrectAnswer,
       byModel,
     };
-  }, [allQuestions]);
+  }, [sourceQuestions]);
 
   const filtered = useMemo(() => {
     let result = visibleQuestions;
@@ -167,14 +181,7 @@ export default function QuestionBank() {
       default:
         return result;
     }
-  }, [
-    search,
-    sortKey,
-    topicFilter,
-    verifiedOnly,
-    visibleQuestions,
-    yearFilter,
-  ]);
+  }, [search, sortKey, topicFilter, verifiedOnly, visibleQuestions, yearFilter]);
 
   useEffect(() => {
     const syncWindowMetrics = () => {
@@ -196,7 +203,16 @@ export default function QuestionBank() {
 
   useEffect(() => {
     setVirtualCount(Math.min(filtered.length, VIRTUAL_BATCH_SIZE));
-  }, [filtered.length, search, topicFilter, yearFilter, verifiedOnly, sortKey, hideNsaaDuplicates]);
+  }, [
+    filtered.length,
+    search,
+    topicFilter,
+    yearFilter,
+    verifiedOnly,
+    sortKey,
+    hideNsaaDuplicates,
+    scope,
+  ]);
 
   useEffect(() => {
     const neededCount =
@@ -285,28 +301,54 @@ export default function QuestionBank() {
           <p className="question-bank-subtitle">
             {isQuestionBankLoading
               ? "Preparing question bank..."
-              : `${filtered.length} of ${visibleQuestions.length} questions${
-                  hideNsaaDuplicates && hiddenNsaaDuplicateCount > 0
+              : `${filtered.length} of ${visibleQuestions.length} ${
+                  scope === "excluded" ? "excluded questions" : "practice questions"
+                }${
+                  scope === "practice" && hideNsaaDuplicates && hiddenNsaaDuplicateCount > 0
                     ? ` (${hiddenNsaaDuplicateCount} NSAA duplicates hidden)`
                     : ""
                 }`}
           </p>
         </div>
-        {filtered.length > 0 && (
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <button
             type="button"
-            onClick={() => {
-              void practiceFiltered();
-            }}
-            disabled={isQuestionBankLoading}
-            className="question-bank-practice btn-primary text-sm shadow disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => setScope("practice")}
+            className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+              scope === "practice"
+                ? "bg-slate-900 text-white"
+                : "border border-slate-300 text-slate-600 hover:border-slate-400"
+            }`}
           >
-            Practice these ({Math.min(filtered.length, 40)})
+            Practice bank
           </button>
-        )}
+          <button
+            type="button"
+            onClick={() => setScope("excluded")}
+            className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+              scope === "excluded"
+                ? "bg-rose-600 text-white"
+                : "border border-rose-200 text-rose-700 hover:border-rose-300"
+            }`}
+          >
+            Excluded ({excludedQuestions.length})
+          </button>
+          {scope === "practice" && filtered.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                void practiceFiltered();
+              }}
+              disabled={isQuestionBankLoading}
+              className="question-bank-practice btn-primary text-sm shadow disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Practice these ({Math.min(filtered.length, 40)})
+            </button>
+          )}
+        </div>
       </div>
 
-      {!isQuestionBankLoading && allQuestions.length > 0 && (
+      {!isQuestionBankLoading && sourceQuestions.length > 0 && (
         <details className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm">
           <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
             <span className="text-sm font-medium text-slate-300">
@@ -423,15 +465,17 @@ export default function QuestionBank() {
 
             <div className="question-bank-tools">
               <div className="question-bank-toggles">
-                <label className="question-bank-toggle">
-                  <input
-                    type="checkbox"
-                    checked={hideNsaaDuplicates}
-                    onChange={(event) => setHideNsaaDuplicates(event.target.checked)}
-                    className="accent-indigo-500"
-                  />
-                  Exclude NSAA duplicates
-                </label>
+                {scope === "practice" && (
+                  <label className="question-bank-toggle">
+                    <input
+                      type="checkbox"
+                      checked={hideNsaaDuplicates}
+                      onChange={(event) => setHideNsaaDuplicates(event.target.checked)}
+                      className="accent-indigo-500"
+                    />
+                    Exclude NSAA duplicates
+                  </label>
+                )}
 
                 <label className="question-bank-toggle">
                   <input
@@ -510,6 +554,7 @@ export default function QuestionBank() {
                 >
                   <QuestionRow
                     question={question}
+                    isExcluded={excludedQuestionIds.has(question.id)}
                     selected={expandedId === question.id}
                     onToggle={() =>
                       setExpandedId(
@@ -532,10 +577,17 @@ export default function QuestionBank() {
               >
                 <QuestionDetailPanel
                   question={selectedQuestion}
+                  isExcluded={excludedQuestionIds.has(selectedQuestion.id)}
                   onClose={() => setExpandedId(null)}
                   onHeightChange={setDetailHeight}
                   onDrillTopic={() => {
                     void drillTopic(selectedQuestion.taxonomy.primary_topic);
+                  }}
+                  onExclude={() => {
+                    void excludeQuestion(selectedQuestion.id, allQuestions);
+                  }}
+                  onInclude={() => {
+                    void includeQuestion(selectedQuestion.id, allQuestions);
                   }}
                 />
               </div>
@@ -718,10 +770,12 @@ function DataList({ title, items }: { title: string; items: CountItem[] }) {
 
 function QuestionRow({
   question,
+  isExcluded,
   selected,
   onToggle,
 }: {
   question: Question;
+  isExcluded: boolean;
   selected: boolean;
   onToggle: () => void;
 }) {
@@ -755,6 +809,11 @@ function QuestionRow({
               default model
             </span>
           )}
+          {isExcluded && (
+            <span className="question-bank-row-warning">
+              Excluded
+            </span>
+          )}
           <span className="question-bank-row-open">
             {selected ? "Selected" : "Open"}
           </span>
@@ -766,14 +825,20 @@ function QuestionRow({
 
 function QuestionDetailPanel({
   question,
+  isExcluded,
   onClose,
   onHeightChange,
   onDrillTopic,
+  onExclude,
+  onInclude,
 }: {
   question: Question;
+  isExcluded: boolean;
   onClose: () => void;
   onHeightChange: (height: number) => void;
   onDrillTopic: () => void;
+  onExclude: () => void;
+  onInclude: () => void;
 }) {
   const [isDesktop, setIsDesktop] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -832,6 +897,22 @@ function QuestionDetailPanel({
               escalated model
             </span>
           )}
+          {isExcluded && (
+            <span className="rounded-full border border-rose-300 bg-rose-50 px-2 py-0.5 text-xs text-rose-700">
+              excluded
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={isExcluded ? onInclude : onExclude}
+            className={`rounded-lg border px-2.5 py-1 text-xs transition-colors ${
+              isExcluded
+                ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                : "border-rose-300 text-rose-700 hover:bg-rose-50"
+            }`}
+          >
+            {isExcluded ? "Undo exclusion" : "Exclude"}
+          </button>
           <button
             type="button"
             onClick={onClose}
@@ -885,9 +966,10 @@ function QuestionDetailPanel({
                 <button
                   type="button"
                   onClick={onDrillTopic}
-                  className="ml-auto text-[color:var(--accent-strong)] hover:text-[color:var(--accent)]"
+                  disabled={isExcluded}
+                  className="ml-auto text-[color:var(--accent-strong)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:text-slate-500"
                 >
-                  Drill this topic
+                  {isExcluded ? "Undo exclusion to drill" : "Drill this topic"}
                 </button>
               </div>
             </div>

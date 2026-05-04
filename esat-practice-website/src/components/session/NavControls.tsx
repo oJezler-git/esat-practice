@@ -4,6 +4,7 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onSkip: () => void;
+  onExclude: () => void;
   onSubmit: () => void;
 }
 
@@ -13,6 +14,7 @@ export function NavControls({
   onPrev,
   onNext,
   onSkip,
+  onExclude,
   onSubmit,
 }: Props) {
   const isLast = currentIndex === totalCount - 1;
@@ -35,6 +37,14 @@ export function NavControls({
           className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
           Skip
+        </button>
+
+        <button
+          type="button"
+          onClick={onExclude}
+          className="px-4 py-2 text-sm text-rose-600 hover:text-rose-700 transition-colors"
+        >
+          Exclude
         </button>
 
         <div className="flex-1" />

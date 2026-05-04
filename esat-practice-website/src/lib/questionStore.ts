@@ -2,7 +2,8 @@ import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import type { Question } from "../types/schema";
 import { getDb } from "./db";
-import { getDedupedQuestions } from "./questionDedup";
+import { useExcludedQuestionStore } from "./excludedQuestionStore";
+import { getDedupedQuestions, analyseNsaaDuplicates } from "./questionDedup";
 import { ensureBundledQuestionsBootstrapped } from "./loader";
 import { resetLoadingProgress } from "./loadingProgress";
 
@@ -93,6 +94,13 @@ export function useQuestionStore() {
   const loaded = useQuestionStoreBase((state) => state.loaded);
   const loadQuestions = useQuestionStoreBase((state) => state.loadQuestions);
   const getQuestionsByIds = useQuestionStoreBase((state) => state.getQuestionsByIds);
+  const {
+    excludedQuestions: excludedQuestionRecords,
+    excludedQuestionIds,
+    isLoading: areExcludedQuestionsLoading,
+    loaded: areExcludedQuestionsLoaded,
+    loadExcludedQuestions,
+  } = useExcludedQuestionStore();
 
   useEffect(() => {
     if (!loaded && !isLoading) {
@@ -100,9 +108,59 @@ export function useQuestionStore() {
     }
   }, [isLoading, loadQuestions, loaded]);
 
-  const questions = useMemo(
-    () => getDedupedQuestions(allQuestions),
+  useEffect(() => {
+    if (!areExcludedQuestionsLoaded && !areExcludedQuestionsLoading) {
+      void loadExcludedQuestions();
+    }
+  }, [
+    areExcludedQuestionsLoaded,
+    areExcludedQuestionsLoading,
+    loadExcludedQuestions,
+  ]);
+
+  const nsaaDuplicateAnalysis = useMemo(
+    () => analyseNsaaDuplicates(allQuestions),
     [allQuestions],
+  );
+
+  const effectiveExcludedIds = useMemo(() => {
+    const ids = new Set(excludedQuestionIds);
+    if (allQuestions.length === 0) return ids;
+
+    // Propagate exclusions across duplicate pairs
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const pair of nsaaDuplicateAnalysis.excludedPairs) {
+        if (ids.has(pair.engaaQuestion.id) && !ids.has(pair.nsaaQuestion.id)) {
+          ids.add(pair.nsaaQuestion.id);
+          changed = true;
+        }
+        if (ids.has(pair.nsaaQuestion.id) && !ids.has(pair.engaaQuestion.id)) {
+          ids.add(pair.engaaQuestion.id);
+          changed = true;
+        }
+      }
+    }
+    return ids;
+  }, [allQuestions.length, excludedQuestionIds, nsaaDuplicateAnalysis.excludedPairs]);
+
+  const questions = useMemo(
+    () =>
+      getDedupedQuestions(allQuestions).filter(
+        (question) => !effectiveExcludedIds.has(question.id),
+      ),
+    [allQuestions, effectiveExcludedIds],
+  );
+
+  const fullPracticeBank = useMemo(
+    () => allQuestions.filter((question) => !effectiveExcludedIds.has(question.id)),
+    [allQuestions, effectiveExcludedIds],
+  );
+
+  const excludedQuestions = useMemo(
+    () => allQuestions.filter((question) => effectiveExcludedIds.has(question.id)),
+    [allQuestions, effectiveExcludedIds],
   );
 
   const availableTopics = useMemo(() => {
@@ -126,8 +184,12 @@ export function useQuestionStore() {
   return {
     allQuestions,
     questions,
-    isLoading,
-    loaded,
+    fullPracticeBank,
+    excludedQuestions,
+    excludedQuestionIds: effectiveExcludedIds,
+    excludedQuestionRecords,
+    isLoading: isLoading || areExcludedQuestionsLoading,
+    loaded: loaded && areExcludedQuestionsLoaded,
     loadQuestions,
     getQuestionsByIds,
     availableTopics,

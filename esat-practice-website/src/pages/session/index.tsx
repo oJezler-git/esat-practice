@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
 import { NavControls } from "../../components/session/NavControls";
 import { SessionHeader } from "../../components/session/SessionHeader";
+import { useQuestionStore } from "../../lib/questionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionEngine } from "../../store/sessionSlice";
 import {
@@ -30,6 +31,7 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { allQuestions } = useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const {
@@ -43,6 +45,7 @@ export default function SessionPage() {
     mark,
     flag,
     skip,
+    excludeCurrentQuestion,
     nav,
     submit,
   } = useSessionEngine(id ?? "");
@@ -259,6 +262,23 @@ export default function SessionPage() {
               />
             </div>
 
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+              <div>
+                <p className="text-xs text-rose-700">
+                  Press this if a question number is marked with an ✖, this means it's not on the specification.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  void excludeCurrentQuestion(allQuestions);
+                }}
+                className="shrink-0 rounded-lg border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-100"
+              >
+                Exclude
+              </button>
+            </div>
+
             {settings.showKeyboardHints && (
               <p className="session-left-hints text-xs text-gray-400 mt-4">{hintText}</p>
             )}
@@ -292,6 +312,9 @@ export default function SessionPage() {
         }}
         onSkip={() => {
           void skip();
+        }}
+        onExclude={() => {
+          void excludeCurrentQuestion(allQuestions);
         }}
         onSubmit={() => {
           void submit();

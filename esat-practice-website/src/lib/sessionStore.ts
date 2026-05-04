@@ -206,6 +206,26 @@ export async function markSessionAbandoned(sessionId: string): Promise<void> {
   });
 }
 
+export async function updateSessionQuestionIds(
+  sessionId: string,
+  questionIds: string[],
+): Promise<void> {
+  const database = await getDb();
+  const session = await database.get("sessions", sessionId);
+  if (!session) {
+    return;
+  }
+
+  await database.put("sessions", {
+    ...session,
+    config: {
+      ...session.config,
+      question_ids: questionIds,
+      question_count: questionIds.length,
+    },
+  });
+}
+
 const sessionStoreApi = {
   createSession: createSessionRecord,
   getSession: getSessionById,
@@ -215,6 +235,7 @@ const sessionStoreApi = {
   saveAttempts: saveSessionAttempts,
   completeSession: markSessionCompleted,
   abandonSession: markSessionAbandoned,
+  updateSessionQuestionIds,
 };
 
 export function useSessionStore() {

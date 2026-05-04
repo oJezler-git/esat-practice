@@ -9,15 +9,18 @@ import {
 import { scoreSession } from "../engine/scorer";
 import { createSessionTicker } from "../engine/timer";
 import { getQuestionsByIdsFromDb } from "../lib/questionStore";
+import { excludeQuestionInDb, getExcludedQuestionIdsFromDb } from "../lib/excludedQuestionStore";
 import {
   getAttemptsForSession,
   getSessionById,
   markSessionAbandoned,
   markSessionCompleted,
   saveSessionAttempts,
+  updateSessionQuestionIds,
   upsertAttemptRecord,
 } from "../lib/sessionStore";
 import { updateTopicStatsFromBreakdown } from "../lib/statsStore";
+import { analyseNsaaDuplicates } from "../lib/questionDedup";
 import type { SessionEngineState } from "../types/engine";
 import type { Attempt, Question, SelfMarkResult } from "../types/schema";
 
@@ -82,11 +85,48 @@ function commitQuestionElapsed(
   };
 }
 
+function removeQuestionFromState(
+  state: SessionEngineState,
+  questionId: string,
+): SessionEngineState {
+  const nextQuestions = state.questions.filter((question) => question.id !== questionId);
+  const nextResponses = { ...state.responses };
+  const nextFlagged = new Set(state.flagged);
+
+  delete nextResponses[questionId];
+  nextFlagged.delete(questionId);
+
+  const nextCurrentIndex =
+    nextQuestions.length === 0
+      ? 0
+      : Math.min(state.currentIndex, nextQuestions.length - 1);
+
+  return {
+    ...state,
+    session: state.session
+      ? {
+          ...state.session,
+          config: {
+            ...state.session.config,
+            question_ids: nextQuestions.map((question) => question.id),
+            question_count: nextQuestions.length,
+          },
+        }
+      : null,
+    questions: nextQuestions,
+    currentIndex: nextCurrentIndex,
+    responses: nextResponses,
+    flagged: nextFlagged,
+    questionElapsed: 0,
+  };
+}
+
 interface SessionSlice extends SessionEngineState {
   load: (sessionId: string) => Promise<void>;
   mark: (result: SelfMarkResult) => Promise<void>;
   flag: () => Promise<void>;
   skip: () => Promise<void>;
+  excludeCurrentQuestion: (allQuestions?: Question[]) => Promise<void>;
   nav: (direction: "next" | "prev") => Promise<void>;
   submit: () => Promise<void>;
   quit: () => Promise<void>;
@@ -102,12 +142,39 @@ const useSessionSlice = create<SessionSlice>((set, get) => ({
       return;
     }
 
-    const [questions, attempts] = await Promise.all([
+    const [questions, attempts, excludedQuestionIds] = await Promise.all([
       getQuestionsByIdsFromDb(session.config.question_ids),
       getAttemptsForSession(sessionId),
+      getExcludedQuestionIdsFromDb(),
     ]);
 
-    set(hydrateSessionState(session, questions, attempts));
+    const includedQuestions = questions.filter(
+      (question) => !excludedQuestionIds.has(question.id),
+    );
+    const includedAttempts = attempts.filter(
+      (attempt) => !excludedQuestionIds.has(attempt.question_id),
+    );
+
+    const hydratedSession =
+      includedQuestions.length === session.config.question_ids.length
+        ? session
+        : {
+            ...session,
+            config: {
+              ...session.config,
+              question_ids: includedQuestions.map((question) => question.id),
+              question_count: includedQuestions.length,
+            },
+          };
+
+    if (includedQuestions.length !== session.config.question_ids.length) {
+      await updateSessionQuestionIds(
+        session.id,
+        includedQuestions.map((question) => question.id),
+      );
+    }
+
+    set(hydrateSessionState(hydratedSession, includedQuestions, includedAttempts));
   },
   mark: async (result: SelfMarkResult) => {
     const state = get();
@@ -203,6 +270,42 @@ const useSessionSlice = create<SessionSlice>((set, get) => ({
       await upsertAttemptRecord(committed);
     }
     await upsertAttemptRecord(skippedAttempt);
+  },
+  excludeCurrentQuestion: async (allQuestions?: Question[]) => {
+    const state = get();
+    const question = getCurrentQuestion(state);
+    if (!state.session || !question || state.status !== "active") {
+      return;
+    }
+
+    const idsToExclude = [question.id];
+    if (allQuestions) {
+      const analysis = analyseNsaaDuplicates(allQuestions);
+      for (const pair of analysis.excludedPairs) {
+        if (pair.engaaQuestion.id === question.id) {
+          idsToExclude.push(pair.nsaaQuestion.id);
+        } else if (pair.nsaaQuestion.id === question.id) {
+          idsToExclude.push(pair.engaaQuestion.id);
+        }
+      }
+    }
+
+    await Promise.all(idsToExclude.map((id) => excludeQuestionInDb(id)));
+
+    let nextState: SessionEngineState = state;
+    for (const id of idsToExclude) {
+      nextState = removeQuestionFromState(nextState, id);
+    }
+    set({ ...state, ...nextState });
+
+    await updateSessionQuestionIds(
+      state.session.id,
+      nextState.questions.map((candidate) => candidate.id),
+    );
+
+    if (nextState.questions.length === 0) {
+      await get().submit();
+    }
   },
   nav: async (direction: "next" | "prev") => {
     const state = get();
@@ -304,6 +407,9 @@ export function useSessionEngine(sessionId: string) {
   const mark = useSessionSlice((state) => state.mark);
   const flag = useSessionSlice((state) => state.flag);
   const skip = useSessionSlice((state) => state.skip);
+  const excludeCurrentQuestion = useSessionSlice(
+    (state) => state.excludeCurrentQuestion,
+  );
   const nav = useSessionSlice((state) => state.nav);
   const submit = useSessionSlice((state) => state.submit);
 
@@ -347,6 +453,8 @@ export function useSessionEngine(sessionId: string) {
       mark,
       flag,
       skip,
+      excludeCurrentQuestion: (allQuestions?: Question[]) =>
+        excludeCurrentQuestion(allQuestions),
       nav,
       submit,
     }),
@@ -355,6 +463,7 @@ export function useSessionEngine(sessionId: string) {
       currentIndex,
       currentQuestion,
       flag,
+      excludeCurrentQuestion,
       isFlagged,
       load,
       mark,
