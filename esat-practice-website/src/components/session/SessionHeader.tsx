@@ -2,7 +2,6 @@ import type { Attempt, SelfMarkResult } from "../../types/schema";
 
 interface Props {
   currentIndex: number;
-  totalCount: number;
   timeRemaining?: number;
   isFlagged: boolean;
   onFlag: () => void;
@@ -32,7 +31,6 @@ function getStatusColor(result?: SelfMarkResult) {
 
 export function SessionHeader({
   currentIndex,
-  totalCount,
   timeRemaining,
   isFlagged,
   onFlag,

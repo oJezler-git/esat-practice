@@ -223,7 +223,6 @@ export default function SessionPage() {
     <div className="h-screen flex flex-col bg-[#101412] overflow-hidden">
       <SessionHeader
         currentIndex={currentIndex}
-        totalCount={totalCount}
         timeRemaining={timeRemaining}
         isFlagged={isFlagged}
         onFlag={() => {
