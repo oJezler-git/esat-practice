@@ -8,9 +8,9 @@ const links = [
   { to: "/settings", label: "Settings" },
 ];
 
-export function Nav() {
+export function Nav({ isHidden }: { isHidden?: boolean }) {
   return (
-    <nav className="nav-shell sticky top-0 z-20">
+    <nav className={`nav-shell top-0 z-20 ${isHidden ? "nav-shell-hidden" : ""}`}>
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <div className="text-sm tracking-wide text-gray-400">ESAT practice</div>
         <div className="nav-group">

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { Nav } from "./components/ui/Nav";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
@@ -15,6 +15,8 @@ import NotFound from "./pages/not-found";
 
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
+  const location = useLocation();
+  const isSession = location.pathname.startsWith("/session/");
 
   useEffect(() => {
     document.documentElement.dataset.fontPreset = fontPreset;
@@ -25,7 +27,7 @@ export default function App() {
       <a href="#app-main" className="skip-link">
         Skip to content
       </a>
-      <Nav />
+      <Nav isHidden={isSession} />
       <KeyboardShortcutOverlay />
       <LoadingProgressDisplay />
       <main id="app-main" className="app-main">

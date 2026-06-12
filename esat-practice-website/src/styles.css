@@ -249,10 +249,29 @@ p {
 .nav-shell {
   border-bottom: 1px solid var(--border-subtle);
   background: rgb(12 16 14 / 0.96);
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  top: 0;
+  z-index: 20;
   backdrop-filter: blur(10px);
   animation: nav-drop 380ms var(--motion-smooth) both;
+  transition: 
+    transform 450ms var(--motion-smooth), 
+    opacity 350ms ease, 
+    max-height 450ms var(--motion-smooth),
+    border-width 450ms var(--motion-smooth),
+    padding 450ms var(--motion-smooth);
+  overflow: hidden;
+  max-height: 10rem; /* Large enough to fit content dynamically */
+}
+
+.nav-shell-hidden {
+  transform: translateY(-20%);
+  opacity: 0;
+  max-height: 0;
+  border-bottom-width: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
 }
 
 .nav-group {
