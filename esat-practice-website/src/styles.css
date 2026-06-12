@@ -900,12 +900,48 @@ p {
   padding-top: 0.75rem;
 }
 
-.pt-4 {
-  padding-top: 1rem;
+.mt-8 {
+  margin-top: 2rem;
 }
 
-.pb-4 {
-  padding-bottom: 1rem;
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
+.mt-12 {
+  margin-top: 3rem;
+}
+
+.mb-12 {
+  margin-bottom: 3rem;
+}
+
+.pt-8 {
+  padding-top: 2rem;
+}
+
+.pt-10 {
+  padding-top: 2.5rem;
+}
+
+.pt-12 {
+  padding-top: 3rem;
+}
+
+.pt-16 {
+  padding-top: 4rem;
+}
+
+.pb-3 {
+  padding-bottom: 0.75rem;
+}
+
+.pb-6 {
+  padding-bottom: 1.5rem;
+}
+
+.pb-12 {
+  padding-bottom: 3rem;
 }
 
 .h-1\.5 {
@@ -929,7 +965,11 @@ p {
 }
 
 .h-screen {
-  min-height: 100dvh;
+  height: 100dvh;
+}
+
+.max-h-screen {
+  max-height: 100dvh;
 }
 
 .w-5 {
@@ -1763,8 +1803,11 @@ p {
 
 .session-answer-layout {
   display: grid;
+  grid-template-columns: 2fr 3fr;
+  grid-template-rows: 1fr;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .session-left-panel,
@@ -1774,12 +1817,13 @@ p {
   background: var(--bg-soft);
   padding: 1.1rem;
   animation: fade-up 420ms var(--motion-smooth) both;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .session-left-panel {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+  /* Flex direction already set above */
 }
 
 .session-left-hints {
@@ -1789,14 +1833,12 @@ p {
 }
 
 .session-right-panel {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
   animation-delay: 100ms;
 }
 
 .session-shell {
-  max-width: 90rem;
+  max-width: 82rem;
+  min-height: 0;
 }
 
 .session-topline {
@@ -1854,7 +1896,8 @@ p {
   overflow-x: hidden;
   overflow-y: auto;
   background: #151b13;
-  height: clamp(20rem, 60vh, 44rem);
+  flex: 1;
+  height: 0;
 }
 
 .session-image-scroll img {

@@ -30,7 +30,7 @@ export default function App() {
       <Nav isHidden={isSession} />
       <KeyboardShortcutOverlay />
       <LoadingProgressDisplay />
-      <main id="app-main" className="app-main">
+      <main id="app-main" className={`app-main ${isSession ? "h-screen overflow-hidden" : ""}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/practice" element={<PracticeSetup />} />
