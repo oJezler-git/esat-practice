@@ -47,7 +47,9 @@ const SHORTCUT_FIELDS: Array<{
   },
 ];
 
-function getTargetYearOptions(targetYear: number): { value: string; label: string }[] {
+function getTargetYearOptions(
+  targetYear: number,
+): { value: string; label: string }[] {
   const years = [targetYear - 1, targetYear, targetYear + 1];
   return years.map((year) => ({ value: String(year), label: String(year) }));
 }
@@ -102,7 +104,9 @@ export default function Settings() {
         <Field label="Default mode">
           <Select
             value={settings.defaultMode}
-            onChange={(value) => update({ defaultMode: value as UserSettings["defaultMode"] })}
+            onChange={(value) =>
+              update({ defaultMode: value as UserSettings["defaultMode"] })
+            }
             options={[
               { value: "untimed", label: "Untimed" },
               { value: "timed", label: "Timed" },
@@ -120,10 +124,14 @@ export default function Settings() {
               max={60}
               step={5}
               value={settings.defaultQuestionCount}
-              onChange={(event) => update({ defaultQuestionCount: Number(event.target.value) })}
+              onChange={(event) =>
+                update({ defaultQuestionCount: Number(event.target.value) })
+              }
               className="w-40 accent-indigo-500"
             />
-            <span className="text-sm text-gray-600 w-8">{settings.defaultQuestionCount}</span>
+            <span className="text-sm text-gray-600 w-8">
+              {settings.defaultQuestionCount}
+            </span>
           </div>
         </Field>
 
@@ -135,20 +143,30 @@ export default function Settings() {
               max={180}
               step={15}
               value={settings.timedSecondsPerQ}
-              onChange={(event) => update({ timedSecondsPerQ: Number(event.target.value) })}
+              onChange={(event) =>
+                update({ timedSecondsPerQ: Number(event.target.value) })
+              }
               className="w-40 accent-indigo-500"
             />
-            <span className="text-sm text-gray-600 w-16">{settings.timedSecondsPerQ}s / Q</span>
+            <span className="text-sm text-gray-600 w-16">
+              {settings.timedSecondsPerQ}s / Q
+            </span>
           </div>
         </Field>
       </Section>
 
-      <Section title="Behaviour" description="Tweak how sessions behave while you are answering.">
+      <Section
+        title="Behaviour"
+        description="Tweak how sessions behave while you are answering."
+      >
         <Field
           label="Exam mode"
           description="Hide topic tags, confidence scores, and metadata during sessions."
         >
-          <Toggle checked={settings.examMode} onChange={(value) => update({ examMode: value })} />
+          <Toggle
+            checked={settings.examMode}
+            onChange={(value) => update({ examMode: value })}
+          />
         </Field>
 
         <Field
@@ -160,6 +178,32 @@ export default function Settings() {
             onChange={(value) => update({ autoAdvance: value })}
           />
         </Field>
+
+        {settings.autoAdvance && (
+          <Field
+            label="Auto-advance delay"
+            description="How long to show the result before advancing."
+          >
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={0}
+                max={3000}
+                step={100}
+                value={settings.autoAdvanceDelayMs ?? 600}
+                onChange={(event) =>
+                  update({ autoAdvanceDelayMs: Number(event.target.value) })
+                }
+                className="w-40 accent-indigo-500"
+              />
+              <span className="text-sm text-gray-600 w-20 text-right tabular-nums">
+                {(settings.autoAdvanceDelayMs ?? 600) === 0
+                  ? "Instant"
+                  : `${((settings.autoAdvanceDelayMs ?? 600) / 1000).toFixed(1)}s`}
+              </span>
+            </div>
+          </Field>
+        )}
 
         <Field
           label="Show keyboard hints"
@@ -187,11 +231,19 @@ export default function Settings() {
         ))}
       </Section>
 
-      <Section title="Display" description="Choose your reading comfort preferences.">
-        <Field label="Interface font" description="Applied across all pages and controls.">
+      <Section
+        title="Display"
+        description="Choose your reading comfort preferences."
+      >
+        <Field
+          label="Interface font"
+          description="Applied across all pages and controls."
+        >
           <Select
             value={settings.fontPreset}
-            onChange={(value) => update({ fontPreset: value as UserSettings["fontPreset"] })}
+            onChange={(value) =>
+              update({ fontPreset: value as UserSettings["fontPreset"] })
+            }
             options={[
               {
                 value: "academic",
@@ -212,7 +264,9 @@ export default function Settings() {
         <Field label="Question font size">
           <Select
             value={settings.fontSize}
-            onChange={(value) => update({ fontSize: value as UserSettings["fontSize"] })}
+            onChange={(value) =>
+              update({ fontSize: value as UserSettings["fontSize"] })
+            }
             options={[
               { value: "sm", label: "Small" },
               { value: "md", label: "Medium (default)" },
@@ -226,7 +280,10 @@ export default function Settings() {
         title="Exam context"
         description="Set constraints that should be reflected in your practice sessions."
       >
-        <Field label="Calculator allowed" description="Show calculator policy in session header.">
+        <Field
+          label="Calculator allowed"
+          description="Show calculator policy in session header."
+        >
           <Toggle
             checked={settings.calculatorAllowed}
             onChange={(value) => update({ calculatorAllowed: value })}
@@ -280,14 +337,22 @@ function Field({
     <div className="flex items-center justify-between gap-4 px-4 py-3.5">
       <div>
         <div className="text-sm text-gray-700">{label}</div>
-        {description && <div className="text-xs text-gray-400 mt-0.5">{description}</div>}
+        {description && (
+          <div className="text-xs text-gray-400 mt-0.5">{description}</div>
+        )}
       </div>
       {children}
     </div>
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
   return (
     <button
       type="button"

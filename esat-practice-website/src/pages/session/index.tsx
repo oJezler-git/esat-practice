@@ -172,11 +172,13 @@ export default function SessionPage() {
       window.clearTimeout(autoAdvanceTimerRef.current);
     }
 
+    const delay = settings.autoAdvanceDelayMs ?? 600;
+
     autoAdvanceTimerRef.current = window.setTimeout(() => {
       autoAdvanceQuestionRef.current = null;
       autoAdvanceTimerRef.current = null;
       void nav("next");
-    }, 600);
+    }, delay);
 
     return () => {
       if (autoAdvanceTimerRef.current !== null) {
@@ -184,7 +186,7 @@ export default function SessionPage() {
         autoAdvanceTimerRef.current = null;
       }
     };
-  }, [currentAttemptResult, currentQuestion, nav, settings.autoAdvance]);
+  }, [currentAttemptResult, currentQuestion, nav, settings.autoAdvance, settings.autoAdvanceDelayMs]);
 
   if (status === "idle" || status === "configured") {
     return (

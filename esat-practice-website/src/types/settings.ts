@@ -15,6 +15,7 @@ export interface UserSettings {
   examMode: boolean;
   showKeyboardHints: boolean;
   autoAdvance: boolean;
+  autoAdvanceDelayMs: number;
   fontPreset: "academic" | "premium" | "readable";
   fontSize: "sm" | "md" | "lg";
   calculatorAllowed: boolean;
@@ -38,6 +39,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   examMode: true,
   showKeyboardHints: true,
   autoAdvance: true,
+  autoAdvanceDelayMs: 600,
   fontPreset: "academic",
   fontSize: "md",
   calculatorAllowed: false,
