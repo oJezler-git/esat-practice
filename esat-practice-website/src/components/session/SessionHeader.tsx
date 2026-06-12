@@ -3,7 +3,6 @@ interface Props {
   totalCount: number;
   timeRemaining?: number;
   isFlagged: boolean;
-  calculatorAllowed?: boolean;
   onFlag: () => void;
 }
 
@@ -18,7 +17,6 @@ export function SessionHeader({
   totalCount,
   timeRemaining,
   isFlagged,
-  calculatorAllowed = false,
   onFlag,
 }: Props) {
   const progress = totalCount > 0 ? ((currentIndex + 1) / totalCount) * 100 : 0;
@@ -33,16 +31,6 @@ export function SessionHeader({
             style={{ width: `${progress}%` }}
           />
         </div>
-
-        <span
-          className={`text-xs px-2 py-0.5 rounded-full border ${
-            calculatorAllowed
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-gray-200 bg-gray-50 text-gray-500"
-          }`}
-        >
-          {calculatorAllowed ? "Calculator allowed" : "No calculator"}
-        </span>
 
         {timeRemaining !== undefined && (
           <span

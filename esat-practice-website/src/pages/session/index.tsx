@@ -223,7 +223,6 @@ export default function SessionPage() {
         totalCount={totalCount}
         timeRemaining={timeRemaining}
         isFlagged={isFlagged}
-        calculatorAllowed={settings.calculatorAllowed}
         onFlag={() => {
           void flag();
         }}

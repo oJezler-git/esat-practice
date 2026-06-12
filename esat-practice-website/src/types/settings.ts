@@ -18,7 +18,6 @@ export interface UserSettings {
   autoAdvanceDelayMs: number;
   fontPreset: "academic" | "premium" | "readable";
   fontSize: "sm" | "md" | "lg";
-  calculatorAllowed: boolean;
   targetYear: number;
   shortcuts: ShortcutMap;
 }
@@ -42,7 +41,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
   autoAdvanceDelayMs: 600,
   fontPreset: "academic",
   fontSize: "md",
-  calculatorAllowed: false,
   targetYear: new Date().getFullYear(),
   shortcuts: DEFAULT_SHORTCUTS,
 };

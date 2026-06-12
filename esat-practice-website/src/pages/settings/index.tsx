@@ -280,16 +280,6 @@ export default function Settings() {
         title="Exam context"
         description="Set constraints that should be reflected in your practice sessions."
       >
-        <Field
-          label="Calculator allowed"
-          description="Show calculator policy in session header."
-        >
-          <Toggle
-            checked={settings.calculatorAllowed}
-            onChange={(value) => update({ calculatorAllowed: value })}
-          />
-        </Field>
-
         <Field label="Target year">
           <Select
             value={String(settings.targetYear)}
