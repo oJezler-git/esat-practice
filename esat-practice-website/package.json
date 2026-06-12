@@ -11,6 +11,7 @@
     "verify:loader": "tsx scripts/verify-loader.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "idb": "^8.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
