@@ -961,6 +961,14 @@ p {
   max-width: 24rem;
 }
 
+.max-w-md {
+  max-width: 28rem;
+}
+
+.max-w-lg {
+  max-width: 32rem;
+}
+
 .min-h-screen {
   min-height: 100dvh;
 }
