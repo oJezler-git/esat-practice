@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { Nav } from "./components/ui/Nav";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <Analytics />
     </>
   );
 }
