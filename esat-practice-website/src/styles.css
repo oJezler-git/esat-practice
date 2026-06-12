@@ -952,6 +952,26 @@ p {
   height: 1.5rem;
 }
 
+.bg-green-500 {
+  background-color: #22c55e;
+}
+
+.bg-red-500 {
+  background-color: #ef4444;
+}
+
+.bg-amber-500 {
+  background-color: #f59e0b;
+}
+
+.bg-gray-700 {
+  background-color: #374151;
+}
+
+.h-3 {
+  height: 0.75rem;
+}
+
 .h-4 {
   height: 1rem;
 }

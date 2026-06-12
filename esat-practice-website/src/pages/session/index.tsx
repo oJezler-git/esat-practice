@@ -47,7 +47,10 @@ export default function SessionPage() {
     skip,
     excludeCurrentQuestion,
     nav,
+    jumpTo,
     submit,
+    responses,
+    questions,
   } = useSessionEngine(id ?? "");
 
   const autoAdvanceQuestionRef = useRef<string | null>(null);
@@ -226,6 +229,11 @@ export default function SessionPage() {
         onFlag={() => {
           void flag();
         }}
+        onNavigate={(index) => {
+          void jumpTo(index);
+        }}
+        responses={responses}
+        questionIds={questions.map((q) => q.id)}
       />
 
       <main className="session-shell flex-1 mx-auto w-full px-4 pt-3 pb-3 flex flex-col min-h-0">

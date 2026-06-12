@@ -128,6 +128,7 @@ interface SessionSlice extends SessionEngineState {
   skip: () => Promise<void>;
   excludeCurrentQuestion: (allQuestions?: Question[]) => Promise<void>;
   nav: (direction: "next" | "prev") => Promise<void>;
+  jumpTo: (index: number) => Promise<void>;
   submit: () => Promise<void>;
   quit: () => Promise<void>;
   tick: (elapsedMs: number) => Promise<void>;
@@ -324,6 +325,27 @@ const useSessionSlice = create<SessionSlice>((set, get) => ({
       await upsertAttemptRecord(committed);
     }
   },
+  jumpTo: async (index: number) => {
+    const state = get();
+    if (state.status !== "active") {
+      return;
+    }
+
+    const { nextState, committed } = commitQuestionElapsed(state);
+    const jumped = {
+      ...nextState,
+      currentIndex: Math.max(
+        0,
+        Math.min(index, nextState.questions.length - 1),
+      ),
+      questionElapsed: 0,
+    };
+    set(jumped);
+
+    if (committed) {
+      await upsertAttemptRecord(committed);
+    }
+  },
   submit: async () => {
     const state = get();
     if (!state.session || (state.status !== "active" && state.status !== "reviewing")) {
@@ -411,6 +433,7 @@ export function useSessionEngine(sessionId: string) {
     (state) => state.excludeCurrentQuestion,
   );
   const nav = useSessionSlice((state) => state.nav);
+  const jumpTo = useSessionSlice((state) => state.jumpTo);
   const submit = useSessionSlice((state) => state.submit);
 
   const currentQuestion = questions[currentIndex] ?? null;
@@ -456,7 +479,10 @@ export function useSessionEngine(sessionId: string) {
       excludeCurrentQuestion: (allQuestions?: Question[]) =>
         excludeCurrentQuestion(allQuestions),
       nav,
+      jumpTo,
       submit,
+      responses,
+      questions,
     }),
     [
       currentAttemptResult,
@@ -468,6 +494,9 @@ export function useSessionEngine(sessionId: string) {
       load,
       mark,
       nav,
+      jumpTo,
+      questions,
+      responses,
       questions.length,
       skip,
       status,
