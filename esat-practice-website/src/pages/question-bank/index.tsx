@@ -92,7 +92,7 @@ export default function QuestionBank() {
       (question) => question.answer.verified,
     ).length;
     const withImage = sourceQuestions.filter((question) =>
-      Boolean(question.content.image_b64),
+      Boolean(question.content.image_url ?? question.content.image_b64),
     ).length;
 
     const byPrimaryTopic = buildCountItems(
@@ -873,11 +873,13 @@ function QuestionDetailPanel({
     };
   }, [onHeightChange, question.id, isDesktop]);
 
-  const imageSrc = question.content.image_b64
-    ? question.content.image_b64.startsWith("data:")
-      ? question.content.image_b64
-      : `data:image/png;base64,${question.content.image_b64}`
-    : undefined;
+  const imageSrc =
+    question.content.image_url ??
+    (question.content.image_b64
+      ? question.content.image_b64.startsWith("data:")
+        ? question.content.image_b64
+        : `data:image/png;base64,${question.content.image_b64}`
+      : undefined);
 
   return (
     <section

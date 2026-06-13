@@ -254,6 +254,7 @@ function mapSingleQuestion(
     usedIds,
   );
   const taxonomy = buildTaxonomy(rawQuestion);
+  const imageUrl = asString(rawQuestion.image_url);
   const imageB64 =
     asString(rawQuestion.image_b64) ?? asString(rawQuestion.image);
 
@@ -262,7 +263,8 @@ function mapSingleQuestion(
     source,
     content: {
       text,
-      ...(imageB64 ? { image_b64: imageB64 } : {}),
+      ...(imageUrl ? { image_url: imageUrl } : {}),
+      ...(imageB64 && !imageUrl ? { image_b64: imageB64 } : {}),
     },
     answer: {
       correct: normalizedCorrect,

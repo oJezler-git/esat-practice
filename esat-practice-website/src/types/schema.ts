@@ -11,6 +11,9 @@ export interface Question {
   };
   content: {
     text: string;
+    /** URL to a separately-served static image asset (preferred). */
+    image_url?: string;
+    /** Legacy: raw base64-encoded image data (kept for IDB backwards-compat). */
     image_b64?: string;
   };
   answer: {

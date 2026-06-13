@@ -12,11 +12,13 @@ export function QuestionCard({
   fontClass = "text-base",
   showMetadata = true,
 }: Props) {
-  const imageSrc = question.content.image_b64
-    ? question.content.image_b64.startsWith("data:")
-      ? question.content.image_b64
-      : `data:image/png;base64,${question.content.image_b64}`
-    : undefined;
+  const imageSrc =
+    question.content.image_url ??
+    (question.content.image_b64
+      ? question.content.image_b64.startsWith("data:")
+        ? question.content.image_b64
+        : `data:image/png;base64,${question.content.image_b64}`
+      : undefined);
 
   return (
     <div className="space-y-4 border border-gray-200 bg-white rounded-xl p-4">

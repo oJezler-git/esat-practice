@@ -207,11 +207,13 @@ export default function SessionPage() {
     );
   }
 
-  const imageSrc = currentQuestion.content.image_b64
-    ? currentQuestion.content.image_b64.startsWith("data:")
-      ? currentQuestion.content.image_b64
-      : `data:image/png;base64,${currentQuestion.content.image_b64}`
-    : undefined;
+  const imageSrc =
+    currentQuestion.content.image_url ??
+    (currentQuestion.content.image_b64
+      ? currentQuestion.content.image_b64.startsWith("data:")
+        ? currentQuestion.content.image_b64
+        : `data:image/png;base64,${currentQuestion.content.image_b64}`
+      : undefined);
   const questionPreview = currentQuestion.content.text.replace(/\s+/g, " ").trim();
   const showMetadata = !settings.examMode && (isAnswerRevealed || Boolean(currentAttemptResult));
   const confidence = Math.round(currentQuestion.taxonomy.confidence * 100);
