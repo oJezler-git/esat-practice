@@ -11,11 +11,11 @@ export type SessionStatus =
   | "abandoned";
 
 export interface SessionBuildConfig {
-  mode: SessionMode;
+  mode?: SessionMode;
   topic_filter?: string[];
   paper_filter?: string[];
   year_filter?: number[];
-  question_count: number;
+  question_count?: number;
   time_limit_ms?: number;
 }
 
