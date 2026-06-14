@@ -123,17 +123,6 @@ export function useQuestionStore() {
     [allQuestions],
   );
 
-  // Pre-built O(1) lookup: question ID -> paired duplicate question ID.
-  // Derived from nsaaDuplicateAnalysis so it never triggers a second O(n²) run.
-  const nsaaDuplicatePairMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const pair of nsaaDuplicateAnalysis.excludedPairs) {
-      map.set(pair.nsaaQuestion.id, pair.engaaQuestion.id);
-      map.set(pair.engaaQuestion.id, pair.nsaaQuestion.id);
-    }
-    return map;
-  }, [nsaaDuplicateAnalysis.excludedPairs]);
-
   const effectiveExcludedIds = useMemo(() => {
     const ids = new Set(excludedQuestionIds);
     if (allQuestions.length === 0) return ids;
@@ -199,8 +188,6 @@ export function useQuestionStore() {
     excludedQuestions,
     excludedQuestionIds: effectiveExcludedIds,
     excludedQuestionRecords,
-    nsaaDuplicateAnalysis,
-    nsaaDuplicatePairMap,
     isLoading: isLoading || areExcludedQuestionsLoading,
     loaded: loaded && areExcludedQuestionsLoaded,
     loadQuestions,
