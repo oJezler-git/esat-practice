@@ -134,7 +134,7 @@ interface SessionSlice extends SessionEngineState {
   tick: (elapsedMs: number) => Promise<void>;
 }
 
-const useSessionSlice = create<SessionSlice>((set, get) => ({
+export const useSessionSlice = create<SessionSlice>((set, get) => ({
   ...createInitialSessionState(),
   load: async (sessionId: string) => {
     const session = await getSessionById(sessionId);

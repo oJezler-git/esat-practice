@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  analyseNsaaDuplicates,
-  type DuplicateNearMissDebug,
-  type DuplicatePairDebug,
+import type {
+  DuplicateNearMissDebug,
+  DuplicatePairDebug,
 } from "../../lib/questionDedup";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Question } from "../../types/schema";
 
 type SortKey = "default" | "topic" | "year" | "accuracy";
@@ -49,6 +48,7 @@ export default function QuestionBank() {
     excludedQuestionIds,
     availableTopics,
     availableYears,
+    nsaaDuplicateAnalysis,
     isLoading,
     loaded,
   } =
@@ -71,10 +71,7 @@ export default function QuestionBank() {
   const [detailHeight, setDetailHeight] = useState(0);
   const listRef = useRef<HTMLDivElement | null>(null);
   const isQuestionBankLoading = !loaded || isLoading;
-  const duplicateAnalysis = useMemo(
-    () => analyseNsaaDuplicates(allQuestions),
-    [allQuestions],
-  );
+  const duplicateAnalysis = nsaaDuplicateAnalysis;
   const nsaaDuplicateIds = duplicateAnalysis.hiddenNsaaIds;
   const sourceQuestions = scope === "excluded" ? excludedQuestions : fullPracticeBank;
 
