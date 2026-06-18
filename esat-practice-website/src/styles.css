@@ -2376,3 +2376,109 @@ p {
 .modal-content-exit {
   animation: modal-zoom-out 200ms ease-in forwards;
 }
+
+/* Mobile Menu Styles */
+.hamburger {
+  width: 24px;
+  height: 18px;
+  position: relative;
+  cursor: pointer;
+}
+.hamburger span {
+  display: block;
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+.hamburger span:nth-child(1) { top: 0; }
+.hamburger span:nth-child(2) { top: 8px; }
+.hamburger span:nth-child(3) { top: 16px; }
+
+.hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s;
+}
+
+.mobile-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.mobile-nav-link {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  animation: slideInDown 0.5s ease forwards;
+  animation-delay: var(--delay);
+  opacity: 0;
+}
+
+.mobile-nav-link-active {
+  color: var(--accent);
+}
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInDown { 
+  from { opacity: 0; transform: translateY(-20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+@keyframes slideOutUp {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-20px); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Exit Animations */
+.mobile-menu-closing .mobile-nav-link {
+  animation: slideOutUp 0.3s ease forwards;
+}
+.mobile-menu-closing {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+/* Responsive Navigation Visibility */
+@media (max-width: 768px) {
+  .nav-desktop-only {
+    display: none !important;
+  }
+  .nav-mobile-hamburger-button {
+    display: block !important;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+}
+@media (min-width: 769px) {
+  .nav-desktop-only {
+    display: inline-flex !important;
+  }
+  .nav-mobile-hamburger-button {
+    display: none !important;
+  }
+}
+
+/* Z-Index Fix */
+.nav-mobile-hamburger-wrapper {
+  position: relative;
+  z-index: 40;
+}
