@@ -23,32 +23,41 @@ export function SelfMarkPanel({
 }: Props) {
   if (result) {
     return (
-      <div
-        className={`selfmark-result-panel ${
-          result === "correct"
-            ? "selfmark-result-correct"
-            : result === "incorrect"
-              ? "selfmark-result-incorrect"
-              : "selfmark-result-skipped"
-        }`}
-      >
-        <div>
-          <div className="selfmark-result-label">
-            {result === "correct" ? "Result" : "Marked"}
+      <>
+        {/* Full panel for desktop */}
+        <div
+          className={`selfmark-result-panel hide-on-mobile ${
+            result === "correct"
+              ? "selfmark-result-correct"
+              : result === "incorrect"
+                ? "selfmark-result-incorrect"
+                : "selfmark-result-skipped"
+          }`}
+        >
+          <div>
+            <div className="selfmark-result-label">
+              {result === "correct" ? "Result" : "Marked"}
+            </div>
+            <div className="selfmark-result-status">
+              {result === "correct"
+                ? "Marked correct"
+                : result === "incorrect"
+                  ? "Marked incorrect"
+                  : "Skipped"}
+            </div>
           </div>
-          <div className="selfmark-result-status">
-          {result === "correct"
-            ? "Marked correct"
-            : result === "incorrect"
-              ? "Marked incorrect"
-              : "Skipped"}
+          <div className="selfmark-answer-hero selfmark-answer-hero-compact ml-auto">
+            <span className="selfmark-answer-kicker">Correct answer</span>
+            <strong className="selfmark-answer-value">{correctAnswer}</strong>
           </div>
         </div>
-        <div className="selfmark-answer-hero selfmark-answer-hero-compact ml-auto">
+
+        {/* Simplified panel for mobile */}
+        <div className="show-on-mobile selfmark-answer-hero selfmark-answer-hero-compact">
           <span className="selfmark-answer-kicker">Correct answer</span>
           <strong className="selfmark-answer-value">{correctAnswer}</strong>
         </div>
-      </div>
+      </>
     );
   }
 

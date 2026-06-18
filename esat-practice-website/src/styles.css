@@ -2290,6 +2290,19 @@ p {
     animation: fade-in 200ms ease-out;
   }
 
+  .selfmark-mobile-close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+  }
+
   .selfmark-mobile-popup-content {
     position: absolute;
     inset: 0;

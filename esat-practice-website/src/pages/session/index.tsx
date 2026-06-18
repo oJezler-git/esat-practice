@@ -416,6 +416,13 @@ export default function SessionPage() {
       {isAnswerRevealed && (
         <div className="show-on-mobile selfmark-mobile-popup-overlay">
           <div className="selfmark-mobile-popup-content">
+            <button
+              type="button"
+              onClick={() => setIsAnswerRevealed(false)}
+              className="selfmark-mobile-close-button"
+            >
+              ✕
+            </button>
             <div className="selfmark-answer-hero">
               <span className="selfmark-answer-kicker">Correct answer</span>
               <strong className="selfmark-answer-value">
