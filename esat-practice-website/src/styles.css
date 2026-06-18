@@ -991,6 +991,10 @@ p {
   height: 1.5rem;
 }
 
+.h-8 {
+  height: 3rem;
+}
+
 .bg-green-500 {
   background-color: #22c55e;
 }
