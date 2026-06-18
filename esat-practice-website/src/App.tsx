@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Nav } from "./components/ui/Nav";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
@@ -44,6 +45,7 @@ export default function App() {
         </Routes>
       </main>
       <Analytics />
+      <SpeedInsights />
     </>
   );
 }
