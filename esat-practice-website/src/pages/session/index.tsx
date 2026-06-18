@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
 import { NavControls } from "../../components/session/NavControls";
 import { SessionHeader } from "../../components/session/SessionHeader";
@@ -12,6 +13,7 @@ import {
   type ShortcutAction,
 } from "../../types/settings";
 import type { SelfMarkResult } from "../../types/schema";
+import { truncateQuestionText } from "../../lib/textUtils";
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -34,6 +36,17 @@ export default function SessionPage() {
   const { allQuestions } = useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const [isClosingImage, setIsClosingImage] = useState(false);
+
+  const handleCloseImage = () => {
+    setIsClosingImage(true);
+    setTimeout(() => {
+      setIsImageExpanded(false);
+      setIsClosingImage(false);
+    }, 200); // Matches animation duration
+  };
+
   const {
     status,
     currentQuestion,
@@ -214,7 +227,7 @@ export default function SessionPage() {
         ? currentQuestion.content.image_b64
         : `data:image/png;base64,${currentQuestion.content.image_b64}`
       : undefined);
-  const questionPreview = currentQuestion.content.text.replace(/\s+/g, " ").trim();
+  const questionPreview = truncateQuestionText(currentQuestion.content.text.replace(/\s+/g, " "), 130);
   const showMetadata = !settings.examMode && (isAnswerRevealed || Boolean(currentAttemptResult));
   const confidence = Math.round(currentQuestion.taxonomy.confidence * 100);
   const metadataLine = `${currentQuestion.taxonomy.primary_topic} (${confidence}% confidence)`;
@@ -268,10 +281,11 @@ export default function SessionPage() {
                 result={currentAttemptResult}
                 revealShortcutLabel={shortcutLabels.revealCorrect}
                 incorrectShortcutLabel={shortcutLabels.incorrect}
+                hideRevealOnMobile={true}
               />
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 hide-on-mobile">
               <div>
                 <p className="text-xs text-rose-700">
                   Press this if a question number is marked with an ✖, this means it's not on the specification.
@@ -289,7 +303,7 @@ export default function SessionPage() {
             </div>
 
             {settings.showKeyboardHints && (
-              <p className="session-left-hints text-xs text-gray-400 mt-4">{hintText}</p>
+              <p className="session-left-hints text-xs text-gray-400 mt-4 hide-on-mobile">{hintText}</p>
             )}
           </section>
 
@@ -298,7 +312,13 @@ export default function SessionPage() {
               <>
                 <div className="session-image-label">Source scan</div>
                 <div className="session-image-scroll">
-                  <img src={imageSrc} alt="Question source scan" />
+                  <button
+                    type="button"
+                    className="w-full h-full cursor-zoom-in"
+                    onClick={() => setIsImageExpanded(true)}
+                  >
+                    <img src={imageSrc} alt="Question source scan" />
+                  </button>
                 </div>
               </>
             ) : (
@@ -319,16 +339,109 @@ export default function SessionPage() {
         onNext={() => {
           void nav("next");
         }}
-        onSkip={() => {
-          void skip();
-        }}
         onExclude={() => {
           void excludeCurrentQuestion(allQuestions);
         }}
         onSubmit={() => {
           void submit();
         }}
+        onReveal={revealAnswer}
+        revealed={isAnswerRevealed}
       />
+
+      {isImageExpanded && imageSrc && (
+        <div
+          className={`fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 ${
+            isClosingImage ? "modal-backdrop-exit" : "modal-backdrop-enter"
+          }`}
+          onClick={handleCloseImage}
+        >
+          <div className={`modal-content-enter ${isClosingImage ? "modal-content-exit" : ""}`}>
+            <TransformWrapper
+              initialScale={1}
+              minScale={0.5}
+              maxScale={4}
+              centerOnInit={true}
+              wheel={{ disabled: true }}
+            >
+              {({ zoomIn, zoomOut, resetTransform }) => (
+                <>
+                  <div className="zoom-button-group">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); zoomIn(); }}
+                      className="zoom-button"
+                      title="Zoom in"
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); zoomOut(); }}
+                      className="zoom-button"
+                      title="Zoom out"
+                    >
+                      -
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); resetTransform(); }}
+                      className="zoom-button zoom-button-reset"
+                      title="Reset zoom"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={handleCloseImage}
+                      className="zoom-button"
+                      title="Close"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <TransformComponent
+                    wrapperStyle={{ width: "100%", height: "100%" }}
+                    contentStyle={{ cursor: "grab" }}
+                  >
+                    <img
+                      src={imageSrc}
+                      alt="Question source scan"
+                      className="max-w-full max-h-full object-contain cursor-default"
+                    />
+                  </TransformComponent>
+                </>
+              )}
+            </TransformWrapper>
+          </div>
+        </div>
+      )}
+
+      {isAnswerRevealed && (
+        <div className="show-on-mobile selfmark-mobile-popup-overlay">
+          <div className="selfmark-mobile-popup-content">
+            <div className="selfmark-answer-hero">
+              <span className="selfmark-answer-kicker">Correct answer</span>
+              <strong className="selfmark-answer-value">
+                {currentQuestion.answer.correct}
+              </strong>
+            </div>
+            <p className="selfmark-prompt">Did you get it right?</p>
+            <div className="selfmark-actions">
+              <button
+                type="button"
+                onClick={() => handleMark("correct")}
+                className="selfmark-action-button selfmark-action-button-correct"
+              >
+                <span>Correct</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleMark("incorrect")}
+                className="selfmark-action-button selfmark-action-button-incorrect"
+              >
+                <span>Incorrect</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

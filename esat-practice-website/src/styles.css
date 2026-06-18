@@ -348,6 +348,45 @@ p {
   transform: translateY(1px) scale(0.985);
 }
 
+.zoom-button-group {
+  position: fixed;
+  top: 66.66%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.zoom-button {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  /* Glassmorphism */
+  background-color: rgba(43, 55, 50, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: var(--motion-soft-shadow);
+  transition: transform 180ms var(--motion-snappy), background-color 180ms ease, border-color 180ms ease;
+}
+
+.zoom-button:hover {
+  background-color: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.zoom-button-reset {
+  padding: 0 1rem;
+  width: auto;
+  font-size: 0.875rem;
+}
+
 .question-bank-page {
   padding-bottom: 4rem;
 }
@@ -585,7 +624,7 @@ p {
   color: var(--accent-strong);
 }
 
-@media (max-width: 960px) {
+@media (max-width: 768px) {
   .question-bank-hero {
     flex-direction: column;
     align-items: flex-start;
@@ -1938,6 +1977,12 @@ p {
   text-align: center;
 }
 
+.show-on-mobile,
+.show-inline-on-mobile,
+.hide-on-desktop {
+  display: none !important;
+}
+
 .selfmark-panel,
 .selfmark-result-panel {
   border-radius: 1rem;
@@ -2189,7 +2234,41 @@ p {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
+  .session-answer-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    overflow-y: auto;
+  }
+
+  .session-left-panel,
+  .session-right-panel {
+    animation-delay: 0ms;
+    height: auto;
+    min-height: 0;
+  }
+
+  .session-left-panel {
+    order: 2;
+  }
+
+  .session-right-panel {
+    order: 1;
+    min-height: 300px;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: block !important;
+  }
+
+  .show-inline-on-mobile {
+    display: inline-flex !important;
+  }
+
   .selfmark-result-panel,
   .selfmark-answer-hero,
   .selfmark-reveal-button {
@@ -2200,4 +2279,87 @@ p {
   .selfmark-actions {
     grid-template-columns: 1fr;
   }
+
+  .selfmark-mobile-popup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgb(0 0 0 / 0.85);
+    display: block;
+    padding: 1rem;
+    animation: fade-in 200ms ease-out;
+  }
+
+  .selfmark-mobile-popup-content {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    background: var(--surface-1);
+    border: 1px solid var(--border-strong);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    width: 90%;
+    max-width: 320px;
+    height: fit-content;
+    text-align: center;
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.5);
+    animation: scale-up 240ms var(--motion-snappy) both;
+  }
+
+
+  .selfmark-mobile-popup-content .selfmark-answer-hero {
+    background: transparent;
+    border: none;
+    flex-direction: column;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+
+  .selfmark-mobile-popup-content .selfmark-answer-value {
+    font-size: 4rem;
+    min-width: 6rem;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modal-zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes modal-zoom-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+.modal-backdrop-enter {
+  animation: modal-fade-in 200ms ease-out forwards;
+}
+
+.modal-backdrop-exit {
+  animation: modal-fade-out 200ms ease-in forwards;
+}
+
+.modal-content-enter {
+  animation: modal-zoom-in 200ms ease-out forwards;
+}
+
+.modal-content-exit {
+  animation: modal-zoom-out 200ms ease-in forwards;
 }
