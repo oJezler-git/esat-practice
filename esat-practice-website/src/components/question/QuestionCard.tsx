@@ -1,5 +1,6 @@
 import type { Question } from "../../types/schema";
 import { DiagramViewer } from "./DiagramViewer";
+import { truncateQuestionText } from "../../lib/textUtils";
 
 interface Props {
   question: Question;
@@ -36,7 +37,7 @@ export function QuestionCard({
         </div>
       )}
       <p className={`${fontClass} leading-relaxed text-gray-900 whitespace-pre-wrap`}>
-        {question.content.text}
+        {truncateQuestionText(question.content.text, 130)}
       </p>
       {imageSrc && <DiagramViewer src={imageSrc} />}
     </div>

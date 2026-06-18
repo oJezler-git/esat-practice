@@ -8,6 +8,7 @@ interface Props {
   result?: SelfMarkResult;
   revealShortcutLabel: string;
   incorrectShortcutLabel: string;
+  hideRevealOnMobile?: boolean;
 }
 
 export function SelfMarkPanel({
@@ -18,6 +19,7 @@ export function SelfMarkPanel({
   result,
   revealShortcutLabel,
   incorrectShortcutLabel,
+  hideRevealOnMobile = false,
 }: Props) {
   if (result) {
     return (
@@ -55,7 +57,7 @@ export function SelfMarkPanel({
       <button
         type="button"
         onClick={onReveal}
-        className="selfmark-reveal-button"
+        className={`selfmark-reveal-button ${hideRevealOnMobile ? "hide-on-mobile" : ""}`}
       >
         <span>Reveal answer</span>
         <span className="selfmark-shortcut-hint">{revealShortcutLabel}</span>
@@ -65,10 +67,11 @@ export function SelfMarkPanel({
 
   return (
     <div className="selfmark-panel">
-      <div className="selfmark-answer-hero">
+      <div className="selfmark-answer-hero hide-on-mobile">
         <span className="selfmark-answer-kicker">Correct answer</span>
         <strong className="selfmark-answer-value">{correctAnswer}</strong>
       </div>
+
       <div className="selfmark-actions-wrap">
         <p className="selfmark-prompt">Did you get it right?</p>
         <div className="selfmark-actions">
@@ -78,7 +81,7 @@ export function SelfMarkPanel({
             className="selfmark-action-button selfmark-action-button-correct"
           >
             <span>Correct</span>
-            <span className="selfmark-shortcut-hint">{revealShortcutLabel}</span>
+            <span className="selfmark-shortcut-hint hide-on-mobile">{revealShortcutLabel}</span>
           </button>
           <button
             type="button"
@@ -86,7 +89,7 @@ export function SelfMarkPanel({
             className="selfmark-action-button selfmark-action-button-incorrect"
           >
             <span>Incorrect</span>
-            <span className="selfmark-shortcut-hint">{incorrectShortcutLabel}</span>
+            <span className="selfmark-shortcut-hint hide-on-mobile">{incorrectShortcutLabel}</span>
           </button>
         </div>
       </div>

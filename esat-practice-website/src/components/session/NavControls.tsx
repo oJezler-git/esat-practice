@@ -3,9 +3,10 @@ interface Props {
   totalCount: number;
   onPrev: () => void;
   onNext: () => void;
-  onSkip: () => void;
   onExclude: () => void;
   onSubmit: () => void;
+  onReveal?: () => void;
+  revealed?: boolean;
 }
 
 export function NavControls({
@@ -13,9 +14,10 @@ export function NavControls({
   totalCount,
   onPrev,
   onNext,
-  onSkip,
   onExclude,
   onSubmit,
+  onReveal,
+  revealed = false,
 }: Props) {
   const isLast = currentIndex === totalCount - 1;
 
@@ -28,15 +30,8 @@ export function NavControls({
           disabled={currentIndex === 0}
           className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-30 hover:border-gray-300 transition-colors"
         >
-          Prev
-        </button>
-
-        <button
-          type="button"
-          onClick={onSkip}
-          className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          Skip
+          <span className="hide-on-mobile">Prev</span>
+          <span className="show-on-mobile">←</span>
         </button>
 
         <button
@@ -46,6 +41,16 @@ export function NavControls({
         >
           Exclude
         </button>
+
+        {onReveal && !revealed && (
+          <button
+            type="button"
+            onClick={onReveal}
+            className="px-4 py-2 text-sm bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg font-medium hide-on-desktop show-inline-on-mobile"
+          >
+            Reveal
+          </button>
+        )}
 
         <div className="flex-1" />
 
@@ -63,7 +68,8 @@ export function NavControls({
             onClick={onNext}
             className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
           >
-            Next
+            <span className="hide-on-mobile">Next</span>
+            <span className="show-on-mobile">→</span>
           </button>
         )}
       </div>
