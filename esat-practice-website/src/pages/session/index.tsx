@@ -263,7 +263,7 @@ export default function SessionPage() {
             </div>
             <p className={`session-question-preview ${fontClass}`}>{questionPreview}</p>
             <p className="text-xs text-gray-500 mt-2">
-              OCR is inaccurate. Use the source image on the right for the question.
+              OCR is inaccurate. Use the image for the question.
             </p>
             {showMetadata && (
               <div className="session-question-meta">
