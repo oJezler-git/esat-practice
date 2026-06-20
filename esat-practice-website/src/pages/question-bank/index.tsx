@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  analyseNsaaDuplicates,
   type DuplicateNearMissDebug,
   type DuplicatePairDebug,
 } from "../../lib/questionDedup";
@@ -51,6 +50,7 @@ export default function QuestionBank() {
     availableYears,
     isLoading,
     loaded,
+    nsaaDuplicateAnalysis,
   } =
     useQuestionStore();
   const { createSession } = useSessionStore();
@@ -69,13 +69,11 @@ export default function QuestionBank() {
   const [viewportHeight, setViewportHeight] = useState(0);
   const [virtualCount, setVirtualCount] = useState(VIRTUAL_BATCH_SIZE);
   const [detailHeight, setDetailHeight] = useState(0);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
   const isQuestionBankLoading = !loaded || isLoading;
-  const duplicateAnalysis = useMemo(
-    () => analyseNsaaDuplicates(allQuestions),
-    [allQuestions],
-  );
-  const nsaaDuplicateIds = duplicateAnalysis.hiddenNsaaIds;
+  const duplicateAnalysis = nsaaDuplicateAnalysis;
+  const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? new Set<string>();
   const sourceQuestions = scope === "excluded" ? excludedQuestions : fullPracticeBank;
 
   const visibleQuestions = useMemo(
@@ -88,6 +86,8 @@ export default function QuestionBank() {
   const hiddenNsaaDuplicateCount = nsaaDuplicateIds.size;
 
   const dataDump = useMemo(() => {
+    if (!isDetailsOpen) return null;
+
     const verified = sourceQuestions.filter(
       (question) => question.answer.verified,
     ).length;
@@ -137,7 +137,7 @@ export default function QuestionBank() {
       byCorrectAnswer,
       byModel,
     };
-  }, [sourceQuestions]);
+  }, [isDetailsOpen, sourceQuestions]);
 
   const filtered = useMemo(() => {
     let result = visibleQuestions;
@@ -349,66 +349,76 @@ export default function QuestionBank() {
       </div>
 
       {!isQuestionBankLoading && sourceQuestions.length > 0 && (
-        <details className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm">
+        <details
+          open={isDetailsOpen}
+          onToggle={(e) => setIsDetailsOpen((e.target as HTMLDetailsElement).open)}
+          className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
+        >
           <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
             <span className="text-sm font-medium text-slate-300">
               Data dump
             </span>
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
-                {dataDump.totalQuestions} total
+                {sourceQuestions.length} total
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
-                {dataDump.byPrimaryTopic.length} primary topics
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
-                {dataDump.byYear.length} years
-              </span>
+              {isDetailsOpen && dataDump && (
+                <>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+                    {dataDump.byPrimaryTopic.length} primary topics
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+                    {dataDump.byYear.length} years
+                  </span>
+                </>
+              )}
             </div>
           </summary>
 
-          <div className="border-t border-white/10 p-4">
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              <DataStat
-                label="Total questions"
-                value={dataDump.totalQuestions}
-              />
-              <DataStat label="Verified" value={dataDump.verifiedQuestions} />
-              <DataStat
-                label="Escalated classifications"
-                value={dataDump.unverifiedQuestions}
-              />
-              <DataStat
-                label="With image"
-                value={dataDump.questionsWithImage}
-              />
-              <DataStat
-                label="Without image"
-                value={dataDump.questionsWithoutImage}
-              />
-              <DataStat label="Years covered" value={dataDump.byYear.length} />
-            </div>
+          {isDetailsOpen && dataDump && (
+            <div className="border-t border-white/10 p-4">
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <DataStat
+                  label="Total questions"
+                  value={dataDump.totalQuestions}
+                />
+                <DataStat label="Verified" value={dataDump.verifiedQuestions} />
+                <DataStat
+                  label="Escalated classifications"
+                  value={dataDump.unverifiedQuestions}
+                />
+                <DataStat
+                  label="With image"
+                  value={dataDump.questionsWithImage}
+                />
+                <DataStat
+                  label="Without image"
+                  value={dataDump.questionsWithoutImage}
+                />
+                <DataStat label="Years covered" value={dataDump.byYear.length} />
+              </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <DataList
-                title="Primary topic counts"
-                items={dataDump.byPrimaryTopic}
-              />
-              <DataList
-                title="Secondary topic counts"
-                items={dataDump.bySecondaryTopic}
-              />
-              <DataList title="Year counts" items={dataDump.byYear} />
-              <DataList title="Subject counts" items={dataDump.bySubject} />
-              <DataList title="Paper counts" items={dataDump.byPaper} />
-              <DataList title="Part counts" items={dataDump.byPart} />
-              <DataList
-                title="Correct answer counts"
-                items={dataDump.byCorrectAnswer}
-              />
-              <DataList title="Model counts" items={dataDump.byModel} />
+              <div className="grid grid-cols-2 gap-3">
+                <DataList
+                  title="Primary topic counts"
+                  items={dataDump.byPrimaryTopic}
+                />
+                <DataList
+                  title="Secondary topic counts"
+                  items={dataDump.bySecondaryTopic}
+                />
+                <DataList title="Year counts" items={dataDump.byYear} />
+                <DataList title="Subject counts" items={dataDump.bySubject} />
+                <DataList title="Paper counts" items={dataDump.byPaper} />
+                <DataList title="Part counts" items={dataDump.byPart} />
+                <DataList
+                  title="Correct answer counts"
+                  items={dataDump.byCorrectAnswer}
+                />
+                <DataList title="Model counts" items={dataDump.byModel} />
+              </div>
             </div>
-          </div>
+          )}
         </details>
       )}
 

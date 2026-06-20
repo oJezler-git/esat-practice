@@ -113,10 +113,17 @@ function trigramDiceSimilarity(
   return (2 * overlap) / (left.total + right.total);
 }
 
+let cachedAnalysis: NsaaDuplicateAnalysis | null = null;
+let cachedAnalysisInput: Question[] | null = null;
+
 export function analyseNsaaDuplicates(
   questions: Question[],
   options: DuplicateMatchOptions = DEFAULT_DUPLICATE_MATCH_OPTIONS,
 ): NsaaDuplicateAnalysis {
+  if (cachedAnalysis && cachedAnalysisInput === questions) {
+    return cachedAnalysis;
+  }
+
   type PreparedQuestion = {
     question: Question;
     year: number;
@@ -247,11 +254,15 @@ export function analyseNsaaDuplicates(
   excludedPairs.sort((left, right) => right.similarity - left.similarity);
   nearMissPairs.sort((left, right) => right.similarity - left.similarity);
 
-  return {
+  const result = {
     hiddenNsaaIds,
     excludedPairs,
     nearMissPairs: nearMissPairs.slice(0, options.nearMissLimit),
   };
+
+  cachedAnalysis = result;
+  cachedAnalysisInput = questions;
+  return result;
 }
 
 export function findNsaaDuplicateIds(

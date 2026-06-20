@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { create } from "zustand";
 import type { Question } from "../types/schema";
 import { getDb } from "./db";
 import { useExcludedQuestionStore } from "./excludedQuestionStore";
-import { getDedupedQuestions, analyseNsaaDuplicates } from "./questionDedup";
+import { analyseNsaaDuplicates, type NsaaDuplicateAnalysis } from "./questionDedup";
 import { ensureBundledQuestionsBootstrapped } from "./loader";
 import { resetLoadingProgress } from "./loadingProgress";
 
@@ -88,6 +88,93 @@ const useQuestionStoreBase = create<QuestionStoreState>((set) => ({
   },
 }));
 
+// Module-level cache for derived state
+let lastAllQuestions: Question[] | null = null;
+let lastExcludedIds: Set<string> | null = null;
+
+interface DerivedStoreState {
+  nsaaDuplicateAnalysis: NsaaDuplicateAnalysis;
+  effectiveExcludedIds: Set<string>;
+  questions: Question[];
+  fullPracticeBank: Question[];
+  excludedQuestions: Question[];
+  availableTopics: string[];
+  availableYears: number[];
+}
+
+let cachedDerivedState: DerivedStoreState | null = null;
+
+function getDerivedStoreState(
+  allQuestions: Question[],
+  excludedQuestionIds: Set<string>,
+): DerivedStoreState {
+  if (
+    cachedDerivedState &&
+    lastAllQuestions === allQuestions &&
+    lastExcludedIds === excludedQuestionIds
+  ) {
+    return cachedDerivedState;
+  }
+
+  const nsaaDuplicateAnalysis = analyseNsaaDuplicates(allQuestions);
+
+  const ids = new Set(excludedQuestionIds);
+  if (allQuestions.length > 0) {
+    // Propagate exclusions across duplicate pairs
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const pair of nsaaDuplicateAnalysis.excludedPairs) {
+        if (ids.has(pair.engaaQuestion.id) && !ids.has(pair.nsaaQuestion.id)) {
+          ids.add(pair.nsaaQuestion.id);
+          changed = true;
+        }
+        if (ids.has(pair.nsaaQuestion.id) && !ids.has(pair.engaaQuestion.id)) {
+          ids.add(pair.engaaQuestion.id);
+          changed = true;
+        }
+      }
+    }
+  }
+
+  const questionsList = allQuestions
+    .filter((question) => !nsaaDuplicateAnalysis.hiddenNsaaIds.has(question.id))
+    .filter((question) => !ids.has(question.id));
+
+  const fullPracticeBank = allQuestions.filter((question) => !ids.has(question.id));
+  const excludedQuestions = allQuestions.filter((question) => ids.has(question.id));
+
+  const topics = new Set<string>();
+  questionsList.forEach((question) => {
+    if (question.taxonomy.primary_topic) {
+      topics.add(question.taxonomy.primary_topic);
+    }
+    question.taxonomy.secondary_topics.forEach((topic) => {
+      if (topic) topics.add(topic);
+    });
+  });
+  const availableTopics = [...topics].sort((a, b) => a.localeCompare(b));
+
+  const years = new Set<number>(questionsList.map((q) => q.source.year));
+  const availableYears = [...years].sort((a, b) => a - b);
+
+  const newState: DerivedStoreState = {
+    nsaaDuplicateAnalysis,
+    effectiveExcludedIds: ids,
+    questions: questionsList,
+    fullPracticeBank,
+    excludedQuestions,
+    availableTopics,
+    availableYears,
+  };
+
+  lastAllQuestions = allQuestions;
+  lastExcludedIds = excludedQuestionIds;
+  cachedDerivedState = newState;
+
+  return newState;
+}
+
 export function useQuestionStore() {
   const allQuestions = useQuestionStoreBase((state) => state.questions);
   const isLoading = useQuestionStoreBase((state) => state.isLoading);
@@ -118,81 +205,21 @@ export function useQuestionStore() {
     loadExcludedQuestions,
   ]);
 
-  const nsaaDuplicateAnalysis = useMemo(
-    () => analyseNsaaDuplicates(allQuestions),
-    [allQuestions],
-  );
-
-  const effectiveExcludedIds = useMemo(() => {
-    const ids = new Set(excludedQuestionIds);
-    if (allQuestions.length === 0) return ids;
-
-    // Propagate exclusions across duplicate pairs
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const pair of nsaaDuplicateAnalysis.excludedPairs) {
-        if (ids.has(pair.engaaQuestion.id) && !ids.has(pair.nsaaQuestion.id)) {
-          ids.add(pair.nsaaQuestion.id);
-          changed = true;
-        }
-        if (ids.has(pair.nsaaQuestion.id) && !ids.has(pair.engaaQuestion.id)) {
-          ids.add(pair.engaaQuestion.id);
-          changed = true;
-        }
-      }
-    }
-    return ids;
-  }, [allQuestions.length, excludedQuestionIds, nsaaDuplicateAnalysis.excludedPairs]);
-
-  const questions = useMemo(
-    () =>
-      getDedupedQuestions(allQuestions).filter(
-        (question) => !effectiveExcludedIds.has(question.id),
-      ),
-    [allQuestions, effectiveExcludedIds],
-  );
-
-  const fullPracticeBank = useMemo(
-    () => allQuestions.filter((question) => !effectiveExcludedIds.has(question.id)),
-    [allQuestions, effectiveExcludedIds],
-  );
-
-  const excludedQuestions = useMemo(
-    () => allQuestions.filter((question) => effectiveExcludedIds.has(question.id)),
-    [allQuestions, effectiveExcludedIds],
-  );
-
-  const availableTopics = useMemo(() => {
-    const topics = new Set<string>();
-    questions.forEach((question) => {
-      if (question.taxonomy.primary_topic) {
-        topics.add(question.taxonomy.primary_topic);
-      }
-      question.taxonomy.secondary_topics.forEach((topic) => {
-        if (topic) topics.add(topic);
-      });
-    });
-    return [...topics].sort((a, b) => a.localeCompare(b));
-  }, [questions]);
-
-  const availableYears = useMemo(() => {
-    const years = new Set<number>(questions.map((q) => q.source.year));
-    return [...years].sort((a, b) => a - b);
-  }, [questions]);
+  const derived = getDerivedStoreState(allQuestions, excludedQuestionIds);
 
   return {
     allQuestions,
-    questions,
-    fullPracticeBank,
-    excludedQuestions,
-    excludedQuestionIds: effectiveExcludedIds,
+    nsaaDuplicateAnalysis: derived.nsaaDuplicateAnalysis,
+    questions: derived.questions,
+    fullPracticeBank: derived.fullPracticeBank,
+    excludedQuestions: derived.excludedQuestions,
+    excludedQuestionIds: derived.effectiveExcludedIds,
     excludedQuestionRecords,
     isLoading: isLoading || areExcludedQuestionsLoading,
     loaded: loaded && areExcludedQuestionsLoaded,
     loadQuestions,
     getQuestionsByIds,
-    availableTopics,
-    availableYears,
+    availableTopics: derived.availableTopics,
+    availableYears: derived.availableYears,
   };
 }
