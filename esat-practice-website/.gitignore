@@ -9,6 +9,7 @@ dist-ssr/
 
 # Generated local data (rebuilt by scripts)
 public/data/packs/
+public/data/images/
 public/data/manifest.json
 
 # Local environment/config

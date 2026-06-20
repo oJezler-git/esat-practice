@@ -293,6 +293,8 @@ p {
   font-size: 0.875rem;
   font-weight: 500;
   transition: transform 220ms var(--motion-snappy), color 170ms ease, background-color 170ms ease;
+  position: relative;
+  z-index: 2;
 }
 
 .nav-link-idle {
@@ -307,9 +309,15 @@ p {
 
 .nav-link-active {
   color: #182111;
-  background: var(--accent);
   box-shadow: none;
-  animation: pulse-in 280ms var(--motion-snappy) both;
+}
+
+.nav-active-pill {
+  position: absolute;
+  background: var(--accent);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .panel {

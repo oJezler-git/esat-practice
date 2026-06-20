@@ -88,6 +88,15 @@ export default function PracticeSetup() {
       ...config,
       question_ids: questionIds,
     });
+
+    if (settings.fullscreenOnStart && document.documentElement.requestFullscreen) {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.error("Error attempting to enable full-screen mode:", err);
+      }
+    }
+
     navigate(`/session/${session.id}`);
   }
 

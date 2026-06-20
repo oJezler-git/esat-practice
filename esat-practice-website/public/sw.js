@@ -22,6 +22,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Do not intercept Vite dev-server source files
+  if (event.request.url.includes("/src/")) {
+    return;
+  }
+
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }

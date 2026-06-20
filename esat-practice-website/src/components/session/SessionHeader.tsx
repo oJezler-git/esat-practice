@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { Attempt, SelfMarkResult } from "../../types/schema";
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
   responses: Record<string, Attempt>;
   questionIds: string[];
 }
-
+// ... (helper functions formatTime, getStatusColor stay the same)
 function formatTime(ms: number) {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -38,7 +39,23 @@ export function SessionHeader({
   responses,
   questionIds,
 }: Props) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const isLow = timeRemaining !== undefined && timeRemaining < 60_000;
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const exitFullscreen = () => {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      void document.exitFullscreen();
+    }
+  };
 
   return (
     <header className="z-10 bg-gray-50 border-b border-gray-100">
@@ -69,6 +86,19 @@ export function SessionHeader({
           >
             {formatTime(timeRemaining)}
           </span>
+        )}
+
+        {isFullscreen && (
+          <button
+            type="button"
+            onClick={exitFullscreen}
+            title="Exit fullscreen"
+            className="p-1 rounded text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M5 2H2v3l2.5-2.5L5 2zM11 2h3v3l-2.5-2.5L11 2zM11 14h3v-3l-2.5 2.5L11 14zM5 14H2v-3l2.5 2.5L5 14z" />
+            </svg>
+          </button>
         )}
 
         <button

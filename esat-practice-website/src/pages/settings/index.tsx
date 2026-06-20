@@ -179,6 +179,16 @@ export default function Settings() {
           />
         </Field>
 
+        <Field
+          label="Fullscreen on start"
+          description="Automatically enter fullscreen mode when starting a session."
+        >
+          <Toggle
+            checked={settings.fullscreenOnStart}
+            onChange={(value) => update({ fullscreenOnStart: value })}
+          />
+        </Field>
+
         {settings.autoAdvance && (
           <Field
             label="Auto-advance delay"

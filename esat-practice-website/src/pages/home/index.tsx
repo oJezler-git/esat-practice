@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
+import { useSettingsStore } from "../../lib/settingsStore";
 import type { Session, TopicStat } from "../../types/schema";
 
 function shuffle<T>(items: T[]): T[] {
@@ -19,6 +20,7 @@ export default function Home() {
   const { questions, isLoading, loaded } = useQuestionStore();
   const { getRecentSessions, createSession } = useSessionStore();
   const { getAllStats } = useStatsStore();
+  const settings = useSettingsStore((state) => state.settings);
 
   const [recentSessions, setRecentSessions] = useState<Session[]>([]);
   const [weakTopics, setWeakTopics] = useState<TopicStat[]>([]);
@@ -58,6 +60,15 @@ export default function Home() {
       question_ids: ids,
       question_count: 20,
     });
+
+    if (settings.fullscreenOnStart && document.documentElement.requestFullscreen) {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.error("Error attempting to enable full-screen mode:", err);
+      }
+    }
+
     navigate(`/session/${session.id}`);
   }
 

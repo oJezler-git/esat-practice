@@ -16,6 +16,7 @@ export interface UserSettings {
   showKeyboardHints: boolean;
   autoAdvance: boolean;
   autoAdvanceDelayMs: number;
+  fullscreenOnStart: boolean;
   fontPreset: "academic" | "premium" | "readable";
   fontSize: "sm" | "md" | "lg";
   targetYear: number;
@@ -39,6 +40,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   showKeyboardHints: true,
   autoAdvance: true,
   autoAdvanceDelayMs: 600,
+  fullscreenOnStart: true,
   fontPreset: "academic",
   fontSize: "md",
   targetYear: new Date().getFullYear(),
