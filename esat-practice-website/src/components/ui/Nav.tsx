@@ -13,6 +13,7 @@ const links = [
 export function Nav({ isHidden }: { isHidden?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   
   const navGroupRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
@@ -31,6 +32,27 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
       setIsClosing(false);
     }, 300); // Should match animation duration
   };
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
+  const currentDay = currentTime.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+  });
+  const currentClock = currentTime.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 
   useEffect(() => {
     let animationFrameId: number;
@@ -192,7 +214,7 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
             <img src={logo} alt="ESAT practice" className="h-8 w-auto" />
           </Link>
 
-          <div className="nav-group nav-desktop-only" ref={navGroupRef} style={{ position: "relative" }}>
+          <div className="nav-group nav-desktop-only" ref={navGroupRef}>
             <div
               ref={pillRef}
               className="nav-active-pill"
@@ -218,6 +240,11 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
                 {label}
               </NavLink>
             ))}
+
+            <div className="nav-time">
+              <span className="nav-time-day">{currentDay}</span>
+              <span className="nav-time-clock">{currentClock}</span>
+            </div>
           </div>
 
           <div className="nav-mobile-hamburger-wrapper">
