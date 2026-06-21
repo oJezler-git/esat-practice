@@ -4,6 +4,7 @@ import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
 import { useSettingsStore } from "../../lib/settingsStore";
+import { getRandomQuote, getTimeBasedGreeting } from "../../lib/motivationalContent";
 import type { Session, TopicStat } from "../../types/schema";
 
 function shuffle<T>(items: T[]): T[] {
@@ -15,6 +16,13 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
+
+interface CachedGreeting {
+  greeting: string;
+  quote: string;
+  hourGenerated: number;
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const { questions, isLoading, loaded } = useQuestionStore();
@@ -24,8 +32,38 @@ export default function Home() {
 
   const [recentSessions, setRecentSessions] = useState<Session[]>([]);
   const [weakTopics, setWeakTopics] = useState<TopicStat[]>([]);
+  const [greeting, setGreeting] = useState("");
+  const [quote, setQuote] = useState("");
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    const cached = localStorage.getItem("greeting_cache");
+
+    if (cached) {
+      const data: CachedGreeting = JSON.parse(cached);
+      if (data.hourGenerated === currentHour) {
+        setGreeting(data.greeting);
+        setQuote(data.quote);
+        return;
+      }
+    }
+
+    const newGreeting = getTimeBasedGreeting();
+    const newQuote = getRandomQuote();
+    setGreeting(newGreeting);
+    setQuote(newQuote);
+
+    localStorage.setItem(
+      "greeting_cache",
+      JSON.stringify({
+        greeting: newGreeting,
+        quote: newQuote,
+        hourGenerated: currentHour,
+      }),
+    );
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -92,10 +130,8 @@ export default function Home() {
     <div className="page-shell max-w-3xl">
       <div className="page-head">
         <div>
-          <h1 className="page-title">Prepare with intent</h1>
-          <p className="page-subtitle">
-            Build repeatable exam rhythm with focused mixed and topic sessions.
-          </p>
+          <h1 className="page-title">{greeting}</h1>
+          <p className="page-subtitle">{quote}</p>
         </div>
         <p className="text-gray-400 text-sm">
           {isQuestionBankLoading

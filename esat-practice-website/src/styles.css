@@ -211,6 +211,18 @@ p {
   font-size: 0.9rem;
 }
 
+/* .page-subtitle::before {
+  content: '"';
+  position: absolute;
+  left: -0.3rem;
+  top: -1.2rem;
+  font-size: 3.5rem;
+  line-height: 1;
+  color: rgb(255 255 255 / 0.12);
+  font-family: var(--font-display);
+  font-weight: 700;
+} */
+
 .card {
   border: 1px solid var(--border-subtle);
   border-radius: 0.9rem;
@@ -275,6 +287,7 @@ p {
 }
 
 .nav-group {
+  position: relative;
   display: inline-flex;
   gap: 0.35rem;
   padding: 0.35rem;
@@ -318,6 +331,32 @@ p {
   border-radius: 999px;
   pointer-events: none;
   z-index: 1;
+}
+
+.nav-time {
+  position: absolute;
+  left: calc(100% + 1.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.05rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.nav-time-day,
+.nav-time-clock {
+  display: block;
+}
+
+.nav-time-clock {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .panel {
