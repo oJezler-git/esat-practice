@@ -45,6 +45,7 @@ export async function clearProgressData(): Promise<void> {
     "esat-practice:question-data-state",
     "esat-practice:sessions",
     "esat-practice:stats",
+    "persistent_storage",
   ];
 
   keysToRemove.forEach((key) => {
