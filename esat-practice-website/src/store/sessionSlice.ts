@@ -471,6 +471,7 @@ export function useSessionEngine(sessionId: string) {
     () => ({
       notFound,
       status,
+      session,
       currentQuestion,
       currentIndex,
       totalCount: questions.length,
@@ -504,6 +505,7 @@ export function useSessionEngine(sessionId: string) {
       questions,
       responses,
       questions.length,
+      session,
       skip,
       status,
       submit,

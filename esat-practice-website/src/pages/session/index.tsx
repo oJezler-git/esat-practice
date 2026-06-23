@@ -40,6 +40,7 @@ export default function SessionPage() {
   const {
     notFound,
     status,
+    session,
     currentQuestion,
     currentIndex,
     totalCount,
@@ -161,10 +162,10 @@ export default function SessionPage() {
   }, [currentAttemptResult, currentQuestion?.id]);
 
   useEffect(() => {
-    if (status === "completed" && id) {
+    if (status === "completed" && id && session?.id === id) {
       navigate(`/results/${id}`);
     }
-  }, [id, navigate, status]);
+  }, [id, navigate, session?.id, status]);
 
   useEffect(() => {
     if (!settings.autoAdvance || !currentQuestion || !currentAttemptResult) {
