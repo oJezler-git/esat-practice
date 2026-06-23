@@ -1,61 +1,142 @@
+import { useEffect, useState } from "react";
 import { useLoadingProgress } from "../hooks/useLoadingProgress";
+import {
+  checkAlreadyPersisted,
+  getDecision,
+  isSupported,
+  requestPersist,
+  saveGranted,
+  saveNever,
+  saveRemindLater,
+} from "../lib/persistentStorage";
+
+type StorageState = "pending" | "prompt" | "granted" | "denied" | "resolved";
 
 export function LoadingProgressDisplay() {
   const progress = useLoadingProgress();
+  const [storage, setStorage] = useState<StorageState>("pending");
 
-  if (!progress.isLoading || progress.stage === "idle") {
-    return null;
+  useEffect(() => {
+    if (!isSupported() || getDecision() !== "undecided") return;
+    void checkAlreadyPersisted().then((persisted) => {
+      if (persisted) {
+        saveGranted();
+      } else {
+        setStorage("prompt");
+      }
+    });
+  }, []);
+
+  const isLoadingActive = progress.isLoading && progress.stage !== "idle";
+  const showModal = isLoadingActive || storage === "prompt" || storage === "granted" || storage === "denied";
+
+  if (!showModal) return null;
+
+  async function handleEnable() {
+    const granted = await requestPersist();
+    if (granted) {
+      saveGranted();
+      setStorage("granted");
+      setTimeout(() => setStorage("resolved"), 1800);
+    } else {
+      setStorage("denied");
+    }
+  }
+
+  function handleRemind() {
+    saveRemindLater();
+    setStorage("resolved");
+  }
+
+  function handleNever() {
+    saveNever();
+    setStorage("resolved");
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" style={{ zIndex: 9999 }}>
-      <div 
-        className="w-full max-w-sm p-6 rounded-2xl border shadow-xl"
-        style={{
-          backgroundColor: 'var(--surface-1)',
-          borderColor: 'var(--border-subtle)'
-        }}
-      >
-        <h2 className="text-lg font-semibold mb-6 text-center" style={{ color: 'var(--text-primary)' }}>Preparing Question Bank</h2>
+    <div className="fullscreen-overlay" style={{ zIndex: 9999 }}>
+      <div className="overlay-card">
+        {isLoadingActive && (
+          <>
+            <p className="overlay-card-title">Preparing question bank</p>
 
-        {/* Progress bar */}
-        <div className="mb-8">
-          <div className="flex justify-between text-xs mb-2.5">
-            <span style={{ color: 'var(--text-muted)' }}>Overall Progress</span>
-            <span className="font-mono font-bold" style={{ color: 'var(--accent)' }}>{progress.percentComplete}%</span>
-          </div>
-          <div className="w-full h-3 rounded-full border overflow-hidden bg-gray-700/30" style={{ borderColor: 'var(--border-subtle)' }}>
-            <div
-              className="h-full transition-all duration-500 ease-out"
-              style={{ 
-                width: `${progress.percentComplete}%`, 
-                backgroundColor: 'var(--accent)',
-                boxShadow: '0 0 10px var(--accent)'
-              }}
-            />
-          </div>
-        </div>
+            <div className="progress-row">
+              <span className="progress-label">Progress</span>
+              <span className="progress-pct">{progress.percentComplete}%</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${progress.percentComplete}%` }} />
+            </div>
 
-        {/* Pack info */}
-        {progress.stage === "packs" && progress.currentPack && (
-          <div className="px-4 py-3 mb-6 rounded-xl border bg-black/20" style={{ borderColor: 'var(--border-subtle)' }}>
-            <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{progress.currentPack}</p>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-              Pack {progress.packIndex + 1} of {progress.totalPacks}
-            </p>
-          </div>
+            {progress.stage === "packs" && progress.currentPack && (
+              <div className="pack-info">
+                <span className="pack-info-name">{progress.currentPack}</span>
+                <span className="pack-info-count">
+                  {progress.packIndex + 1} / {progress.totalPacks}
+                </span>
+              </div>
+            )}
+
+            <p className="loading-status">{progress.message}</p>
+          </>
         )}
 
-        {/* Status message */}
-        <div className="text-center">
-          <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{progress.message}</p>
-          {progress.bytesLoaded > 0 && (
-            <p className="text-xs mt-1.5 font-mono opacity-80" style={{ color: 'var(--text-muted)' }}>
-              {Math.round(progress.bytesLoaded / 1024 / 1024)}MB /{" "}
-              {Math.round(progress.totalBytes / 1024 / 1024)}MB
-            </p>
-          )}
-        </div>
+        {(storage === "prompt" || storage === "granted" || storage === "denied") && (
+          <>
+            {isLoadingActive && <hr className="overlay-divider" />}
+            {!isLoadingActive && (
+              <p className="loading-status" style={{ marginBottom: "1rem" }}>
+                Question bank ready
+              </p>
+            )}
+
+            {storage === "granted" && (
+              <p className="storage-result storage-result--ok">Persistent storage enabled.</p>
+            )}
+
+            {storage === "denied" && (
+              <>
+                <p className="storage-result storage-result--warn">
+                  Your browser didn't grant persistent storage — this is usually automatic based
+                  on engagement and browser settings. Try bookmarking the site and enabling it again.
+                </p>
+                <div className="storage-actions">
+                  <button type="button" className="storage-btn-outline" onClick={handleRemind}>
+                    Remind in 7 days
+                  </button>
+                  <button type="button" className="storage-btn-ghost" onClick={handleNever}>
+                    Don't ask again
+                  </button>
+                </div>
+              </>
+            )}
+
+            {storage === "prompt" && (
+              <>
+                <p className="storage-prompt-title">Enable persistent storage?</p>
+                <p className="storage-prompt-body">
+                  Browsers can clear local data when disk space is low. Persistent storage
+                  prevents your progress from being wiped.
+                </p>
+                <div className="storage-actions">
+                  <button
+                    type="button"
+                    className="storage-btn-enable"
+                    onClick={() => { void handleEnable(); }}
+                  >
+                    Enable
+                  </button>
+                  <button type="button" className="storage-btn-outline" onClick={handleRemind}>
+                    Remind in 7 days
+                  </button>
+                  <button type="button" className="storage-btn-ghost" onClick={handleNever}>
+                    Never
+                  </button>
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

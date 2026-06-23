@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Nav } from "./components/ui/Nav";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
+import { PersistentStoragePrompt } from "./components/ui/PersistentStoragePrompt";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
 import { useSettingsStore } from "./lib/settingsStore";
 import Home from "./pages/home";
@@ -31,6 +32,7 @@ export default function App() {
       </a>
       <Nav isHidden={isSession} />
       <KeyboardShortcutOverlay />
+      <PersistentStoragePrompt />
       <LoadingProgressDisplay />
       <main id="app-main" className={`app-main ${isSession ? "h-screen overflow-hidden" : ""}`}>
         <Routes>
