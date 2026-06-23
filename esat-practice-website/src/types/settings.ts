@@ -19,7 +19,7 @@ export interface UserSettings {
   autoAdvance: boolean;
   autoAdvanceDelayMs: number;
   fullscreenOnStart: boolean;
-  fontPreset: "academic" | "premium" | "readable";
+  fontPreset: "academic" | "premium" | "readable" | "modern" | "technical" | "inter" | "monospace";
   fontSize: "sm" | "md" | "lg";
   targetYear: number;
   shortcuts: ShortcutMap;

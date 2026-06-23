@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import {
@@ -132,9 +132,18 @@ export default function Settings() {
               }
               className="w-40 accent-indigo-500"
             />
-            <span className="text-sm text-gray-600 w-8">
-              {settings.defaultQuestionCount}
-            </span>
+            <input
+              type="number"
+              min={5}
+              max={60}
+              value={settings.defaultQuestionCount}
+              onChange={(event) => {
+                const value = Math.max(5, Math.min(60, Number(event.target.value)));
+                if (!Number.isNaN(value)) update({ defaultQuestionCount: value });
+              }}
+              style={{ width: "4.5rem", textAlign: "right" }}
+              className="text-sm"
+            />
           </div>
         </Field>
 
@@ -142,18 +151,27 @@ export default function Settings() {
           <div className="flex items-center gap-3">
             <input
               type="range"
-              min={30}
-              max={180}
-              step={15}
+              min={10}
+              max={600}
+              step={5}
               value={settings.timedSecondsPerQ}
               onChange={(event) =>
                 update({ timedSecondsPerQ: Number(event.target.value) })
               }
               className="w-40 accent-indigo-500"
             />
-            <span className="text-sm text-gray-600 w-16">
-              {settings.timedSecondsPerQ}s / Q
-            </span>
+            <input
+              type="number"
+              min={10}
+              max={600}
+              value={settings.timedSecondsPerQ}
+              onChange={(event) => {
+                const value = Math.max(10, Math.min(600, Number(event.target.value)));
+                if (!Number.isNaN(value)) update({ timedSecondsPerQ: value });
+              }}
+              style={{ width: "4.5rem", textAlign: "right" }}
+              className="text-sm"
+            />
           </div>
         </Field>
       </Section>
@@ -209,7 +227,7 @@ export default function Settings() {
                 }
                 className="w-40 accent-indigo-500"
               />
-              <span className="text-sm text-gray-600 w-20 text-right tabular-nums">
+              <span className="text-sm text-gray-600 text-right tabular-nums" style={{ minWidth: "3rem", textAlign: "right" }}>
                 {(settings.autoAdvanceDelayMs ?? 600) === 0
                   ? "Instant"
                   : `${((settings.autoAdvanceDelayMs ?? 600) / 1000).toFixed(1)}s`}
@@ -258,18 +276,13 @@ export default function Settings() {
               update({ fontPreset: value as UserSettings["fontPreset"] })
             }
             options={[
-              {
-                value: "academic",
-                label: "Academic technical (IBM Plex Sans)",
-              },
-              {
-                value: "premium",
-                label: "Premium editorial (Manrope)",
-              },
-              {
-                value: "readable",
-                label: "Readability first (Atkinson Hyperlegible Next)",
-              },
+              { value: "academic", label: "Academic (Manrope)" },
+              { value: "premium", label: "Editorial (Manrope + Fraunces)" },
+              { value: "readable", label: "Accessible (Atkinson Hyperlegible)" },
+              { value: "modern", label: "Modern (Outfit)" },
+              { value: "technical", label: "Technical (IBM Plex Sans)" },
+              { value: "inter", label: "Clean (Inter)" },
+              { value: "monospace", label: "Monospace (JetBrains Mono)" },
             ]}
           />
         </Field>
@@ -413,15 +426,9 @@ function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${
-        checked ? "bg-indigo-500" : "bg-gray-200"
-      }`}
+      className={`settings-toggle ${checked ? "settings-toggle--on" : ""}`}
     >
-      <span
-        className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-          checked ? "translate-x-5" : "translate-x-1"
-        }`}
-      />
+      <span className="settings-toggle__knob" />
     </button>
   );
 }
@@ -459,29 +466,37 @@ function ShortcutInput({
   defaultValue: string;
   onChange: (value: string) => void;
 }) {
+  const [listening, setListening] = useState(false);
+  const isModified = value !== defaultValue;
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="shortcut-input-row">
       <button
         type="button"
+        onFocus={() => setListening(true)}
+        onBlur={() => setListening(false)}
         onKeyDown={(event) => {
           event.preventDefault();
           const nextKey = normalizeShortcutKey(event.key);
           if (nextKey) {
             onChange(nextKey);
+            event.currentTarget.blur();
           }
         }}
-        className="w-40 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:border-gray-300"
-        title="Focus and press a key to change this shortcut"
+        className={`shortcut-key-btn${listening ? " shortcut-key-btn--listening" : ""}`}
       >
-        {formatShortcutKey(value)}
+        {listening ? "Press a key…" : <kbd>{formatShortcutKey(value)}</kbd>}
       </button>
-      <button
-        type="button"
-        onClick={() => onChange(defaultValue)}
-        className="text-xs text-gray-400 transition-colors hover:text-gray-600"
-      >
-        Reset
-      </button>
+      {isModified && (
+        <button
+          type="button"
+          onClick={() => onChange(defaultValue)}
+          className="shortcut-reset-btn"
+          style={{ order: -1 }}
+        >
+          Reset
+        </button>
+      )}
     </div>
   );
 }
