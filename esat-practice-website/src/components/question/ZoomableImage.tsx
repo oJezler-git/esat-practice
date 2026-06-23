@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
 type ScanTransform = {
@@ -443,7 +444,7 @@ export function ZoomableImage({
         {previewFooter}
       </button>
 
-      {isExpanded && (
+      {isExpanded && createPortal(
         <div
           className={`source-scan-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 ${
             isClosing ? "modal-backdrop-exit" : "modal-backdrop-enter"
@@ -519,7 +520,8 @@ export function ZoomableImage({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
