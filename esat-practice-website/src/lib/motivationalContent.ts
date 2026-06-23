@@ -48,7 +48,32 @@ export const MOTIVATIONAL_QUOTES = [
   "Young man, in mathematics you don't understand things. You just get used to them.",
   "I just wondered how things were put together.",
   "Sir, an equation has no meaning for me unless it expresses a thought of God.",
-  "I am more interested in the elegance of a problem. Is it a good problem, an interesting problem?"
+  "I am more interested in the elegance of a problem. Is it a good problem, an interesting problem?",
+  "When something is important enough, you do it even if the odds are not in your favor.",
+  "Persistence is very important. You should not give up unless you are forced to give up.",
+  "Failure is an option here. If things are not failing, you are not innovating enough.",
+  "I think it is possible for ordinary people to choose to be extraordinary.",
+  "Science is discovering the essential truths about what exists in the universe. Engineering is about creating things that have never existed before.",
+
+  "Everything should be made as simple as possible, but not simpler.",
+  "The greatest obstacle to discovery is not ignorance—it is the illusion of knowledge.",
+  "An investment in knowledge pays the best interest.",
+  "The harder I work, the luckier I get.",
+  "It is not that I'm so smart. But I stay with the questions much longer.",
+  "Anyone who has never made a mistake has never tried anything new.",
+  "Learn from yesterday, live for today, hope for tomorrow. The important thing is not to stop questioning.",
+  "If people do not believe that mathematics is simple, it is only because they do not realise how complicated life is.",
+  "The difference between ordinary and extraordinary is that little extra.",
+  "Great works are performed not by strength but by perseverance.",
+  "Do not wait; the time will never be 'just right.'",
+  "The best way out is always through.",
+  "The reward of a thing well done is having done it.",
+  "Fall seven times, stand up eight.",
+  "The man who moves a mountain begins by carrying away small stones.",
+  "The journey of a thousand miles begins with a single step.",
+  "Without deviation from the norm, progress is not possible.",
+  "The reasonable man adapts himself to the world; the unreasonable one persists in trying to adapt the world to himself. Therefore all progress depends on the unreasonable man.",
+  "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.",
 ];
 
 export const GREETINGS_BY_TIME = {
