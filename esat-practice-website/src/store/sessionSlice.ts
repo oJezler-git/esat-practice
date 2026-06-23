@@ -139,6 +139,7 @@ export const useSessionSlice = create<SessionSlice>((set, get) => ({
   ...createInitialSessionState(),
   notFound: false,
   load: async (sessionId: string) => {
+    set({ ...createInitialSessionState(), notFound: false });
     const session = await getSessionById(sessionId);
     if (!session) {
       set({ ...createInitialSessionState(), notFound: true });
