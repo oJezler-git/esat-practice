@@ -2,15 +2,7 @@ import type { SessionBuildConfig } from "../types/engine";
 import type { Question } from "../types/schema";
 import { useSettingsStore } from "../lib/settingsStore";
 import { DEFAULT_SETTINGS } from "../types/settings";
-
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
-  }
-  return copy;
-}
+import { shuffle } from "../lib/shuffle";
 
 function matchesTopic(question: Question, topicFilter?: string[]): boolean {
   if (!topicFilter || topicFilter.length === 0) {
