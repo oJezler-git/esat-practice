@@ -2122,7 +2122,8 @@ p {
   animation: image-settle 700ms var(--motion-smooth) both;
 }
 
-.session-image-scroll-expanded img {
+.session-image-scroll-expanded img,
+.zoomable-image-preview-expanded img {
   opacity: 0;
 }
 
