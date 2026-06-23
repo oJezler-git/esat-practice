@@ -7,6 +7,8 @@ import { useStatsStore } from "../../lib/statsStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { getRandomQuote, getTimeBasedGreeting } from "../../lib/motivationalContent";
 import { shuffle } from "../../lib/shuffle";
+import { getOfflineDownloadState } from "../../lib/offlineDownload";
+import { isInstalledPWA } from "../../lib/pwa";
 import type { Session, TopicStat } from "../../types/schema";
 
 
@@ -28,6 +30,9 @@ export default function Home() {
   const [weakTopics, setWeakTopics] = useState<TopicStat[]>([]);
   const [greeting, setGreeting] = useState("");
   const [quote, setQuote] = useState("");
+  const [showOfflineNudge, setShowOfflineNudge] = useState(
+    () => isInstalledPWA() && !getOfflineDownloadState() && localStorage.getItem("offline_nudge_dismissed") !== "true"
+  );
   const [footerDismissed, setFooterDismissed] = useState(false);
   const [footerState, setFooterState] = useState<"idle" | "confirming" | "closing">("idle");
   const confirmTimeoutRef = useRef<number | null>(null);
@@ -232,6 +237,40 @@ export default function Home() {
           Browse questions
         </Link>
       </div>
+
+      {showOfflineNudge && (
+        <div className="offline-nudge mb-8">
+          <div className="offline-nudge__body">
+            <p className="offline-nudge__title">Download images for full offline use</p>
+            <p className="offline-nudge__desc">
+              Question images aren't cached yet — download them once in Settings to use the app without a connection.
+            </p>
+          </div>
+          <div className="offline-nudge__actions">
+            <button
+              type="button"
+              className="offline-nudge__dismiss"
+              onClick={() => {
+                localStorage.setItem("offline_nudge_dismissed", "true");
+                setShowOfflineNudge(false);
+              }}
+            >
+              Dismiss
+            </button>
+            <button
+              type="button"
+              className="offline-nudge__cta"
+              onClick={() => {
+                localStorage.setItem("offline_nudge_dismissed", "true");
+                setShowOfflineNudge(false);
+                navigate("/settings", { state: { highlight: "offline" } });
+              }}
+            >
+              Go to Settings
+            </button>
+          </div>
+        </div>
+      )}
 
       {weakTopics.length > 0 && (
         <section className="mb-8 card p-4">

@@ -1,6 +1,14 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
+import {
+  clearOfflineImageCache,
+  downloadAllImagesForOffline,
+  getCurrentDataVersion,
+  getOfflineDownloadState,
+  type OfflineDownloadState,
+} from "../../lib/offlineDownload";
 import {
   DEFAULT_SHORTCUTS,
   formatShortcutKey,
@@ -347,8 +355,158 @@ export default function Settings() {
         )}
       </Section>
 
+      <OfflineSection />
       <DataManagementSection />
     </div>
+  );
+}
+
+function OfflineSection() {
+  const [saved, setSaved] = useState<OfflineDownloadState | null>(() => getOfflineDownloadState());
+  const [currentVersion, setCurrentVersion] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [error, setError] = useState(false);
+  const [highlighted, setHighlighted] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    void getCurrentDataVersion().then(setCurrentVersion);
+    return () => { abortRef.current?.abort(); };
+  }, []);
+
+  useEffect(() => {
+    const state = location.state as { highlight?: string } | null;
+    if (state?.highlight !== "offline") return;
+    const frame = requestAnimationFrame(() => {
+      sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlighted(true);
+      const t = setTimeout(() => setHighlighted(false), 2000);
+      return () => clearTimeout(t);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location.state]);
+
+  async function startDownload() {
+    setError(false);
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setProgress({ done: 0, total: 0 });
+    try {
+      await downloadAllImagesForOffline(
+        (done, total) => setProgress({ done, total }),
+        controller.signal,
+      );
+      setSaved(getOfflineDownloadState());
+    } catch {
+      setError(true);
+    } finally {
+      setProgress(null);
+      abortRef.current = null;
+    }
+  }
+
+  async function handleClear() {
+    await clearOfflineImageCache();
+    setSaved(null);
+    setError(false);
+  }
+
+  const isDownloading = progress !== null;
+
+  return (
+    <section
+      ref={sectionRef}
+      id="offline-section"
+      className={`mb-8 border rounded-xl overflow-hidden transition-colors duration-300 ${highlighted ? "offline-section--highlight" : "border-gray-200 bg-white"}`}
+    >
+      <div className="px-4 py-3.5 border-b border-gray-100">
+        <h2 className="text-sm font-medium text-gray-500">Offline</h2>
+        <p className="text-xs text-gray-400 mt-1">
+          Pre-download question images (~47 MB) to use the app without a connection.
+        </p>
+      </div>
+      <div className="px-4 py-3.5">
+        {isDownloading ? (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>
+                {progress.total === 0
+                  ? "Preparing…"
+                  : `${progress.done} / ${progress.total} images`}
+              </span>
+              <button
+                type="button"
+                onClick={() => { abortRef.current?.abort(); setProgress(null); }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-indigo-500 rounded-full transition-all duration-150"
+                style={{
+                  width: progress.total > 0
+                    ? `${Math.round((progress.done / progress.total) * 100)}%`
+                    : "0%",
+                }}
+              />
+            </div>
+          </div>
+        ) : saved ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                {saved.count} images cached
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {currentVersion && saved.dataVersion && currentVersion !== saved.dataVersion
+                  ? <span className="text-amber-600">New question data available — refresh to update</span>
+                  : <>Downloaded {new Date(saved.downloadedAt).toLocaleDateString("en-GB", {
+                      day: "numeric", month: "short", year: "numeric",
+                    })}</>
+                }
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => { void startDownload(); }}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  currentVersion && saved.dataVersion && currentVersion !== saved.dataVersion
+                    ? "border border-amber-300 text-amber-700 hover:bg-amber-50"
+                    : "border border-gray-200 text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                Refresh
+              </button>
+              <button
+                type="button"
+                onClick={() => { void handleClear(); }}
+                className="px-3 py-1.5 text-sm border border-red-200 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">
+              {error ? "Download failed — check your connection." : "Not downloaded"}
+            </p>
+            <button
+              type="button"
+              onClick={() => { void startDownload(); }}
+              className="px-3 py-1.5 text-sm border border-gray-200 text-gray-700 rounded-lg hover:border-gray-300 transition-colors"
+            >
+              {error ? "Retry" : "Download"}
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
