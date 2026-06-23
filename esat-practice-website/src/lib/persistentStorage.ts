@@ -40,5 +40,5 @@ export async function requestPersist(): Promise<boolean> {
 }
 
 export function isSupported(): boolean {
-  return Boolean(navigator.storage?.persist && navigator.storage?.persisted);
+  return Boolean(navigator.storage?.persist) && Boolean(navigator.storage?.persisted);
 }
