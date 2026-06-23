@@ -1,0 +1,16 @@
+name = "esat-sync-worker"
+main = "sync-worker.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "KV"
+id = "795bdd0dc9d047b5a214d80a10188f06"
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+
+[ratelimits.simple]
+limit = 30
+period = 60

@@ -19,6 +19,7 @@ import {
   type UserSettings,
 } from "../../types/settings";
 import { DataManagementSection } from "../../components/DataManagementSection";
+import { CloudSyncSection } from "../../components/CloudSyncSection";
 
 const SHORTCUT_FIELDS: Array<{
   action: ShortcutAction;
@@ -101,6 +102,10 @@ export default function Settings() {
           Reset to defaults
         </button>
       </div>
+
+
+      <CloudSyncSection />
+
 
       <Section
         title="Session defaults"
