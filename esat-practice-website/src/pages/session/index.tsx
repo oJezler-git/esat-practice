@@ -444,6 +444,7 @@ export default function SessionPage() {
   };
 
   const {
+    notFound,
     status,
     currentQuestion,
     currentIndex,
@@ -600,9 +601,19 @@ export default function SessionPage() {
     };
   }, [currentAttemptResult, currentQuestion, nav, settings.autoAdvance, settings.autoAdvanceDelayMs]);
 
+  useEffect(() => {
+    if (notFound) {
+      navigate("/", { replace: true });
+    }
+  }, [notFound, navigate]);
+
+  if (notFound) {
+    return null;
+  }
+
   if (status === "idle" || status === "configured") {
     return (
-      <div className="flex items-center justify-center h-screen text-gray-400">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100dvh", color: "var(--text-muted)" }}>
         Loading session...
       </div>
     );
@@ -610,7 +621,7 @@ export default function SessionPage() {
 
   if (!currentQuestion) {
     return (
-      <div className="flex items-center justify-center h-screen text-gray-400">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100dvh", color: "var(--text-muted)" }}>
         No questions found.
       </div>
     );

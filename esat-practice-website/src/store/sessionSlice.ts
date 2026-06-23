@@ -122,6 +122,7 @@ function removeQuestionFromState(
 }
 
 interface SessionSlice extends SessionEngineState {
+  notFound: boolean;
   load: (sessionId: string) => Promise<void>;
   mark: (result: SelfMarkResult) => Promise<void>;
   flag: () => Promise<void>;
@@ -136,10 +137,11 @@ interface SessionSlice extends SessionEngineState {
 
 export const useSessionSlice = create<SessionSlice>((set, get) => ({
   ...createInitialSessionState(),
+  notFound: false,
   load: async (sessionId: string) => {
     const session = await getSessionById(sessionId);
     if (!session) {
-      set(createInitialSessionState());
+      set({ ...createInitialSessionState(), notFound: true });
       return;
     }
 
@@ -418,6 +420,7 @@ export const useSessionSlice = create<SessionSlice>((set, get) => ({
 }));
 
 export function useSessionEngine(sessionId: string) {
+  const notFound = useSessionSlice((state) => state.notFound);
   const status = useSessionSlice((state) => state.status);
   const session = useSessionSlice((state) => state.session);
   const questions = useSessionSlice((state) => state.questions);
@@ -465,6 +468,7 @@ export function useSessionEngine(sessionId: string) {
 
   return useMemo(
     () => ({
+      notFound,
       status,
       currentQuestion,
       currentIndex,
@@ -485,6 +489,7 @@ export function useSessionEngine(sessionId: string) {
       questions,
     }),
     [
+      notFound,
       currentAttemptResult,
       currentIndex,
       currentQuestion,
