@@ -3066,3 +3066,146 @@ p {
   color: var(--text-secondary);
   border-color: var(--border-subtle);
 }
+
+/* ── Offline download nudge (installed PWA only) ── */
+.offline-nudge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.875rem 1rem;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 0.75rem;
+}
+
+.offline-nudge__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.offline-nudge__title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--accent-strong);
+}
+
+.offline-nudge__desc {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  line-height: 1.5;
+}
+
+.offline-nudge__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.offline-nudge__cta {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent-strong);
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  border-radius: 0.375rem;
+  padding: 0.3125rem 0.75rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 150ms ease;
+}
+
+.offline-nudge__cta:hover {
+  background: var(--surface-3);
+}
+
+.offline-nudge__dismiss {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+.offline-nudge__dismiss:hover {
+  color: var(--text-secondary);
+}
+
+/* ── Settings offline section highlight ── */
+.offline-section--highlight {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* ── Update / offline-ready prompt ── */
+.update-prompt {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.625rem;
+  box-shadow: var(--motion-soft-shadow);
+  animation: update-prompt-in 220ms var(--motion-smooth) both;
+}
+
+@keyframes update-prompt-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.update-prompt__message {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.update-prompt__reload {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 0.375rem;
+  padding: 0.1875rem 0.625rem;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+  white-space: nowrap;
+}
+
+.update-prompt__reload:hover {
+  background: var(--surface-3);
+  border-color: var(--accent-strong);
+}
+
+.update-prompt__close {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  transition: color 150ms ease;
+  line-height: 1;
+}
+
+.update-prompt__close:hover {
+  color: var(--text-secondary);
+}
