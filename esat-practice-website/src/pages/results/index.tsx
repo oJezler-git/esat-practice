@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { QuestionCard } from "../../components/question/QuestionCard";
 import { scoreSession } from "../../engine/scorer";
+import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
+import { useSettingsStore } from "../../lib/settingsStore";
 import type { TopicBreakdownRow } from "../../types/engine";
 import type { Attempt, Question, Session } from "../../types/schema";
 
@@ -16,7 +18,9 @@ export default function ResultsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getSession, getAttempts } = useSessionStore();
-  const { getQuestionsByIds } = useQuestionStore();
+  const { getQuestionsByIds, questions: allQuestions } = useQuestionStore();
+  const { excludeQuestion } = useExcludedQuestionStore();
+  const settings = useSettingsStore((state) => state.settings);
 
   const [session, setSession] = useState<Session | null>(null);
   const [items, setItems] = useState<ReviewItem[]>([]);
@@ -24,6 +28,7 @@ export default function ResultsPage() {
   const [reviewMode, setReviewMode] = useState<"all" | "incorrect">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [autoExcludedCount, setAutoExcludedCount] = useState<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -81,13 +86,27 @@ export default function ResultsPage() {
       setItems(mapped);
       setTopicBreakdown(scored.topicBreakdown);
       setIsLoading(false);
+
+      if (settings.autoExclude) {
+        const toExclude = mapped.filter(({ attempt }) => {
+          if (settings.autoExcludeOn === "any") return true;
+          if (settings.autoExcludeOn === "attempted") return attempt.result !== "skipped";
+          return attempt.result === "correct";
+        });
+        if (toExclude.length > 0) {
+          await Promise.all(
+            toExclude.map(({ question }) => excludeQuestion(question.id, allQuestions)),
+          );
+          if (mounted) setAutoExcludedCount(toExclude.length);
+        }
+      }
     }
 
     void load();
     return () => {
       mounted = false;
     };
-  }, [getAttempts, getQuestionsByIds, getSession, id, navigate]);
+  }, [allQuestions, excludeQuestion, getAttempts, getQuestionsByIds, getSession, id, navigate, settings.autoExclude, settings.autoExcludeOn]);
 
   const attempted = useMemo(
     () => items.filter((item) => item.attempt.result !== "skipped"),
@@ -145,6 +164,15 @@ export default function ResultsPage() {
           {timeStr}
         </div>
       </div>
+
+      {autoExcludedCount !== null && (
+        <div className="auto-exclude-notice">
+          <span>
+            {autoExcludedCount} question{autoExcludedCount !== 1 ? "s" : ""} marked as done and removed from future sessions.
+          </span>
+          <Link to="/settings">Change</Link>
+        </div>
+      )}
 
       <section className="mb-10 card p-4">
         <h2 className="text-sm font-medium text-gray-500 mb-4">

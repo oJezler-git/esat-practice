@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildSession } from "../../engine/sessionBuilder";
+import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionStore } from "../../lib/sessionStore";
@@ -35,6 +36,7 @@ export default function PracticeSetup() {
     useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
   const { createSession } = useSessionStore();
+  const { excludedQuestionIds } = useExcludedQuestionStore();
 
   const [mode, setMode] = useState<SessionMode>(settings.defaultMode);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -43,6 +45,7 @@ export default function PracticeSetup() {
   const [setupError, setSetupError] = useState<string | null>(null);
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
+  const availableQuestions = questions.filter((q) => !excludedQuestionIds.has(q.id));
 
   function toggleTopic(topic: string) {
     setSelectedTopics((previous) =>
@@ -78,7 +81,7 @@ export default function PracticeSetup() {
           : undefined,
     };
 
-    const questionIds = buildSession(questions, config);
+    const questionIds = buildSession(availableQuestions, config);
     if (questionIds.length === 0) {
       setSetupError("No questions match your filters. Try broadening your selection.");
       return;
@@ -106,7 +109,9 @@ export default function PracticeSetup() {
       <p className="page-subtitle mb-8">
         {isQuestionBankLoading
           ? "Preparing question bank..."
-          : `${questions.length} questions loaded`}
+          : excludedQuestionIds.size > 0
+            ? `${availableQuestions.length} of ${questions.length} questions available`
+            : `${questions.length} questions loaded`}
       </p>
 
       <section className="mb-8 card p-4">

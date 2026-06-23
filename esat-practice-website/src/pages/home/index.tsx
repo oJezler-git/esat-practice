@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type TransitionEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
@@ -21,6 +22,7 @@ export default function Home() {
   const { getRecentSessions, createSession } = useSessionStore();
   const { getAllStats } = useStatsStore();
   const settings = useSettingsStore((state) => state.settings);
+  const { excludedQuestionIds } = useExcludedQuestionStore();
 
   const [recentSessions, setRecentSessions] = useState<Session[]>([]);
   const [weakTopics, setWeakTopics] = useState<TopicStat[]>([]);
@@ -152,7 +154,9 @@ export default function Home() {
       return;
     }
 
-    const ids = shuffle(questions)
+    const available = questions.filter((q) => !excludedQuestionIds.has(q.id));
+    const pool = available.length > 0 ? available : questions;
+    const ids = shuffle(pool)
       .slice(0, 20)
       .map((question) => question.id);
     const session = await createSession({

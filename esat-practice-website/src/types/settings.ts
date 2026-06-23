@@ -8,6 +8,8 @@ export type ShortcutAction =
 
 export type ShortcutMap = Record<ShortcutAction, string>;
 
+export type AutoExcludeOn = "any" | "attempted" | "correct";
+
 export interface UserSettings {
   defaultMode: "timed" | "untimed" | "topic" | "mixed";
   defaultQuestionCount: number;
@@ -21,6 +23,8 @@ export interface UserSettings {
   fontSize: "sm" | "md" | "lg";
   targetYear: number;
   shortcuts: ShortcutMap;
+  autoExclude: boolean;
+  autoExcludeOn: AutoExcludeOn;
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
@@ -45,6 +49,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   fontSize: "md",
   targetYear: new Date().getFullYear(),
   shortcuts: DEFAULT_SHORTCUTS,
+  autoExclude: false,
+  autoExcludeOn: "attempted",
 };
 
 export function normalizeShortcutKey(key: string): string | null {

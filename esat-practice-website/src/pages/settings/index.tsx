@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
+import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import {
   DEFAULT_SHORTCUTS,
   formatShortcutKey,
   normalizeShortcutKey,
+  type AutoExcludeOn,
   type ShortcutAction,
   type ShortcutMap,
   type UserSettings,
@@ -56,6 +58,7 @@ function getTargetYearOptions(
 
 export default function Settings() {
   const { settings, update, reset } = useSettingsStore();
+  const { excludedQuestions, includeQuestion } = useExcludedQuestionStore();
 
   function updateShortcut(action: ShortcutAction, key: string) {
     const nextShortcuts: ShortcutMap = {
@@ -297,6 +300,57 @@ export default function Settings() {
             options={getTargetYearOptions(settings.targetYear)}
           />
         </Field>
+      </Section>
+
+      <Section
+        title="Question pool"
+        description="Control which questions appear in new sessions."
+      >
+        <Field
+          label="Auto-exclude answered questions"
+          description="After each session, qualifying questions are removed from future sessions."
+        >
+          <Toggle
+            checked={settings.autoExclude}
+            onChange={(value) => update({ autoExclude: value })}
+          />
+        </Field>
+
+        {settings.autoExclude && (
+          <Field
+            label="Exclude when"
+            description="Which results count as done."
+          >
+            <Select
+              value={settings.autoExcludeOn}
+              onChange={(value) => update({ autoExcludeOn: value as AutoExcludeOn })}
+              options={[
+                { value: "attempted", label: "Attempted (correct or incorrect)" },
+                { value: "correct", label: "Correct only" },
+                { value: "any", label: "Seen (including skipped)" },
+              ]}
+            />
+          </Field>
+        )}
+
+        {excludedQuestions.length > 0 && (
+          <Field
+            label="Excluded questions"
+            description={`${excludedQuestions.length} question${excludedQuestions.length !== 1 ? "s" : ""} hidden from sessions. Manage individual questions in the question bank.`}
+          >
+            <button
+              type="button"
+              onClick={async () => {
+                if (window.confirm(`Re-add all ${excludedQuestions.length} excluded questions to the pool?`)) {
+                  await Promise.all(excludedQuestions.map((eq) => includeQuestion(eq.question_id)));
+                }
+              }}
+              className="storage-btn-outline"
+            >
+              Reset pool
+            </button>
+          </Field>
+        )}
       </Section>
 
       <DataManagementSection />
