@@ -151,9 +151,11 @@ export function SessionHeader({
     };
   }, [currentIndex, questionIds.length]);
 
-  const exitFullscreen = () => {
-    if (document.fullscreenElement && document.exitFullscreen) {
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
       void document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      void document.documentElement.requestFullscreen();
     }
   };
 
@@ -192,18 +194,22 @@ export function SessionHeader({
           </span>
         )}
 
-        {isFullscreen && (
-          <button
-            type="button"
-            onClick={exitFullscreen}
-            title="Exit fullscreen"
-            className="p-1 rounded text-gray-400 hover:text-gray-700 transition-colors"
-          >
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          className="p-1 rounded text-gray-400 hover:text-gray-700 transition-colors"
+        >
+          {isFullscreen ? (
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
               <path d="M5 2H2v3l2.5-2.5L5 2zM11 2h3v3l-2.5-2.5L11 2zM11 14h3v-3l-2.5 2.5L11 14zM5 14H2v-3l2.5 2.5L5 14z" />
             </svg>
-          </button>
-        )}
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M0 0h4.5v1.5H1.5V4.5H0ZM11.5 0H16v4.5h-1.5V1.5H11.5ZM0 11.5h1.5V14.5H4.5V16H0ZM14.5 11.5H16V16H11.5v-1.5h3Z" />
+            </svg>
+          )}
+        </button>
 
         <button
           type="button"
