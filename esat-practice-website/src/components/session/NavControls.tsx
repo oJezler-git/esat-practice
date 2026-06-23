@@ -1,6 +1,7 @@
 interface Props {
   currentIndex: number;
   totalCount: number;
+  currentAnswered: boolean;
   onPrev: () => void;
   onNext: () => void;
   onExclude: () => void;
@@ -12,6 +13,7 @@ interface Props {
 export function NavControls({
   currentIndex,
   totalCount,
+  currentAnswered,
   onPrev,
   onNext,
   onExclude,
@@ -58,7 +60,8 @@ export function NavControls({
           <button
             type="button"
             onClick={onSubmit}
-            className="px-6 py-2 text-sm bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            disabled={!currentAnswered}
+            className="px-6 py-2 text-sm bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Submit session
           </button>

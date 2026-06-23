@@ -332,6 +332,7 @@ export default function SessionPage() {
       <NavControls
         currentIndex={currentIndex}
         totalCount={totalCount}
+        currentAnswered={Boolean(currentAttemptResult)}
         onPrev={() => {
           void nav("prev");
         }}
