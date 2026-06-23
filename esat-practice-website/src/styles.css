@@ -2511,6 +2511,7 @@ p {
   opacity: 1;
   transform: translateY(0);
   will-change: opacity, transform;
+  animation-fill-mode: backwards;
   transition: opacity 420ms ease, transform 420ms ease;
 }
 
