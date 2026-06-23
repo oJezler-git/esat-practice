@@ -21,7 +21,6 @@ export interface UserSettings {
   fullscreenOnStart: boolean;
   fontPreset: "academic" | "premium" | "readable" | "modern" | "technical" | "inter" | "monospace";
   fontSize: "sm" | "md" | "lg";
-  targetYear: number;
   shortcuts: ShortcutMap;
   autoExclude: boolean;
   autoExcludeOn: AutoExcludeOn;
@@ -47,7 +46,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
   fullscreenOnStart: true,
   fontPreset: "academic",
   fontSize: "md",
-  targetYear: new Date().getFullYear(),
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,
   autoExcludeOn: "attempted",

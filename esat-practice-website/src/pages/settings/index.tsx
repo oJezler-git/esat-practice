@@ -49,12 +49,6 @@ const SHORTCUT_FIELDS: Array<{
   },
 ];
 
-function getTargetYearOptions(
-  targetYear: number,
-): { value: string; label: string }[] {
-  const years = [targetYear - 1, targetYear, targetYear + 1];
-  return years.map((year) => ({ value: String(year), label: String(year) }));
-}
 
 export default function Settings() {
   const { settings, update, reset } = useSettingsStore();
@@ -298,19 +292,6 @@ export default function Settings() {
               { value: "md", label: "Medium (default)" },
               { value: "lg", label: "Large" },
             ]}
-          />
-        </Field>
-      </Section>
-
-      <Section
-        title="Exam context"
-        description="Set constraints that should be reflected in your practice sessions."
-      >
-        <Field label="Target year">
-          <Select
-            value={String(settings.targetYear)}
-            onChange={(value) => update({ targetYear: Number(value) })}
-            options={getTargetYearOptions(settings.targetYear)}
           />
         </Field>
       </Section>
