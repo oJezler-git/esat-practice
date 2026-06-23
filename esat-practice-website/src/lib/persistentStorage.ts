@@ -1,3 +1,5 @@
+// Unused — persistent storage prompt was removed in favour of browser auto-grant for installed PWAs.
+// Re-import in App.tsx if explicit prompting is ever needed.
 const KEY = "persistent_storage";
 
 type Decision = "undecided" | "granted" | "snoozed" | "never";
