@@ -32,7 +32,14 @@ export function UpdatePrompt() {
         <button
           type="button"
           className="update-prompt__reload"
-          onClick={() => void updateServiceWorker(true)}
+          onClick={() => {
+            void updateServiceWorker(true);
+            // Fallback: if registration.waiting was already null (mobile browsers
+            // can auto-activate a waiting SW when the app is foregrounded), the
+            // controllerchange event never fires. Force a reload after a short
+            // delay so the user isn't left with a button that silently does nothing.
+            setTimeout(() => window.location.reload(), 1500);
+          }}
         >
           Reload
         </button>
