@@ -33,6 +33,7 @@ coverage/
 
 # Markdown files
 *.md
+!README.md
 
 # Editor + OS files
 .vscode/*

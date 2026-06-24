@@ -76,6 +76,10 @@ npm run verify:loader
 npm run build
 ```
 
+## Disclaimer
+
+This project is an independent, community-built study tool and is **not affiliated with, endorsed by, or associated with** the Engineering and Science Admissions Test (ESAT), Cambridge Assessment Admissions Testing, or the University of Cambridge in any way. All question content is used for educational purposes only.
+
 ## Notes
 
 - First full bootstrap imports packs into IndexedDB for full-bank access.
