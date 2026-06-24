@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Question } from "../types/schema";
 import { askClaudeBasic, askClaudeWithScript, DEFAULT_PROMPT_TEMPLATE } from "../lib/askClaude";
 import { useSettingsStore } from "../lib/settingsStore";
@@ -11,7 +11,7 @@ interface Props {
 type ButtonState = "idle" | "working" | "done" | "error";
 
 export function AskClaudeButton({ question }: Props) {
-  const { settings, update } = useSettingsStore();
+  const { settings } = useSettingsStore();
   const claudeMode = settings.claudeMode ?? "auto";
   const onboarded = settings.claudeOnboarded ?? false;
   const template = settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE;
@@ -20,6 +20,9 @@ export function AskClaudeButton({ question }: Props) {
   const [state, setState] = useState<ButtonState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (resetTimerRef.current) clearTimeout(resetTimerRef.current); }, []);
 
   useEffect(() => {
     if ((window as unknown as Record<string, unknown>).__esatExtension) {
@@ -49,7 +52,8 @@ export function AskClaudeButton({ question }: Props) {
       setErrorMsg(err instanceof Error ? err.message : null);
       setState("error");
     } finally {
-      setTimeout(() => { setState("idle"); setErrorMsg(null); }, 4000);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = setTimeout(() => { setState("idle"); setErrorMsg(null); }, 4000);
     }
   }
 
@@ -58,10 +62,10 @@ export function AskClaudeButton({ question }: Props) {
     state === "done" && useExtension ? "Sent to Claude!" :
     state === "done" ? "Paste into Claude" :
     state === "error" ? "Something went wrong" :
-    "Ask Claude";
+    "Ask Claude (Experimental)";
 
   const sublabel =
-    state === "done"  ? (useExtension ? "Injected automatically" : "Prompt is on your clipboard") :
+    state === "done"  ? (useExtension ? "Extension received — Claude opening" : "Prompt is on your clipboard") :
     state === "error" ? (errorMsg ?? "Try again or paste manually") :
     null;
 
@@ -109,10 +113,7 @@ export function AskClaudeButton({ question }: Props) {
 
       {showModal && (
         <AskClaudeInfoModal
-          onClose={() => {
-            setShowModal(false);
-            if (!onboarded) update({ claudeOnboarded: true });
-          }}
+          onClose={() => setShowModal(false)}
         />
       )}
     </div>

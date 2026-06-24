@@ -80,6 +80,7 @@ export function askClaudeWithScript(question: Question, template: string, hasExt
   if (!hasExtension) throw new Error("Tampermonkey extension not detected — install it or switch to copy & paste mode in Settings.");
   const prompt = renderPromptTemplate(template, question);
   if (!prompt.trim()) throw new Error("Prompt template is empty — add some content in Settings.");
+  if (prompt.length > 100_000) throw new Error("Rendered prompt exceeds 100 KB — shorten your template in Settings.");
 
   const imageB64 = question.content.image_b64
     ? question.content.image_b64.startsWith("data:")

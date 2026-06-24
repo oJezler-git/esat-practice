@@ -365,7 +365,7 @@ export default function Settings() {
       </Section>
 
       <Section
-        title="Ask Claude"
+        title="Ask Claude (Experimental)"
         description="Control how the Ask Claude button sends questions to Claude."
       >
         <Field
@@ -408,6 +408,7 @@ export default function Settings() {
             onChange={(e) => update({ claudePromptTemplate: e.target.value })}
             rows={12}
             spellCheck={false}
+            maxLength={50_000}
           />
 
           <div className="flex flex-wrap gap-1.5 mt-1">

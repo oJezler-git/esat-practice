@@ -53,6 +53,10 @@
           if (!raw) return;
           let payload;
           try { payload = JSON.parse(raw); } catch (_) { return; }
+          if (Date.now() - (payload.ts ?? 0) > 5 * 60 * 1000) {
+            GM_deleteValue('esat-ask-payload');
+            return;
+          }
           injectQuestion(payload).catch(console.error);
         }, 300);
       }
@@ -94,6 +98,7 @@
       // Input validation and size limits (prevent DoS)
       if (typeof prompt !== 'string' || prompt.length > 100000) return;
       if (imageB64 && (typeof imageB64 !== 'string' || !imageB64.startsWith('data:image/'))) return;
+      if (imageUrl && typeof imageUrl !== 'string') return;
 
       // Ensure we have a base64 Data URI to pass to Claude.
       // If the app provided a direct URL instead of base64, fetch it locally.
@@ -107,7 +112,7 @@
       }
 
       // Serialise and store the payload in the global GM store.
-      GM_setValue('esat-ask-payload', JSON.stringify({ prompt, imageDataUri }));
+      GM_setValue('esat-ask-payload', JSON.stringify({ prompt, imageDataUri, ts: Date.now() }));
       
       // Provide a brief delay so GM_setValue transaction commits before opening the tab.
       await delay(150);
@@ -195,6 +200,10 @@
         // the page hasn't redirected away (e.g. Claude kicking out a logged-out user).
         let payload;
         try { payload = JSON.parse(raw); } catch (_) {
+          GM_deleteValue('esat-ask-payload');
+          return;
+        }
+        if (Date.now() - (payload.ts ?? 0) > 5 * 60 * 1000) {
           GM_deleteValue('esat-ask-payload');
           return;
         }

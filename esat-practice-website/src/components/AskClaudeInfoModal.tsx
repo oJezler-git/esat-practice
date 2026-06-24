@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSettingsStore } from "../lib/settingsStore";
 
 interface Props {
   onClose: () => void;
@@ -8,6 +9,12 @@ interface Props {
 export function AskClaudeInfoModal({ onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const navigate = useNavigate();
+  const { settings, update } = useSettingsStore();
+
+  useEffect(() => {
+    if (!settings.claudeOnboarded) update({ claudeOnboarded: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -18,7 +25,7 @@ export function AskClaudeInfoModal({ onClose }: Props) {
   }, []);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose();
+    if (e.target === dialogRef.current) dialogRef.current?.close();
   }
 
   function openScript() {
@@ -44,7 +51,7 @@ export function AskClaudeInfoModal({ onClose }: Props) {
             type="button"
             className="ask-claude-modal__close"
             aria-label="Close"
-            onClick={onClose}
+            onClick={() => dialogRef.current?.close()}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />

@@ -59,6 +59,10 @@ export const useSettingsStore = create<SettingsStore>()(
             ...DEFAULT_SETTINGS,
             ...(persisted?.settings ?? {}),
             shortcuts: sanitizeShortcuts(persisted?.settings?.shortcuts),
+            claudePromptTemplate:
+              typeof persisted?.settings?.claudePromptTemplate === 'string'
+                ? persisted.settings.claudePromptTemplate
+                : DEFAULT_SETTINGS.claudePromptTemplate,
           },
         };
       },
