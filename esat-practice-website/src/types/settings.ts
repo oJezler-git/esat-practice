@@ -1,3 +1,5 @@
+import { DEFAULT_PROMPT_TEMPLATE } from "../lib/askClaude";
+
 export type ShortcutAction =
   | "revealCorrect"
   | "incorrect"
@@ -28,6 +30,7 @@ export interface UserSettings {
   autoExcludeOn: AutoExcludeOn;
   claudeMode: ClaudeMode;
   claudeOnboarded: boolean;
+  claudePromptTemplate: string;
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
@@ -55,6 +58,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   autoExcludeOn: "attempted",
   claudeMode: "auto",
   claudeOnboarded: false,
+  claudePromptTemplate: DEFAULT_PROMPT_TEMPLATE,
 };
 
 export function normalizeShortcutKey(key: string): string | null {

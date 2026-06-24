@@ -1,17 +1,12 @@
 import type { Question } from "../types/schema";
 
-function formatClaudePrompt(question: Question): string {
-  const { content, taxonomy, answer } = question;
-  const preview = content.text.trim().replace(/\s+/g, " ").slice(0, 140);
-  const questionText = content.text.trim().length > 140 ? preview + "…" : preview;
-
-  return `I'm practising for the Engineering and Science Admissions Test (ESAT) and need help with a ${taxonomy.primary_topic} question.
+export const DEFAULT_PROMPT_TEMPLATE = `I'm practising for the Engineering and Science Admissions Test (ESAT) and need help with a {{topic}} question.
 
 The question begins:
-${questionText}
+{{question}}
 
 Correct answer:
-${answer.correct}
+{{answer}}
 
 Act as an expert ESAT tutor.
 
@@ -42,6 +37,26 @@ Structure your response exactly as follows:
 
 ## Exam Takeaway
 - One or two concise rules to remember in future.`;
+
+const TEMPLATE_VARS: Record<string, (q: Question) => string> = {
+  question: (q) => {
+    const t = q.content.text.trim().replace(/\s+/g, " ");
+    return t.length > 140 ? t.slice(0, 140) + "…" : t;
+  },
+  question_full: (q) => q.content.text.trim(),
+  answer:  (q) => q.answer.correct,
+  topic:   (q) => q.taxonomy.primary_topic,
+  subject: (q) => q.source.subject,
+  year:    (q) => String(q.source.year),
+  paper:   (q) => q.source.paper,
+};
+
+// Substitutes {{variable}} tokens. Unknown tokens are left as-is.
+export function renderPromptTemplate(template: string, question: Question): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (match, key: string) => {
+    const fn = TEMPLATE_VARS[key];
+    return fn ? fn(question) : match;
+  });
 }
 
 export function questionHasImage(question: Question): boolean {
@@ -50,8 +65,8 @@ export function questionHasImage(question: Question): boolean {
 
 // No-script path: copy prompt text to clipboard and open claude.ai.
 // User attaches the image manually.
-export async function askClaudeBasic(question: Question): Promise<void> {
-  const prompt = formatClaudePrompt(question);
+export async function askClaudeBasic(question: Question, template: string): Promise<void> {
+  const prompt = renderPromptTemplate(template, question);
   await navigator.clipboard.writeText(prompt);
   window.open("https://claude.ai/new", "_blank", "noopener,noreferrer");
 }
@@ -59,8 +74,8 @@ export async function askClaudeBasic(question: Question): Promise<void> {
 // Userscript path: post the raw question data to the userscript running on this
 // page. It handles image fetching (via GM_xmlhttpRequest, which bypasses CORS)
 // then opens claude.ai and auto-injects everything.
-export function askClaudeWithScript(question: Question): void {
-  const prompt = formatClaudePrompt(question);
+export function askClaudeWithScript(question: Question, template: string): void {
+  const prompt = renderPromptTemplate(template, question);
 
   const imageB64 = question.content.image_b64
     ? question.content.image_b64.startsWith("data:")

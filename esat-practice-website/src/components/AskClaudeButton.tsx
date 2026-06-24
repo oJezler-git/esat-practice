@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Question } from "../types/schema";
-import { askClaudeBasic, askClaudeWithScript } from "../lib/askClaude";
+import { askClaudeBasic, askClaudeWithScript, DEFAULT_PROMPT_TEMPLATE } from "../lib/askClaude";
 import { useSettingsStore } from "../lib/settingsStore";
 import { AskClaudeInfoModal } from "./AskClaudeInfoModal";
 
@@ -14,6 +14,7 @@ export function AskClaudeButton({ question }: Props) {
   const { settings, update } = useSettingsStore();
   const claudeMode = settings.claudeMode ?? "auto";
   const onboarded = settings.claudeOnboarded ?? false;
+  const template = settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE;
 
   const [hasExtension, setHasExtension] = useState(false);
   const [state, setState] = useState<ButtonState>("idle");
@@ -37,9 +38,9 @@ export function AskClaudeButton({ question }: Props) {
     setState("working");
     try {
       if (useExtension) {
-        askClaudeWithScript(question);
+        askClaudeWithScript(question, template);
       } else {
-        await askClaudeBasic(question);
+        await askClaudeBasic(question, template);
       }
       setState("done");
     } catch {

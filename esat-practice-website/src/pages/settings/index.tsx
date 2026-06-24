@@ -19,6 +19,7 @@ import {
   type ShortcutMap,
   type UserSettings,
 } from "../../types/settings";
+import { DEFAULT_PROMPT_TEMPLATE } from "../../lib/askClaude";
 import { AskClaudeInfoModal } from "../../components/AskClaudeInfoModal";
 import { DataManagementSection } from "../../components/DataManagementSection";
 import { CloudSyncSection } from "../../components/CloudSyncSection";
@@ -381,7 +382,61 @@ export default function Settings() {
             ]}
           />
         </Field>
-        <div className="px-4 py-3">
+
+        <div className="px-4 py-4 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-gray-700">Prompt template</div>
+              <div className="text-xs text-gray-400 mt-0.5">
+                Customise what is sent to Claude. Use <code className="prompt-var-inline">{"{{variable}}"}</code> tokens — unknown tokens are left as-is.
+              </div>
+            </div>
+            {(settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE) !== DEFAULT_PROMPT_TEMPLATE && (
+              <button
+                type="button"
+                className="px-2.5 py-1 text-xs border border-gray-200 rounded-lg text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors flex-shrink-0"
+                onClick={() => update({ claudePromptTemplate: DEFAULT_PROMPT_TEMPLATE })}
+              >
+                Reset
+              </button>
+            )}
+          </div>
+
+          <textarea
+            className="prompt-template-textarea"
+            value={settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE}
+            onChange={(e) => update({ claudePromptTemplate: e.target.value })}
+            rows={12}
+            spellCheck={false}
+          />
+
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            {[
+              { token: "{{question}}", hint: "question text (truncated)" },
+              { token: "{{question_full}}", hint: "full question text" },
+              { token: "{{answer}}", hint: "correct answer" },
+              { token: "{{topic}}", hint: "primary topic" },
+              { token: "{{subject}}", hint: "subject" },
+              { token: "{{year}}", hint: "year" },
+              { token: "{{paper}}", hint: "paper code" },
+            ].map(({ token, hint }) => (
+              <button
+                key={token}
+                type="button"
+                title={hint}
+                className="prompt-var-chip"
+                onClick={() => {
+                  const current = settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE;
+                  update({ claudePromptTemplate: current + token });
+                }}
+              >
+                {token}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="px-4 py-3 border-t border-gray-100">
           <button
             type="button"
             className="settings-text-link"
