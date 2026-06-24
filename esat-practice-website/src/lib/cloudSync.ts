@@ -1,28 +1,14 @@
 import type { Attempt, ExcludedQuestion, Session, TopicStat } from "../types/schema";
 import { getDb } from "./db";
+import { ADJECTIVES, NOUNS } from "./syncWordList";
+
+export { ADJECTIVES, NOUNS } from "./syncWordList";
+export { validateWordPair } from "./syncWordList";
 
 export const SYNC_KEY_STORAGE_KEY = "esat-sync-key";
 const LAST_PUSH_STORAGE_KEY = "esat-sync-last-push";
 
-const ADJECTIVES = [
-  "amber", "azure", "bold", "bright", "calm", "clear", "cool", "crisp",
-  "dark", "deep", "dry", "fair", "fast", "firm", "flat", "free", "fresh",
-  "gold", "grey", "hard", "high", "keen", "large", "lean", "light", "long",
-  "loud", "low", "mild", "mint", "neat", "pale", "pink", "pure", "quick",
-  "rich", "safe", "sharp", "slow", "soft", "still", "swift", "tall", "true",
-  "warm", "wide", "wild", "wise", "bold", "brisk",
-];
-
-const NOUNS = [
-  "ash", "bay", "brook", "cave", "cliff", "coast", "creek", "dawn", "dell",
-  "dew", "dune", "dust", "fern", "fire", "flag", "flame", "flint", "foam",
-  "fog", "ford", "gale", "glen", "glow", "haze", "hill", "lake", "leaf",
-  "loch", "mist", "moon", "moor", "moss", "oak", "peak", "pine", "pool",
-  "rain", "reef", "ridge", "river", "rock", "root", "sand", "shore", "sky",
-  "snow", "star", "stone", "tide", "vale", "wave", "wood",
-];
-
-function pick<T>(arr: T[]): T {
+function pick<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -90,6 +76,20 @@ function getApiUrl(): string {
   const url = import.meta.env.VITE_SYNC_API_URL as string | undefined;
   if (!url) throw new Error("VITE_SYNC_API_URL is not set. Deploy the Cloudflare Worker and add the URL to your .env.local.");
   return url.replace(/\/$/, "");
+}
+
+export async function createSyncKeyWithWords(words: string): Promise<string> {
+  const apiUrl = getApiUrl();
+  const response = await fetch(`${apiUrl}/sync/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ words: words.trim() }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  const data = (await response.json()) as { key: string };
+  if (!data.key) throw new Error("Server returned no key.");
+  localStorage.setItem(SYNC_KEY_STORAGE_KEY, data.key);
+  return data.key;
 }
 
 export async function pushToCloud(key: string): Promise<void> {

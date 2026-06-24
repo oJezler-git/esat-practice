@@ -1,11 +1,15 @@
 import { useEffect, useReducer, useRef } from "react";
 import {
+  ADJECTIVES,
+  NOUNS,
+  createSyncKeyWithWords,
   generateSyncKey,
   getLastPush,
   getSyncKey,
   pullFromCloud,
   pushToCloud,
   setSyncKey,
+  validateWordPair,
 } from "../lib/cloudSync";
 
 type Status = { type: "success" | "error"; text: string } | null;
@@ -14,6 +18,12 @@ type SyncState = {
   key: string;
   editingKey: boolean;
   draftKey: string;
+  choosingWords: boolean;
+  word1: string;
+  word2: string;
+  wordError: string;
+  creatingKey: boolean;
+  newlyCreated: boolean;
   copying: boolean;
   pushing: boolean;
   pulling: boolean;
@@ -22,32 +32,60 @@ type SyncState = {
 };
 
 type SyncAction =
-  | { type: "set_key"; key: string }
+  | { type: "set_key"; key: string; newlyCreated?: boolean }
   | { type: "start_edit" }
   | { type: "cancel_edit" }
   | { type: "update_draft"; draft: string }
   | { type: "commit_edit"; key: string }
+  | { type: "start_choose_words" }
+  | { type: "cancel_choose_words" }
+  | { type: "update_word1"; word: string }
+  | { type: "update_word2"; word: string }
+  | { type: "set_word_error"; error: string }
+  | { type: "create_start" }
+  | { type: "create_done"; key: string }
+  | { type: "create_error"; error: string }
+  | { type: "dismiss_new" }
   | { type: "copy_start" }
   | { type: "copy_end" }
   | { type: "push_start" }
   | { type: "push_done"; ts: number }
   | { type: "push_error"; error: string }
   | { type: "pull_start" }
+  | { type: "pull_done" }
   | { type: "pull_error"; error: string }
   | { type: "set_status"; status: Status };
 
 function syncReducer(state: SyncState, action: SyncAction): SyncState {
   switch (action.type) {
     case "set_key":
-      return { ...state, key: action.key, editingKey: false, status: null };
+      return { ...state, key: action.key, editingKey: false, choosingWords: false, newlyCreated: action.newlyCreated ?? false, status: null };
     case "start_edit":
-      return { ...state, editingKey: true, draftKey: state.key };
+      return { ...state, editingKey: true, choosingWords: false, draftKey: state.key };
     case "cancel_edit":
       return { ...state, editingKey: false };
     case "update_draft":
       return { ...state, draftKey: action.draft };
     case "commit_edit":
       return { ...state, key: action.key, editingKey: false };
+    case "start_choose_words":
+      return { ...state, choosingWords: true, editingKey: false, word1: "", word2: "", wordError: "", creatingKey: false };
+    case "cancel_choose_words":
+      return { ...state, choosingWords: false, wordError: "" };
+    case "update_word1":
+      return { ...state, word1: action.word, wordError: "" };
+    case "update_word2":
+      return { ...state, word2: action.word, wordError: "" };
+    case "set_word_error":
+      return { ...state, wordError: action.error, creatingKey: false };
+    case "create_start":
+      return { ...state, creatingKey: true, wordError: "" };
+    case "create_done":
+      return { ...state, key: action.key, choosingWords: false, creatingKey: false, wordError: "", newlyCreated: true, status: null };
+    case "create_error":
+      return { ...state, creatingKey: false, wordError: action.error };
+    case "dismiss_new":
+      return { ...state, newlyCreated: false };
     case "copy_start":
       return { ...state, copying: true };
     case "copy_end":
@@ -60,6 +98,8 @@ function syncReducer(state: SyncState, action: SyncAction): SyncState {
       return { ...state, pushing: false, status: { type: "error", text: action.error } };
     case "pull_start":
       return { ...state, pulling: true };
+    case "pull_done":
+      return { ...state, pulling: false, status: { type: "success", text: "Data restored. Reloading…" } };
     case "pull_error":
       return { ...state, pulling: false, status: { type: "error", text: action.error } };
     case "set_status":
@@ -85,6 +125,12 @@ export function CloudSyncSection() {
     key: getSyncKey() ?? "",
     editingKey: false,
     draftKey: "",
+    choosingWords: false,
+    word1: "",
+    word2: "",
+    wordError: "",
+    creatingKey: false,
+    newlyCreated: false,
     copying: false,
     pushing: false,
     pulling: false,
@@ -92,12 +138,19 @@ export function CloudSyncSection() {
     status: null,
   }));
   const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const newKeyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { key, editingKey, draftKey, copying, pushing, pulling, lastPush, status } = state;
+  const {
+    key, editingKey, draftKey,
+    choosingWords, word1, word2, wordError, creatingKey,
+    newlyCreated,
+    copying, pushing, pulling, lastPush, status,
+  } = state;
 
   useEffect(() => {
     return () => {
       if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
+      if (newKeyTimerRef.current) clearTimeout(newKeyTimerRef.current);
     };
   }, []);
 
@@ -115,13 +168,14 @@ export function CloudSyncSection() {
 
   async function handleCopy() {
     if (!key) return;
-    await navigator.clipboard.writeText(key);
-    dispatch({ type: "copy_start" });
-    setTimeout(() => dispatch({ type: "copy_end" }), 1500);
-  }
-
-  function handleStartEdit() {
-    dispatch({ type: "start_edit" });
+    try {
+      await navigator.clipboard.writeText(key);
+      dispatch({ type: "copy_start" });
+      setTimeout(() => dispatch({ type: "copy_end" }), 1500);
+    } catch {
+      dispatch({ type: "set_status", status: { type: "error", text: "Clipboard access denied — select the key and copy it manually." } });
+      scheduleStatusClear();
+    }
   }
 
   function handleSaveEdit() {
@@ -131,6 +185,27 @@ export function CloudSyncSection() {
       dispatch({ type: "commit_edit", key: trimmed });
     } else {
       dispatch({ type: "cancel_edit" });
+    }
+  }
+
+  async function handleCreateWithWords() {
+    const words = `${word1.trim().toLowerCase().replace(/[^a-z]/g, "")}-${word2.trim().toLowerCase().replace(/[^a-z]/g, "")}`;
+    const validation = validateWordPair(words);
+    if (!validation.valid) {
+      dispatch({ type: "set_word_error", error: validation.error! });
+      return;
+    }
+    if (key && !window.confirm("This will replace your current sync key. Continue?")) {
+      return;
+    }
+    dispatch({ type: "create_start" });
+    try {
+      const newKey = await createSyncKeyWithWords(words);
+      dispatch({ type: "create_done", key: newKey });
+      if (newKeyTimerRef.current) clearTimeout(newKeyTimerRef.current);
+      newKeyTimerRef.current = setTimeout(() => dispatch({ type: "dismiss_new" }), 12000);
+    } catch (err) {
+      dispatch({ type: "create_error", error: err instanceof Error ? err.message : "Failed to create key." });
     }
   }
 
@@ -163,7 +238,7 @@ export function CloudSyncSection() {
     dispatch({ type: "pull_start" });
     try {
       await pullFromCloud(key);
-      dispatch({ type: "set_status", status: { type: "success", text: "Data restored. Reloading…" } });
+      dispatch({ type: "pull_done" });
       scheduleStatusClear();
       setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
@@ -226,7 +301,7 @@ export function CloudSyncSection() {
                 <>
                   <code
                     className="text-sm font-mono text-gray-800 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 select-all cursor-pointer"
-                    onClick={handleStartEdit}
+                    onClick={() => dispatch({ type: "start_edit" })}
                     title="Click to edit"
                   >
                     {key}
@@ -243,27 +318,119 @@ export function CloudSyncSection() {
               ) : null}
             </div>
           </div>
-          <div className="flex items-center gap-3 mt-2.5">
-            <button
-              type="button"
-              onClick={handleGenerate}
-              className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
-            >
-              {key ? "Generate new key" : "Generate a sync key"}
-            </button>
-            {!key && (
-              <>
-                <span className="text-xs text-gray-300">or</span>
+
+          {/* Newly-created banner */}
+          {newlyCreated && (
+            <div className="mt-2.5 px-3 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-xs text-indigo-800 flex items-start justify-between gap-2">
+              <span>
+                Key created — your number was assigned above. Copy it and save it somewhere safe before leaving this page.
+              </span>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: "dismiss_new" })}
+                className="shrink-0 text-indigo-400 hover:text-indigo-600"
+                aria-label="Dismiss"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Word-picker form */}
+          {choosingWords ? (
+            <div className="mt-3 space-y-2">
+              <div className="text-xs text-gray-500">
+                Pick any two words (letters only). We'll assign a random number automatically — you'll see the full key once it's ready.
+              </div>
+              <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+                Choose words that are somewhat personal or unusual. Common combinations like <code className="font-mono">blue-sky</code> are more likely to be guessed, though the random number we add and rate limiting makes any key hard to brute-force regardless.
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  list="sync-word-list-adj"
+                  value={word1}
+                  onChange={(e) => dispatch({ type: "update_word1", word: e.target.value })}
+                  onKeyDown={(e) => { if (e.key === "Escape") dispatch({ type: "cancel_choose_words" }); }}
+                  autoFocus
+                  placeholder="first word"
+                  className="text-sm font-mono border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 w-36"
+                  spellCheck={false}
+                  autoComplete="off"
+                />
+                <datalist id="sync-word-list-adj">
+                  {ADJECTIVES.map((w) => <option key={w} value={w} />)}
+                </datalist>
+                <span className="text-gray-400 text-sm select-none">–</span>
+                <input
+                  type="text"
+                  list="sync-word-list-noun"
+                  value={word2}
+                  onChange={(e) => dispatch({ type: "update_word2", word: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { void handleCreateWithWords(); }
+                    if (e.key === "Escape") dispatch({ type: "cancel_choose_words" });
+                  }}
+                  placeholder="second word"
+                  className="text-sm font-mono border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 w-36"
+                  spellCheck={false}
+                  autoComplete="off"
+                />
+                <datalist id="sync-word-list-noun">
+                  {NOUNS.map((w) => <option key={w} value={w} />)}
+                </datalist>
                 <button
                   type="button"
-                  onClick={handleStartEdit}
-                  className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                  onClick={() => { void handleCreateWithWords(); }}
+                  disabled={creatingKey || !word1 || !word2}
+                  className="px-3 py-1.5 text-sm border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Enter existing key
+                  {creatingKey ? "Creating…" : "Create key"}
                 </button>
-              </>
-            )}
-          </div>
+                <button
+                  type="button"
+                  onClick={() => dispatch({ type: "cancel_choose_words" })}
+                  disabled={creatingKey}
+                  className="px-3 py-1.5 text-sm border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+              {wordError && (
+                <div className="text-xs text-red-600">{wordError}</div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 mt-2.5">
+              <button
+                type="button"
+                onClick={handleGenerate}
+                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                {key ? "Generate new key" : "Generate a sync key"}
+              </button>
+              <span className="text-xs text-gray-300">or</span>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: "start_choose_words" })}
+                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Choose your words
+              </button>
+              {!key && (
+                <>
+                  <span className="text-xs text-gray-300">or</span>
+                  <button
+                    type="button"
+                    onClick={() => dispatch({ type: "start_edit" })}
+                    className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    Enter existing key
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Push / Pull row */}
