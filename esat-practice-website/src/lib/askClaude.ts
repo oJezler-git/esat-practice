@@ -63,11 +63,15 @@ export function questionHasImage(question: Question): boolean {
   return Boolean(question.content.image_url ?? question.content.image_b64);
 }
 
+const IMAGE_GUARD =
+  "If no image has been attached to this message, reply ONLY with: \"Please also attach the question image — the question text above is only a partial extract and I need the full image to help you properly.\" Do not answer the question until the image is provided.\n\n";
+
 // No-script path: copy prompt text to clipboard and open claude.ai.
 // User attaches the image manually.
 export async function askClaudeBasic(question: Question, template: string): Promise<void> {
-  const prompt = renderPromptTemplate(template, question);
+  let prompt = renderPromptTemplate(template, question);
   if (!prompt.trim()) throw new Error("Prompt template is empty — add some content in Settings.");
+  if (questionHasImage(question)) prompt = IMAGE_GUARD + prompt;
   await navigator.clipboard.writeText(prompt);
   const tab = window.open("https://claude.ai/new", "_blank", "noopener,noreferrer");
   if (!tab) throw new Error("Claude could not be opened — allow pop-ups for this site.");
