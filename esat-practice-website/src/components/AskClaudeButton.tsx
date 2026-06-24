@@ -18,6 +18,7 @@ export function AskClaudeButton({ question }: Props) {
 
   const [hasExtension, setHasExtension] = useState(false);
   const [state, setState] = useState<ButtonState>("idle");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -36,17 +37,19 @@ export function AskClaudeButton({ question }: Props) {
 
   async function handleClick() {
     setState("working");
+    setErrorMsg(null);
     try {
       if (useExtension) {
-        askClaudeWithScript(question, template);
+        askClaudeWithScript(question, template, hasExtension);
       } else {
         await askClaudeBasic(question, template);
       }
       setState("done");
-    } catch {
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : null);
       setState("error");
     } finally {
-      setTimeout(() => setState("idle"), 3000);
+      setTimeout(() => { setState("idle"); setErrorMsg(null); }, 4000);
     }
   }
 
@@ -58,8 +61,8 @@ export function AskClaudeButton({ question }: Props) {
     "Ask Claude";
 
   const sublabel =
-    state === "done"    ? (useExtension ? "Injected automatically" : "Prompt is on your clipboard") :
-    state === "error"   ? "Try again or paste manually" :
+    state === "done"  ? (useExtension ? "Injected automatically" : "Prompt is on your clipboard") :
+    state === "error" ? (errorMsg ?? "Try again or paste manually") :
     null;
 
   return (

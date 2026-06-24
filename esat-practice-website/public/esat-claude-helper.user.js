@@ -92,7 +92,7 @@
       const { prompt, imageUrl, imageB64 } = e.data.payload || {};
 
       // Input validation and size limits (prevent DoS)
-      if (typeof prompt !== 'string' || prompt.length > 10000) return;
+      if (typeof prompt !== 'string' || prompt.length > 100000) return;
       if (imageB64 && (typeof imageB64 !== 'string' || !imageB64.startsWith('data:image/'))) return;
 
       // Ensure we have a base64 Data URI to pass to Claude.

@@ -67,15 +67,19 @@ export function questionHasImage(question: Question): boolean {
 // User attaches the image manually.
 export async function askClaudeBasic(question: Question, template: string): Promise<void> {
   const prompt = renderPromptTemplate(template, question);
+  if (!prompt.trim()) throw new Error("Prompt template is empty — add some content in Settings.");
   await navigator.clipboard.writeText(prompt);
-  window.open("https://claude.ai/new", "_blank", "noopener,noreferrer");
+  const tab = window.open("https://claude.ai/new", "_blank", "noopener,noreferrer");
+  if (!tab) throw new Error("Claude could not be opened — allow pop-ups for this site.");
 }
 
 // Userscript path: post the raw question data to the userscript running on this
 // page. It handles image fetching (via GM_xmlhttpRequest, which bypasses CORS)
 // then opens claude.ai and auto-injects everything.
-export function askClaudeWithScript(question: Question, template: string): void {
+export function askClaudeWithScript(question: Question, template: string, hasExtension: boolean): void {
+  if (!hasExtension) throw new Error("Tampermonkey extension not detected — install it or switch to copy & paste mode in Settings.");
   const prompt = renderPromptTemplate(template, question);
+  if (!prompt.trim()) throw new Error("Prompt template is empty — add some content in Settings.");
 
   const imageB64 = question.content.image_b64
     ? question.content.image_b64.startsWith("data:")
