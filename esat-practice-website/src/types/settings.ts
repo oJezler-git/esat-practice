@@ -10,6 +10,8 @@ export type ShortcutMap = Record<ShortcutAction, string>;
 
 export type AutoExcludeOn = "any" | "attempted" | "correct";
 
+export type ClaudeMode = "auto" | "extension" | "manual";
+
 export interface UserSettings {
   defaultMode: "timed" | "untimed" | "topic" | "mixed";
   defaultQuestionCount: number;
@@ -24,6 +26,8 @@ export interface UserSettings {
   shortcuts: ShortcutMap;
   autoExclude: boolean;
   autoExcludeOn: AutoExcludeOn;
+  claudeMode: ClaudeMode;
+  claudeOnboarded: boolean;
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
@@ -49,6 +53,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,
   autoExcludeOn: "attempted",
+  claudeMode: "auto",
+  claudeOnboarded: false,
 };
 
 export function normalizeShortcutKey(key: string): string | null {

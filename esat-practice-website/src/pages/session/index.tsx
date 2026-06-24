@@ -14,6 +14,7 @@ import {
 } from "../../types/settings";
 import type { SelfMarkResult } from "../../types/schema";
 import { truncateQuestionText } from "../../lib/textUtils";
+import { AskClaudeButton } from "../../components/AskClaudeButton";
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -285,6 +286,10 @@ export default function SessionPage() {
                 incorrectShortcutLabel={shortcutLabels.incorrect}
                 hideRevealOnMobile={true}
               />
+            </div>
+
+            <div style={{ marginTop: "0.75rem" }}>
+              <AskClaudeButton question={currentQuestion} />
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 hide-on-mobile">

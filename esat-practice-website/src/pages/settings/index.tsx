@@ -14,10 +14,12 @@ import {
   formatShortcutKey,
   normalizeShortcutKey,
   type AutoExcludeOn,
+  type ClaudeMode,
   type ShortcutAction,
   type ShortcutMap,
   type UserSettings,
 } from "../../types/settings";
+import { AskClaudeInfoModal } from "../../components/AskClaudeInfoModal";
 import { DataManagementSection } from "../../components/DataManagementSection";
 import { CloudSyncSection } from "../../components/CloudSyncSection";
 
@@ -62,6 +64,7 @@ const SHORTCUT_FIELDS: Array<{
 export default function Settings() {
   const { settings, update, reset } = useSettingsStore();
   const { excludedQuestions, includeQuestion } = useExcludedQuestionStore();
+  const [showClaudeModal, setShowClaudeModal] = useState(false);
 
   function updateShortcut(action: ShortcutAction, key: string) {
     const nextShortcuts: ShortcutMap = {
@@ -359,6 +362,37 @@ export default function Settings() {
           </Field>
         )}
       </Section>
+
+      <Section
+        title="Ask Claude"
+        description="Control how the Ask Claude button sends questions to Claude."
+      >
+        <Field
+          label="Integration mode"
+          description="Controls whether the button uses the Tampermonkey extension or manual copy & paste."
+        >
+          <Select
+            value={settings.claudeMode ?? "auto"}
+            onChange={(value) => update({ claudeMode: value as ClaudeMode })}
+            options={[
+              { value: "auto", label: "Detect automatically (default)" },
+              { value: "extension", label: "Always use extension" },
+              { value: "manual", label: "Always copy & paste" },
+            ]}
+          />
+        </Field>
+        <div className="px-4 py-3">
+          <button
+            type="button"
+            className="settings-text-link"
+            onClick={() => setShowClaudeModal(true)}
+          >
+            Installation guide &amp; how it works →
+          </button>
+        </div>
+      </Section>
+
+      {showClaudeModal && <AskClaudeInfoModal onClose={() => setShowClaudeModal(false)} />}
 
       <OfflineSection />
       <DataManagementSection />
