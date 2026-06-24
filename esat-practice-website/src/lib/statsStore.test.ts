@@ -100,7 +100,7 @@ describe("updateTopicStatsFromBreakdown", () => {
     const { db, storeInTx } = createMockDb();
     vi.mocked(getDb).mockResolvedValue(db as any);
 
-    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: 0, correct: 0 }]);
+    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: 0, correct: 0, accuracy: 0 }]);
 
     expect(storeInTx.get).not.toHaveBeenCalled();
     expect(storeInTx.put).not.toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe("updateTopicStatsFromBreakdown", () => {
     const { db, storeInTx } = createMockDb();
     vi.mocked(getDb).mockResolvedValue(db as any);
 
-    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: -1, correct: 0 }]);
+    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: -1, correct: 0, accuracy: 0 }]);
 
     expect(storeInTx.put).not.toHaveBeenCalled();
   });
@@ -122,7 +122,7 @@ describe("updateTopicStatsFromBreakdown", () => {
     vi.mocked(getDb).mockResolvedValue(db as any);
     vi.mocked(applyTopicBreakdownToStat).mockReturnValue(nextStat as any);
 
-    const row = { topic: "Algebra", total: 3, correct: 2 };
+    const row = { topic: "Algebra", total: 3, correct: 2, accuracy: 2 / 3 };
     await updateTopicStatsFromBreakdown([row], 1_234_567_890);
 
     expect(storeInTx.get).toHaveBeenCalledWith("Algebra");
@@ -136,7 +136,7 @@ describe("updateTopicStatsFromBreakdown", () => {
     vi.mocked(getDb).mockResolvedValue(db as any);
     vi.mocked(applyTopicBreakdownToStat).mockReturnValue(nextStat as any);
 
-    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: 2, correct: 1 }], 100);
+    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: 2, correct: 1, accuracy: 0.5 }], 100);
 
     expect(applyTopicBreakdownToStat).toHaveBeenCalledWith(
       undefined,
@@ -151,8 +151,8 @@ describe("updateTopicStatsFromBreakdown", () => {
     vi.mocked(applyTopicBreakdownToStat).mockReturnValue(makeStat() as any);
 
     await updateTopicStatsFromBreakdown([
-      { topic: "Algebra", total: 2, correct: 1 },
-      { topic: "Calculus", total: 3, correct: 2 },
+      { topic: "Algebra", total: 2, correct: 1, accuracy: 0.5 },
+      { topic: "Calculus", total: 3, correct: 2, accuracy: 2 / 3 },
     ]);
 
     expect(db.transaction).toHaveBeenCalledTimes(1);

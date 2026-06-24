@@ -63,7 +63,7 @@ describe("SessionHeader — flag button", () => {
   });
 
   it("shows flagged styling when isFlagged is true", () => {
-    const { container } = render(<SessionHeader {...defaultProps} isFlagged={true} />);
+    render(<SessionHeader {...defaultProps} isFlagged={true} />);
     const btn = screen.getByTitle("Flag question (F)");
     expect(btn.className).toContain("text-amber-500");
   });

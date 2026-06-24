@@ -282,7 +282,7 @@ describe("pullFromCloud", () => {
   });
 
   it("clears all stores then writes payload records", async () => {
-    const { db, tx, store } = createMockDb();
+    const { db, store } = createMockDb();
     vi.mocked(getDb).mockResolvedValue(db as any);
     vi.stubGlobal("fetch", mockFetchResponse(validPayload));
 
