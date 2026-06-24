@@ -92,7 +92,7 @@ const useQuestionStoreBase = create<QuestionStoreState>((set) => ({
 let lastAllQuestions: Question[] | null = null;
 let lastExcludedIds: Set<string> | null = null;
 
-interface DerivedStoreState {
+export interface DerivedStoreState {
   nsaaDuplicateAnalysis: NsaaDuplicateAnalysis;
   effectiveExcludedIds: Set<string>;
   questions: Question[];
@@ -104,7 +104,7 @@ interface DerivedStoreState {
 
 let cachedDerivedState: DerivedStoreState | null = null;
 
-function getDerivedStoreState(
+export function getDerivedStoreState(
   allQuestions: Question[],
   excludedQuestionIds: Set<string>,
 ): DerivedStoreState {
