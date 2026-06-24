@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,73 +7,96 @@ import {
   generateConfirmationPhrase,
 } from "../lib/dataManagement";
 
+type Message = { type: "success" | "error"; text: string } | null;
+
+type DataMgmtState = {
+  showClearAllModal: boolean;
+  showClearProgressModal: boolean;
+  confirmationPhrase: string;
+  userInput: string;
+  isClearing: boolean;
+  message: Message;
+};
+
+type DataMgmtAction =
+  | { type: "open_clear_all"; phrase: string }
+  | { type: "close_clear_all" }
+  | { type: "open_clear_progress" }
+  | { type: "close_clear_progress" }
+  | { type: "update_input"; value: string }
+  | { type: "clear_start" }
+  | { type: "clear_error"; error: string }
+  | { type: "set_message"; message: Message };
+
+function dataMgmtReducer(state: DataMgmtState, action: DataMgmtAction): DataMgmtState {
+  switch (action.type) {
+    case "open_clear_all":
+      return { ...state, showClearAllModal: true, confirmationPhrase: action.phrase, userInput: "", message: null };
+    case "close_clear_all":
+      return { ...state, showClearAllModal: false, confirmationPhrase: "", userInput: "", message: null };
+    case "open_clear_progress":
+      return { ...state, showClearProgressModal: true, message: null };
+    case "close_clear_progress":
+      return { ...state, showClearProgressModal: false, message: null };
+    case "update_input":
+      return { ...state, userInput: action.value, message: null };
+    case "clear_start":
+      return { ...state, isClearing: true };
+    case "clear_error":
+      return { ...state, isClearing: false, message: { type: "error", text: action.error } };
+    case "set_message":
+      return { ...state, message: action.message };
+    default:
+      return state;
+  }
+}
+
 export function DataManagementSection() {
   const navigate = useNavigate();
-  const [showClearAllModal, setShowClearAllModal] = useState(false);
-  const [showClearProgressModal, setShowClearProgressModal] = useState(false);
-  const [confirmationPhrase, setConfirmationPhrase] = useState("");
-  const [userInput, setUserInput] = useState("");
-  const [isClearing, setIsClearing] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [state, dispatch] = useReducer(dataMgmtReducer, {
+    showClearAllModal: false,
+    showClearProgressModal: false,
+    confirmationPhrase: "",
+    userInput: "",
+    isClearing: false,
+    message: null,
+  });
+
+  const { showClearAllModal, showClearProgressModal, confirmationPhrase, userInput, isClearing, message } = state;
 
   function openClearAllModal() {
-    const phrase = generateConfirmationPhrase();
-    setConfirmationPhrase(phrase);
-    setUserInput("");
-    setMessage(null);
-    setShowClearAllModal(true);
-  }
-
-  function closeClearAllModal() {
-    setShowClearAllModal(false);
-    setConfirmationPhrase("");
-    setUserInput("");
-    setMessage(null);
+    dispatch({ type: "open_clear_all", phrase: generateConfirmationPhrase() });
   }
 
   async function handleClearAll() {
     if (userInput !== confirmationPhrase) {
-      setMessage({ type: "error", text: "Confirmation phrase does not match" });
+      dispatch({ type: "set_message", message: { type: "error", text: "Confirmation phrase does not match" } });
       return;
     }
 
-    setIsClearing(true);
+    dispatch({ type: "clear_start" });
     try {
       await clearAllData();
-      setMessage({ type: "success", text: "All data cleared. Reloading..." });
+      dispatch({ type: "set_message", message: { type: "success", text: "All data cleared. Reloading..." } });
       setTimeout(() => {
         navigate("/");
         window.location.reload();
       }, 1500);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      });
-      setIsClearing(false);
+      dispatch({ type: "clear_error", error: `Error: ${error instanceof Error ? error.message : "Unknown error"}` });
     }
   }
 
   async function handleClearProgress() {
-    setIsClearing(true);
+    dispatch({ type: "clear_start" });
     try {
       await clearProgressData();
-      setMessage({
-        type: "success",
-        text: "Progress data cleared. Reloading...",
-      });
+      dispatch({ type: "set_message", message: { type: "success", text: "Progress data cleared. Reloading..." } });
       setTimeout(() => {
         window.location.reload();
       }, 1500);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      });
-      setIsClearing(false);
+      dispatch({ type: "clear_error", error: `Error: ${error instanceof Error ? error.message : "Unknown error"}` });
     }
   }
 
@@ -102,10 +125,7 @@ export function DataManagementSection() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                setMessage(null);
-                setShowClearProgressModal(true);
-              }}
+              onClick={() => dispatch({ type: "open_clear_progress" })}
               disabled={isClearing}
               className="px-3 py-1.5 text-sm border border-amber-200 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -123,9 +143,7 @@ export function DataManagementSection() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                openClearAllModal();
-              }}
+              onClick={openClearAllModal}
               disabled={isClearing}
               className="px-3 py-1.5 text-sm border border-red-200 text-red-700 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -160,10 +178,7 @@ export function DataManagementSection() {
                 <input
                   type="text"
                   value={userInput}
-                  onChange={(e) => {
-                    setUserInput(e.target.value);
-                    setMessage(null);
-                  }}
+                  onChange={(e) => dispatch({ type: "update_input", value: e.target.value })}
                   placeholder="Type confirmation phrase..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-400"
                 />
@@ -184,7 +199,7 @@ export function DataManagementSection() {
               <div className="px-6 py-3 border-t border-gray-200 flex gap-2 justify-end">
                 <button
                   type="button"
-                  onClick={closeClearAllModal}
+                  onClick={() => dispatch({ type: "close_clear_all" })}
                   disabled={isClearing}
                   className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
@@ -192,9 +207,7 @@ export function DataManagementSection() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    void handleClearAll();
-                  }}
+                  onClick={() => { void handleClearAll(); }}
                   disabled={userInput !== confirmationPhrase || isClearing}
                   className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
                 >
@@ -244,10 +257,7 @@ export function DataManagementSection() {
               <div className="px-6 py-3 border-t border-gray-200 flex gap-2 justify-end">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowClearProgressModal(false);
-                    setMessage(null);
-                  }}
+                  onClick={() => dispatch({ type: "close_clear_progress" })}
                   disabled={isClearing}
                   className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
@@ -255,9 +265,7 @@ export function DataManagementSection() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    void handleClearProgress();
-                  }}
+                  onClick={() => { void handleClearProgress(); }}
                   disabled={isClearing}
                   className="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:bg-amber-300 disabled:cursor-not-allowed"
                 >

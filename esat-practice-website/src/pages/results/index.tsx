@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { QuestionCard } from "../../components/question/QuestionCard";
 import { scoreSession } from "../../engine/scorer";
@@ -14,6 +14,29 @@ interface ReviewItem {
   attempt: Attempt;
 }
 
+type LoadState = {
+  session: Session | null;
+  items: ReviewItem[];
+  topicBreakdown: TopicBreakdownRow[];
+  isLoading: boolean;
+  autoExcludedCount: number | null;
+};
+
+type LoadAction =
+  | { type: "load_done"; session: Session; items: ReviewItem[]; topicBreakdown: TopicBreakdownRow[] }
+  | { type: "set_auto_excluded"; count: number };
+
+function loadReducer(state: LoadState, action: LoadAction): LoadState {
+  switch (action.type) {
+    case "load_done":
+      return { ...state, isLoading: false, session: action.session, items: action.items, topicBreakdown: action.topicBreakdown };
+    case "set_auto_excluded":
+      return { ...state, autoExcludedCount: action.count };
+    default:
+      return state;
+  }
+}
+
 export default function ResultsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -22,13 +45,17 @@ export default function ResultsPage() {
   const { excludeQuestion } = useExcludedQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [items, setItems] = useState<ReviewItem[]>([]);
-  const [topicBreakdown, setTopicBreakdown] = useState<TopicBreakdownRow[]>([]);
+  const [loadState, dispatchLoad] = useReducer(loadReducer, {
+    session: null,
+    items: [],
+    topicBreakdown: [],
+    isLoading: true,
+    autoExcludedCount: null,
+  });
   const [reviewMode, setReviewMode] = useState<"all" | "incorrect">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [autoExcludedCount, setAutoExcludedCount] = useState<number | null>(null);
+
+  const { session, items, topicBreakdown, isLoading, autoExcludedCount } = loadState;
 
   useEffect(() => {
     let mounted = true;
@@ -82,10 +109,7 @@ export default function ResultsPage() {
         return;
       }
 
-      setSession(loadedSession);
-      setItems(mapped);
-      setTopicBreakdown(scored.topicBreakdown);
-      setIsLoading(false);
+      dispatchLoad({ type: "load_done", session: loadedSession, items: mapped, topicBreakdown: scored.topicBreakdown });
 
       if (settings.autoExclude) {
         const toExclude = mapped.filter(({ attempt }) => {
@@ -97,7 +121,7 @@ export default function ResultsPage() {
           await Promise.all(
             toExclude.map(({ question }) => excludeQuestion(question.id, allQuestions)),
           );
-          if (mounted) setAutoExcludedCount(toExclude.length);
+          if (mounted) dispatchLoad({ type: "set_auto_excluded", count: toExclude.length });
         }
       }
     }

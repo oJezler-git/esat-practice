@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildSession } from "../../engine/sessionBuilder";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
@@ -6,6 +6,46 @@ import { useQuestionStore } from "../../lib/questionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import type { SessionMode } from "../../types/engine";
+
+type SetupState = {
+  mode: SessionMode;
+  selectedTopics: string[];
+  selectedYears: number[];
+  questionCount: number;
+  setupError: string | null;
+};
+
+type SetupAction =
+  | { type: "set_mode"; mode: SessionMode }
+  | { type: "toggle_topic"; topic: string }
+  | { type: "toggle_year"; year: number }
+  | { type: "set_count"; count: number }
+  | { type: "set_error"; error: string | null };
+
+function setupReducer(state: SetupState, action: SetupAction): SetupState {
+  switch (action.type) {
+    case "set_mode":
+      return { ...state, mode: action.mode };
+    case "toggle_topic": {
+      const topics = state.selectedTopics.includes(action.topic)
+        ? state.selectedTopics.filter((t) => t !== action.topic)
+        : [...state.selectedTopics, action.topic];
+      return { ...state, selectedTopics: topics };
+    }
+    case "toggle_year": {
+      const years = state.selectedYears.includes(action.year)
+        ? state.selectedYears.filter((y) => y !== action.year)
+        : [...state.selectedYears, action.year];
+      return { ...state, selectedYears: years };
+    }
+    case "set_count":
+      return { ...state, questionCount: action.count };
+    case "set_error":
+      return { ...state, setupError: action.error };
+    default:
+      return state;
+  }
+}
 
 const MODES: { value: SessionMode; label: string; description: string }[] = [
   {
@@ -38,37 +78,25 @@ export default function PracticeSetup() {
   const { createSession } = useSessionStore();
   const { excludedQuestionIds } = useExcludedQuestionStore();
 
-  const [mode, setMode] = useState<SessionMode>(settings.defaultMode);
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [selectedYears, setSelectedYears] = useState<number[]>([]);
-  const [questionCount, setQuestionCount] = useState(settings.defaultQuestionCount);
-  const [setupError, setSetupError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(setupReducer, undefined, () => ({
+    mode: settings.defaultMode,
+    selectedTopics: [],
+    selectedYears: [],
+    questionCount: settings.defaultQuestionCount,
+    setupError: null,
+  }));
+
+  const { mode, selectedTopics, selectedYears, questionCount, setupError } = state;
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
   const availableQuestions = questions.filter((q) => !excludedQuestionIds.has(q.id));
 
-  function toggleTopic(topic: string) {
-    setSelectedTopics((previous) =>
-      previous.includes(topic)
-        ? previous.filter((value) => value !== topic)
-        : [...previous, topic],
-    );
-  }
-
-  function toggleYear(year: number) {
-    setSelectedYears((previous) =>
-      previous.includes(year)
-        ? previous.filter((value) => value !== year)
-        : [...previous, year],
-    );
-  }
-
   async function handleStart() {
     if (!isQuestionBankReady) {
-      setSetupError("Question bank is still loading. Please wait a few seconds.");
+      dispatch({ type: "set_error", error: "Question bank is still loading. Please wait a few seconds." });
       return;
     }
-    setSetupError(null);
+    dispatch({ type: "set_error", error: null });
 
     const config = {
       mode,
@@ -83,7 +111,7 @@ export default function PracticeSetup() {
 
     const questionIds = buildSession(availableQuestions, config);
     if (questionIds.length === 0) {
-      setSetupError("No questions match your filters. Try broadening your selection.");
+      dispatch({ type: "set_error", error: "No questions match your filters. Try broadening your selection." });
       return;
     }
 
@@ -123,7 +151,7 @@ export default function PracticeSetup() {
             <button
               type="button"
               key={item.value}
-              onClick={() => setMode(item.value)}
+              onClick={() => dispatch({ type: "set_mode", mode: item.value })}
               className={`text-left p-4 rounded-lg border transition-colors ${
                 mode === item.value
                   ? "border-indigo-500 bg-indigo-50"
@@ -146,7 +174,7 @@ export default function PracticeSetup() {
             <button
               type="button"
               key={topic}
-              onClick={() => toggleTopic(topic)}
+              onClick={() => dispatch({ type: "toggle_topic", topic })}
               className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                 selectedTopics.includes(topic)
                   ? "border-indigo-500 bg-indigo-50 text-indigo-700"
@@ -168,7 +196,7 @@ export default function PracticeSetup() {
             <button
               type="button"
               key={year}
-              onClick={() => toggleYear(year)}
+              onClick={() => dispatch({ type: "toggle_year", year })}
               className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                 selectedYears.includes(year)
                   ? "border-indigo-500 bg-indigo-50 text-indigo-700"
@@ -191,7 +219,7 @@ export default function PracticeSetup() {
           max={60}
           step={5}
           value={questionCount}
-          onChange={(event) => setQuestionCount(Number(event.target.value))}
+          onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
           className="w-full accent-indigo-500"
         />
         <div className="flex justify-between text-xs text-gray-400 mt-1">

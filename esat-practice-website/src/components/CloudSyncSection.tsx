@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import {
   generateSyncKey,
   getLastPush,
@@ -9,6 +9,65 @@ import {
 } from "../lib/cloudSync";
 
 type Status = { type: "success" | "error"; text: string } | null;
+
+type SyncState = {
+  key: string;
+  editingKey: boolean;
+  draftKey: string;
+  copying: boolean;
+  pushing: boolean;
+  pulling: boolean;
+  lastPush: number | null;
+  status: Status;
+};
+
+type SyncAction =
+  | { type: "set_key"; key: string }
+  | { type: "start_edit" }
+  | { type: "cancel_edit" }
+  | { type: "update_draft"; draft: string }
+  | { type: "commit_edit"; key: string }
+  | { type: "copy_start" }
+  | { type: "copy_end" }
+  | { type: "push_start" }
+  | { type: "push_done"; ts: number }
+  | { type: "push_error"; error: string }
+  | { type: "pull_start" }
+  | { type: "pull_error"; error: string }
+  | { type: "set_status"; status: Status };
+
+function syncReducer(state: SyncState, action: SyncAction): SyncState {
+  switch (action.type) {
+    case "set_key":
+      return { ...state, key: action.key, editingKey: false, status: null };
+    case "start_edit":
+      return { ...state, editingKey: true, draftKey: state.key };
+    case "cancel_edit":
+      return { ...state, editingKey: false };
+    case "update_draft":
+      return { ...state, draftKey: action.draft };
+    case "commit_edit":
+      return { ...state, key: action.key, editingKey: false };
+    case "copy_start":
+      return { ...state, copying: true };
+    case "copy_end":
+      return { ...state, copying: false };
+    case "push_start":
+      return { ...state, pushing: true };
+    case "push_done":
+      return { ...state, pushing: false, lastPush: action.ts, status: { type: "success", text: "Data pushed to cloud." } };
+    case "push_error":
+      return { ...state, pushing: false, status: { type: "error", text: action.error } };
+    case "pull_start":
+      return { ...state, pulling: true };
+    case "pull_error":
+      return { ...state, pulling: false, status: { type: "error", text: action.error } };
+    case "set_status":
+      return { ...state, status: action.status };
+    default:
+      return state;
+  }
+}
 
 function formatRelativeTime(ts: number): string {
   const diff = Date.now() - ts;
@@ -22,15 +81,19 @@ function formatRelativeTime(ts: number): string {
 }
 
 export function CloudSyncSection() {
-  const [key, setKey] = useState<string>(() => getSyncKey() ?? "");
-  const [editingKey, setEditingKey] = useState(false);
-  const [draftKey, setDraftKey] = useState("");
-  const [copying, setCopying] = useState(false);
-  const [pushing, setPushing] = useState(false);
-  const [pulling, setPulling] = useState(false);
-  const [lastPush, setLastPush] = useState<number | null>(() => getLastPush());
-  const [status, setStatus] = useState<Status>(null);
+  const [state, dispatch] = useReducer(syncReducer, undefined, () => ({
+    key: getSyncKey() ?? "",
+    editingKey: false,
+    draftKey: "",
+    copying: false,
+    pushing: false,
+    pulling: false,
+    lastPush: getLastPush(),
+    status: null,
+  }));
   const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { key, editingKey, draftKey, copying, pushing, pulling, lastPush, status } = state;
 
   useEffect(() => {
     return () => {
@@ -38,79 +101,74 @@ export function CloudSyncSection() {
     };
   }, []);
 
-  function showStatus(s: Status) {
-    setStatus(s);
+  function scheduleStatusClear() {
     if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
-    if (s) {
-      statusTimerRef.current = setTimeout(() => setStatus(null), 5000);
-    }
+    statusTimerRef.current = setTimeout(() => dispatch({ type: "set_status", status: null }), 5000);
   }
 
   function handleGenerate() {
     if (key && !window.confirm("This will replace your current sync key. You will no longer be able to access data pushed under the old key. Continue?")) {
       return;
     }
-    const newKey = generateSyncKey();
-    setKey(newKey);
-    setEditingKey(false);
-    showStatus(null);
+    dispatch({ type: "set_key", key: generateSyncKey() });
   }
 
   async function handleCopy() {
     if (!key) return;
     await navigator.clipboard.writeText(key);
-    setCopying(true);
-    setTimeout(() => setCopying(false), 1500);
+    dispatch({ type: "copy_start" });
+    setTimeout(() => dispatch({ type: "copy_end" }), 1500);
   }
 
   function handleStartEdit() {
-    setDraftKey(key);
-    setEditingKey(true);
+    dispatch({ type: "start_edit" });
   }
 
   function handleSaveEdit() {
     const trimmed = draftKey.trim();
     if (trimmed) {
       setSyncKey(trimmed);
-      setKey(trimmed);
+      dispatch({ type: "commit_edit", key: trimmed });
+    } else {
+      dispatch({ type: "cancel_edit" });
     }
-    setEditingKey(false);
   }
 
   async function handlePush() {
     if (!key) {
-      showStatus({ type: "error", text: "Generate or enter a sync key first." });
+      dispatch({ type: "set_status", status: { type: "error", text: "Generate or enter a sync key first." } });
+      scheduleStatusClear();
       return;
     }
-    setPushing(true);
+    dispatch({ type: "push_start" });
     try {
       await pushToCloud(key);
-      const ts = Date.now();
-      setLastPush(ts);
-      showStatus({ type: "success", text: "Data pushed to cloud." });
+      dispatch({ type: "push_done", ts: Date.now() });
+      scheduleStatusClear();
     } catch (err) {
-      showStatus({ type: "error", text: err instanceof Error ? err.message : "Push failed." });
-    } finally {
-      setPushing(false);
+      dispatch({ type: "push_error", error: err instanceof Error ? err.message : "Push failed." });
+      scheduleStatusClear();
     }
   }
 
   async function handlePull() {
     if (!key) {
-      showStatus({ type: "error", text: "Enter your sync key first." });
+      dispatch({ type: "set_status", status: { type: "error", text: "Enter your sync key first." } });
+      scheduleStatusClear();
       return;
     }
     if (!window.confirm("Pull data from cloud? This will replace all your local sessions, stats, and progress. The page will reload.")) {
       return;
     }
-    setPulling(true);
+    dispatch({ type: "pull_start" });
     try {
       await pullFromCloud(key);
-      showStatus({ type: "success", text: "Data restored. Reloading…" });
+      dispatch({ type: "set_status", status: { type: "success", text: "Data restored. Reloading…" } });
+      scheduleStatusClear();
       setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
-      showStatus({ type: "error", text: err instanceof Error ? err.message : "Pull failed." });
-      setPulling(false);
+      dispatch({ type: "pull_error", error: err instanceof Error ? err.message : "Pull failed." });
+      scheduleStatusClear();
     }
   }
 
@@ -141,8 +199,8 @@ export function CloudSyncSection() {
                   <input
                     type="text"
                     value={draftKey}
-                    onChange={(e) => setDraftKey(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleSaveEdit(); if (e.key === "Escape") setEditingKey(false); }}
+                    onChange={(e) => dispatch({ type: "update_draft", draft: e.target.value })}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleSaveEdit(); if (e.key === "Escape") dispatch({ type: "cancel_edit" }); }}
                     autoFocus
                     placeholder="e.g. amber-forest-4291"
                     className="text-sm font-mono border border-indigo-300 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500"
@@ -158,7 +216,7 @@ export function CloudSyncSection() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditingKey(false)}
+                    onClick={() => dispatch({ type: "cancel_edit" })}
                     className="px-3 py-1.5 text-sm border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Cancel

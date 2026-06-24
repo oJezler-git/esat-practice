@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type TransitionEvent } from "react";
+import { useEffect, useReducer, useRef, useState, type TransitionEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
@@ -18,6 +18,28 @@ interface CachedGreeting {
   hourGenerated: number;
 }
 
+type HomeDataState = {
+  recentSessions: Session[];
+  weakTopics: TopicStat[];
+  greeting: string;
+  quote: string;
+};
+
+type HomeDataAction =
+  | { type: "set_content"; greeting: string; quote: string }
+  | { type: "set_data"; recentSessions: Session[]; weakTopics: TopicStat[] };
+
+function homeDataReducer(state: HomeDataState, action: HomeDataAction): HomeDataState {
+  switch (action.type) {
+    case "set_content":
+      return { ...state, greeting: action.greeting, quote: action.quote };
+    case "set_data":
+      return { ...state, recentSessions: action.recentSessions, weakTopics: action.weakTopics };
+    default:
+      return state;
+  }
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const { questions, isLoading, loaded } = useQuestionStore();
@@ -26,10 +48,8 @@ export default function Home() {
   const settings = useSettingsStore((state) => state.settings);
   const { excludedQuestionIds } = useExcludedQuestionStore();
 
-  const [recentSessions, setRecentSessions] = useState<Session[]>([]);
-  const [weakTopics, setWeakTopics] = useState<TopicStat[]>([]);
-  const [greeting, setGreeting] = useState("");
-  const [quote, setQuote] = useState("");
+  const [homeData, dispatchData] = useReducer(homeDataReducer, { recentSessions: [], weakTopics: [], greeting: "", quote: "" });
+  const { recentSessions, weakTopics, greeting, quote } = homeData;
   const [showOfflineNudge, setShowOfflineNudge] = useState(
     () => isInstalledPWA() && !getOfflineDownloadState() && localStorage.getItem("offline_nudge_dismissed") !== "true"
   );
@@ -111,18 +131,16 @@ export default function Home() {
     const cached = localStorage.getItem("greeting_cache");
 
     if (cached) {
-      const data: CachedGreeting = JSON.parse(cached);
-      if (data.hourGenerated === currentHour) {
-        setGreeting(data.greeting);
-        setQuote(data.quote);
+      const cachedData: CachedGreeting = JSON.parse(cached);
+      if (cachedData.hourGenerated === currentHour) {
+        dispatchData({ type: "set_content", greeting: cachedData.greeting, quote: cachedData.quote });
         return;
       }
     }
 
     const newGreeting = getTimeBasedGreeting();
     const newQuote = getRandomQuote();
-    setGreeting(newGreeting);
-    setQuote(newQuote);
+    dispatchData({ type: "set_content", greeting: newGreeting, quote: newQuote });
 
     localStorage.setItem(
       "greeting_cache",
@@ -142,10 +160,11 @@ export default function Home() {
       if (!mounted) {
         return;
       }
-      setRecentSessions(sessions);
-      setWeakTopics(
-        stats.filter((stat) => stat.ewma_accuracy < 0.5 && stat.attempts >= 3).slice(0, 3),
-      );
+      dispatchData({
+        type: "set_data",
+        recentSessions: sessions,
+        weakTopics: stats.filter((stat) => stat.ewma_accuracy < 0.5 && stat.attempts >= 3).slice(0, 3),
+      });
     }
 
     void load();

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
@@ -7,6 +7,72 @@ type ScanTransform = {
   x: number;
   y: number;
 };
+
+type ViewerState = {
+  isExpanded: boolean;
+  isClosing: boolean;
+  scanSourceRect: DOMRect | null;
+  scanViewportSize: { width: number; height: number };
+  scanNaturalSize: { width: number; height: number };
+  isScanDragging: boolean;
+  isScanIntroActive: boolean;
+  isScanSettling: boolean;
+};
+
+type ViewerAction =
+  | { type: "open"; sourceRect: DOMRect | null; naturalSize?: { width: number; height: number } }
+  | { type: "close_start" }
+  | { type: "close_done" }
+  | { type: "set_viewport_size"; width: number; height: number }
+  | { type: "set_natural_size"; width: number; height: number }
+  | { type: "drag_start" }
+  | { type: "drag_end" }
+  | { type: "intro_done" }
+  | { type: "settle_start" }
+  | { type: "settle_end" };
+
+function viewerReducer(state: ViewerState, action: ViewerAction): ViewerState {
+  switch (action.type) {
+    case "open":
+      return {
+        ...state,
+        isExpanded: true,
+        isClosing: false,
+        scanSourceRect: action.sourceRect,
+        isScanIntroActive: true,
+        isScanSettling: false,
+        ...(action.naturalSize ? { scanNaturalSize: action.naturalSize } : {}),
+      };
+    case "close_start":
+      return { ...state, isClosing: true };
+    case "close_done":
+      return {
+        ...state,
+        isExpanded: false,
+        isClosing: false,
+        isScanDragging: false,
+        isScanIntroActive: false,
+        isScanSettling: false,
+        scanSourceRect: null,
+      };
+    case "set_viewport_size":
+      return { ...state, scanViewportSize: { width: action.width, height: action.height } };
+    case "set_natural_size":
+      return { ...state, scanNaturalSize: { width: action.width, height: action.height } };
+    case "drag_start":
+      return { ...state, isScanDragging: true, isScanSettling: false };
+    case "drag_end":
+      return { ...state, isScanDragging: false, isScanSettling: true };
+    case "intro_done":
+      return { ...state, isScanIntroActive: false };
+    case "settle_start":
+      return { ...state, isScanSettling: true };
+    case "settle_end":
+      return { ...state, isScanSettling: false };
+    default:
+      return state;
+  }
+}
 
 interface Props {
   src: string;
@@ -25,15 +91,18 @@ export function ZoomableImage({
   previewExpandedClassName = "zoomable-image-preview-expanded",
   previewFooter,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  const [viewer, dispatchViewer] = useReducer(viewerReducer, {
+    isExpanded: false,
+    isClosing: false,
+    scanSourceRect: null,
+    scanViewportSize: { width: 0, height: 0 },
+    scanNaturalSize: { width: 0, height: 0 },
+    isScanDragging: false,
+    isScanIntroActive: false,
+    isScanSettling: false,
+  });
+  const { isExpanded, isClosing, scanSourceRect, scanViewportSize, scanNaturalSize, isScanDragging, isScanIntroActive, isScanSettling } = viewer;
   const [scanTransform, setScanTransform] = useState<ScanTransform>({ scale: 1, x: 0, y: 0 });
-  const [scanViewportSize, setScanViewportSize] = useState({ width: 0, height: 0 });
-  const [scanNaturalSize, setScanNaturalSize] = useState({ width: 0, height: 0 });
-  const [isScanDragging, setIsScanDragging] = useState(false);
-  const [isScanIntroActive, setIsScanIntroActive] = useState(false);
-  const [isScanSettling, setIsScanSettling] = useState(false);
-  const [scanSourceRect, setScanSourceRect] = useState<DOMRect | null>(null);
   const imageHasDraggedRef = useRef(false);
   const imagePreviewButtonRef = useRef<HTMLButtonElement>(null);
   const scanViewportRef = useRef<HTMLDivElement>(null);
@@ -149,18 +218,13 @@ export function ZoomableImage({
 
     imageHasDraggedRef.current = false;
     setScanTransform({ scale: 1, x: 0, y: 0 });
-    setScanSourceRect(preview?.getBoundingClientRect() ?? null);
-    setIsScanIntroActive(true);
-    setIsScanSettling(false);
-
-    if (previewImage?.naturalWidth && previewImage.naturalHeight) {
-      setScanNaturalSize({
-        width: previewImage.naturalWidth,
-        height: previewImage.naturalHeight,
-      });
-    }
-
-    setIsExpanded(true);
+    dispatchViewer({
+      type: "open",
+      sourceRect: preview?.getBoundingClientRect() ?? null,
+      naturalSize: previewImage?.naturalWidth && previewImage.naturalHeight
+        ? { width: previewImage.naturalWidth, height: previewImage.naturalHeight }
+        : undefined,
+    });
   };
 
   const handleCloseImage = useCallback(() => {
@@ -169,14 +233,9 @@ export function ZoomableImage({
       scanWheelFrameRef.current = null;
     }
     scanWheelTargetRef.current = null;
-    setIsClosing(true);
+    dispatchViewer({ type: "close_start" });
     window.setTimeout(() => {
-      setIsExpanded(false);
-      setIsClosing(false);
-      setIsScanDragging(false);
-      setIsScanIntroActive(false);
-      setIsScanSettling(false);
-      setScanSourceRect(null);
+      dispatchViewer({ type: "close_done" });
       scanDragRef.current = null;
     }, 200);
   }, []);
@@ -212,10 +271,7 @@ export function ZoomableImage({
 
     const viewport = scanViewportRef.current;
     const syncSize = () => {
-      setScanViewportSize({
-        width: viewport.clientWidth,
-        height: viewport.clientHeight,
-      });
+      dispatchViewer({ type: "set_viewport_size", width: viewport.clientWidth, height: viewport.clientHeight });
     };
 
     syncSize();
@@ -265,7 +321,7 @@ export function ZoomableImage({
       });
     });
     const doneTimer = window.setTimeout(() => {
-      setIsScanIntroActive(false);
+      dispatchViewer({ type: "intro_done" });
     }, 260);
 
     return () => {
@@ -292,7 +348,6 @@ export function ZoomableImage({
       scanWheelFrameRef.current = null;
     }
     scanWheelTargetRef.current = null;
-    setIsScanSettling(false);
     scanDragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -302,7 +357,7 @@ export function ZoomableImage({
       moved: false,
     };
     event.currentTarget.setPointerCapture(event.pointerId);
-    setIsScanDragging(true);
+    dispatchViewer({ type: "drag_start" });
   };
 
   const handleScanPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -329,10 +384,9 @@ export function ZoomableImage({
     if (scanDragRef.current?.pointerId === event.pointerId) {
       event.currentTarget.releasePointerCapture(event.pointerId);
       scanDragRef.current = null;
-      setIsScanDragging(false);
-      setIsScanSettling(true);
+      dispatchViewer({ type: "drag_end" });
       setScanTransform((current) => clampScanTransform(current));
-      window.setTimeout(() => setIsScanSettling(false), 260);
+      window.setTimeout(() => dispatchViewer({ type: "settle_end" }), 260);
     }
   };
 
@@ -413,19 +467,19 @@ export function ZoomableImage({
   }, []);
 
   const zoomSourceScan = (factor: number) => {
-    setIsScanSettling(true);
+    dispatchViewer({ type: "settle_start" });
     updateScanTransform((current) => ({
       scale: current.scale * factor,
       x: current.x,
       y: current.y,
     }));
-    window.setTimeout(() => setIsScanSettling(false), 260);
+    window.setTimeout(() => dispatchViewer({ type: "settle_end" }), 260);
   };
 
   const resetSourceScan = () => {
-    setIsScanSettling(true);
+    dispatchViewer({ type: "settle_start" });
     setScanTransform(getDefaultScanTransform());
-    window.setTimeout(() => setIsScanSettling(false), 260);
+    window.setTimeout(() => dispatchViewer({ type: "settle_end" }), 260);
   };
 
   return (
@@ -477,7 +531,8 @@ export function ZoomableImage({
                   className="source-scan-image"
                   draggable={false}
                   onLoad={(event) => {
-                    setScanNaturalSize({
+                    dispatchViewer({
+                      type: "set_natural_size",
                       width: event.currentTarget.naturalWidth,
                       height: event.currentTarget.naturalHeight,
                     });

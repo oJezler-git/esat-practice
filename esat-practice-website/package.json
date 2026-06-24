@@ -9,7 +9,8 @@
     "build": "npm run data:prepare && tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -18,7 +19,6 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6",
-    "react-zoom-pan-pinch": "^4.0.3",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

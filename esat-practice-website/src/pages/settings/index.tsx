@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useReducer, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
@@ -366,56 +366,101 @@ export default function Settings() {
   );
 }
 
+type OfflineState = {
+  saved: OfflineDownloadState | null;
+  currentVersion: string | null;
+  progress: { done: number; total: number } | null;
+  error: boolean;
+  highlighted: boolean;
+};
+
+type OfflineAction =
+  | { type: "set_version"; version: string | null }
+  | { type: "download_start" }
+  | { type: "download_progress"; done: number; total: number }
+  | { type: "download_done"; saved: OfflineDownloadState | null }
+  | { type: "download_cancel" }
+  | { type: "download_error" }
+  | { type: "clear" }
+  | { type: "highlight" }
+  | { type: "unhighlight" };
+
+function offlineReducer(state: OfflineState, action: OfflineAction): OfflineState {
+  switch (action.type) {
+    case "set_version":
+      return { ...state, currentVersion: action.version };
+    case "download_start":
+      return { ...state, error: false, progress: { done: 0, total: 0 } };
+    case "download_progress":
+      return { ...state, progress: { done: action.done, total: action.total } };
+    case "download_done":
+      return { ...state, progress: null, saved: action.saved };
+    case "download_cancel":
+      return { ...state, progress: null };
+    case "download_error":
+      return { ...state, error: true, progress: null };
+    case "clear":
+      return { ...state, saved: null, error: false };
+    case "highlight":
+      return { ...state, highlighted: true };
+    case "unhighlight":
+      return { ...state, highlighted: false };
+    default:
+      return state;
+  }
+}
+
 function OfflineSection() {
-  const [saved, setSaved] = useState<OfflineDownloadState | null>(() => getOfflineDownloadState());
-  const [currentVersion, setCurrentVersion] = useState<string | null>(null);
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [error, setError] = useState(false);
-  const [highlighted, setHighlighted] = useState(false);
+  const [state, dispatch] = useReducer(offlineReducer, undefined, () => ({
+    saved: getOfflineDownloadState(),
+    currentVersion: null,
+    progress: null,
+    error: false,
+    highlighted: false,
+  }));
   const abortRef = useRef<AbortController | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const location = useLocation();
 
+  const { saved, currentVersion, progress, error, highlighted } = state;
+
   useEffect(() => {
-    void getCurrentDataVersion().then(setCurrentVersion);
+    void getCurrentDataVersion().then((v) => dispatch({ type: "set_version", version: v }));
     return () => { abortRef.current?.abort(); };
   }, []);
 
   useEffect(() => {
-    const state = location.state as { highlight?: string } | null;
-    if (state?.highlight !== "offline") return;
+    const locState = location.state as { highlight?: string } | null;
+    if (locState?.highlight !== "offline") return;
     const frame = requestAnimationFrame(() => {
       sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      setHighlighted(true);
-      const t = setTimeout(() => setHighlighted(false), 2000);
+      dispatch({ type: "highlight" });
+      const t = setTimeout(() => dispatch({ type: "unhighlight" }), 2000);
       return () => clearTimeout(t);
     });
     return () => cancelAnimationFrame(frame);
   }, [location.state]);
 
   async function startDownload() {
-    setError(false);
     const controller = new AbortController();
     abortRef.current = controller;
-    setProgress({ done: 0, total: 0 });
+    dispatch({ type: "download_start" });
     try {
       await downloadAllImagesForOffline(
-        (done, total) => setProgress({ done, total }),
+        (done, total) => dispatch({ type: "download_progress", done, total }),
         controller.signal,
       );
-      setSaved(getOfflineDownloadState());
+      dispatch({ type: "download_done", saved: getOfflineDownloadState() });
     } catch {
-      setError(true);
+      dispatch({ type: "download_error" });
     } finally {
-      setProgress(null);
       abortRef.current = null;
     }
   }
 
   async function handleClear() {
     await clearOfflineImageCache();
-    setSaved(null);
-    setError(false);
+    dispatch({ type: "clear" });
   }
 
   const isDownloading = progress !== null;
@@ -443,7 +488,7 @@ function OfflineSection() {
               </span>
               <button
                 type="button"
-                onClick={() => { abortRef.current?.abort(); setProgress(null); }}
+                onClick={() => { abortRef.current?.abort(); dispatch({ type: "download_cancel" }); }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 Cancel

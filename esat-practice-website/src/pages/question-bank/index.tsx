@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   type DuplicateNearMissDebug,
@@ -11,6 +11,78 @@ import type { Question } from "../../types/schema";
 
 type SortKey = "default" | "topic" | "year" | "accuracy";
 type QuestionScope = "practice" | "excluded";
+
+type FilterState = {
+  search: string;
+  scope: QuestionScope;
+  topicFilter: string[];
+  yearFilter: number[];
+  verifiedOnly: boolean;
+  hideNsaaDuplicates: boolean;
+  showDedupDebug: boolean;
+  sortKey: SortKey;
+  expandedId: string | null;
+  isDetailsOpen: boolean;
+};
+
+type FilterAction =
+  | { type: "set_search"; value: string }
+  | { type: "set_scope"; scope: QuestionScope }
+  | { type: "toggle_topic"; topic: string }
+  | { type: "toggle_year"; year: number }
+  | { type: "set_verified_only"; value: boolean }
+  | { type: "set_hide_dupes"; value: boolean }
+  | { type: "set_debug"; value: boolean }
+  | { type: "set_sort"; key: SortKey }
+  | { type: "set_expanded"; id: string | null }
+  | { type: "set_details_open"; value: boolean };
+
+function filterReducer(state: FilterState, action: FilterAction): FilterState {
+  switch (action.type) {
+    case "set_search": return { ...state, search: action.value };
+    case "set_scope": return { ...state, scope: action.scope };
+    case "toggle_topic": {
+      const topics = state.topicFilter.includes(action.topic)
+        ? state.topicFilter.filter((t) => t !== action.topic)
+        : [...state.topicFilter, action.topic];
+      return { ...state, topicFilter: topics };
+    }
+    case "toggle_year": {
+      const years = state.yearFilter.includes(action.year)
+        ? state.yearFilter.filter((y) => y !== action.year)
+        : [...state.yearFilter, action.year];
+      return { ...state, yearFilter: years };
+    }
+    case "set_verified_only": return { ...state, verifiedOnly: action.value };
+    case "set_hide_dupes": return { ...state, hideNsaaDuplicates: action.value };
+    case "set_debug": return { ...state, showDedupDebug: action.value };
+    case "set_sort": return { ...state, sortKey: action.key };
+    case "set_expanded": return { ...state, expandedId: action.id };
+    case "set_details_open": return { ...state, isDetailsOpen: action.value };
+    default: return state;
+  }
+}
+
+type VirtualState = {
+  scrollTop: number;
+  viewportHeight: number;
+  virtualCount: number;
+  detailHeight: number;
+};
+
+type VirtualAction =
+  | { type: "sync_metrics"; scrollTop: number; viewportHeight: number }
+  | { type: "set_count"; count: number }
+  | { type: "set_detail_height"; height: number };
+
+function virtualReducer(state: VirtualState, action: VirtualAction): VirtualState {
+  switch (action.type) {
+    case "sync_metrics": return { ...state, scrollTop: action.scrollTop, viewportHeight: action.viewportHeight };
+    case "set_count": return { ...state, virtualCount: action.count };
+    case "set_detail_height": return { ...state, detailHeight: action.height };
+    default: return state;
+  }
+}
 type CountItem = { label: string; count: number };
 const VIRTUAL_ROW_HEIGHT = 92;
 const VIRTUAL_OVERSCAN = 8;
@@ -56,20 +128,26 @@ export default function QuestionBank() {
   const { createSession } = useSessionStore();
   const { excludeQuestion, includeQuestion } = useExcludedQuestionStore();
 
-  const [search, setSearch] = useState("");
-  const [scope, setScope] = useState<QuestionScope>("practice");
-  const [topicFilter, setTopicFilter] = useState<string[]>([]);
-  const [yearFilter, setYearFilter] = useState<number[]>([]);
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [hideNsaaDuplicates, setHideNsaaDuplicates] = useState(true);
-  const [showDedupDebug, setShowDedupDebug] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>("default");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-  const [viewportHeight, setViewportHeight] = useState(0);
-  const [virtualCount, setVirtualCount] = useState(VIRTUAL_BATCH_SIZE);
-  const [detailHeight, setDetailHeight] = useState(0);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [filterState, dispatchFilter] = useReducer(filterReducer, {
+    search: "",
+    scope: "practice",
+    topicFilter: [],
+    yearFilter: [],
+    verifiedOnly: false,
+    hideNsaaDuplicates: true,
+    showDedupDebug: false,
+    sortKey: "default",
+    expandedId: null,
+    isDetailsOpen: false,
+  });
+  const [virtualState, dispatchVirtual] = useReducer(virtualReducer, {
+    scrollTop: 0,
+    viewportHeight: 0,
+    virtualCount: VIRTUAL_BATCH_SIZE,
+    detailHeight: 0,
+  });
+  const { search, scope, topicFilter, yearFilter, verifiedOnly, hideNsaaDuplicates, showDedupDebug, sortKey, expandedId, isDetailsOpen } = filterState;
+  const { scrollTop, viewportHeight, virtualCount, detailHeight } = virtualState;
   const listRef = useRef<HTMLDivElement | null>(null);
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = nsaaDuplicateAnalysis;
@@ -187,8 +265,11 @@ export default function QuestionBank() {
     const syncWindowMetrics = () => {
       const listTop = listRef.current?.getBoundingClientRect().top ?? 0;
       const absoluteTop = window.scrollY + listTop;
-      setScrollTop(Math.max(0, window.scrollY - absoluteTop));
-      setViewportHeight(window.innerHeight);
+      dispatchVirtual({
+        type: "sync_metrics",
+        scrollTop: Math.max(0, window.scrollY - absoluteTop),
+        viewportHeight: window.innerHeight,
+      });
     };
 
     syncWindowMetrics();
@@ -202,7 +283,7 @@ export default function QuestionBank() {
   }, []);
 
   useEffect(() => {
-    setVirtualCount(Math.min(filtered.length, VIRTUAL_BATCH_SIZE));
+    dispatchVirtual({ type: "set_count", count: Math.min(filtered.length, VIRTUAL_BATCH_SIZE) });
   }, [
     filtered.length,
     search,
@@ -219,9 +300,7 @@ export default function QuestionBank() {
       Math.ceil((scrollTop + viewportHeight) / VIRTUAL_ROW_HEIGHT) +
       VIRTUAL_OVERSCAN * 2;
     if (neededCount > virtualCount && virtualCount < filtered.length) {
-      setVirtualCount((previous) =>
-        Math.min(filtered.length, Math.max(previous + VIRTUAL_BATCH_SIZE, neededCount)),
-      );
+      dispatchVirtual({ type: "set_count", count: Math.min(filtered.length, Math.max(virtualCount + VIRTUAL_BATCH_SIZE, neededCount)) });
     }
   }, [filtered.length, scrollTop, viewportHeight, virtualCount]);
 
@@ -249,19 +328,11 @@ export default function QuestionBank() {
   const virtualSlice = filtered.slice(startIndex, endIndex);
 
   function toggleTopic(topic: string) {
-    setTopicFilter((previous) =>
-      previous.includes(topic)
-        ? previous.filter((value) => value !== topic)
-        : [...previous, topic],
-    );
+    dispatchFilter({ type: "toggle_topic", topic });
   }
 
   function toggleYear(year: number) {
-    setYearFilter((previous) =>
-      previous.includes(year)
-        ? previous.filter((value) => value !== year)
-        : [...previous, year],
-    );
+    dispatchFilter({ type: "toggle_year", year });
   }
 
   async function drillTopic(topic: string) {
@@ -313,7 +384,7 @@ export default function QuestionBank() {
         <div className="flex flex-wrap items-center justify-end gap-2">
           <button
             type="button"
-            onClick={() => setScope("practice")}
+            onClick={() => dispatchFilter({ type: "set_scope", scope: "practice" })}
             className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
               scope === "practice"
                 ? "bg-slate-900 text-white"
@@ -324,7 +395,7 @@ export default function QuestionBank() {
           </button>
           <button
             type="button"
-            onClick={() => setScope("excluded")}
+            onClick={() => dispatchFilter({ type: "set_scope", scope: "excluded" })}
             className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
               scope === "excluded"
                 ? "bg-rose-600 text-white"
@@ -351,7 +422,7 @@ export default function QuestionBank() {
       {!isQuestionBankLoading && sourceQuestions.length > 0 && (
         <details
           open={isDetailsOpen}
-          onToggle={(e) => setIsDetailsOpen((e.target as HTMLDetailsElement).open)}
+          onToggle={(e) => dispatchFilter({ type: "set_details_open", value: (e.target as HTMLDetailsElement).open })}
           className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
         >
           <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
@@ -427,7 +498,7 @@ export default function QuestionBank() {
           type="search"
           placeholder="Search questions, topics, papers..."
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => dispatchFilter({ type: "set_search", value: event.target.value })}
           className="question-bank-search"
         />
 
@@ -480,7 +551,7 @@ export default function QuestionBank() {
                     <input
                       type="checkbox"
                       checked={hideNsaaDuplicates}
-                      onChange={(event) => setHideNsaaDuplicates(event.target.checked)}
+                      onChange={(event) => dispatchFilter({ type: "set_hide_dupes", value: event.target.checked })}
                       className="accent-indigo-500"
                     />
                     Exclude NSAA duplicates
@@ -491,7 +562,7 @@ export default function QuestionBank() {
                   <input
                     type="checkbox"
                     checked={verifiedOnly}
-                    onChange={(event) => setVerifiedOnly(event.target.checked)}
+                    onChange={(event) => dispatchFilter({ type: "set_verified_only", value: event.target.checked })}
                     className="accent-indigo-500"
                   />
                   Primary-model only
@@ -501,7 +572,7 @@ export default function QuestionBank() {
                   <input
                     type="checkbox"
                     checked={showDedupDebug}
-                    onChange={(event) => setShowDedupDebug(event.target.checked)}
+                    onChange={(event) => dispatchFilter({ type: "set_debug", value: event.target.checked })}
                     className="accent-indigo-500"
                   />
                   Dedupe debug
@@ -510,7 +581,7 @@ export default function QuestionBank() {
 
               <select
                 value={sortKey}
-                onChange={(event) => setSortKey(event.target.value as SortKey)}
+                onChange={(event) => dispatchFilter({ type: "set_sort", key: event.target.value as SortKey })}
                 className="question-bank-sort"
               >
                 <option value="default">Default order</option>
@@ -567,9 +638,7 @@ export default function QuestionBank() {
                     isExcluded={excludedQuestionIds.has(question.id)}
                     selected={expandedId === question.id}
                     onToggle={() =>
-                      setExpandedId(
-                        expandedId === question.id ? null : question.id,
-                      )
+                      dispatchFilter({ type: "set_expanded", id: expandedId === question.id ? null : question.id })
                     }
                   />
                 </div>
@@ -588,8 +657,8 @@ export default function QuestionBank() {
                 <QuestionDetailPanel
                   question={selectedQuestion}
                   isExcluded={excludedQuestionIds.has(selectedQuestion.id)}
-                  onClose={() => setExpandedId(null)}
-                  onHeightChange={setDetailHeight}
+                  onClose={() => dispatchFilter({ type: "set_expanded", id: null })}
+                  onHeightChange={(height) => dispatchVirtual({ type: "set_detail_height", height })}
                   onDrillTopic={() => {
                     void drillTopic(selectedQuestion.taxonomy.primary_topic);
                   }}
