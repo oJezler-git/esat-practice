@@ -4,7 +4,7 @@
 // @version      4.2
 // @description  Sends ESAT questions to Claude with the question image attached automatically
 // @author       ESAT Practice
-// @match        https://esat-practice.vercel.app/
+// @match        https://esat-practice.vercel.app/*
 // @match        https://claude.ai/*
 // @match        http://localhost:5173/*
 // @grant        GM_setValue
@@ -15,6 +15,7 @@
 // @grant        unsafeWindow
 // @connect      esat-practice.vercel.app
 // @connect      localhost
+// @connect      localhost:5173
 // ==/UserScript==
 
 /**
@@ -27,6 +28,12 @@
 
 (function () {
   'use strict';
+
+  // Guards against duplicate injection: both setupClaudeSide()'s poller and
+  // setupSpaWatcher() can fire injectQuestion() before the payload is deleted
+  // (deletion is deferred ~5s). This flag ensures only one runs at a time; it
+  // is reset on genuine failures so a later navigation can still retry.
+  let injectionInFlight = false;
 
   // Route execution based on the current domain
   if (window.location.hostname.includes('claude.ai')) {
@@ -154,17 +161,25 @@
         method: 'GET',
         url,
         responseType: 'blob',
+        timeout: 15000,
+        ontimeout: () => reject(new Error('Image fetch timed out.')),
         onload(resp) {
-          // Ensure the server headers confirm it is an image
-          const contentTypeMatch = resp.responseHeaders.match(/content-type:\s*(.*?)(?:\r|\n|$)/i);
-          if (!contentTypeMatch || !contentTypeMatch[1].toLowerCase().startsWith('image/')) {
-            return reject(new Error('Security Block: Downloaded file is not an image.'));
-          }
+          // Wrap in try/catch: a thrown error inside this GM callback would otherwise
+          // settle neither resolve nor reject, leaving the awaiting caller hung forever.
+          try {
+            // Ensure the server headers confirm it is an image
+            const contentTypeMatch = (resp.responseHeaders || '').match(/content-type:\s*(.*?)(?:\r|\n|$)/i);
+            if (!contentTypeMatch || !contentTypeMatch[1].toLowerCase().startsWith('image/')) {
+              return reject(new Error('Security Block: Downloaded file is not an image.'));
+            }
 
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(resp.response);
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(resp.response);
+          } catch (err) {
+            reject(err);
+          }
         },
         onerror: reject,
       });
@@ -216,8 +231,13 @@
   }
 
   async function injectQuestion({ prompt, imageDataUri }) {
+    // Prevent the poller and the SPA watcher from injecting the same payload twice.
+    if (injectionInFlight) return;
+    injectionInFlight = true;
+
     const input = await waitForInput();
     if (!input) {
+      injectionInFlight = false; // genuine failure — allow a later navigation to retry
       showNotification(
         'Could not find Claude\'s input field.',
         'Are you logged in? Try refreshing and clicking "Ask Claude" again.',
@@ -230,6 +250,7 @@
 
     // Verify text actually landed (ProseMirror may silently reject execCommand if focused elsewhere).
     if (!input.textContent?.trim()) {
+      injectionInFlight = false; // genuine failure — allow a later navigation to retry
       showNotification(
         'Prompt injection failed.',
         'Claude\'s editor did not accept the text. Paste it manually — the prompt has been copied to your clipboard.',
@@ -269,6 +290,10 @@
     if (!pageLeft && (stablePath.startsWith('/new') || stablePath.startsWith('/chat'))) {
       GM_deleteValue('esat-ask-payload');
     }
+
+    // Always release the lock. If the payload survived (e.g. Claude navigated to a
+    // non-chat route before deletion), a later return to /new can retry it.
+    injectionInFlight = false;
   }
 
   function showNotification(title, body, level = 'error') {
@@ -364,7 +389,11 @@
     input.focus();
     input.classList.remove('is-empty', 'is-editor-empty');
 
-    // Rather than setting `input.value`, we use `execCommand`. 
+    // Replace, don't append: clear any existing editor content (e.g. a retry, or text
+    // the user already typed) so the prompt doesn't get concatenated at the cursor.
+    document.execCommand('selectAll');
+
+    // Rather than setting `input.value`, we use `execCommand`.
     // Claude uses ProseMirror (a rich-text React editor) which ignores direct `.value` mutations. 
     // `execCommand` simulates actual user typing, triggering the necessary React state updates.
     const lines = text.split('\n');
