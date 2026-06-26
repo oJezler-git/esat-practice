@@ -323,6 +323,8 @@ export default function SessionPage() {
                     src={imageSrc}
                     alt="Question source scan"
                     previewButtonClassName="w-full h-full cursor-zoom-in"
+                    enableDrawing
+                    persistKey={currentQuestion.id}
                   />
                 </div>
               </>

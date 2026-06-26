@@ -2,6 +2,7 @@
   --font-sans: "Manrope", "Segoe UI Variable", "Segoe UI", sans-serif;
   --font-display: "Fraunces", "Georgia", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-hand: "Caveat", "Segoe Script", "Bradley Hand", cursive;
 
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -558,6 +559,230 @@ p {
   bottom: max(1.25rem, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* --- Drawing / annotation layer --- */
+
+.drawing-svg {
+  position: absolute;
+  inset: 3px;
+  z-index: 3;
+  pointer-events: none;
+  touch-action: none;
+  overflow: visible;
+}
+
+.drawing-svg-active {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.drawing-svg-active[data-tool="eraser"] {
+  cursor: cell;
+}
+
+.drawing-svg-active[data-tool="text"] {
+  cursor: text;
+}
+
+.drawing-text {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  paint-order: stroke;
+  dominant-baseline: alphabetic;
+}
+
+.drawing-text-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: rgb(255 255 255 / 0.55);
+  border-bottom: 2px solid currentColor;
+  padding: 0 2px;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+/* --- Annotation toolbar --- */
+
+.annotation-toolbar {
+  position: fixed;
+  top: 50%;
+  left: max(0.85rem, env(safe-area-inset-left));
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.4rem;
+  border-radius: 1rem;
+  background-color: rgba(43, 55, 50, 0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--motion-lift-shadow);
+}
+
+.annotation-tool-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.annotation-divider {
+  width: 60%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0.15rem 0;
+}
+
+.annotation-tool-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.1rem;
+  width: 2.1rem;
+  border-radius: 0.65rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 160ms var(--motion-snappy), background-color 160ms ease,
+    color 160ms ease, border-color 160ms ease;
+}
+
+.annotation-tool-btn:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.annotation-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.annotation-tool-btn-active {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.annotation-tool-btn-danger:hover:not(:disabled) {
+  color: #fda29b;
+  border-color: rgba(217, 45, 32, 0.5);
+}
+
+.annotation-tool-btn-confirm,
+.annotation-tool-btn-confirm:hover:not(:disabled) {
+  background-color: rgba(217, 45, 32, 0.85);
+  border-color: #fda29b;
+  color: #ffffff;
+}
+
+.annotation-swatches {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem;
+  justify-items: center;
+}
+
+.annotation-swatch {
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 160ms var(--motion-snappy), border-color 160ms ease;
+}
+
+.annotation-swatch:hover {
+  transform: scale(1.12);
+}
+
+.annotation-swatch-active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.annotation-widths {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.annotation-width-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.7rem;
+  width: 1.7rem;
+  border-radius: 0.55rem;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.annotation-width-btn:hover {
+  background-color: var(--surface-2);
+}
+
+.annotation-width-btn-active {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.annotation-width-dot {
+  display: block;
+  border-radius: 9999px;
+  background: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .annotation-toolbar {
+    top: auto;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: calc(100vw - 1.5rem);
+    justify-content: center;
+  }
+
+  .annotation-tool-group,
+  .annotation-widths {
+    flex-direction: row;
+  }
+
+  .annotation-divider {
+    width: 1px;
+    height: 1.8rem;
+    margin: 0 0.15rem;
+  }
+
+  .annotation-swatches {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .source-scan-controls {
+    bottom: max(4.75rem, calc(env(safe-area-inset-bottom) + 4rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .annotation-tool-btn,
+  .annotation-swatch,
+  .annotation-width-btn {
+    transition: none;
+  }
 }
 
 .question-bank-page {
@@ -3393,6 +3618,39 @@ p {
 }
 
 .ask-claude-modal__intro strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ask-claude-modal__why {
+  margin: 0.5rem 1.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.ask-claude-modal__why-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.55rem;
+}
+
+.ask-claude-modal__why-list {
+  margin: 0 0 0.6rem;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ask-claude-modal__why-list li {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ask-claude-modal__why-list li strong {
   color: var(--text-primary);
   font-weight: 600;
 }
