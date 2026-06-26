@@ -5,6 +5,7 @@ import {
   defaultStrokeWidth,
   ellipseAttrs,
   rectAttrs,
+  replayTiming,
 } from "./annotationGeometry";
 
 describe("buildSmoothPath", () => {
@@ -66,5 +67,40 @@ describe("defaultStrokeWidth", () => {
   it("scales with image width and has a floor", () => {
     expect(defaultStrokeWidth(1000)).toBe(4);
     expect(defaultStrokeWidth(100)).toBe(2);
+  });
+});
+
+describe("replayTiming", () => {
+  it("returns zeroed timing (no animation) for an empty set", () => {
+    expect(replayTiming(0)).toEqual({ step: 0, dur: 320, total: 0 });
+    expect(replayTiming(-5)).toEqual({ step: 0, dur: 320, total: 0 });
+  });
+
+  it("a single stroke draws for exactly one duration plus tail", () => {
+    const { step, total } = replayTiming(1);
+    // No stagger needed for one stroke; total is just dur + tail.
+    expect(total).toBe(step * 0 + 320 + 80);
+  });
+
+  it("caps the per-stroke stagger so many strokes stay snappy", () => {
+    // With many strokes 1500/count would shrink below the floor; it clamps to 35.
+    expect(replayTiming(100).step).toBe(35);
+    // A handful of strokes is clamped to the 85ms ceiling (1500/3 = 500 > 85).
+    expect(replayTiming(3).step).toBe(85);
+  });
+
+  it("interpolates the stagger between the floor and ceiling", () => {
+    // 1500 / 30 = 50, inside [35, 85].
+    expect(replayTiming(30).step).toBe(50);
+  });
+
+  it("total accounts for stagger of all but the last stroke plus its draw time", () => {
+    const { step, dur, total } = replayTiming(4);
+    expect(total).toBe(step * 3 + dur + 80);
+  });
+
+  it("respects a custom stroke duration", () => {
+    expect(replayTiming(1, 200).dur).toBe(200);
+    expect(replayTiming(0, 200)).toEqual({ step: 0, dur: 200, total: 0 });
   });
 });

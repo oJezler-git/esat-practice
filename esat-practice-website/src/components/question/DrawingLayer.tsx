@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type {
   Annotation,
   AnnPoint,
@@ -13,6 +13,7 @@ import {
   clientToUser,
   ellipseAttrs,
   rectAttrs,
+  replayTiming,
 } from "./annotationGeometry";
 
 interface Props {
@@ -24,7 +25,15 @@ interface Props {
   onCommit: (annotation: Annotation) => void;
   onErase: (id: string) => void;
   onTextEditingChange?: (editing: boolean) => void;
+  /**
+   * Bumped each time annotations are (re)loaded from storage. A change triggers a
+   * fast staggered "draw-in" replay of the loaded strokes; freshly drawn strokes
+   * (which don't change the nonce) appear instantly.
+   */
+  replayNonce?: number;
 }
+
+type ReplayState = { order: Map<string, number>; step: number; dur: number };
 
 type LiveFree = { mode: "free"; kind: FreehandKind; points: AnnPoint[]; width: number };
 type LiveShape = { mode: "shape"; kind: ShapeKind; start: AnnPoint; end: AnnPoint };
@@ -49,6 +58,7 @@ export function DrawingLayer({
   onCommit,
   onErase,
   onTextEditingChange,
+  replayNonce = 0,
 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const liveRef = useRef<Live>(null);
@@ -59,6 +69,10 @@ export function DrawingLayer({
   const [editor, setEditor] = useState<{ x: number; y: number } | null>(null);
   const [editorText, setEditorText] = useState("");
   const editorInputRef = useRef<HTMLInputElement>(null);
+  const [replay, setReplay] = useState<ReplayState | null>(null);
+  const replayTimerRef = useRef<number | null>(null);
+  const annotationsRef = useRef<Annotation[]>(annotations);
+  annotationsRef.current = annotations;
 
   const isDrawTool = tool !== "pan";
   const fontSize = Math.max(Math.round(naturalSize.width * 0.032), 12);
@@ -74,8 +88,65 @@ export function DrawingLayer({
   useEffect(() => {
     return () => {
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+      if (replayTimerRef.current !== null) window.clearTimeout(replayTimerRef.current);
     };
   }, []);
+
+  // Replay the loaded strokes with a quick staggered draw-in whenever annotations
+  // are (re)loaded from storage. The set and per-stroke order are captured up front
+  // so strokes the user draws mid-replay aren't swept into the animation.
+  useEffect(() => {
+    if (replayNonce <= 0) return;
+    if (replayTimerRef.current !== null) {
+      window.clearTimeout(replayTimerRef.current);
+      replayTimerRef.current = null;
+    }
+
+    const items = annotationsRef.current;
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (items.length === 0 || prefersReduced) {
+      setReplay(null);
+      return;
+    }
+
+    const order = new Map<string, number>();
+    items.forEach((ann, index) => order.set(ann.id, index));
+    const { step, dur, total } = replayTiming(items.length);
+
+    setReplay({ order, step, dur });
+    replayTimerRef.current = window.setTimeout(() => {
+      setReplay(null);
+      replayTimerRef.current = null;
+    }, total);
+  }, [replayNonce]);
+
+  const getReplay = (id: string): { delay: number; dur: number } | null => {
+    if (!replay) return null;
+    const index = replay.order.get(id);
+    if (index === undefined) return null;
+    return { delay: index * replay.step, dur: replay.dur };
+  };
+
+  const replayStrokeProps = (
+    id: string,
+    extraStyle?: CSSProperties,
+  ): { pathLength?: number; className?: string; style?: CSSProperties } => {
+    const rp = getReplay(id);
+    if (!rp) return { style: extraStyle };
+    return {
+      pathLength: 1,
+      className: "drawing-replay-stroke",
+      style: {
+        ...extraStyle,
+        ["--replay-delay" as string]: `${rp.delay}ms`,
+        ["--replay-dur" as string]: `${rp.dur}ms`,
+      } as CSSProperties,
+    };
+  };
 
   // Reset transient state when the active tool changes or the layer is disabled.
   useEffect(() => {
@@ -255,20 +326,26 @@ export function DrawingLayer({
     points: AnnPoint[],
     strokeColor: string,
     strokeWidth: number,
-  ) => (
-    <path
-      key={id}
-      data-ann-id={id}
-      d={buildSmoothPath(points)}
-      fill="none"
-      stroke={strokeColor}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeOpacity={kind === "highlighter" ? 0.35 : 1}
-      style={kind === "highlighter" ? { mixBlendMode: "multiply" } : undefined}
-    />
-  );
+  ) => {
+    const replayProps = replayStrokeProps(
+      id,
+      kind === "highlighter" ? { mixBlendMode: "multiply" } : undefined,
+    );
+    return (
+      <path
+        key={id}
+        data-ann-id={id}
+        d={buildSmoothPath(points)}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity={kind === "highlighter" ? 0.35 : 1}
+        {...replayProps}
+      />
+    );
+  };
 
   const renderShape = (
     id: string,
@@ -286,18 +363,19 @@ export function DrawingLayer({
       strokeLinecap: "round" as const,
       strokeLinejoin: "round" as const,
     };
+    const replayProps = replayStrokeProps(id);
     if (kind === "rect") {
-      return <rect key={id} {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} />;
+      return <rect key={id} {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} {...replayProps} />;
     }
     if (kind === "ellipse") {
-      return <ellipse key={id} {...common} {...ellipseAttrs(start, end)} />;
+      return <ellipse key={id} {...common} {...ellipseAttrs(start, end)} {...replayProps} />;
     }
     // line / arrow
     const headSize = Math.max(strokeWidth * 3.5, naturalSize.width * 0.018);
     return (
       <g key={id}>
-        <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} {...common} />
-        {kind === "arrow" && <path d={arrowHeadPath(start, end, headSize)} {...common} />}
+        <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} {...common} {...replayProps} />
+        {kind === "arrow" && <path d={arrowHeadPath(start, end, headSize)} {...common} {...replayProps} />}
       </g>
     );
   };
@@ -307,7 +385,8 @@ export function DrawingLayer({
       case "pen":
       case "highlighter":
         return renderFreehand(ann.id, ann.kind, ann.points, ann.color, ann.width);
-      case "text":
+      case "text": {
+        const rp = getReplay(ann.id);
         return (
           <text
             key={ann.id}
@@ -316,11 +395,17 @@ export function DrawingLayer({
             y={ann.y}
             fill={ann.color}
             fontSize={ann.fontSize}
-            className="drawing-text"
+            className={`drawing-text${rp ? " drawing-replay-fade" : ""}`}
+            style={
+              rp
+                ? ({ ["--replay-delay" as string]: `${rp.delay}ms` } as CSSProperties)
+                : undefined
+            }
           >
             {ann.text}
           </text>
         );
+      }
       default:
         return renderShape(ann.id, ann.kind, ann.start, ann.end, ann.color, ann.width);
     }

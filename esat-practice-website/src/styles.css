@@ -606,6 +606,39 @@ p {
   box-sizing: border-box;
 }
 
+/* --- Reopen "draw-in" replay -------------------------------------------------
+   Strokes use pathLength=1 so a normalized dasharray animates the ink on without
+   measuring path length. `backwards` fill keeps each stroke hidden until its
+   staggered turn. */
+@keyframes drawing-replay-stroke {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawing-replay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawing-replay-stroke {
+  stroke-dasharray: 1;
+  animation: drawing-replay-stroke var(--replay-dur, 320ms) ease-out backwards;
+  animation-delay: var(--replay-delay, 0ms);
+}
+
+.drawing-replay-fade {
+  animation: drawing-replay-fade 220ms ease-out backwards;
+  animation-delay: var(--replay-delay, 0ms);
+}
+
 /* --- Annotation toolbar --- */
 
 .annotation-toolbar {

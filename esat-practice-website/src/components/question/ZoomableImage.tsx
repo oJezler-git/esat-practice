@@ -197,6 +197,7 @@ export function ZoomableImage({
   const [widthIndex, setWidthIndex] = useState(1);
   const [isTextEditing, setIsTextEditing] = useState(false);
   const [annHistory, dispatchAnn] = useReducer(annHistoryReducer, EMPTY_HISTORY);
+  const [replayNonce, setReplayNonce] = useState(0);
   const annotations = annHistory.present;
   const saveTimerRef = useRef<number | null>(null);
   const annotationsRef = useRef<Annotation[]>(annotations);
@@ -593,6 +594,8 @@ export function ZoomableImage({
     // The follow-up `load` re-render must not trigger a destructive empty save.
     skipSaveRef.current = true;
     dispatchAnn({ type: "load", items: persistKey ? loadAnnotations(persistKey) : [] });
+    // Trigger the staggered draw-in replay of the just-loaded strokes.
+    setReplayNonce((n) => n + 1);
     const keyAtLoad = persistKey;
     return () => {
       if (saveTimerRef.current !== null) {
@@ -735,6 +738,7 @@ export function ZoomableImage({
                     onCommit={handleCommitAnnotation}
                     onErase={handleEraseAnnotation}
                     onTextEditingChange={setIsTextEditing}
+                    replayNonce={replayNonce}
                   />
                 )}
               </div>

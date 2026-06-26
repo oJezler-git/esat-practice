@@ -109,3 +109,25 @@ export function clientToUser(
 export function defaultStrokeWidth(naturalWidth: number): number {
   return Math.max(2, Math.round(naturalWidth * 0.0035));
 }
+
+export type ReplayTiming = {
+  /** Delay between successive strokes starting to draw, in ms. */
+  step: number;
+  /** Draw-on duration of a single stroke, in ms. */
+  dur: number;
+  /** Total wall-clock time until every stroke has finished, in ms. */
+  total: number;
+};
+
+/**
+ * Timing for the staggered "draw-in" replay shown when a saved scan is reopened.
+ * The per-stroke stagger is clamped so the whole replay stays snappy (~1.5s of
+ * stagger) no matter how many strokes there are. Returns zeroed timing for an
+ * empty set so callers can skip the animation entirely.
+ */
+export function replayTiming(count: number, dur = 320): ReplayTiming {
+  if (count <= 0) return { step: 0, dur, total: 0 };
+  const step = Math.min(85, Math.max(35, 1500 / count));
+  const total = step * (count - 1) + dur + 80;
+  return { step, dur, total };
+}
