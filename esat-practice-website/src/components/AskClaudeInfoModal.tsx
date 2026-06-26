@@ -131,6 +131,24 @@ export function AskClaudeInfoModal({ onClose }: Props) {
           </div>
         </div>
 
+         <div className="ask-claude-modal__why">
+          <h3 className="ask-claude-modal__why-title">Why Claude?</h3>
+          <ul className="ask-claude-modal__why-list">
+            <li>
+              <strong>Generous free tier</strong> — includes a high allowance of image uploads, so you're unlikely to hit limits during a practice session.
+            </li>
+            <li>
+              <strong>Strong reasoning</strong> — Claude consistently produces structured, step-by-step explanations well suited to ESAT-style questions.
+            </li>
+            <li>
+              <strong>Reliable answers</strong> — Claude is notably resistant to fabricating information, meaning it will tell you when something is missing rather than guess and mislead you.
+            </li>
+          </ul>
+          <p className="ask-claude-modal__note">
+            Support for other models may be added in the future.
+          </p>
+        </div>
+
         <div className="ask-claude-modal__footer">
           <button type="button" className="ask-claude-modal__settings-link" onClick={goToSettings}>
             Change your integration preference in Settings →
