@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
+import type { Annotation, AnnTool } from "../../types/annotations";
+import { ANNOTATION_COLORS, HIGHLIGHTER_COLORS } from "../../types/annotations";
+import { loadAnnotations, saveAnnotations } from "../../lib/annotationStore";
+import { defaultStrokeWidth } from "./annotationGeometry";
+import { DrawingLayer } from "./DrawingLayer";
+import { AnnotationToolbar } from "./AnnotationToolbar";
 
 type ScanTransform = {
   scale: number;
@@ -74,6 +80,66 @@ function viewerReducer(state: ViewerState, action: ViewerAction): ViewerState {
   }
 }
 
+type AnnHistory = {
+  past: Annotation[][];
+  present: Annotation[];
+  future: Annotation[][];
+};
+
+type AnnHistoryAction =
+  | { type: "load"; items: Annotation[] }
+  | { type: "commit"; annotation: Annotation }
+  | { type: "erase"; id: string }
+  | { type: "undo" }
+  | { type: "redo" }
+  | { type: "clear" };
+
+const EMPTY_HISTORY: AnnHistory = { past: [], present: [], future: [] };
+
+function annHistoryReducer(state: AnnHistory, action: AnnHistoryAction): AnnHistory {
+  switch (action.type) {
+    case "load":
+      return { past: [], present: action.items, future: [] };
+    case "commit":
+      return {
+        past: [...state.past, state.present],
+        present: [...state.present, action.annotation],
+        future: [],
+      };
+    case "erase": {
+      if (!state.present.some((ann) => ann.id === action.id)) return state;
+      return {
+        past: [...state.past, state.present],
+        present: state.present.filter((ann) => ann.id !== action.id),
+        future: [],
+      };
+    }
+    case "undo": {
+      if (state.past.length === 0) return state;
+      const previous = state.past[state.past.length - 1];
+      return {
+        past: state.past.slice(0, -1),
+        present: previous,
+        future: [state.present, ...state.future],
+      };
+    }
+    case "redo": {
+      if (state.future.length === 0) return state;
+      const next = state.future[0];
+      return {
+        past: [...state.past, state.present],
+        present: next,
+        future: state.future.slice(1),
+      };
+    }
+    case "clear":
+      if (state.present.length === 0) return state;
+      return { past: [...state.past, state.present], present: [], future: [] };
+    default:
+      return state;
+  }
+}
+
 interface Props {
   src: string;
   alt: string;
@@ -81,6 +147,10 @@ interface Props {
   previewImageClassName?: string;
   previewExpandedClassName?: string;
   previewFooter?: ReactNode;
+  /** Enable the annotation/drawing toolbar (used for the session source scan). */
+  enableDrawing?: boolean;
+  /** Stable key (e.g. question id) used to persist annotations per question. */
+  persistKey?: string;
 }
 
 export function ZoomableImage({
@@ -90,6 +160,8 @@ export function ZoomableImage({
   previewImageClassName,
   previewExpandedClassName = "zoomable-image-preview-expanded",
   previewFooter,
+  enableDrawing = false,
+  persistKey,
 }: Props) {
   const [viewer, dispatchViewer] = useReducer(viewerReducer, {
     isExpanded: false,
@@ -117,6 +189,32 @@ export function ZoomableImage({
   const scanTransformRef = useRef<ScanTransform>(scanTransform);
   const scanWheelTargetRef = useRef<ScanTransform | null>(null);
   const scanWheelFrameRef = useRef<number | null>(null);
+
+  // --- Annotation state (only meaningful when enableDrawing) ---
+  const [tool, setTool] = useState<AnnTool>("pan");
+  const [penColor, setPenColor] = useState<string>(ANNOTATION_COLORS[0]);
+  const [highlighterColor, setHighlighterColor] = useState<string>(HIGHLIGHTER_COLORS[0]);
+  const [widthIndex, setWidthIndex] = useState(1);
+  const [isTextEditing, setIsTextEditing] = useState(false);
+  const [annHistory, dispatchAnn] = useReducer(annHistoryReducer, EMPTY_HISTORY);
+  const annotations = annHistory.present;
+  const saveTimerRef = useRef<number | null>(null);
+  const annotationsRef = useRef<Annotation[]>(annotations);
+  const skipSaveRef = useRef(false);
+  annotationsRef.current = annotations;
+
+  const widthPresets = useMemo(() => {
+    const base = defaultStrokeWidth(scanNaturalSize.width || 1000);
+    return [
+      Math.max(1, Math.round(base * 0.6)),
+      base,
+      Math.round(base * 1.9),
+    ];
+  }, [scanNaturalSize.width]);
+  const strokeWidth = widthPresets[widthIndex] ?? widthPresets[1];
+  const isHighlighter = tool === "highlighter";
+  const activeColor = isHighlighter ? highlighterColor : penColor;
+  const activePalette = isHighlighter ? HIGHLIGHTER_COLORS : ANNOTATION_COLORS;
 
   useEffect(() => {
     scanTransformRef.current = scanTransform;
@@ -245,6 +343,10 @@ export function ZoomableImage({
       return;
     }
 
+    if (isTextEditing) {
+      return;
+    }
+
     if (imageHasDraggedRef.current) {
       imageHasDraggedRef.current = false;
       return;
@@ -257,14 +359,27 @@ export function ZoomableImage({
     if (!isExpanded) return;
 
     const onKey = (event: KeyboardEvent) => {
+      // Let the in-place text editor handle its own keys.
+      if (isTextEditing) return;
+
+      if (enableDrawing && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        dispatchAnn({ type: event.shiftKey ? "redo" : "undo" });
+        return;
+      }
+
       if (event.key === "Escape") {
+        if (enableDrawing && tool !== "pan") {
+          setTool("pan");
+          return;
+        }
         handleCloseImage();
       }
     };
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleCloseImage, isExpanded]);
+  }, [enableDrawing, handleCloseImage, isExpanded, isTextEditing, tool]);
 
   useEffect(() => {
     if (!isExpanded || !scanViewportRef.current) return;
@@ -341,6 +456,8 @@ export function ZoomableImage({
 
   const handleScanPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
+    // While a drawing tool is active, the SVG layer handles input — never pan.
+    if (enableDrawing && tool !== "pan") return;
 
     imageHasDraggedRef.current = false;
     if (scanWheelFrameRef.current !== null) {
@@ -466,6 +583,76 @@ export function ZoomableImage({
     };
   }, []);
 
+  // Load persisted annotations when the viewer opens for a given question, and
+  // flush this question's latest annotations on cleanup (close, unmount, or
+  // navigating to another question while open) so nothing is lost.
+  useEffect(() => {
+    if (!enableDrawing || !isExpanded) return;
+    setTool("pan");
+    setIsTextEditing(false);
+    // The follow-up `load` re-render must not trigger a destructive empty save.
+    skipSaveRef.current = true;
+    dispatchAnn({ type: "load", items: persistKey ? loadAnnotations(persistKey) : [] });
+    const keyAtLoad = persistKey;
+    return () => {
+      if (saveTimerRef.current !== null) {
+        window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+      if (keyAtLoad) saveAnnotations(keyAtLoad, annotationsRef.current);
+    };
+  }, [enableDrawing, isExpanded, persistKey]);
+
+  // Debounced persistence of annotations while the viewer is open. Skips the
+  // render in which `load` is applied so loading never overwrites stored data.
+  useEffect(() => {
+    if (!enableDrawing || !isExpanded || !persistKey) return;
+    if (skipSaveRef.current) {
+      skipSaveRef.current = false;
+      return;
+    }
+    if (saveTimerRef.current !== null) window.clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = window.setTimeout(() => {
+      saveAnnotations(persistKey, annotationsRef.current);
+      saveTimerRef.current = null;
+    }, 400);
+    return () => {
+      if (saveTimerRef.current !== null) {
+        window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+    };
+  }, [annotations, enableDrawing, isExpanded, persistKey]);
+
+  const handleToolChange = useCallback((next: AnnTool) => {
+    setTool(next);
+    setIsTextEditing(false);
+  }, []);
+
+  const handleColorChange = useCallback(
+    (color: string) => {
+      if (isHighlighter) setHighlighterColor(color);
+      else setPenColor(color);
+    },
+    [isHighlighter],
+  );
+
+  const handleWidthChange = useCallback(
+    (value: number) => {
+      const index = widthPresets.indexOf(value);
+      if (index !== -1) setWidthIndex(index);
+    },
+    [widthPresets],
+  );
+
+  const handleCommitAnnotation = useCallback((annotation: Annotation) => {
+    dispatchAnn({ type: "commit", annotation });
+  }, []);
+
+  const handleEraseAnnotation = useCallback((id: string) => {
+    dispatchAnn({ type: "erase", id });
+  }, []);
+
   const zoomSourceScan = (factor: number) => {
     dispatchViewer({ type: "settle_start" });
     updateScanTransform((current) => ({
@@ -538,8 +725,37 @@ export function ZoomableImage({
                     });
                   }}
                 />
+                {enableDrawing && scanNaturalSize.width > 0 && (
+                  <DrawingLayer
+                    naturalSize={scanNaturalSize}
+                    tool={tool}
+                    color={activeColor}
+                    width={strokeWidth}
+                    annotations={annotations}
+                    onCommit={handleCommitAnnotation}
+                    onErase={handleEraseAnnotation}
+                    onTextEditingChange={setIsTextEditing}
+                  />
+                )}
               </div>
             </div>
+            {enableDrawing && (
+              <AnnotationToolbar
+                tool={tool}
+                onToolChange={handleToolChange}
+                palette={activePalette}
+                color={activeColor}
+                onColorChange={handleColorChange}
+                widthPresets={widthPresets}
+                width={strokeWidth}
+                onWidthChange={handleWidthChange}
+                canUndo={annHistory.past.length > 0}
+                canRedo={annHistory.future.length > 0}
+                onUndo={() => dispatchAnn({ type: "undo" })}
+                onRedo={() => dispatchAnn({ type: "redo" })}
+                onClear={() => dispatchAnn({ type: "clear" })}
+              />
+            )}
             <div className="zoom-button-group source-scan-controls">
               <button
                 type="button"
