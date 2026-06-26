@@ -761,6 +761,32 @@ export function ZoomableImage({
               />
             )}
             <div className="zoom-button-group source-scan-controls">
+              {enableDrawing && (
+                <button
+                  type="button"
+                  onClick={() => handleToolChange(tool === "pen" ? "pan" : "pen")}
+                  className={`zoom-button show-inline-on-mobile ${
+                    tool === "pen" ? "zoom-button-active" : ""
+                  }`}
+                  title={tool === "pen" ? "Stop drawing" : "Draw"}
+                  aria-label={tool === "pen" ? "Stop drawing" : "Draw"}
+                  aria-pressed={tool === "pen"}
+                >
+                  <svg
+                    width={18}
+                    height={18}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => zoomSourceScan(1.25)}

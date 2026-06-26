@@ -459,6 +459,13 @@ p {
   font-size: 0.875rem;
 }
 
+.zoom-button-active,
+.zoom-button-active:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .source-scan-backdrop {
   background: rgb(3 6 5 / 0.84);
   backdrop-filter: blur(2px);
@@ -779,34 +786,10 @@ p {
 }
 
 @media (max-width: 768px) {
+  /* On phones the full toolbar is too dense; expose a single pen toggle inside
+     the zoom controls instead (see .zoom-button.show-inline-on-mobile). */
   .annotation-toolbar {
-    top: auto;
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-width: calc(100vw - 1.5rem);
-    justify-content: center;
-  }
-
-  .annotation-tool-group,
-  .annotation-widths {
-    flex-direction: row;
-  }
-
-  .annotation-divider {
-    width: 1px;
-    height: 1.8rem;
-    margin: 0 0.15rem;
-  }
-
-  .annotation-swatches {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .source-scan-controls {
-    bottom: max(4.75rem, calc(env(safe-area-inset-bottom) + 4rem));
+    display: none;
   }
 }
 
