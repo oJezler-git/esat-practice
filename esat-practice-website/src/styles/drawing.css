@@ -1,0 +1,232 @@
+/* --- Drawing / annotation layer --- */
+
+.drawing-svg {
+  position: absolute;
+  inset: 3px;
+  z-index: 3;
+  pointer-events: none;
+  touch-action: none;
+  overflow: visible;
+}
+
+.drawing-svg-active {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.drawing-svg-active[data-tool="eraser"] {
+  cursor: cell;
+}
+
+.drawing-svg-active[data-tool="text"] {
+  cursor: text;
+}
+
+.drawing-text {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  paint-order: stroke;
+  dominant-baseline: alphabetic;
+}
+
+.drawing-text-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: rgb(255 255 255 / 0.55);
+  border-bottom: 2px solid currentColor;
+  padding: 0 2px;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+/* --- Reopen "draw-in" replay -------------------------------------------------
+   Strokes use pathLength=1 so a normalized dasharray animates the ink on without
+   measuring path length. `backwards` fill keeps each stroke hidden until its
+   staggered turn. */
+@keyframes drawing-replay-stroke {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawing-replay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawing-replay-stroke {
+  stroke-dasharray: 1;
+  animation: drawing-replay-stroke var(--replay-dur, 320ms) ease-out backwards;
+  animation-delay: var(--replay-delay, 0ms);
+}
+
+.drawing-replay-fade {
+  animation: drawing-replay-fade 220ms ease-out backwards;
+  animation-delay: var(--replay-delay, 0ms);
+}
+
+/* --- Annotation toolbar --- */
+
+.annotation-toolbar {
+  position: fixed;
+  top: 50%;
+  left: max(0.85rem, env(safe-area-inset-left));
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.4rem;
+  border-radius: 1rem;
+  background-color: rgba(43, 55, 50, 0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--motion-lift-shadow);
+}
+
+.annotation-tool-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.annotation-divider {
+  width: 60%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0.15rem 0;
+}
+
+.annotation-tool-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.1rem;
+  width: 2.1rem;
+  border-radius: 0.65rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 160ms var(--motion-snappy), background-color 160ms ease,
+    color 160ms ease, border-color 160ms ease;
+}
+
+.annotation-tool-btn:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.annotation-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.annotation-tool-btn-active {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.annotation-tool-btn-danger:hover:not(:disabled) {
+  color: #fda29b;
+  border-color: rgba(217, 45, 32, 0.5);
+}
+
+.annotation-tool-btn-confirm,
+.annotation-tool-btn-confirm:hover:not(:disabled) {
+  background-color: rgba(217, 45, 32, 0.85);
+  border-color: #fda29b;
+  color: #ffffff;
+}
+
+.annotation-swatches {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem;
+  justify-items: center;
+}
+
+.annotation-swatch {
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 160ms var(--motion-snappy), border-color 160ms ease;
+}
+
+.annotation-swatch:hover {
+  transform: scale(1.12);
+}
+
+.annotation-swatch-active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.annotation-widths {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.annotation-width-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.7rem;
+  width: 1.7rem;
+  border-radius: 0.55rem;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.annotation-width-btn:hover {
+  background-color: var(--surface-2);
+}
+
+.annotation-width-btn-active {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.annotation-width-dot {
+  display: block;
+  border-radius: 9999px;
+  background: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  /* On phones the full toolbar is too dense; expose a single pen toggle inside
+     the zoom controls instead (see .zoom-button.show-inline-on-mobile). */
+  .annotation-toolbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .annotation-tool-btn,
+  .annotation-swatch,
+  .annotation-width-btn {
+    transition: none;
+  }
+}

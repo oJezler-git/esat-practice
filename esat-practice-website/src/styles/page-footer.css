@@ -1,0 +1,129 @@
+.page-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  opacity: 1;
+  transform: translateY(0);
+  will-change: opacity, transform;
+  animation-fill-mode: backwards;
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.page-footer--closing {
+  opacity: 0;
+  transform: translateY(0.35rem);
+  pointer-events: none;
+}
+
+.page-footer-text {
+  margin: 0;
+  max-width: 90ch;
+  line-height: 1.6;
+}
+
+.page-footer-close {
+  position: absolute;
+  right: 0;
+  top: 1.5rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0 0.5rem;
+  transition: color 180ms ease, min-width 180ms ease, background-color 180ms ease;
+}
+
+.page-footer-close:hover {
+  color: var(--accent);
+}
+
+.page-footer-close__icon,
+.page-footer-close__label {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 180ms ease;
+}
+
+.page-footer-close__icon {
+  opacity: 1;
+}
+
+.page-footer-close__label {
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.page-footer-close--confirming {
+  min-width: 5.5rem;
+}
+
+.page-footer-close--confirming .page-footer-close__icon {
+  opacity: 0;
+}
+
+.page-footer-close--confirming .page-footer-close__label {
+  opacity: 1;
+}
+.page-footer-link {
+  color: var(--accent);
+  text-decoration: underline;
+  transition: color 180ms ease;
+  white-space: nowrap;
+}
+
+.page-footer-link:hover {
+  color: var(--accent-strong);
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modal-zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes modal-zoom-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+.modal-backdrop-enter {
+  animation: modal-fade-in 200ms ease-out forwards;
+}
+
+.modal-backdrop-exit {
+  animation: modal-fade-out 200ms ease-in forwards;
+}
+
+.modal-content-enter {
+  animation: modal-zoom-in 200ms ease-out forwards;
+}
+
+.modal-content-exit {
+  animation: modal-zoom-out 200ms ease-in forwards;
+}

@@ -1,0 +1,147 @@
+.zoom-button-group {
+  position: fixed;
+  top: 66.66%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.zoom-button {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  /* Glassmorphism */
+  background-color: rgba(43, 55, 50, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: var(--motion-soft-shadow);
+  transition: transform 180ms var(--motion-snappy), background-color 180ms ease, border-color 180ms ease;
+}
+
+.zoom-button:hover {
+  background-color: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.zoom-button-reset {
+  padding: 0 1rem;
+  width: auto;
+  font-size: 0.875rem;
+}
+
+.zoom-button-active,
+.zoom-button-active:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.source-scan-backdrop {
+  background: rgb(3 6 5 / 0.84);
+  backdrop-filter: blur(2px);
+}
+
+.source-scan-modal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.source-scan-viewport {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.source-scan-viewport-dragging {
+  cursor: grabbing;
+}
+
+.source-scan-paper {
+  display: block;
+  max-width: none;
+  max-height: none;
+  position: relative;
+  overflow: visible;
+  padding: 3px;
+  background:
+    linear-gradient(90deg, #fffdf5, #f8f4e8 3px, #fffdf7 12px, #fffefb calc(100% - 18px), #eee4cf),
+    linear-gradient(180deg, #fffef9, #f5f0e4);
+  transform-origin: center center;
+  will-change: transform;
+  pointer-events: none;
+  outline: 1px solid rgb(255 255 255 / 0.7);
+  outline-offset: -1px;
+  box-shadow:
+    0 0 0 1px rgb(115 96 61 / 0.2),
+    0 1px 0 rgb(255 255 255 / 0.95) inset,
+    0 7px 14px rgb(0 0 0 / 0.16),
+    0 24px 58px rgb(0 0 0 / 0.34),
+    0 58px 110px rgb(0 0 0 / 0.24);
+}
+
+.source-scan-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(124 94 42 / 0.1), transparent 4%, transparent 96%, rgb(124 94 42 / 0.14)),
+    linear-gradient(180deg, rgb(255 255 255 / 0.7), transparent 11%, transparent 91%, rgb(116 83 36 / 0.12));
+  box-shadow:
+    inset 10px 0 16px rgb(118 91 49 / 0.08),
+    inset -12px 0 18px rgb(76 56 28 / 0.12),
+    inset 0 -10px 18px rgb(86 64 33 / 0.09);
+}
+
+.source-scan-paper::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(rgb(58 45 24 / 0.11) 0.42px, transparent 0.42px),
+    linear-gradient(100deg, rgb(255 255 255 / 0.06), transparent 45%, rgb(126 96 48 / 0.08));
+  background-size: 2.75px 2.75px, 100% 100%;
+  mix-blend-mode: multiply;
+  opacity: 0.36;
+}
+
+.source-scan-paper-animated {
+  transition: transform 280ms var(--motion-smooth);
+}
+
+.source-scan-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  position: relative;
+  z-index: 1;
+  background: #fffefa;
+  box-shadow: inset 0 0 0 1px rgb(80 62 32 / 0.08);
+}
+
+.source-scan-controls {
+  top: auto;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+}
