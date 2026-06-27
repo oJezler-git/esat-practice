@@ -84,7 +84,34 @@ describe("sessionSlice", () => {
     const updatedState = useSessionSlice.getState();
     expect(updatedState.status).toBe("completed");
     expect(sessionStore.saveSessionAttempts).toHaveBeenCalled();
-    expect(statsStore.updateTopicStatsFromBreakdown).toHaveBeenCalled();
+    expect(statsStore.recomputeAllStats).toHaveBeenCalled();
     expect(sessionStore.markSessionCompleted).toHaveBeenCalledWith("s1");
+  });
+
+  it("does not persist twice when submit is triggered concurrently", async () => {
+    useSessionSlice.setState({
+      session: mockSession,
+      questions: mockQuestions,
+      status: "active",
+      currentIndex: 0,
+      responses: {
+        q1: { question_id: "q1", result: "correct", time_ms: 1000 } as any,
+        q2: { question_id: "q2", result: "incorrect", time_ms: 1000 } as any,
+      },
+      flagged: new Set(),
+    });
+
+    vi.mocked(sessionStore.getSessionById).mockResolvedValue({
+      ...mockSession,
+      state: "completed",
+    });
+
+    const store = useSessionSlice.getState();
+    // Fire the timer auto-submit and a manual submit at the same time.
+    await Promise.all([store.submit(), store.submit()]);
+
+    expect(sessionStore.saveSessionAttempts).toHaveBeenCalledTimes(1);
+    expect(statsStore.recomputeAllStats).toHaveBeenCalledTimes(1);
+    expect(sessionStore.markSessionCompleted).toHaveBeenCalledTimes(1);
   });
 });

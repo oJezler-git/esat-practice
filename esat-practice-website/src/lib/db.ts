@@ -9,7 +9,7 @@ import type {
 } from "../types/schema";
 
 const DB_NAME = "esat-practice-db";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 interface EsatPracticeDB extends DBSchema {
   questions: {
@@ -61,7 +61,7 @@ let databasePromise: Promise<IDBPDatabase<EsatPracticeDB>> | null = null;
 export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
   if (!databasePromise) {
     databasePromise = openDB<EsatPracticeDB>(DB_NAME, DB_VERSION, {
-      upgrade(database) {
+      upgrade(database, _oldVersion, _newVersion, transaction) {
         if (!database.objectStoreNames.contains("questions")) {
           const questionStore = database.createObjectStore("questions", {
             keyPath: "id",
@@ -95,6 +95,11 @@ export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
           });
           statsStore.createIndex("by-accuracy", "accuracy");
           statsStore.createIndex("by-last-attempted", "last_attempted");
+        } else {
+          // Stats are now derived from the attempts store and rebuilt on
+          // startup, so any previously-accumulated (incrementally-mutated) stats
+          // are discarded here to avoid showing stale values before recompute.
+          transaction.objectStore("stats").clear();
         }
 
         if (!database.objectStoreNames.contains("excludedQuestions")) {

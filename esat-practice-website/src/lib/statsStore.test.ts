@@ -3,13 +3,13 @@ import {
   getTopicStats,
   getTopicStat,
   upsertTopicStat,
-  updateTopicStatsFromBreakdown,
+  recomputeAllStats,
 } from "./statsStore";
 import { getDb } from "./db";
-import { applyTopicBreakdownToStat } from "../engine/progress";
+import { aggregateTopicStats } from "../engine/statsAggregator";
 
 vi.mock("./db");
-vi.mock("../engine/progress");
+vi.mock("../engine/statsAggregator");
 
 function makeStat(overrides: Record<string, unknown> = {}) {
   return {
@@ -27,6 +27,7 @@ function createMockDb(opts: { stats?: unknown[]; stat?: unknown } = {}) {
   const storeInTx = {
     get: vi.fn().mockResolvedValue(opts.stat ?? null),
     put: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
   };
   const db = {
     getAll: vi.fn().mockResolvedValue(opts.stats ?? []),
@@ -95,67 +96,64 @@ describe("upsertTopicStat", () => {
   });
 });
 
-describe("updateTopicStatsFromBreakdown", () => {
-  it("skips rows where total is 0", async () => {
-    const { db, storeInTx } = createMockDb();
+describe("recomputeAllStats", () => {
+  function createRecomputeDb(data: {
+    sessions?: unknown[];
+    attempts?: unknown[];
+    questions?: unknown[];
+    excludedQuestions?: unknown[];
+  }) {
+    const storeInTx = {
+      clear: vi.fn().mockResolvedValue(undefined),
+      put: vi.fn().mockResolvedValue(undefined),
+    };
+    const db = {
+      getAll: vi.fn((storeName: string) =>
+        Promise.resolve((data as Record<string, unknown[]>)[storeName] ?? []),
+      ),
+      transaction: vi.fn().mockReturnValue({
+        store: storeInTx,
+        done: Promise.resolve(),
+      }),
+    };
+    return { db, storeInTx };
+  }
+
+  it("aggregates from all source stores and replaces the stats store", async () => {
+    const sessions = [{ id: "s1", state: "completed" }];
+    const attempts = [
+      { id: "a1", question_id: "q1", session_id: "s1", result: "correct" },
+    ];
+    const questions = [{ id: "q1", taxonomy: { primary_topic: "Math" } }];
+    const excludedQuestions = [{ question_id: "qX" }];
+    const { db, storeInTx } = createRecomputeDb({
+      sessions,
+      attempts,
+      questions,
+      excludedQuestions,
+    });
     vi.mocked(getDb).mockResolvedValue(db as any);
 
-    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: 0, correct: 0, accuracy: 0 }]);
+    const derived = [makeStat({ topic: "Math" })];
+    vi.mocked(aggregateTopicStats).mockReturnValue(derived as any);
 
-    expect(storeInTx.get).not.toHaveBeenCalled();
-    expect(storeInTx.put).not.toHaveBeenCalled();
-  });
+    await recomputeAllStats();
 
-  it("skips rows where total is negative", async () => {
-    const { db, storeInTx } = createMockDb();
-    vi.mocked(getDb).mockResolvedValue(db as any);
+    // Source stores are read.
+    expect(db.getAll).toHaveBeenCalledWith("sessions");
+    expect(db.getAll).toHaveBeenCalledWith("attempts");
+    expect(db.getAll).toHaveBeenCalledWith("questions");
+    expect(db.getAll).toHaveBeenCalledWith("excludedQuestions");
 
-    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: -1, correct: 0, accuracy: 0 }]);
+    // Aggregator receives grouped attempts, question map and excluded set.
+    const input = vi.mocked(aggregateTopicStats).mock.calls[0][0];
+    expect(input.sessions).toEqual(sessions);
+    expect(input.attemptsBySession.get("s1")).toHaveLength(1);
+    expect(input.questionById.get("q1")).toBeTruthy();
+    expect(input.excludedQuestionIds?.has("qX")).toBe(true);
 
-    expect(storeInTx.put).not.toHaveBeenCalled();
-  });
-
-  it("reads existing stat and upserts the result of applyTopicBreakdownToStat", async () => {
-    const existingStat = makeStat({ topic: "Algebra" });
-    const nextStat = makeStat({ topic: "Algebra", attempts: 13 });
-    const { db, storeInTx } = createMockDb({ stat: existingStat });
-    vi.mocked(getDb).mockResolvedValue(db as any);
-    vi.mocked(applyTopicBreakdownToStat).mockReturnValue(nextStat as any);
-
-    const row = { topic: "Algebra", total: 3, correct: 2, accuracy: 2 / 3 };
-    await updateTopicStatsFromBreakdown([row], 1_234_567_890);
-
-    expect(storeInTx.get).toHaveBeenCalledWith("Algebra");
-    expect(applyTopicBreakdownToStat).toHaveBeenCalledWith(existingStat, row, 1_234_567_890);
-    expect(storeInTx.put).toHaveBeenCalledWith(nextStat);
-  });
-
-  it("passes undefined to applyTopicBreakdownToStat when no existing stat exists", async () => {
-    const nextStat = makeStat();
-    const { db } = createMockDb({ stat: null });
-    vi.mocked(getDb).mockResolvedValue(db as any);
-    vi.mocked(applyTopicBreakdownToStat).mockReturnValue(nextStat as any);
-
-    await updateTopicStatsFromBreakdown([{ topic: "Algebra", total: 2, correct: 1, accuracy: 0.5 }], 100);
-
-    expect(applyTopicBreakdownToStat).toHaveBeenCalledWith(
-      undefined,
-      expect.objectContaining({ topic: "Algebra" }),
-      100,
-    );
-  });
-
-  it("processes multiple rows in a single transaction", async () => {
-    const { db, storeInTx } = createMockDb();
-    vi.mocked(getDb).mockResolvedValue(db as any);
-    vi.mocked(applyTopicBreakdownToStat).mockReturnValue(makeStat() as any);
-
-    await updateTopicStatsFromBreakdown([
-      { topic: "Algebra", total: 2, correct: 1, accuracy: 0.5 },
-      { topic: "Calculus", total: 3, correct: 2, accuracy: 2 / 3 },
-    ]);
-
-    expect(db.transaction).toHaveBeenCalledTimes(1);
-    expect(storeInTx.put).toHaveBeenCalledTimes(2);
+    // Stats store is cleared then repopulated with the derived stats.
+    expect(storeInTx.clear).toHaveBeenCalledTimes(1);
+    expect(storeInTx.put).toHaveBeenCalledWith(derived[0]);
   });
 });
