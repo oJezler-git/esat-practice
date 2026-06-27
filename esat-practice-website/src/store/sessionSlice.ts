@@ -19,24 +19,12 @@ import {
   updateSessionQuestionIds,
   upsertAttemptRecord,
 } from "../lib/sessionStore";
-import { updateTopicStatsFromBreakdown } from "../lib/statsStore";
+import { recomputeAllStats } from "../lib/statsStore";
 import { analyseNsaaDuplicates } from "../lib/questionDedup";
+import { generateId } from "../lib/ids";
+import { normalizeResult } from "../engine/result";
 import type { SessionEngineState } from "../types/engine";
 import type { Attempt, Question, SelfMarkResult } from "../types/schema";
-
-function generateId(): string {
-  return (
-    globalThis.crypto?.randomUUID?.() ??
-    `${Date.now()}-${Math.random().toString(16).slice(2)}`
-  );
-}
-
-function normalizeResult(value: unknown): SelfMarkResult {
-  if (value === "correct" || value === "incorrect" || value === "skipped") {
-    return value;
-  }
-  return "skipped";
-}
 
 function ensureAttempt(
   state: SessionEngineState,
@@ -134,6 +122,11 @@ interface SessionSlice extends SessionEngineState {
   quit: () => Promise<void>;
   tick: (elapsedMs: number) => Promise<void>;
 }
+
+// Guards against the submit persistence sequence running concurrently. submit()
+// can be triggered by the timer auto-submit, a manual submit, and the
+// exclude-last-question path; without this an in-flight submit could run twice.
+let submitting = false;
 
 export const useSessionSlice = create<SessionSlice>((set, get) => ({
   ...createInitialSessionState(),
@@ -354,43 +347,59 @@ export const useSessionSlice = create<SessionSlice>((set, get) => ({
     if (!state.session || (state.status !== "active" && state.status !== "reviewing")) {
       return;
     }
-
-    const { nextState, committed } = commitQuestionElapsed(state);
-    const reviewing = reduceSessionState(nextState, {
-      type: "SUBMIT",
-    });
-    set(reviewing);
-
-    if (committed) {
-      await upsertAttemptRecord(committed);
+    if (submitting) {
+      return;
     }
+    submitting = true;
 
-    const scored = scoreSession(
-      reviewing.questions,
-      reviewing.responses,
-      state.session.id,
-    );
+    try {
+      const { nextState, committed } = commitQuestionElapsed(state);
+      const reviewing = reduceSessionState(nextState, {
+        type: "SUBMIT",
+      });
+      set(reviewing);
 
-    await saveSessionAttempts(state.session.id, scored.attempts);
-    await updateTopicStatsFromBreakdown(scored.topicBreakdown);
-    await markSessionCompleted(state.session.id);
+      if (committed) {
+        await upsertAttemptRecord(committed);
+      }
 
-    const completedSession = await getSessionById(state.session.id);
-    set({
-      ...reviewing,
-      status: "completed",
-      session:
-        completedSession ??
-        {
-          ...state.session,
-          state: "completed",
-          completed_at: Date.now(),
-        },
-      responses: Object.fromEntries(
-        scored.attempts.map((attempt) => [attempt.question_id, attempt]),
-      ),
-      questionElapsed: 0,
-    });
+      const scored = scoreSession(
+        reviewing.questions,
+        reviewing.responses,
+        state.session.id,
+      );
+
+      // Persist the durable source of truth first, then derive stats from it.
+      await saveSessionAttempts(state.session.id, scored.attempts);
+      await markSessionCompleted(state.session.id);
+
+      // Stats are recomputable from attempts, so a failure here must not block
+      // completion — log and move on; the next recompute will self-heal.
+      try {
+        await recomputeAllStats();
+      } catch (error) {
+        console.error("Failed to recompute stats after submit", error);
+      }
+
+      const completedSession = await getSessionById(state.session.id);
+      set({
+        ...reviewing,
+        status: "completed",
+        session:
+          completedSession ??
+          {
+            ...state.session,
+            state: "completed",
+            completed_at: Date.now(),
+          },
+        responses: Object.fromEntries(
+          scored.attempts.map((attempt) => [attempt.question_id, attempt]),
+        ),
+        questionElapsed: 0,
+      });
+    } finally {
+      submitting = false;
+    }
   },
   quit: async () => {
     const state = get();

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { ensureBundledQuestionsBootstrapped } from "./lib/loader";
+import { recomputeAllStats } from "./lib/statsStore";
 import { registerDebugCommands } from "./lib/debug";
 import "./styles.css";
 
@@ -15,9 +16,14 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-void ensureBundledQuestionsBootstrapped().catch((error: unknown) => {
-  console.error("Failed to bootstrap questions", error);
-});
+// Questions must be loaded before stats can be derived (the aggregator joins
+// attempts to question topics). Rebuilding stats from the attempts store on
+// every start keeps them self-healing and consistent with the source of truth.
+void ensureBundledQuestionsBootstrapped()
+  .then(() => recomputeAllStats())
+  .catch((error: unknown) => {
+    console.error("Failed to bootstrap questions or recompute stats", error);
+  });
 
 registerDebugCommands();
 

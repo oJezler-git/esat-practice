@@ -1,33 +1,14 @@
 import type {
   Attempt,
-  SelfMarkResult,
   Session,
   SessionConfig,
   SessionMode,
 } from "../types/schema";
 import { getDb } from "./db";
+import { generateId } from "./ids";
+import { normalizeResult } from "../engine/result";
 
-function generateId(): string {
-  return (
-    globalThis.crypto?.randomUUID?.() ??
-    `${Date.now()}-${Math.random().toString(16).slice(2)}`
-  );
-}
-
-function normalizeResult(value: unknown): SelfMarkResult {
-  if (value === "correct" || value === "incorrect" || value === "skipped") {
-    return value;
-  }
-  if (value === true) {
-    return "correct";
-  }
-  if (value === false) {
-    return "incorrect";
-  }
-  return "skipped";
-}
-
-function normalizeAttemptRecord(value: unknown): Attempt | null {
+export function normalizeAttemptRecord(value: unknown): Attempt | null {
   if (typeof value !== "object" || value === null) {
     return null;
   }

@@ -1,7 +1,7 @@
-import { applyTopicBreakdownToStat } from "../engine/progress";
-import type { TopicBreakdownRow } from "../types/engine";
-import type { TopicStat } from "../types/schema";
+import { aggregateTopicStats } from "../engine/statsAggregator";
+import type { Attempt, TopicStat } from "../types/schema";
 import { getDb } from "./db";
+import { normalizeAttemptRecord } from "./sessionStore";
 
 export async function getTopicStats(): Promise<TopicStat[]> {
   const database = await getDb();
@@ -24,24 +24,49 @@ export async function upsertTopicStat(stat: TopicStat): Promise<void> {
   await database.put("stats", stat);
 }
 
-export async function updateTopicStatsFromBreakdown(
-  topicRows: TopicBreakdownRow[],
-  attemptedAt: number = Date.now(),
-): Promise<void> {
+/**
+ * Rebuilds the entire `stats` store from the attempts store (the single source
+ * of truth). Idempotent: deriving from source means repeated calls — and the
+ * double-submit case — can never double-count. Safe to run on every app start.
+ */
+export async function recomputeAllStats(): Promise<void> {
   const database = await getDb();
-  const tx = database.transaction("stats", "readwrite");
+  const [sessions, rawAttempts, questions, excluded] = await Promise.all([
+    database.getAll("sessions"),
+    database.getAll("attempts"),
+    database.getAll("questions"),
+    database.getAll("excludedQuestions"),
+  ]);
 
-  for (const row of topicRows) {
-    if (row.total <= 0) {
+  const attemptsBySession = new Map<string, Attempt[]>();
+  for (const raw of rawAttempts) {
+    const attempt = normalizeAttemptRecord(raw);
+    if (!attempt) {
       continue;
     }
-
-    const existing = await tx.store.get(row.topic);
-    const next = applyTopicBreakdownToStat(existing ?? undefined, row, attemptedAt);
-
-    await tx.store.put(next);
+    const existing = attemptsBySession.get(attempt.session_id);
+    if (existing) {
+      existing.push(attempt);
+    } else {
+      attemptsBySession.set(attempt.session_id, [attempt]);
+    }
   }
 
+  const questionById = new Map(questions.map((question) => [question.id, question]));
+  const excludedQuestionIds = new Set(excluded.map((entry) => entry.question_id));
+
+  const nextStats = aggregateTopicStats({
+    sessions,
+    attemptsBySession,
+    questionById,
+    excludedQuestionIds,
+  });
+
+  const tx = database.transaction("stats", "readwrite");
+  await tx.store.clear();
+  for (const stat of nextStats) {
+    await tx.store.put(stat);
+  }
   await tx.done;
 }
 
@@ -50,7 +75,7 @@ const statsStoreApi = {
   getTopicStats,
   getTopicStat,
   upsertTopicStat,
-  updateTopicStatsFromBreakdown,
+  recomputeAllStats,
 };
 
 export function useStatsStore() {
