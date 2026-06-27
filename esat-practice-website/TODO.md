@@ -28,3 +28,34 @@ Ordered roughly by value-to-effort. Nothing here is started yet.
 - [ ] **Subtle "saved ✓" pulse** when annotations persist.
 - [ ] **Toolbar fade/slide-in** on open (reuse `--motion-*` tokens + reduced-motion
       handling).
+
+## Stats model (Phase 2 follow-ups)
+
+Notes from the Phase 2 build (richer stats model). The derive-from-attempts
+aggregator lives in `src/engine/statsAggregator.ts`; the only writer is
+`recomputeAllStats()` in `src/lib/statsStore.ts`.
+
+- [ ] **Phase 3 — surface the new aggregates in the UI.** `getCategoryStats()`
+      and `getSessionSummaries()` (in `statsStore.ts`) are written every recompute
+      but have no consumers yet. Progress/home pages should chart subject /
+      programme (NSAA vs ENGAA) / paper rollups, time-per-question, and the
+      session-history trend.
+- [x] **All-skipped sessions stay in the history series** — *decision: leave
+      as-is.* A completed session where every attempt was skipped emits a
+      `SessionSummary` with `attempts: 0, accuracy: 0`. This is a faithful record
+      that the session happened and is consistent with the topic path (it
+      contributes nothing to category/topic rollups). Not a bug; documenting the
+      choice so it isn't "fixed" later by mistake.
+- [ ] **Difficulty buckets — deferred, not implemented.** The plan listed a
+      per-difficulty aggregate, but the source data has no difficulty and the
+      loader never populates `Question.meta.difficulty` (every bucket would be
+      "Unrated"). Add the dimension to `statsAggregator.ts` only once real
+      difficulty data exists.
+- [ ] **Abandoned / partial sessions are excluded from all stats.** Phase 1/2
+      count `completed` sessions only (topics, categories, summaries alike).
+      Revisit if we want abandoned-but-answered sessions to contribute now that a
+      history series exists.
+- [ ] **Nit: unused `categoryStats.by-accuracy` index.** `getCategoryStats()`
+      sorts by `ewma_accuracy` in JS, so the `by-accuracy` index (db.ts) is
+      currently dead — mirrors the existing `stats` store. Wire it up if/when a
+      "weakest-first" indexed query is needed, or drop it.

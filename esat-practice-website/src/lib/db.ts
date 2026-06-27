@@ -2,14 +2,17 @@ import { openDB } from "idb";
 import type { DBSchema, IDBPDatabase } from "idb";
 import type {
   Attempt,
+  CategoryStat,
   ExcludedQuestion,
   Question,
   Session,
+  SessionSummary,
+  StatDimension,
   TopicStat,
 } from "../types/schema";
 
 const DB_NAME = "esat-practice-db";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 interface EsatPracticeDB extends DBSchema {
   questions: {
@@ -45,6 +48,21 @@ interface EsatPracticeDB extends DBSchema {
     indexes: {
       "by-accuracy": number;
       "by-last-attempted": number;
+    };
+  };
+  categoryStats: {
+    key: string;
+    value: CategoryStat;
+    indexes: {
+      "by-dimension": StatDimension;
+      "by-accuracy": number;
+    };
+  };
+  sessionSummaries: {
+    key: string;
+    value: SessionSummary;
+    indexes: {
+      "by-completed-at": number;
     };
   };
   excludedQuestions: {
@@ -102,6 +120,31 @@ export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
           transaction.objectStore("stats").clear();
         }
 
+        // Sibling derived stores (Phase 2). Like `stats` these are rebuilt from
+        // the attempts store on startup, so on upgrade we either create them or
+        // clear any stale rows before the next recompute repopulates them.
+        if (!database.objectStoreNames.contains("categoryStats")) {
+          const categoryStatsStore = database.createObjectStore("categoryStats", {
+            keyPath: "id",
+          });
+          categoryStatsStore.createIndex("by-dimension", "dimension");
+          categoryStatsStore.createIndex("by-accuracy", "accuracy");
+        } else {
+          transaction.objectStore("categoryStats").clear();
+        }
+
+        if (!database.objectStoreNames.contains("sessionSummaries")) {
+          const sessionSummariesStore = database.createObjectStore(
+            "sessionSummaries",
+            {
+              keyPath: "session_id",
+            },
+          );
+          sessionSummariesStore.createIndex("by-completed-at", "completed_at");
+        } else {
+          transaction.objectStore("sessionSummaries").clear();
+        }
+
         if (!database.objectStoreNames.contains("excludedQuestions")) {
           const excludedQuestionsStore = database.createObjectStore(
             "excludedQuestions",
@@ -121,7 +164,15 @@ export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
 export async function clearAllStores(): Promise<void> {
   const database = await getDb();
   const transaction = database.transaction(
-    ["questions", "sessions", "attempts", "stats", "excludedQuestions"],
+    [
+      "questions",
+      "sessions",
+      "attempts",
+      "stats",
+      "categoryStats",
+      "sessionSummaries",
+      "excludedQuestions",
+    ],
     "readwrite",
   );
   await Promise.all([
@@ -129,6 +180,8 @@ export async function clearAllStores(): Promise<void> {
     transaction.objectStore("sessions").clear(),
     transaction.objectStore("attempts").clear(),
     transaction.objectStore("stats").clear(),
+    transaction.objectStore("categoryStats").clear(),
+    transaction.objectStore("sessionSummaries").clear(),
     transaction.objectStore("excludedQuestions").clear(),
   ]);
   await transaction.done;

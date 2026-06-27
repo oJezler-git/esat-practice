@@ -1,5 +1,11 @@
-import { aggregateTopicStats } from "../engine/statsAggregator";
-import type { Attempt, TopicStat } from "../types/schema";
+import { aggregateRichStats, aggregateTopicStats } from "../engine/statsAggregator";
+import type {
+  Attempt,
+  CategoryStat,
+  SessionSummary,
+  StatDimension,
+  TopicStat,
+} from "../types/schema";
 import { getDb } from "./db";
 import { normalizeAttemptRecord } from "./sessionStore";
 
@@ -25,9 +31,32 @@ export async function upsertTopicStat(stat: TopicStat): Promise<void> {
 }
 
 /**
- * Rebuilds the entire `stats` store from the attempts store (the single source
- * of truth). Idempotent: deriving from source means repeated calls — and the
- * double-submit case — can never double-count. Safe to run on every app start.
+ * Per-category (subject / programme / paper) rollups, optionally filtered to a
+ * single {@link StatDimension}. Sorted weakest-first by EWMA accuracy.
+ */
+export async function getCategoryStats(
+  dimension?: StatDimension,
+): Promise<CategoryStat[]> {
+  const database = await getDb();
+  const rows = dimension
+    ? await database.getAllFromIndex("categoryStats", "by-dimension", dimension)
+    : await database.getAll("categoryStats");
+  return rows.sort((left, right) => left.ewma_accuracy - right.ewma_accuracy);
+}
+
+/** Per-session history series, most recently completed first. */
+export async function getSessionSummaries(): Promise<SessionSummary[]> {
+  const database = await getDb();
+  const rows = await database.getAll("sessionSummaries");
+  return rows.sort((left, right) => right.completed_at - left.completed_at);
+}
+
+/**
+ * Rebuilds every derived stats store (`stats`, `categoryStats`,
+ * `sessionSummaries`) from the attempts store (the single source of truth) in
+ * one transaction. Idempotent: deriving from source means repeated calls — and
+ * the double-submit case — can never double-count. Safe to run on every app
+ * start.
  */
 export async function recomputeAllStats(): Promise<void> {
   const database = await getDb();
@@ -54,19 +83,34 @@ export async function recomputeAllStats(): Promise<void> {
 
   const questionById = new Map(questions.map((question) => [question.id, question]));
   const excludedQuestionIds = new Set(excluded.map((entry) => entry.question_id));
-
-  const nextStats = aggregateTopicStats({
+  const input = {
     sessions,
     attemptsBySession,
     questionById,
     excludedQuestionIds,
-  });
+  };
 
-  const tx = database.transaction("stats", "readwrite");
-  await tx.store.clear();
-  for (const stat of nextStats) {
-    await tx.store.put(stat);
-  }
+  const topicStats = aggregateTopicStats(input);
+  const { categories, sessionSummaries } = aggregateRichStats(input);
+
+  const tx = database.transaction(
+    ["stats", "categoryStats", "sessionSummaries"],
+    "readwrite",
+  );
+  const statsStore = tx.objectStore("stats");
+  const categoryStore = tx.objectStore("categoryStats");
+  const summaryStore = tx.objectStore("sessionSummaries");
+
+  await Promise.all([
+    statsStore.clear(),
+    categoryStore.clear(),
+    summaryStore.clear(),
+  ]);
+  await Promise.all([
+    ...topicStats.map((stat) => statsStore.put(stat)),
+    ...categories.map((stat) => categoryStore.put(stat)),
+    ...sessionSummaries.map((summary) => summaryStore.put(summary)),
+  ]);
   await tx.done;
 }
 
@@ -75,6 +119,8 @@ const statsStoreApi = {
   getTopicStats,
   getTopicStat,
   upsertTopicStat,
+  getCategoryStats,
+  getSessionSummaries,
   recomputeAllStats,
 };
 

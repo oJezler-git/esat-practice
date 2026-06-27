@@ -73,6 +73,61 @@ export interface TopicStat {
   last_attempted: number;
 }
 
+/**
+ * Dimensions the richer stats model rolls attempts up by (Phase 2). Topics keep
+ * their own dedicated {@link TopicStat} store; these are the sibling aggregates:
+ * - `subject`  — academic subject (`Question.source.subject`, e.g. "Mathematics")
+ * - `program`  — exam programme parsed from the paper ("NSAA" | "ENGAA" | "Other")
+ * - `paper`    — individual past paper (`Question.source.paper`)
+ */
+export type StatDimension = "subject" | "program" | "paper";
+
+/**
+ * A per-category accuracy + timing rollup derived from the attempts store. Like
+ * {@link TopicStat} but generalised over a {@link StatDimension}, and extended
+ * with time-per-question aggregates. Persisted in the `categoryStats` store
+ * keyed by the composite {@link CategoryStat.id}.
+ */
+export interface CategoryStat {
+  /** Composite store key: `${dimension}::${key}`. */
+  id: string;
+  dimension: StatDimension;
+  /** The category value (subject name, programme code, or paper id). */
+  key: string;
+  /** For the `paper` dimension: the exam programme the paper belongs to. */
+  program?: string;
+  attempts: number;
+  correct: number;
+  accuracy: number;
+  ewma_accuracy: number;
+  last_attempted: number;
+  /** Sum of answered-question time (ms); the basis for the averages below. */
+  total_time_ms: number;
+  /** Count of answered (non-skipped) attempts that carried a positive time. */
+  timed_attempts: number;
+  avg_time_ms: number;
+  median_time_ms: number;
+}
+
+/**
+ * One summary row per completed session, forming a history series that trends
+ * can be charted from. Persisted in the `sessionSummaries` store keyed by
+ * `session_id`.
+ */
+export interface SessionSummary {
+  session_id: string;
+  mode: SessionMode;
+  completed_at: number;
+  /** Answered (non-skipped) question count. */
+  attempts: number;
+  correct: number;
+  skipped: number;
+  accuracy: number;
+  total_time_ms: number;
+  avg_time_ms: number;
+  median_time_ms: number;
+}
+
 export interface ExcludedQuestion {
   question_id: string;
   excluded_at: number;

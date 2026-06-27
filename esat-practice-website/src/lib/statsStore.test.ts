@@ -6,7 +6,10 @@ import {
   recomputeAllStats,
 } from "./statsStore";
 import { getDb } from "./db";
-import { aggregateTopicStats } from "../engine/statsAggregator";
+import {
+  aggregateRichStats,
+  aggregateTopicStats,
+} from "../engine/statsAggregator";
 
 vi.mock("./db");
 vi.mock("../engine/statsAggregator");
@@ -103,30 +106,36 @@ describe("recomputeAllStats", () => {
     questions?: unknown[];
     excludedQuestions?: unknown[];
   }) {
-    const storeInTx = {
-      clear: vi.fn().mockResolvedValue(undefined),
-      put: vi.fn().mockResolvedValue(undefined),
-    };
+    const stores: Record<string, { clear: ReturnType<typeof vi.fn>; put: ReturnType<typeof vi.fn> }> = {};
+    const objectStore = vi.fn((name: string) => {
+      if (!stores[name]) {
+        stores[name] = {
+          clear: vi.fn().mockResolvedValue(undefined),
+          put: vi.fn().mockResolvedValue(undefined),
+        };
+      }
+      return stores[name];
+    });
     const db = {
       getAll: vi.fn((storeName: string) =>
         Promise.resolve((data as Record<string, unknown[]>)[storeName] ?? []),
       ),
       transaction: vi.fn().mockReturnValue({
-        store: storeInTx,
+        objectStore,
         done: Promise.resolve(),
       }),
     };
-    return { db, storeInTx };
+    return { db, stores };
   }
 
-  it("aggregates from all source stores and replaces the stats store", async () => {
+  it("aggregates from all source stores and replaces the derived stores", async () => {
     const sessions = [{ id: "s1", state: "completed" }];
     const attempts = [
       { id: "a1", question_id: "q1", session_id: "s1", result: "correct" },
     ];
     const questions = [{ id: "q1", taxonomy: { primary_topic: "Math" } }];
     const excludedQuestions = [{ question_id: "qX" }];
-    const { db, storeInTx } = createRecomputeDb({
+    const { db, stores } = createRecomputeDb({
       sessions,
       attempts,
       questions,
@@ -134,8 +143,14 @@ describe("recomputeAllStats", () => {
     });
     vi.mocked(getDb).mockResolvedValue(db as any);
 
-    const derived = [makeStat({ topic: "Math" })];
-    vi.mocked(aggregateTopicStats).mockReturnValue(derived as any);
+    const derivedTopics = [makeStat({ topic: "Math" })];
+    const derivedCategory = { id: "subject::Mathematics", dimension: "subject" };
+    const derivedSummary = { session_id: "s1", correct: 1 };
+    vi.mocked(aggregateTopicStats).mockReturnValue(derivedTopics as any);
+    vi.mocked(aggregateRichStats).mockReturnValue({
+      categories: [derivedCategory],
+      sessionSummaries: [derivedSummary],
+    } as any);
 
     await recomputeAllStats();
 
@@ -145,15 +160,20 @@ describe("recomputeAllStats", () => {
     expect(db.getAll).toHaveBeenCalledWith("questions");
     expect(db.getAll).toHaveBeenCalledWith("excludedQuestions");
 
-    // Aggregator receives grouped attempts, question map and excluded set.
+    // Both aggregators receive grouped attempts, question map and excluded set.
     const input = vi.mocked(aggregateTopicStats).mock.calls[0][0];
     expect(input.sessions).toEqual(sessions);
     expect(input.attemptsBySession.get("s1")).toHaveLength(1);
     expect(input.questionById.get("q1")).toBeTruthy();
     expect(input.excludedQuestionIds?.has("qX")).toBe(true);
+    expect(vi.mocked(aggregateRichStats).mock.calls[0][0]).toBe(input);
 
-    // Stats store is cleared then repopulated with the derived stats.
-    expect(storeInTx.clear).toHaveBeenCalledTimes(1);
-    expect(storeInTx.put).toHaveBeenCalledWith(derived[0]);
+    // Every derived store is cleared then repopulated with its aggregate.
+    expect(stores.stats.clear).toHaveBeenCalledTimes(1);
+    expect(stores.stats.put).toHaveBeenCalledWith(derivedTopics[0]);
+    expect(stores.categoryStats.clear).toHaveBeenCalledTimes(1);
+    expect(stores.categoryStats.put).toHaveBeenCalledWith(derivedCategory);
+    expect(stores.sessionSummaries.clear).toHaveBeenCalledTimes(1);
+    expect(stores.sessionSummaries.put).toHaveBeenCalledWith(derivedSummary);
   });
 });
