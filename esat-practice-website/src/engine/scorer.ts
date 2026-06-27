@@ -1,12 +1,7 @@
 import type { ScoringResult, TopicBreakdownRow } from "../types/engine";
-import type { Attempt, Question, SelfMarkResult } from "../types/schema";
-
-function generateId(): string {
-  return (
-    globalThis.crypto?.randomUUID?.() ??
-    `${Date.now()}-${Math.random().toString(16).slice(2)}`
-  );
-}
+import type { Attempt, Question } from "../types/schema";
+import { generateId } from "../lib/ids";
+import { normalizeResult } from "./result";
 
 function sortTopics(rows: TopicBreakdownRow[]): TopicBreakdownRow[] {
   return [...rows].sort((left, right) => {
@@ -15,13 +10,6 @@ function sortTopics(rows: TopicBreakdownRow[]): TopicBreakdownRow[] {
     }
     return left.topic.localeCompare(right.topic);
   });
-}
-
-function normalizeResult(value: unknown): SelfMarkResult {
-  if (value === "correct" || value === "incorrect" || value === "skipped") {
-    return value;
-  }
-  return "skipped";
 }
 
 export function scoreSession(
