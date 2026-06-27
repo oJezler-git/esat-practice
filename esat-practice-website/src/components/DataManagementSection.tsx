@@ -102,24 +102,24 @@ export function DataManagementSection() {
 
   return (
     <>
-      <section className="mb-8 border border-gray-200 rounded-xl bg-white overflow-hidden shadow">
-        <div className="px-4 py-3.5 border-b border-gray-100">
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+      <section className="mb-8 border border-subtle rounded-xl bg-soft overflow-hidden shadow">
+        <div className="px-4 py-3.5 border-b border-subtle">
+          <h2 className="text-sm font-medium text-muted uppercase tracking-wide">
             Data Management
           </h2>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted mt-1">
             Delete cached data and your progress history.
           </p>
         </div>
 
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-subtle">
           {/* Clear Progress */}
           <div className="flex items-center justify-between gap-4 px-4 py-3.5">
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-secondary">
                 Clear Progress
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Remove sessions, stats, and question cache
               </p>
             </div>
@@ -127,7 +127,7 @@ export function DataManagementSection() {
               type="button"
               onClick={() => dispatch({ type: "open_clear_progress" })}
               disabled={isClearing}
-              className="px-3 py-1.5 text-sm border border-amber-200 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-sm border border-warning text-amber rounded-lg hover:bg-amber-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Clear
             </button>
@@ -136,8 +136,8 @@ export function DataManagementSection() {
           {/* Clear All */}
           <div className="flex items-center justify-between gap-4 px-4 py-3.5">
             <div>
-              <p className="text-sm font-medium text-gray-700">Clear All</p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-sm font-medium text-secondary">Clear All</p>
+              <p className="text-xs text-muted mt-1">
                 Delete everything including settings (start from scratch)
               </p>
             </div>
@@ -145,7 +145,7 @@ export function DataManagementSection() {
               type="button"
               onClick={openClearAllModal}
               disabled={isClearing}
-              className="px-3 py-1.5 text-sm border border-red-200 text-red-700 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-sm border border-danger text-danger-text rounded-lg hover:bg-danger-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Clear All
             </button>
@@ -157,21 +157,21 @@ export function DataManagementSection() {
       {showClearAllModal &&
         createPortal(
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-lg max-w-lg w-full">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
+            <div className="bg-surface-2 rounded-xl shadow-lg max-w-lg w-full">
+              <div className="px-6 py-4 border-b border-subtle">
+                <h3 className="text-lg font-medium text-primary">
                   Clear everything?
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted mt-1">
                   This will delete all your data, including settings. This
                   action cannot be undone.
                 </p>
               </div>
 
               <div className="px-6 py-4 space-y-4">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-secondary">
                   Type the following to confirm:{" "}
-                  <span className="font-mono font-semibold text-red-600">
+                  <span className="font-mono font-semibold text-danger-text">
                     {confirmationPhrase}
                   </span>
                 </p>
@@ -180,15 +180,15 @@ export function DataManagementSection() {
                   value={userInput}
                   onChange={(e) => dispatch({ type: "update_input", value: e.target.value })}
                   placeholder="Type confirmation phrase..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-400"
+                  className="w-full px-3 py-2 border border-strong rounded-lg text-sm focus:outline-none focus:border-danger-text"
                 />
 
                 {message && (
                   <div
                     className={`px-3 py-2 rounded-lg text-sm ${
                       message.type === "success"
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : "bg-red-50 text-red-700 border border-red-200"
+                        ? "bg-success-soft text-success-text border border-success"
+                        : "bg-danger-soft text-danger-text border border-danger"
                     }`}
                   >
                     {message.text}
@@ -196,12 +196,12 @@ export function DataManagementSection() {
                 )}
               </div>
 
-              <div className="px-6 py-3 border-t border-gray-200 flex gap-2 justify-end">
+              <div className="px-6 py-3 border-t border-subtle flex gap-2 justify-end">
                 <button
                   type="button"
                   onClick={() => dispatch({ type: "close_clear_all" })}
                   disabled={isClearing}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm border border-subtle rounded-lg text-secondary hover:bg-soft transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -223,12 +223,12 @@ export function DataManagementSection() {
       {showClearProgressModal &&
         createPortal(
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-lg max-w-lg w-full">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
+            <div className="bg-surface-2 rounded-xl shadow-lg max-w-lg w-full">
+              <div className="px-6 py-4 border-b border-subtle">
+                <h3 className="text-lg font-medium text-primary">
                   Clear progress data?
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted mt-1">
                   Sessions, stats, and question cache will be removed. This
                   action cannot be undone.
                 </p>
@@ -239,27 +239,27 @@ export function DataManagementSection() {
                   <div
                     className={`px-3 py-2 rounded-lg text-sm ${
                       message.type === "success"
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : "bg-red-50 text-red-700 border border-red-200"
+                        ? "bg-success-soft text-success-text border border-success"
+                        : "bg-danger-soft text-danger-text border border-danger"
                     }`}
                   >
                     {message.text}
                   </div>
                 )}
                 {!message && (
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-secondary">
                     Are you sure you want to clear your practice statistics and
                     session history?
                   </p>
                 )}
               </div>
 
-              <div className="px-6 py-3 border-t border-gray-200 flex gap-2 justify-end">
+              <div className="px-6 py-3 border-t border-subtle flex gap-2 justify-end">
                 <button
                   type="button"
                   onClick={() => dispatch({ type: "close_clear_progress" })}
                   disabled={isClearing}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm border border-subtle rounded-lg text-secondary hover:bg-soft transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>

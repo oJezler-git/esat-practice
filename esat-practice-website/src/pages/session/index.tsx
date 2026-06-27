@@ -238,7 +238,7 @@ export default function SessionPage() {
   const hintText = `${shortcutLabels.revealCorrect} = reveal/correct | ${shortcutLabels.incorrect} = wrong | ${shortcutLabels.prev}/${shortcutLabels.next} = navigate | ${shortcutLabels.flag} = flag | ${shortcutLabels.skip} = skip`;
 
   return (
-    <div className="h-screen flex flex-col bg-[#101412] overflow-hidden">
+    <div className="h-screen flex flex-col bg-canvas overflow-hidden">
       <SessionHeader
         currentIndex={currentIndex}
         timeRemaining={timeRemaining}
@@ -256,16 +256,16 @@ export default function SessionPage() {
       <main className="session-shell flex-1 mx-auto w-full px-4 pt-3 pb-3 flex flex-col min-h-0">
         <div className="session-answer-layout flex-1 min-h-0">
           <section className="session-left-panel overflow-y-auto">
-            <div className="session-topline text-sm text-gray-400 mb-3">
+            <div className="session-topline text-sm text-muted mb-3">
               Question {currentIndex + 1} of {totalCount}
               {isFlagged && (
-                <span className="ml-2 px-2 py-0.5 bg-amber-50 text-amber-600 text-xs rounded-full border border-amber-200">
+                <span className="ml-2 px-2 py-0.5 bg-amber-soft text-amber text-xs rounded-full border border-warning">
                   Flagged
                 </span>
               )}
             </div>
             <p className={`session-question-preview ${fontClass}`}>{questionPreview}</p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted mt-2">
               OCR is inaccurate. Use the image for the question.
             </p>
             {showMetadata && (
@@ -292,9 +292,9 @@ export default function SessionPage() {
               <AskClaudeButton question={currentQuestion} />
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 hide-on-mobile">
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-danger bg-danger-soft px-3 py-2 hide-on-mobile">
               <div>
-                <p className="text-xs text-rose-700">
+                <p className="text-xs text-danger-text">
                   Press this if a question number is marked with an ✖, this means it's not on the specification.
                 </p>
               </div>
@@ -303,14 +303,14 @@ export default function SessionPage() {
                 onClick={() => {
                   void excludeCurrentQuestion(allQuestions);
                 }}
-                className="shrink-0 rounded-lg border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-100"
+                className="shrink-0 rounded-lg border border-danger px-3 py-2 text-sm font-medium text-danger-text transition-colors hover:bg-danger-soft"
               >
                 Exclude
               </button>
             </div>
 
             {settings.showKeyboardHints && (
-              <p className="session-left-hints text-xs text-gray-400 mt-4 hide-on-mobile">{hintText}</p>
+              <p className="session-left-hints text-xs text-muted mt-4 hide-on-mobile">{hintText}</p>
             )}
           </section>
 

@@ -160,12 +160,12 @@ export function SessionHeader({
   };
 
   return (
-    <header className="z-10 bg-gray-50 border-b border-gray-100">
+    <header className="z-10 bg-soft border-b border-subtle">
       <div className="max-w-4xl mx-auto px-4 py-2 flex items-center gap-4">
         <div className="flex-1 flex items-center gap-1 relative">
           <div
             ref={indicatorRef}
-            className="absolute rounded-full bg-indigo-500 pointer-events-none"
+            className="absolute rounded-full bg-accent pointer-events-none"
             style={{ left: "0px", top: "calc(100% + 6px)", width: "6px", height: "6px", transform: "translateX(-50%)", zIndex: 10 }}
           />
           <div ref={buttonContainerRef} className="flex items-center gap-1 w-full">
@@ -176,7 +176,7 @@ export function SessionHeader({
                   key={id}
                   type="button"
                   onClick={() => onNavigate(index)}
-                  className={`flex-1 h-3 rounded-sm border border-gray-200 transition-all hover:scale-105 ${getStatusColor(result)}`}
+                  className={`flex-1 h-3 rounded-sm border border-subtle transition-all hover:scale-105 ${getStatusColor(result)}`}
                   title={`Question ${index + 1}`}
                 />
               );
@@ -187,7 +187,7 @@ export function SessionHeader({
         {timeRemaining !== undefined && (
           <span
             className={`text-xs font-mono font-medium tabular-nums ${
-              isLow ? "text-red-500" : "text-gray-500"
+              isLow ? "text-danger-text" : "text-muted"
             }`}
           >
             {formatTime(timeRemaining)}
@@ -198,7 +198,7 @@ export function SessionHeader({
           type="button"
           onClick={toggleFullscreen}
           title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          className="p-1 rounded text-gray-400 hover:text-gray-700 transition-colors"
+          className="p-1 rounded text-muted hover:text-secondary transition-colors"
         >
           {isFullscreen ? (
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -216,7 +216,7 @@ export function SessionHeader({
           onClick={onFlag}
           title="Flag question (F)"
           className={`p-1 rounded transition-colors ${
-            isFlagged ? "text-amber-500 bg-amber-50" : "text-gray-300 hover:text-gray-700"
+            isFlagged ? "text-amber bg-amber-soft" : "text-muted hover:text-secondary"
           }`}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">

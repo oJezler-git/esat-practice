@@ -9,10 +9,10 @@ export function DiagramViewer({ src }: Props) {
     <ZoomableImage
       src={src}
       alt="Question diagram"
-      previewButtonClassName="w-full border border-gray-200 rounded-lg overflow-hidden cursor-zoom-in shadow"
-      previewImageClassName="w-full h-auto max-h-64 object-contain bg-white p-2"
+      previewButtonClassName="w-full border border-subtle rounded-lg overflow-hidden cursor-zoom-in shadow"
+      previewImageClassName="w-full h-auto max-h-64 object-contain bg-soft p-2"
       previewFooter={
-        <div className="text-xs text-gray-400 text-center py-1 bg-gray-50">
+        <div className="text-xs text-muted text-center py-1 bg-soft">
           Click to enlarge
         </div>
       }

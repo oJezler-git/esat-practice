@@ -58,15 +58,15 @@ export function KeyboardShortcutOverlay() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="bg-white border border-gray-100 rounded-xl shadow-xl w-full max-w-sm p-6"
+        className="bg-surface-2 border border-subtle rounded-xl shadow-xl w-full max-w-sm p-6"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-medium text-gray-900">Keyboard shortcuts</h2>
+          <h2 className="font-medium text-primary">Keyboard shortcuts</h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="text-gray-400 hover:text-gray-700 transition-colors text-lg leading-none"
+            className="text-muted hover:text-secondary transition-colors text-lg leading-none"
             aria-label="Close keyboard shortcut overlay"
           >
             x
@@ -76,12 +76,12 @@ export function KeyboardShortcutOverlay() {
         <div className="space-y-3">
           {SHORTCUTS.map(({ keys, description }) => (
             <div key={description} className="flex items-center justify-between gap-2">
-              <span className="text-sm text-gray-600">{description}</span>
+              <span className="text-sm text-secondary">{description}</span>
               <div className="flex gap-1 flex-wrap justify-end">
                 {keys.map((key) => (
                   <kbd
                     key={key}
-                    className="px-2 py-0.5 text-xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-700"
+                    className="px-2 py-0.5 text-xs font-mono bg-surface-1 border border-subtle rounded text-secondary"
                   >
                     {key}
                   </kbd>
@@ -91,9 +91,9 @@ export function KeyboardShortcutOverlay() {
           ))}
         </div>
 
-        <p className="text-xs text-gray-400 mt-5 text-center">
+        <p className="text-xs text-muted mt-5 text-center">
           Press{" "}
-          <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-200 rounded">
+          <kbd className="px-1.5 py-0.5 text-xs font-mono bg-surface-1 border border-subtle rounded">
             Esc
           </kbd>{" "}
           or click outside to close

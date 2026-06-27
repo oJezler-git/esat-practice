@@ -223,7 +223,7 @@ export default function Home() {
           <h1 className="page-title">{greeting}</h1>
           <p className="page-subtitle">{quote}</p>
         </div>
-        <p className="text-gray-400 text-sm">
+        <p className="text-muted text-sm">
           {isQuestionBankLoading
             ? "Preparing question bank..."
             : `${questions.length} questions ready`}
@@ -237,7 +237,7 @@ export default function Home() {
             void quickStart();
           }}
           disabled={!isQuestionBankReady}
-          className="quickstart-beam col-span-2 py-4 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors text-lg disabled:bg-indigo-300 disabled:cursor-not-allowed"
+          className="quickstart-beam col-span-2 py-4 rounded-xl font-medium text-lg disabled:cursor-not-allowed"
         >
           {isQuestionBankLoading
             ? "Loading question bank..."
@@ -245,13 +245,13 @@ export default function Home() {
         </button>
         <Link
           to="/practice"
-          className="py-3 border border-gray-200 rounded-xl text-center text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors card"
+          className="py-3 rounded-xl text-center text-sm font-medium text-secondary card"
         >
           Custom session
         </Link>
         <Link
           to="/question-bank"
-          className="py-3 border border-gray-200 rounded-xl text-center text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors card"
+          className="py-3 rounded-xl text-center text-sm font-medium text-secondary card"
         >
           Browse questions
         </Link>
@@ -293,7 +293,7 @@ export default function Home() {
 
       {weakTopics.length > 0 && (
         <section className="mb-8 card p-4">
-          <h2 className="text-sm font-medium text-gray-500 mb-3">
+          <h2 className="text-sm font-medium text-muted mb-3">
             Needs work
           </h2>
           <div className="space-y-2">
@@ -304,10 +304,10 @@ export default function Home() {
                 onClick={() => {
                   void drillTopic(topicStat.topic);
                 }}
-                className="w-full flex items-center justify-between px-4 py-3 border border-amber-200 bg-amber-50 rounded-lg hover:border-amber-300 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 border border-warning bg-amber-soft rounded-lg hover:border-strong transition-colors"
               >
-                <span className="text-sm text-amber-800">{topicStat.topic}</span>
-                <span className="text-xs text-amber-600">
+                <span className="text-sm text-amber">{topicStat.topic}</span>
+                <span className="text-xs text-amber">
                   {`${Math.round(topicStat.ewma_accuracy * 100)}% - Drill now ->`}
                 </span>
               </button>
@@ -318,7 +318,7 @@ export default function Home() {
 
       {recentSessions.length > 0 && (
         <section className="card p-4">
-          <h2 className="text-sm font-medium text-gray-500 mb-3">
+          <h2 className="text-sm font-medium text-muted mb-3">
             Recent
           </h2>
           <div className="space-y-2">
@@ -332,10 +332,10 @@ export default function Home() {
                   }
                 }}
                 disabled={session.state !== "completed"}
-                className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors disabled:opacity-40"
+                className="w-full flex items-center justify-between px-4 py-3 border border-subtle rounded-lg hover:border-strong transition-colors disabled:opacity-40"
               >
-                <span className="text-sm text-gray-700 capitalize">{session.mode} session</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-sm text-secondary capitalize">{session.mode} session</span>
+                <span className="text-xs text-muted">
                   {new Date(session.created_at).toLocaleDateString("en-GB", {
                     day: "numeric",
                     month: "short",

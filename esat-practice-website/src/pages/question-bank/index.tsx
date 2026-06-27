@@ -399,7 +399,7 @@ export default function QuestionBank() {
             className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
               scope === "excluded"
                 ? "bg-rose-600 text-white"
-                : "border border-rose-200 text-rose-700 hover:border-rose-300"
+                : "border border-danger text-danger-text hover:border-strong"
             }`}
           >
             Excluded ({excludedQuestions.length})
@@ -552,7 +552,7 @@ export default function QuestionBank() {
                       type="checkbox"
                       checked={hideNsaaDuplicates}
                       onChange={(event) => dispatchFilter({ type: "set_hide_dupes", value: event.target.checked })}
-                      className="accent-indigo-500"
+                      className="accent-accent"
                     />
                     Exclude NSAA duplicates
                   </label>
@@ -979,7 +979,7 @@ function QuestionDetailPanel({
             </span>
           )}
           {isExcluded && (
-            <span className="rounded-full border border-rose-300 bg-rose-50 px-2 py-0.5 text-xs text-rose-700">
+            <span className="rounded-full border border-danger bg-danger-soft px-2 py-0.5 text-xs text-danger-text">
               excluded
             </span>
           )}
@@ -988,8 +988,8 @@ function QuestionDetailPanel({
             onClick={isExcluded ? onInclude : onExclude}
             className={`rounded-lg border px-2.5 py-1 text-xs transition-colors ${
               isExcluded
-                ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                : "border-rose-300 text-rose-700 hover:bg-rose-50"
+                ? "border-success text-success-text hover:bg-success-soft"
+                : "border-danger text-danger-text hover:bg-danger-soft"
             }`}
           >
             {isExcluded ? "Undo exclusion" : "Exclude"}

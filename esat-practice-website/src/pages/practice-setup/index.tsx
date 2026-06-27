@@ -143,7 +143,7 @@ export default function PracticeSetup() {
       </p>
 
       <section className="mb-8 card p-4">
-        <h2 className="text-sm font-medium text-gray-500 mb-3">
+        <h2 className="text-sm font-medium text-muted mb-3">
           Mode
         </h2>
         <div className="grid grid-cols-2 gap-3">
@@ -154,19 +154,19 @@ export default function PracticeSetup() {
               onClick={() => dispatch({ type: "set_mode", mode: item.value })}
               className={`text-left p-4 rounded-lg border transition-colors ${
                 mode === item.value
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "border-accent bg-accent-soft"
+                  : "border-subtle hover:border-strong"
               }`}
             >
               <div className="font-medium text-sm">{item.label}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{item.description}</div>
+              <div className="text-xs text-muted mt-0.5">{item.description}</div>
             </button>
           ))}
         </div>
       </section>
 
       <section className="mb-8 card p-4">
-        <h2 className="text-sm font-medium text-gray-500 mb-3">
+        <h2 className="text-sm font-medium text-muted mb-3">
           Topics <span className="normal-case font-normal">(leave empty for all)</span>
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -177,8 +177,8 @@ export default function PracticeSetup() {
               onClick={() => dispatch({ type: "toggle_topic", topic })}
               className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                 selectedTopics.includes(topic)
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-gray-200 text-gray-600 hover:border-gray-300"
+                  ? "border-accent bg-accent-soft text-accent-strong"
+                  : "border-subtle text-secondary hover:border-strong"
               }`}
             >
               {topic}
@@ -188,7 +188,7 @@ export default function PracticeSetup() {
       </section>
 
       <section className="mb-8 card p-4">
-        <h2 className="text-sm font-medium text-gray-500 mb-3">
+        <h2 className="text-sm font-medium text-muted mb-3">
           Papers <span className="normal-case font-normal">(leave empty for all)</span>
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -199,8 +199,8 @@ export default function PracticeSetup() {
               onClick={() => dispatch({ type: "toggle_year", year })}
               className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                 selectedYears.includes(year)
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-gray-200 text-gray-600 hover:border-gray-300"
+                  ? "border-accent bg-accent-soft text-accent-strong"
+                  : "border-subtle text-secondary hover:border-strong"
               }`}
             >
               {year}
@@ -210,8 +210,8 @@ export default function PracticeSetup() {
       </section>
 
       <section className="mb-10 card p-4">
-        <h2 className="text-sm font-medium text-gray-500 mb-3">
-          Questions - <span className="text-gray-900 font-medium">{questionCount}</span>
+        <h2 className="text-sm font-medium text-muted mb-3">
+          Questions - <span className="text-primary font-medium">{questionCount}</span>
         </h2>
         <input
           type="range"
@@ -220,9 +220,9 @@ export default function PracticeSetup() {
           step={5}
           value={questionCount}
           onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
-          className="w-full accent-indigo-500"
+          className="w-full accent-accent"
         />
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <div className="flex justify-between text-xs text-muted mt-1">
           <span>5</span>
           <span>60</span>
         </div>
@@ -232,12 +232,12 @@ export default function PracticeSetup() {
         type="button"
         onClick={handleStart}
         disabled={!isQuestionBankReady}
-        className="w-full py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:bg-indigo-300 disabled:cursor-not-allowed shadow"
+        className="w-full py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow"
       >
         {isQuestionBankLoading ? "Loading question bank..." : "Start session"}
       </button>
       {setupError && (
-        <p className="mt-3 text-sm text-red-600 border border-red-200 bg-red-50 rounded-lg px-3 py-2">
+        <p className="mt-3 text-sm text-danger-text border border-danger bg-danger-soft rounded-lg px-3 py-2">
           {setupError}
         </p>
       )}

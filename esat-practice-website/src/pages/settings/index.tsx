@@ -90,7 +90,7 @@ export default function Settings() {
       <div className="flex items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-medium">Settings</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             Configure your default session flow and exam preferences.
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function Settings() {
               reset();
             }
           }}
-          className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+          className="px-3 py-1.5 text-sm border border-subtle rounded-lg text-muted hover:border-strong hover:text-secondary transition-colors"
         >
           Reset to defaults
         </button>
@@ -141,7 +141,7 @@ export default function Settings() {
               onChange={(event) =>
                 update({ defaultQuestionCount: Number(event.target.value) })
               }
-              className="w-40 accent-indigo-500"
+              className="w-40 accent-accent"
             />
             <input
               type="number"
@@ -169,7 +169,7 @@ export default function Settings() {
               onChange={(event) =>
                 update({ timedSecondsPerQ: Number(event.target.value) })
               }
-              className="w-40 accent-indigo-500"
+              className="w-40 accent-accent"
             />
             <input
               type="number"
@@ -236,9 +236,9 @@ export default function Settings() {
                 onChange={(event) =>
                   update({ autoAdvanceDelayMs: Number(event.target.value) })
                 }
-                className="w-40 accent-indigo-500"
+                className="w-40 accent-accent"
               />
-              <span className="text-sm text-gray-600 text-right tabular-nums" style={{ minWidth: "3rem", textAlign: "right" }}>
+              <span className="text-sm text-secondary text-right tabular-nums" style={{ minWidth: "3rem", textAlign: "right" }}>
                 {(settings.autoAdvanceDelayMs ?? 600) === 0
                   ? "Instant"
                   : `${((settings.autoAdvanceDelayMs ?? 600) / 1000).toFixed(1)}s`}
@@ -386,15 +386,15 @@ export default function Settings() {
         <div className="px-4 py-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-gray-700">Prompt template</div>
-              <div className="text-xs text-gray-400 mt-0.5">
+              <div className="text-sm text-secondary">Prompt template</div>
+              <div className="text-xs text-muted mt-0.5">
                 Customise what is sent to Claude. Use <code className="prompt-var-inline">{"{{variable}}"}</code> tokens — unknown tokens are left as-is.
               </div>
             </div>
             {(settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE) !== DEFAULT_PROMPT_TEMPLATE && (
               <button
                 type="button"
-                className="px-2.5 py-1 text-xs border border-gray-200 rounded-lg text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors flex-shrink-0"
+                className="px-2.5 py-1 text-xs border border-subtle rounded-lg text-muted hover:border-strong hover:text-secondary transition-colors flex-shrink-0"
                 onClick={() => update({ claudePromptTemplate: DEFAULT_PROMPT_TEMPLATE })}
               >
                 Reset
@@ -437,7 +437,7 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="px-4 py-3 border-t border-gray-100">
+        <div className="px-4 py-3 border-t border-subtle">
           <button
             type="button"
             className="settings-text-link"
@@ -559,18 +559,18 @@ function OfflineSection() {
     <section
       ref={sectionRef}
       id="offline-section"
-      className={`mb-8 border rounded-xl overflow-hidden transition-colors duration-300 ${highlighted ? "offline-section--highlight" : "border-gray-200 bg-white"}`}
+      className={`mb-8 border rounded-xl overflow-hidden transition-colors duration-300 ${highlighted ? "offline-section--highlight" : "border-subtle bg-soft"}`}
     >
-      <div className="px-4 py-3.5 border-b border-gray-100">
-        <h2 className="text-sm font-medium text-gray-500">Offline</h2>
-        <p className="text-xs text-gray-400 mt-1">
+      <div className="px-4 py-3.5 border-b border-subtle">
+        <h2 className="text-sm font-medium text-muted">Offline</h2>
+        <p className="text-xs text-muted mt-1">
           Pre-download question images (~47 MB) to use the app without a connection.
         </p>
       </div>
       <div className="px-4 py-3.5">
         {isDownloading ? (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center justify-between text-xs text-muted">
               <span>
                 {progress.total === 0
                   ? "Preparing…"
@@ -579,14 +579,14 @@ function OfflineSection() {
               <button
                 type="button"
                 onClick={() => { abortRef.current?.abort(); dispatch({ type: "download_cancel" }); }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-muted hover:text-secondary transition-colors"
               >
                 Cancel
               </button>
             </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-surface-1 rounded-full overflow-hidden">
               <div
-                className="h-full bg-indigo-500 rounded-full transition-all duration-150"
+                className="h-full bg-accent rounded-full transition-all duration-150"
                 style={{
                   width: progress.total > 0
                     ? `${Math.round((progress.done / progress.total) * 100)}%`
@@ -598,12 +598,12 @@ function OfflineSection() {
         ) : saved ? (
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-secondary">
                 {saved.count} images cached
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-muted mt-0.5">
                 {currentVersion && saved.dataVersion && currentVersion !== saved.dataVersion
-                  ? <span className="text-amber-600">New question data available — refresh to update</span>
+                  ? <span className="text-amber">New question data available — refresh to update</span>
                   : <>Downloaded {new Date(saved.downloadedAt).toLocaleDateString("en-GB", {
                       day: "numeric", month: "short", year: "numeric",
                     })}</>
@@ -616,8 +616,8 @@ function OfflineSection() {
                 onClick={() => { void startDownload(); }}
                 className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                   currentVersion && saved.dataVersion && currentVersion !== saved.dataVersion
-                    ? "border border-amber-300 text-amber-700 hover:bg-amber-50"
-                    : "border border-gray-200 text-gray-600 hover:border-gray-300"
+                    ? "border border-warning text-amber hover:bg-amber-soft"
+                    : "border border-subtle text-secondary hover:border-strong"
                 }`}
               >
                 Refresh
@@ -625,7 +625,7 @@ function OfflineSection() {
               <button
                 type="button"
                 onClick={() => { void handleClear(); }}
-                className="px-3 py-1.5 text-sm border border-red-200 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                className="px-3 py-1.5 text-sm border border-danger text-danger-text rounded-lg hover:bg-danger-soft transition-colors"
               >
                 Clear
               </button>
@@ -633,13 +633,13 @@ function OfflineSection() {
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted">
               {error ? "Download failed — check your connection." : "Not downloaded"}
             </p>
             <button
               type="button"
               onClick={() => { void startDownload(); }}
-              className="px-3 py-1.5 text-sm border border-gray-200 text-gray-700 rounded-lg hover:border-gray-300 transition-colors"
+              className="px-3 py-1.5 text-sm border border-subtle text-secondary rounded-lg hover:border-strong transition-colors"
             >
               {error ? "Retry" : "Download"}
             </button>
@@ -660,12 +660,12 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="mb-8 border border-gray-200 rounded-xl bg-white overflow-hidden">
-      <div className="px-4 py-3.5 border-b border-gray-100">
-        <h2 className="text-sm font-medium text-gray-500">{title}</h2>
-        <p className="text-xs text-gray-400 mt-1">{description}</p>
+    <section className="mb-8 border border-subtle rounded-xl bg-soft overflow-hidden">
+      <div className="px-4 py-3.5 border-b border-subtle">
+        <h2 className="text-sm font-medium text-muted">{title}</h2>
+        <p className="text-xs text-muted mt-1">{description}</p>
       </div>
-      <div className="divide-y divide-gray-100">{children}</div>
+      <div className="divide-y divide-subtle">{children}</div>
     </section>
   );
 }
@@ -682,9 +682,9 @@ function Field({
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3.5">
       <div>
-        <div className="text-sm text-gray-700">{label}</div>
+        <div className="text-sm text-secondary">{label}</div>
         {description && (
-          <div className="text-xs text-gray-400 mt-0.5">{description}</div>
+          <div className="text-xs text-muted mt-0.5">{description}</div>
         )}
       </div>
       {children}
@@ -725,7 +725,7 @@ function Select({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:border-indigo-400"
+      className="text-sm border border-subtle rounded-lg px-3 py-1.5 text-secondary focus:outline-none focus:border-accent"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>

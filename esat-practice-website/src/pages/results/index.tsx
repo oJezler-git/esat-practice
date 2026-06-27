@@ -171,7 +171,7 @@ export default function ResultsPage() {
 
   if (isLoading || !session) {
     return (
-      <div className="flex items-center justify-center h-screen text-gray-400">
+      <div className="flex items-center justify-center h-screen text-muted">
         Loading results...
       </div>
     );
@@ -181,7 +181,7 @@ export default function ResultsPage() {
     <div className="page-shell max-w-3xl">
       <div className="text-center mb-10">
         <div className="text-6xl font-medium mb-1">{score}%</div>
-        <div className="text-gray-500 text-sm">
+        <div className="text-muted text-sm">
           {correct.length} correct - {attempted.length - correct.length} wrong
           {skipped.length > 0 && ` - ${skipped.length} skipped`}
           {" - "}
@@ -199,19 +199,19 @@ export default function ResultsPage() {
       )}
 
       <section className="mb-10 card p-4">
-        <h2 className="text-sm font-medium text-gray-500 mb-4">
+        <h2 className="text-sm font-medium text-muted mb-4">
           By topic
         </h2>
         <div className="space-y-3">
           {topicRows.map(({ topic, correctCount, total, pct }) => (
             <div key={topic}>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-700">{topic}</span>
-                <span className="text-gray-500">
+                <span className="text-secondary">{topic}</span>
+                <span className="text-muted">
                   {correctCount}/{total} - {pct}%
                 </span>
               </div>
-              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-surface-1 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     pct >= 70 ? "bg-green-400" : pct >= 40 ? "bg-amber-400" : "bg-red-400"
@@ -225,7 +225,7 @@ export default function ResultsPage() {
       </section>
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-sm font-medium text-gray-500">Review</h2>
+        <h2 className="text-sm font-medium text-muted">Review</h2>
         <div className="flex gap-2">
           {(["all", "incorrect"] as const).map((value) => (
             <button
@@ -234,8 +234,8 @@ export default function ResultsPage() {
               onClick={() => setReviewMode(value)}
               className={`px-3 py-1 text-sm rounded-full border transition-colors ${
                 reviewMode === value
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-gray-200 text-gray-500"
+                  ? "border-accent bg-accent-soft text-accent-strong"
+                  : "border-subtle text-muted"
               }`}
             >
               {value === "all" ? "All" : "Incorrect only"}
@@ -253,15 +253,15 @@ export default function ResultsPage() {
               key={question.id}
               className={`border rounded-lg overflow-hidden ${
                 isCorrect
-                  ? "border-green-200"
+                  ? "border-success"
                   : isSkipped
-                    ? "border-gray-200"
-                    : "border-red-200"
+                    ? "border-subtle"
+                    : "border-danger"
               }`}
             >
               <button
                 type="button"
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-soft transition-colors"
                 onClick={() =>
                   setExpandedId(expandedId === question.id ? null : question.id)
                 }
@@ -269,33 +269,33 @@ export default function ResultsPage() {
                 <span
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
                     isCorrect
-                      ? "bg-green-100 text-green-700"
+                      ? "bg-success-soft text-success-text"
                       : isSkipped
-                        ? "bg-gray-100 text-gray-400"
-                        : "bg-red-100 text-red-600"
+                        ? "bg-surface-1 text-muted"
+                        : "bg-danger-soft text-danger-text"
                   }`}
                 >
                   {isCorrect ? "OK" : isSkipped ? "-" : "X"}
                 </span>
-                <span className="text-sm text-gray-700 flex-1 line-clamp-2">
+                <span className="text-sm text-secondary flex-1 line-clamp-2">
                   Q{index + 1}. {question.content.text.slice(0, 120)}
                   {question.content.text.length > 120 ? "..." : ""}
                 </span>
-                <span className="text-xs text-gray-400 flex-shrink-0">
+                <span className="text-xs text-muted flex-shrink-0">
                   {attempt.result}
                 </span>
               </button>
 
               {expandedId === question.id && (
-                <div className="px-4 pb-4 border-t border-gray-100">
+                <div className="px-4 pb-4 border-t border-subtle">
                   <div className="pt-4">
                     <QuestionCard question={question} />
                     {attempt.result !== "skipped" && (
                       <div
                         className={`mt-4 px-4 py-3 rounded-lg border text-sm flex items-center justify-between ${
                           attempt.result === "correct"
-                            ? "border-green-200 bg-green-50 text-green-700"
-                            : "border-red-200 bg-red-50 text-red-600"
+                            ? "border-success bg-success-soft text-success-text"
+                            : "border-danger bg-danger-soft text-danger-text"
                         }`}
                       >
                         <span>
@@ -303,20 +303,20 @@ export default function ResultsPage() {
                             ? "Self-marked correct"
                             : "Self-marked incorrect"}
                         </span>
-                        <span className="text-gray-500">
-                          Answer: <strong className="text-gray-700">{question.answer.correct}</strong>
+                        <span className="text-muted">
+                          Answer: <strong className="text-secondary">{question.answer.correct}</strong>
                         </span>
                       </div>
                     )}
                     {attempt.result === "skipped" && (
-                      <div className="mt-4 px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-400 flex items-center justify-between">
+                      <div className="mt-4 px-4 py-3 rounded-lg border border-subtle bg-soft text-sm text-muted flex items-center justify-between">
                         <span>Skipped</span>
-                        <span className="text-gray-500">
-                          Answer: <strong className="text-gray-700">{question.answer.correct}</strong>
+                        <span className="text-muted">
+                          Answer: <strong className="text-secondary">{question.answer.correct}</strong>
                         </span>
                       </div>
                     )}
-                    <div className="mt-3 flex gap-2 text-xs text-gray-400">
+                    <div className="mt-3 flex gap-2 text-xs text-muted">
                       <span>{question.taxonomy.primary_topic}</span>
                       <span>-</span>
                       <span>{Math.round(attempt.time_ms / 1000)}s</span>
@@ -334,13 +334,13 @@ export default function ResultsPage() {
       <div className="flex gap-3">
         <Link
           to="/practice"
-          className="flex-1 py-3 bg-indigo-600 text-white rounded-lg font-medium text-center hover:bg-indigo-700 transition-colors shadow"
+          className="flex-1 py-3 bg-accent text-white rounded-lg font-medium text-center hover:bg-accent-strong transition-colors shadow"
         >
           New session
         </Link>
         <Link
           to="/progress"
-          className="flex-1 py-3 border border-gray-200 rounded-lg font-medium text-center hover:border-gray-300 transition-colors text-gray-700"
+          className="flex-1 py-3 border border-subtle rounded-lg font-medium text-center hover:border-strong transition-colors text-secondary"
         >
           View progress
         </Link>

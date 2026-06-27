@@ -24,13 +24,13 @@ export function NavControls({
   const isLast = currentIndex === totalCount - 1;
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-100">
+    <footer className="bg-soft border-t border-subtle">
       <div className="max-w-4xl mx-auto px-4 py-2.5 flex items-center gap-3">
         <button
           type="button"
           onClick={onPrev}
           disabled={currentIndex === 0}
-          className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-30 hover:border-gray-300 transition-colors"
+          className="px-4 py-2 text-sm border border-subtle rounded-lg disabled:opacity-30 hover:border-strong transition-colors"
         >
           <span className="hide-on-mobile">Prev</span>
           <span className="show-on-mobile">←</span>
@@ -39,7 +39,7 @@ export function NavControls({
         <button
           type="button"
           onClick={onExclude}
-          className="px-4 py-2 text-sm text-rose-600 hover:text-rose-700 transition-colors"
+          className="px-4 py-2 text-sm text-danger-text transition-colors"
         >
           Exclude
         </button>
@@ -48,7 +48,7 @@ export function NavControls({
           <button
             type="button"
             onClick={onReveal}
-            className="px-4 py-2 text-sm bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg font-medium hide-on-desktop show-inline-on-mobile"
+            className="px-4 py-2 text-sm bg-accent-soft text-accent-strong border border-accent rounded-lg font-medium hide-on-desktop show-inline-on-mobile"
           >
             Reveal
           </button>
@@ -61,7 +61,7 @@ export function NavControls({
             type="button"
             onClick={onSubmit}
             disabled={!currentAnswered}
-            className="px-6 py-2 text-sm bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-6 py-2 text-sm bg-accent text-white rounded-lg font-medium hover:bg-accent-strong transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Submit session
           </button>
@@ -69,7 +69,7 @@ export function NavControls({
           <button
             type="button"
             onClick={onNext}
-            className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+            className="px-4 py-2 text-sm border border-subtle rounded-lg hover:border-strong transition-colors"
           >
             <span className="hide-on-mobile">Next</span>
             <span className="show-on-mobile">→</span>

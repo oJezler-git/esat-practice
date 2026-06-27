@@ -52,9 +52,10 @@ export const MOTIVATIONAL_QUOTES = [
   "When something is important enough, you do it even if the odds are not in your favor.",
   "Persistence is very important. You should not give up unless you are forced to give up.",
   "Failure is an option here. If things are not failing, you are not innovating enough.",
+  "Stop being patient and start asking yourself, how do I accomplish my 10-year plan in 6 months? You will probably fail, but you will be a lot further ahead of the person who simply accepted it was going to take 10 years.",
   "I think it is possible for ordinary people to choose to be extraordinary.",
   "Science is discovering the essential truths about what exists in the universe. Engineering is about creating things that have never existed before.",
-
+  "The best time to plant a tree was 20 years ago. The second-best time is now.",
   "Everything should be made as simple as possible, but not simpler.",
   "The greatest obstacle to discovery is not ignorance—it is the illusion of knowledge.",
   "An investment in knowledge pays the best interest.",

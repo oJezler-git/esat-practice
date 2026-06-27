@@ -134,7 +134,7 @@ export default function Progress() {
       <h1 className="page-title mb-8">Progress</h1>
 
       {totalAttempts === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-muted">
           No attempts yet. Complete a session to see your progress.
         </div>
       ) : (
@@ -150,15 +150,15 @@ export default function Progress() {
           </div>
 
           {weakTopics.length > 0 && (
-            <div className="mb-8 p-4 rounded-lg border border-amber-200 bg-amber-50">
+            <div className="mb-8 p-4 rounded-lg border border-warning bg-amber-soft">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-sm font-medium text-amber-800 mb-1">Weak areas to focus on</h2>
+                  <h2 className="text-sm font-medium text-amber mb-1">Weak areas to focus on</h2>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {weakTopics.map((topicStat) => (
                       <span
                         key={topicStat.topic}
-                        className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full border border-amber-200"
+                        className="text-xs px-2 py-0.5 bg-amber-soft text-amber rounded-full border border-warning"
                       >
                         {topicStat.topic} - {Math.round(topicStat.ewma_accuracy * 100)}%
                       </span>
@@ -202,7 +202,7 @@ export default function Progress() {
                 {strongTopics.map((topicStat) => (
                   <span
                     key={topicStat.topic}
-                    className="text-xs px-2 py-0.5 bg-green-50 border border-green-200 text-green-700 rounded-full"
+                    className="text-xs px-2 py-0.5 bg-success-soft border border-success text-success-text rounded-full"
                   >
                     {topicStat.topic} - {Math.round(topicStat.ewma_accuracy * 100)}%
                   </span>
@@ -230,15 +230,15 @@ export default function Progress() {
                           navigate(`/results/${session.id}`);
                         }
                       }}
-                      className={`w-full flex items-center gap-4 px-4 py-3 border border-gray-200 rounded-lg text-left text-sm transition-colors ${
+                      className={`w-full flex items-center gap-4 px-4 py-3 border border-subtle rounded-lg text-left text-sm transition-colors ${
                         session.state === "completed"
-                          ? "hover:border-gray-300 cursor-pointer"
+                          ? "hover:border-strong cursor-pointer"
                           : "opacity-50 cursor-default"
                       }`}
                     >
                       <div className="flex-1">
-                        <div className="text-gray-700 capitalize">{session.mode} session</div>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="text-secondary capitalize">{session.mode} session</div>
+                        <div className="text-xs text-muted mt-0.5">
                           {formatDate(session.created_at)} - {attemptCount} questions -{" "}
                           {formatDuration(session)}
                         </div>
@@ -246,16 +246,16 @@ export default function Progress() {
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full border ${
                           session.state === "completed"
-                            ? "bg-green-50 border-green-200 text-green-700"
+                            ? "bg-success-soft border-success text-success-text"
                             : session.state === "abandoned"
-                              ? "bg-gray-50 border-gray-200 text-gray-400"
-                              : "bg-blue-50 border-blue-200 text-blue-600"
+                              ? "bg-soft border-subtle text-muted"
+                              : "bg-surface-1 border-strong text-accent-strong"
                         }`}
                       >
                         {session.state}
                       </span>
                       {session.state === "completed" && (
-                        <span className="text-gray-300 text-xs">{"View ->"}</span>
+                        <span className="text-muted text-xs">{"View ->"}</span>
                       )}
                     </button>
                   );
@@ -479,17 +479,17 @@ function TopicBar({ stat }: { stat: TopicStat }) {
   return (
     <div>
       <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-700">{stat.topic}</span>
-        <span className="text-gray-400 tabular-nums">
+        <span className="text-secondary">{stat.topic}</span>
+        <span className="text-muted tabular-nums">
           {stat.correct}/{stat.attempts}
-          <span className="ml-2 text-gray-500 font-medium">{ewmaPct}%</span>
+          <span className="ml-2 text-muted font-medium">{ewmaPct}%</span>
           {pct !== ewmaPct && (
-            <span className="ml-1 text-gray-300 text-xs">(all-time {pct}%)</span>
+            <span className="ml-1 text-muted text-xs">(all-time {pct}%)</span>
           )}
         </span>
       </div>
-      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden relative">
-        <div className="absolute h-full bg-gray-200 rounded-full" style={{ width: `${pct}%` }} />
+      <div className="h-1.5 bg-surface-1 rounded-full overflow-hidden relative">
+        <div className="absolute h-full bg-surface-2 rounded-full" style={{ width: `${pct}%` }} />
         <div
           className={`absolute h-full rounded-full transition-all ${accuracyColor(ewmaPct)}`}
           style={{ width: `${ewmaPct}%` }}

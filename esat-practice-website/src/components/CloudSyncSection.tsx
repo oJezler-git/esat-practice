@@ -250,21 +250,21 @@ export function CloudSyncSection() {
   const busy = pushing || pulling;
 
   return (
-    <section className="mb-8 border border-gray-200 rounded-xl bg-white overflow-hidden">
-      <div className="px-4 py-3.5 border-b border-gray-100">
-        <h2 className="text-sm font-medium text-gray-500">Cloud Sync (BETA)</h2>
-        <p className="text-xs text-gray-400 mt-1">
+    <section className="mb-8 border border-subtle rounded-xl bg-soft overflow-hidden">
+      <div className="px-4 py-3.5 border-b border-subtle">
+        <h2 className="text-sm font-medium text-muted">Cloud Sync (BETA)</h2>
+        <p className="text-xs text-muted mt-1">
           Sync your progress across devices using a personal sync key. No account needed.
         </p>
       </div>
 
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-subtle">
         {/* Key row */}
         <div className="px-4 py-3.5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-sm text-gray-700">Sync key</div>
-              <div className="text-xs text-gray-400 mt-0.5">
+              <div className="text-sm text-secondary">Sync key</div>
+              <div className="text-xs text-muted mt-0.5">
                 Write this down — anyone with this key can overwrite your data.
               </div>
             </div>
@@ -278,21 +278,21 @@ export function CloudSyncSection() {
                     onKeyDown={(e) => { if (e.key === "Enter") handleSaveEdit(); if (e.key === "Escape") dispatch({ type: "cancel_edit" }); }}
                     autoFocus
                     placeholder="e.g. amber-forest-4291"
-                    className="text-sm font-mono border border-indigo-300 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500"
+                    className="text-sm font-mono border border-accent rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
                     style={{ width: "13rem" }}
                     spellCheck={false}
                   />
                   <button
                     type="button"
                     onClick={handleSaveEdit}
-                    className="px-3 py-1.5 text-sm border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors"
+                    className="px-3 py-1.5 text-sm border border-accent text-accent-strong rounded-lg hover:bg-accent-soft transition-colors"
                   >
                     Save
                   </button>
                   <button
                     type="button"
                     onClick={() => dispatch({ type: "cancel_edit" })}
-                    className="px-3 py-1.5 text-sm border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-3 py-1.5 text-sm border border-subtle text-muted rounded-lg hover:bg-soft transition-colors"
                   >
                     Cancel
                   </button>
@@ -300,7 +300,7 @@ export function CloudSyncSection() {
               ) : key ? (
                 <>
                   <code
-                    className="text-sm font-mono text-gray-800 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 select-all cursor-pointer"
+                    className="text-sm font-mono text-primary bg-soft border border-subtle rounded-lg px-2 py-1 select-all cursor-pointer"
                     onClick={() => dispatch({ type: "start_edit" })}
                     title="Click to edit"
                   >
@@ -309,7 +309,7 @@ export function CloudSyncSection() {
                   <button
                     type="button"
                     onClick={() => { void handleCopy(); }}
-                    className="px-3 py-1.5 text-sm border border-gray-200 text-gray-600 rounded-lg hover:border-gray-300 transition-colors"
+                    className="px-3 py-1.5 text-sm border border-subtle text-secondary rounded-lg hover:border-strong transition-colors"
                     title="Copy key"
                   >
                     {copying ? "Copied!" : "Copy"}
@@ -321,14 +321,14 @@ export function CloudSyncSection() {
 
           {/* Newly-created banner */}
           {newlyCreated && (
-            <div className="mt-2.5 px-3 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-xs text-indigo-800 flex items-start justify-between gap-2">
+            <div className="mt-2.5 px-3 py-2 rounded-lg bg-accent-soft border border-accent text-xs text-primary flex items-start justify-between gap-2">
               <span>
                 Key created — your number was assigned above. Copy it and save it somewhere safe before leaving this page.
               </span>
               <button
                 type="button"
                 onClick={() => dispatch({ type: "dismiss_new" })}
-                className="shrink-0 text-indigo-400 hover:text-indigo-600"
+                className="shrink-0 text-muted hover:text-accent"
                 aria-label="Dismiss"
               >
                 ✕
@@ -339,10 +339,10 @@ export function CloudSyncSection() {
           {/* Word-picker form */}
           {choosingWords ? (
             <div className="mt-3 space-y-2">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted">
                 Pick any two words (letters only). We'll assign a random number automatically — you'll see the full key once it's ready.
               </div>
-              <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+              <div className="text-xs text-amber bg-amber-soft border border-warning rounded-lg px-2.5 py-1.5">
                 Choose words that are somewhat personal or unusual. Common combinations like <code className="font-mono">blue-sky</code> are more likely to be guessed, though the random number we add and rate limiting makes any key hard to brute-force regardless.
               </div>
               <div className="flex items-center gap-2">
@@ -354,14 +354,14 @@ export function CloudSyncSection() {
                   onKeyDown={(e) => { if (e.key === "Escape") dispatch({ type: "cancel_choose_words" }); }}
                   autoFocus
                   placeholder="first word"
-                  className="text-sm font-mono border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 w-36"
+                  className="text-sm font-mono border border-strong rounded-lg px-2 py-1.5 focus:outline-none focus:border-accent w-36"
                   spellCheck={false}
                   autoComplete="off"
                 />
                 <datalist id="sync-word-list-adj">
                   {ADJECTIVES.map((w) => <option key={w} value={w} />)}
                 </datalist>
-                <span className="text-gray-400 text-sm select-none">–</span>
+                <span className="text-muted text-sm select-none">–</span>
                 <input
                   type="text"
                   list="sync-word-list-noun"
@@ -372,7 +372,7 @@ export function CloudSyncSection() {
                     if (e.key === "Escape") dispatch({ type: "cancel_choose_words" });
                   }}
                   placeholder="second word"
-                  className="text-sm font-mono border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 w-36"
+                  className="text-sm font-mono border border-strong rounded-lg px-2 py-1.5 focus:outline-none focus:border-accent w-36"
                   spellCheck={false}
                   autoComplete="off"
                 />
@@ -383,7 +383,7 @@ export function CloudSyncSection() {
                   type="button"
                   onClick={() => { void handleCreateWithWords(); }}
                   disabled={creatingKey || !word1 || !word2}
-                  className="px-3 py-1.5 text-sm border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-sm border border-accent text-accent-strong rounded-lg hover:bg-accent-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {creatingKey ? "Creating…" : "Create key"}
                 </button>
@@ -391,13 +391,13 @@ export function CloudSyncSection() {
                   type="button"
                   onClick={() => dispatch({ type: "cancel_choose_words" })}
                   disabled={creatingKey}
-                  className="px-3 py-1.5 text-sm border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-3 py-1.5 text-sm border border-subtle text-muted rounded-lg hover:bg-soft transition-colors"
                 >
                   Cancel
                 </button>
               </div>
               {wordError && (
-                <div className="text-xs text-red-600">{wordError}</div>
+                <div className="text-xs text-danger-text">{wordError}</div>
               )}
             </div>
           ) : (
@@ -405,25 +405,25 @@ export function CloudSyncSection() {
               <button
                 type="button"
                 onClick={handleGenerate}
-                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
+                className="text-xs text-accent hover:text-accent-strong transition-colors"
               >
                 {key ? "Generate new key" : "Generate a sync key"}
               </button>
-              <span className="text-xs text-gray-300">or</span>
+              <span className="text-xs text-muted">or</span>
               <button
                 type="button"
                 onClick={() => dispatch({ type: "start_choose_words" })}
-                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
+                className="text-xs text-accent hover:text-accent-strong transition-colors"
               >
                 Choose your words
               </button>
               {!key && (
                 <>
-                  <span className="text-xs text-gray-300">or</span>
+                  <span className="text-xs text-muted">or</span>
                   <button
                     type="button"
                     onClick={() => dispatch({ type: "start_edit" })}
-                    className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                    className="text-xs text-muted hover:text-secondary transition-colors"
                   >
                     Enter existing key
                   </button>
@@ -436,8 +436,8 @@ export function CloudSyncSection() {
         {/* Push / Pull row */}
         <div className="flex items-center justify-between gap-4 px-4 py-3.5">
           <div>
-            <div className="text-sm text-gray-700">Sync data</div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-sm text-secondary">Sync data</div>
+            <div className="text-xs text-muted mt-0.5">
               {lastPush ? `Last pushed ${formatRelativeTime(lastPush)}` : "Never pushed"}
             </div>
           </div>
@@ -446,7 +446,7 @@ export function CloudSyncSection() {
               type="button"
               onClick={() => { void handlePush(); }}
               disabled={busy || !key}
-              className="px-3 py-1.5 text-sm border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-sm border border-accent text-accent-strong rounded-lg hover:bg-accent-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {pushing ? "Pushing…" : "Push"}
             </button>
@@ -454,7 +454,7 @@ export function CloudSyncSection() {
               type="button"
               onClick={() => { void handlePull(); }}
               disabled={busy || !key}
-              className="px-3 py-1.5 text-sm border border-gray-200 text-gray-600 rounded-lg hover:border-gray-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-sm border border-subtle text-secondary rounded-lg hover:border-strong transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {pulling ? "Pulling…" : "Pull"}
             </button>
@@ -467,8 +467,8 @@ export function CloudSyncSection() {
             <div
               className={`px-3 py-2 rounded-lg text-sm ${
                 status.type === "success"
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
+                  ? "bg-success-soft text-success-text border border-success"
+                  : "bg-danger-soft text-danger-text border border-danger"
               }`}
             >
               {status.text}
