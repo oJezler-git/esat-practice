@@ -15,6 +15,17 @@ import { getDb } from "./db";
 
 vi.mock("./db");
 
+vi.mock("idb", async (importOriginal) => {
+  const actual = await importOriginal() as typeof import("idb");
+  return {
+    ...actual,
+    openDB: vi.fn().mockResolvedValue({
+      put: vi.fn().mockResolvedValue(undefined),
+      get: vi.fn().mockResolvedValue(undefined),
+    }),
+  };
+});
+
 const SYNC_KEY_PATTERN = /^[a-z]+-[a-z]+-\d{4}$/;
 const TEST_API_URL = "https://test-sync.example.com";
 
@@ -281,7 +292,7 @@ describe("pullFromCloud", () => {
     expect(fetchMock).toHaveBeenCalledWith(`${TEST_API_URL}/sync/amber-forest-1234`);
   });
 
-  it("clears all stores then writes payload records", async () => {
+  it("merges cloud records into local stores without clearing", async () => {
     const { db, store } = createMockDb();
     vi.mocked(getDb).mockResolvedValue(db as any);
     vi.stubGlobal("fetch", mockFetchResponse(validPayload));
@@ -292,7 +303,7 @@ describe("pullFromCloud", () => {
       expect.arrayContaining(["sessions", "attempts", "stats", "excludedQuestions"]),
       "readwrite"
     );
-    expect(store.clear).toHaveBeenCalledTimes(4);
+    expect(store.clear).not.toHaveBeenCalled();
     expect(store.put).toHaveBeenCalledWith(validPayload.sessions[0]);
     expect(store.put).toHaveBeenCalledWith(validPayload.attempts[0]);
     expect(store.put).toHaveBeenCalledWith(validPayload.stats[0]);

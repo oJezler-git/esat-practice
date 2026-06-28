@@ -5,10 +5,13 @@ import { CloudSyncSection } from "./CloudSyncSection";
 vi.mock("../lib/cloudSync", () => ({
   getSyncKey: vi.fn().mockReturnValue(null),
   getLastPush: vi.fn().mockReturnValue(null),
+  getLastPull: vi.fn().mockReturnValue(null),
   generateSyncKey: vi.fn().mockReturnValue("amber-lake-1234"),
   setSyncKey: vi.fn(),
   pushToCloud: vi.fn().mockResolvedValue(undefined),
   pullFromCloud: vi.fn().mockResolvedValue(undefined),
+  restoreLastBackup: vi.fn().mockResolvedValue(undefined),
+  hasLocalBackup: vi.fn().mockResolvedValue(false),
   createSyncKeyWithWords: vi.fn().mockResolvedValue("amber-lake-4321"),
   validateWordPair: vi.fn().mockReturnValue({ valid: true }),
   ADJECTIVES: ["amber", "blue"],

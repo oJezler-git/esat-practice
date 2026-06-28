@@ -4,10 +4,13 @@ import {
   NOUNS,
   createSyncKeyWithWords,
   generateSyncKey,
+  getLastPull,
   getLastPush,
   getSyncKey,
+  hasLocalBackup,
   pullFromCloud,
   pushToCloud,
+  restoreLastBackup,
   setSyncKey,
   validateWordPair,
 } from "../lib/cloudSync";
@@ -27,7 +30,10 @@ type SyncState = {
   copying: boolean;
   pushing: boolean;
   pulling: boolean;
+  restoring: boolean;
   lastPush: number | null;
+  lastPull: number | null;
+  hasBackup: boolean;
   status: Status;
 };
 
@@ -52,8 +58,12 @@ type SyncAction =
   | { type: "push_done"; ts: number }
   | { type: "push_error"; error: string }
   | { type: "pull_start" }
-  | { type: "pull_done" }
+  | { type: "pull_done"; ts: number }
   | { type: "pull_error"; error: string }
+  | { type: "restore_start" }
+  | { type: "restore_done" }
+  | { type: "restore_error"; error: string }
+  | { type: "set_backup_state"; hasBackup: boolean }
   | { type: "set_status"; status: Status };
 
 function syncReducer(state: SyncState, action: SyncAction): SyncState {
@@ -99,9 +109,17 @@ function syncReducer(state: SyncState, action: SyncAction): SyncState {
     case "pull_start":
       return { ...state, pulling: true };
     case "pull_done":
-      return { ...state, pulling: false, status: { type: "success", text: "Data restored. Reloading…" } };
+      return { ...state, pulling: false, lastPull: action.ts, hasBackup: true, status: { type: "success", text: "Cloud data merged. Reloading…" } };
     case "pull_error":
       return { ...state, pulling: false, status: { type: "error", text: action.error } };
+    case "restore_start":
+      return { ...state, restoring: true };
+    case "restore_done":
+      return { ...state, restoring: false, lastPull: null, hasBackup: false, status: { type: "success", text: "Restored. Reloading…" } };
+    case "restore_error":
+      return { ...state, restoring: false, status: { type: "error", text: action.error } };
+    case "set_backup_state":
+      return { ...state, hasBackup: action.hasBackup };
     case "set_status":
       return { ...state, status: action.status };
     default:
@@ -120,7 +138,10 @@ function formatRelativeTime(ts: number): string {
   return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
 
+const UNDO_WINDOW_MS = 86_400_000; // 24 hours
+
 export function CloudSyncSection() {
+  const lastPullInit = getLastPull();
   const [state, dispatch] = useReducer(syncReducer, undefined, () => ({
     key: getSyncKey() ?? "",
     editingKey: false,
@@ -134,7 +155,10 @@ export function CloudSyncSection() {
     copying: false,
     pushing: false,
     pulling: false,
+    restoring: false,
     lastPush: getLastPush(),
+    lastPull: lastPullInit,
+    hasBackup: false,
     status: null,
   }));
   const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -144,10 +168,11 @@ export function CloudSyncSection() {
     key, editingKey, draftKey,
     choosingWords, word1, word2, wordError, creatingKey,
     newlyCreated,
-    copying, pushing, pulling, lastPush, status,
+    copying, pushing, pulling, restoring, lastPush, lastPull, hasBackup, status,
   } = state;
 
   useEffect(() => {
+    void hasLocalBackup().then((has) => dispatch({ type: "set_backup_state", hasBackup: has }));
     return () => {
       if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
       if (newKeyTimerRef.current) clearTimeout(newKeyTimerRef.current);
@@ -232,13 +257,14 @@ export function CloudSyncSection() {
       scheduleStatusClear();
       return;
     }
-    if (!window.confirm("Pull data from cloud? This will replace all your local sessions, stats, and progress. The page will reload.")) {
+    if (!window.confirm("Pull data from cloud? Cloud sessions and attempts not on this device will be added. Your existing local data will be kept. The page will reload.")) {
       return;
     }
     dispatch({ type: "pull_start" });
     try {
       await pullFromCloud(key);
-      dispatch({ type: "pull_done" });
+      const ts = Date.now();
+      dispatch({ type: "pull_done", ts });
       scheduleStatusClear();
       setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
@@ -247,7 +273,24 @@ export function CloudSyncSection() {
     }
   }
 
-  const busy = pushing || pulling;
+  async function handleRestore() {
+    if (!window.confirm("Restore your data to exactly before the last pull? Any sessions or attempts added since then will be lost.")) {
+      return;
+    }
+    dispatch({ type: "restore_start" });
+    try {
+      await restoreLastBackup();
+      dispatch({ type: "restore_done" });
+      scheduleStatusClear();
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (err) {
+      dispatch({ type: "restore_error", error: err instanceof Error ? err.message : "Restore failed." });
+      scheduleStatusClear();
+    }
+  }
+
+  const busy = pushing || pulling || restoring;
+  const showUndo = hasBackup && lastPull !== null && (Date.now() - lastPull < UNDO_WINDOW_MS);
 
   return (
     <section className="mb-8 border border-subtle rounded-xl bg-soft overflow-hidden">
@@ -460,6 +503,23 @@ export function CloudSyncSection() {
             </button>
           </div>
         </div>
+
+        {/* Undo last pull row */}
+        {showUndo && (
+          <div className="flex items-center justify-between gap-4 px-4 py-3">
+            <div className="text-xs text-muted">
+              Pulled {formatRelativeTime(lastPull!)} — you can undo this within 24 hours.
+            </div>
+            <button
+              type="button"
+              onClick={() => { void handleRestore(); }}
+              disabled={busy}
+              className="px-3 py-1.5 text-xs border border-subtle text-muted rounded-lg hover:border-strong transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            >
+              {restoring ? "Restoring…" : "Undo last pull"}
+            </button>
+          </div>
+        )}
 
         {/* Status row */}
         {status && (
