@@ -248,7 +248,7 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
           </div>
 
           <div className="nav-mobile-hamburger-wrapper">
-            <button className="nav-mobile-hamburger-button" onClick={() => isMenuOpen ? handleClose() : setIsMenuOpen(true)}>
+            <button type="button" className="nav-mobile-hamburger-button" onClick={() => isMenuOpen ? handleClose() : setIsMenuOpen(true)}>
               <div className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
                 <span></span>
                 <span></span>

@@ -82,10 +82,11 @@ export class ErrorBoundary extends Component<Props, State> {
               {error.message}
             </pre>
             <div style={{ display: "flex", gap: "0.75rem" }}>
-              <button className="btn-primary" onClick={this.reset} style={{ flex: 1 }}>
+              <button type="button" className="btn-primary" onClick={this.reset} style={{ flex: 1 }}>
                 Try again
               </button>
               <button
+                type="button"
                 className="btn-primary"
                 onClick={() => window.location.reload()}
                 style={{

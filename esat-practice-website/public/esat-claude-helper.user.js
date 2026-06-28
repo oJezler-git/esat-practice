@@ -330,19 +330,37 @@
       animation: 'esat-fadein 0.2s ease',
     });
 
-    el.innerHTML = `
-      <style>
-        @keyframes esat-fadein { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-        #esat-notify strong { display:block; margin-bottom:0.2rem; font-weight:600; }
-        #esat-notify .esat-close { margin-left:auto; padding:0 0.2rem; background:none; border:none; color:#9ca3af; cursor:pointer; font-size:1rem; line-height:1; flex-shrink:0; }
-        #esat-notify .esat-close:hover { color:#e5e7eb; }
-      </style>
-      <span style="color:${c.iconColour};font-weight:700;flex-shrink:0;font-size:1rem;line-height:1.4">${c.icon}</span>
-      <span><strong>ESAT Helper: ${title}</strong>${body}</span>
-      <button class="esat-close" aria-label="Dismiss">×</button>
-    `;
+    if (!document.getElementById('esat-notify-style')) {
+      const style = document.createElement('style');
+      style.id = 'esat-notify-style';
+      style.textContent = [
+        '@keyframes esat-fadein { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }',
+        '#esat-notify strong { display:block; margin-bottom:0.2rem; font-weight:600; }',
+        '#esat-notify .esat-close { margin-left:auto; padding:0 0.2rem; background:none; border:none; color:#9ca3af; cursor:pointer; font-size:1rem; line-height:1; flex-shrink:0; }',
+        '#esat-notify .esat-close:hover { color:#e5e7eb; }',
+      ].join('\n');
+      document.head.appendChild(style);
+    }
 
-    el.querySelector('.esat-close').addEventListener('click', () => el.remove());
+    const iconEl = document.createElement('span');
+    Object.assign(iconEl.style, { color: c.iconColour, fontWeight: '700', flexShrink: '0', fontSize: '1rem', lineHeight: '1.4' });
+    iconEl.textContent = c.icon;
+
+    const strong = document.createElement('strong');
+    strong.textContent = `ESAT Helper: ${title}`;
+    const textEl = document.createElement('span');
+    textEl.appendChild(strong);
+    textEl.appendChild(document.createTextNode(body));
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'esat-close';
+    closeBtn.setAttribute('aria-label', 'Dismiss');
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', () => el.remove());
+
+    el.appendChild(iconEl);
+    el.appendChild(textEl);
+    el.appendChild(closeBtn);
     document.body.appendChild(el);
     setTimeout(() => el?.remove(), 12000);
   }

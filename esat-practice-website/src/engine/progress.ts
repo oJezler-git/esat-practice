@@ -1,7 +1,7 @@
 import type { TopicBreakdownRow } from "../types/engine";
 import type { TopicStat } from "../types/schema";
 
-export const DEFAULT_EWMA_ALPHA = 0.3;
+const DEFAULT_EWMA_ALPHA = 0.3;
 
 export function applyTopicBreakdownToStat(
   existing: TopicStat | undefined,

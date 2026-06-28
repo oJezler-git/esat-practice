@@ -145,9 +145,7 @@ export async function saveSessionAttempts(
   const transaction = database.transaction(["attempts", "sessions"], "readwrite");
   const attemptStore = transaction.objectStore("attempts");
 
-  for (const attempt of attempts) {
-    await attemptStore.put(attempt);
-  }
+  await Promise.all(attempts.map((attempt) => attemptStore.put(attempt)));
 
   const sessionStore = transaction.objectStore("sessions");
   const session = await sessionStore.get(sessionId);

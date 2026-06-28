@@ -467,19 +467,19 @@ export async function bootstrapQuestions(
   const { questions, skipped } = normalizePipelinePayloads(payloads);
 
   const transaction = database.transaction("questions", "readwrite");
-  let inserted = 0;
-  for (const question of questions) {
-    const existingQuestion = await transaction.store.get(question.id);
-    if (!existingQuestion) {
-      inserted += 1;
-    }
-    await transaction.store.put(
-      existingQuestion
-        ? { ...question, meta: existingQuestion.meta }
-        : question,
-    );
-  }
+  const insertFlags = await Promise.all(
+    questions.map(async (question) => {
+      const existingQuestion = await transaction.store.get(question.id);
+      await transaction.store.put(
+        existingQuestion
+          ? { ...question, meta: existingQuestion.meta }
+          : question,
+      );
+      return existingQuestion ? 0 : 1;
+    }),
+  );
   await transaction.done;
+  const inserted = insertFlags.reduce<number>((sum, n) => sum + n, 0);
 
   return {
     existing,

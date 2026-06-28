@@ -70,8 +70,7 @@ function getBackupDb(): Promise<any> {
 }
 
 async function saveLocalBackup(): Promise<void> {
-  const payload = await exportData();
-  const db = await getBackupDb();
+  const [payload, db] = await Promise.all([exportData(), getBackupDb()]);
   await db.put("backups", { id: BACKUP_RECORD_KEY, payload });
 }
 
