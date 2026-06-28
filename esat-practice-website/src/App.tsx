@@ -18,12 +18,21 @@ import NotFound from "./pages/not-found";
 
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
+  const theme = useSettingsStore((state) => state.settings.theme);
   const location = useLocation();
   const isSession = location.pathname.startsWith("/session/");
 
   useEffect(() => {
     document.documentElement.dataset.fontPreset = fontPreset;
   }, [fontPreset]);
+
+  useEffect(() => {
+    if (theme === "light") {
+      document.documentElement.dataset.theme = "light";
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
+  }, [theme]);
 
   return (
     <>

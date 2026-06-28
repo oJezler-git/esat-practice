@@ -24,6 +24,7 @@ export interface UserSettings {
   autoAdvanceDelayMs: number;
   fullscreenOnStart: boolean;
   fontPreset: "academic" | "premium" | "readable" | "modern" | "technical" | "inter" | "monospace";
+  theme: "dark" | "light";
   fontSize: "sm" | "md" | "lg";
   shortcuts: ShortcutMap;
   autoExclude: boolean;
@@ -52,6 +53,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   autoAdvanceDelayMs: 600,
   fullscreenOnStart: true,
   fontPreset: "academic",
+  theme: "dark",
   fontSize: "md",
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,

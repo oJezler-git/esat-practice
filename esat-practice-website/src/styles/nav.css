@@ -1,6 +1,6 @@
 .nav-shell {
   border-bottom: 1px solid var(--border-subtle);
-  background: rgb(12 16 14 / 0.96);
+  background: color-mix(in srgb, var(--color-canvas) 96%, transparent);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -61,7 +61,7 @@
 }
 
 .nav-link-active {
-  color: #182111;
+  color: var(--color-canvas);
   box-shadow: none;
 }
 

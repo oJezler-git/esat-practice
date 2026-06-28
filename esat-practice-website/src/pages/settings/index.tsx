@@ -277,6 +277,19 @@ export default function Settings() {
         title="Display"
         description="Choose your reading comfort preferences."
       >
+        <Field label="Colour theme">
+          <Select
+            value={settings.theme}
+            onChange={(value) =>
+              update({ theme: value as UserSettings["theme"] })
+            }
+            options={[
+              { value: "dark", label: "Dark (default)" },
+              { value: "light", label: "Light (BETA)" },
+            ]}
+          />
+        </Field>
+
         <Field
           label="Interface font"
           description="Applied across all pages and controls."

@@ -59,7 +59,7 @@
 .session-question-meta {
   margin-top: 1rem;
   padding-top: 0.95rem;
-  border-top: 1px solid rgb(255 255 255 / 0.08);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .session-question-topic,
@@ -92,7 +92,7 @@
   border-radius: 0.75rem;
   overflow-x: hidden;
   overflow-y: auto;
-  background: #151b13;
+  background: var(--color-soft);
   flex: 1;
   height: 0;
 }
