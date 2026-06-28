@@ -513,7 +513,6 @@ export function useSessionEngine(sessionId: string) {
       jumpTo,
       questions,
       responses,
-      questions.length,
       session,
       skip,
       status,
