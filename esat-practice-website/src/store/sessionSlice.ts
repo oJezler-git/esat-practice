@@ -123,12 +123,12 @@ interface SessionSlice extends SessionEngineState {
   tick: (elapsedMs: number) => Promise<void>;
 }
 
+export const useSessionSlice = create<SessionSlice>((set, get) => {
 // Guards against the submit persistence sequence running concurrently. submit()
 // can be triggered by the timer auto-submit, a manual submit, and the
 // exclude-last-question path; without this an in-flight submit could run twice.
 let submitting = false;
-
-export const useSessionSlice = create<SessionSlice>((set, get) => ({
+return {
   ...createInitialSessionState(),
   notFound: false,
   load: async (sessionId: string) => {
@@ -427,7 +427,8 @@ export const useSessionSlice = create<SessionSlice>((set, get) => ({
       await get().submit();
     }
   },
-}));
+  };
+});
 
 export function useSessionEngine(sessionId: string) {
   const notFound = useSessionSlice((state) => state.notFound);
