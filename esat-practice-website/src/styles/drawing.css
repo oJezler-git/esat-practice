@@ -22,6 +22,17 @@
   cursor: text;
 }
 
+/* Text annotations are draggable when the text tool is active. */
+.drawing-svg-active[data-tool="text"] text[data-ann-id] {
+  cursor: grab;
+}
+
+/* Hide system cursor for pen/highlighter — the SVG circle preview replaces it. */
+.drawing-svg-active[data-tool="pen"],
+.drawing-svg-active[data-tool="highlighter"] {
+  cursor: none;
+}
+
 .drawing-text {
   font-family: var(--font-hand);
   font-weight: 600;
@@ -78,6 +89,17 @@
 
 /* --- Annotation toolbar --- */
 
+@keyframes annotation-toolbar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
 .annotation-toolbar {
   position: fixed;
   top: 50%;
@@ -95,6 +117,9 @@
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: var(--motion-lift-shadow);
+  /* Expo-out slide-in: smooth deceleration, no bounce. Delay lets the modal
+     backdrop settle before the toolbar draws attention. */
+  animation: annotation-toolbar-enter 340ms 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .annotation-tool-group {
@@ -215,10 +240,119 @@
   background: var(--text-primary);
 }
 
+/* --- First-open "Tap the pen to annotate" hint --- */
+
+@keyframes annotation-hint-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+.annotation-hint {
+  position: fixed;
+  left: calc(max(0.85rem, env(safe-area-inset-left)) + 3.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 101;
+  background: rgba(0, 0, 0, 0.82);
+  color: #fff;
+  border: none;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  cursor: pointer;
+  animation: annotation-hint-enter 200ms 350ms ease both;
+}
+
+/* Arrow pointing left toward the toolbar */
+.annotation-hint::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: rgba(0, 0, 0, 0.82);
+}
+
+/* --- Contextual tool hint (Shift, Enter/Esc, etc.) --- */
+
+@keyframes annotation-tool-hint-life {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  72%  { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+.annotation-tool-hint {
+  position: fixed;
+  left: calc(max(0.85rem, env(safe-area-inset-left)) + 3.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 101;
+  background: rgba(0, 0, 0, 0.82);
+  color: #fff;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: annotation-tool-hint-life 3500ms ease both;
+}
+
+.annotation-tool-hint::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: rgba(0, 0, 0, 0.82);
+}
+
+@media (max-width: 768px) {
+  .annotation-tool-hint { display: none; }
+}
+
+/* --- "✓" saved whisper — right-side, non-intrusive --- */
+
+@keyframes annotation-saved-fade {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  65%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+.annotation-saved-pulse {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  /* Single keyframe owns the full lifecycle — no separate enter/exit needed. */
+  animation: annotation-saved-fade 1800ms ease both;
+}
+
 @media (max-width: 768px) {
   /* On phones the full toolbar is too dense; expose a single pen toggle inside
      the zoom controls instead (see .zoom-button.show-inline-on-mobile). */
   .annotation-toolbar {
+    display: none;
+  }
+
+  .annotation-hint {
     display: none;
   }
 }
@@ -228,5 +362,21 @@
   .annotation-swatch,
   .annotation-width-btn {
     transition: none;
+  }
+
+  .annotation-toolbar {
+    animation: none;
+  }
+
+  .annotation-hint {
+    animation: none;
+  }
+
+  .annotation-tool-hint {
+    animation: none;
+  }
+
+  .annotation-saved-pulse {
+    animation: none;
   }
 }

@@ -8,6 +8,25 @@ import { defaultStrokeWidth } from "./annotationGeometry";
 import { DrawingLayer } from "./DrawingLayer";
 import { AnnotationToolbar } from "./AnnotationToolbar";
 
+const ANN_PREF_KEY = "esat-ann-prefs";
+const ANN_HINT_KEY = "esat-ann-hint-seen";
+
+const TOOL_HINTS: Partial<Record<AnnTool, string>> = {
+  line:    "Hold Shift to snap to 10° increments",
+  arrow:   "Hold Shift to snap to 10° increments",
+  rect:    "Hold Shift for a perfect square",
+  ellipse: "Hold Shift for a perfect circle",
+  text:    "Enter to confirm · Esc to cancel",
+};
+interface AnnPrefs { penColor: string; highlighterColor: string; widthIndex: number }
+function loadAnnPrefs(): Partial<AnnPrefs> {
+  try { return JSON.parse(localStorage.getItem(ANN_PREF_KEY) ?? "{}"); }
+  catch { return {}; }
+}
+function saveAnnPrefs(prefs: AnnPrefs) {
+  try { localStorage.setItem(ANN_PREF_KEY, JSON.stringify(prefs)); } catch {}
+}
+
 type ScanTransform = {
   scale: number;
   x: number;
@@ -90,6 +109,7 @@ type AnnHistoryAction =
   | { type: "load"; items: Annotation[] }
   | { type: "commit"; annotation: Annotation }
   | { type: "erase"; id: string }
+  | { type: "update"; annotation: Annotation }
   | { type: "undo" }
   | { type: "redo" }
   | { type: "clear" };
@@ -130,6 +150,16 @@ function annHistoryReducer(state: AnnHistory, action: AnnHistoryAction): AnnHist
         past: [...state.past, state.present],
         present: next,
         future: state.future.slice(1),
+      };
+    }
+    case "update": {
+      if (!state.present.some((ann) => ann.id === action.annotation.id)) return state;
+      return {
+        past: [...state.past, state.present],
+        present: state.present.map((ann) =>
+          ann.id === action.annotation.id ? action.annotation : ann,
+        ),
+        future: [],
       };
     }
     case "clear":
@@ -192,9 +222,12 @@ export function ZoomableImage({
 
   // --- Annotation state (only meaningful when enableDrawing) ---
   const [tool, setTool] = useState<AnnTool>("pan");
-  const [penColor, setPenColor] = useState<string>(ANNOTATION_COLORS[0]);
-  const [highlighterColor, setHighlighterColor] = useState<string>(HIGHLIGHTER_COLORS[0]);
-  const [widthIndex, setWidthIndex] = useState(1);
+  const [penColor, setPenColor] = useState<string>(() => loadAnnPrefs().penColor ?? ANNOTATION_COLORS[0]);
+  const [highlighterColor, setHighlighterColor] = useState<string>(() => loadAnnPrefs().highlighterColor ?? HIGHLIGHTER_COLORS[0]);
+  const [widthIndex, setWidthIndex] = useState<number>(() => {
+    const saved = loadAnnPrefs().widthIndex;
+    return saved !== undefined ? saved : 1;
+  });
   const [isTextEditing, setIsTextEditing] = useState(false);
   const [annHistory, dispatchAnn] = useReducer(annHistoryReducer, EMPTY_HISTORY);
   const [replayNonce, setReplayNonce] = useState(0);
@@ -203,6 +236,15 @@ export function ZoomableImage({
   const annotationsRef = useRef<Annotation[]>(annotations);
   const skipSaveRef = useRef(false);
   annotationsRef.current = annotations;
+  const [showHint, setShowHint] = useState(false);
+  const [hintAnchorY, setHintAnchorY] = useState<number | null>(null);
+  const [toolHint, setToolHint] = useState<string | null>(null);
+  const [toolHintY, setToolHintY] = useState<number | null>(null);
+  const toolHintTimerRef = useRef<number | null>(null);
+  const [savedPulse, setSavedPulse] = useState(false);
+  const savedPulseTimerRef = useRef<number | null>(null);
+  const lastPulseTimeRef = useRef(0);
+  const lastTapTimeRef = useRef(0);
 
   const widthPresets = useMemo(() => {
     const base = defaultStrokeWidth(scanNaturalSize.width || 1000);
@@ -220,6 +262,12 @@ export function ZoomableImage({
   useEffect(() => {
     scanTransformRef.current = scanTransform;
   }, [scanTransform]);
+
+  // Persist annotation colour/width preferences so they survive reloads.
+  useEffect(() => {
+    if (!enableDrawing) return;
+    saveAnnPrefs({ penColor, highlighterColor, widthIndex });
+  }, [enableDrawing, penColor, highlighterColor, widthIndex]);
 
   const scanFitSize = useMemo(() => {
     if (
@@ -369,6 +417,41 @@ export function ZoomableImage({
         return;
       }
 
+      // Tool keyboard shortcuts (desktop): P pen, H highlighter, E eraser,
+      // T text, V/Esc pan, [ / ] cycle stroke width.
+      if (enableDrawing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const toolKeys: Partial<Record<string, AnnTool>> = {
+          p: "pen", h: "highlighter", e: "eraser", t: "text", v: "pan",
+        };
+        const mapped = toolKeys[event.key.toLowerCase()];
+        if (mapped) {
+          event.preventDefault();
+          setTool(mapped);
+          setIsTextEditing(false);
+          navigator.vibrate?.(10);
+          if (toolHintTimerRef.current !== null) window.clearTimeout(toolHintTimerRef.current);
+          const hint = TOOL_HINTS[mapped] ?? null;
+          setToolHint(hint);
+          if (hint) {
+            toolHintTimerRef.current = window.setTimeout(() => {
+              setToolHint(null);
+              toolHintTimerRef.current = null;
+            }, 3500);
+          }
+          return;
+        }
+        if (event.key === "[") {
+          event.preventDefault();
+          setWidthIndex((i) => Math.max(0, i - 1));
+          return;
+        }
+        if (event.key === "]") {
+          event.preventDefault();
+          setWidthIndex((i) => Math.min(widthPresets.length - 1, i + 1));
+          return;
+        }
+      }
+
       if (event.key === "Escape") {
         if (enableDrawing && tool !== "pan") {
           setTool("pan");
@@ -380,7 +463,7 @@ export function ZoomableImage({
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [enableDrawing, handleCloseImage, isExpanded, isTextEditing, tool]);
+  }, [enableDrawing, handleCloseImage, isExpanded, isTextEditing, tool, widthPresets.length]);
 
   useEffect(() => {
     if (!isExpanded || !scanViewportRef.current) return;
@@ -459,6 +542,15 @@ export function ZoomableImage({
     if (event.button !== 0) return;
     // While a drawing tool is active, the SVG layer handles input — never pan.
     if (enableDrawing && tool !== "pan") return;
+
+    // Double-tap / double-click resets zoom to the default readable scale.
+    const now = Date.now();
+    if (now - lastTapTimeRef.current < 300 && !imageHasDraggedRef.current) {
+      lastTapTimeRef.current = 0;
+      resetSourceScan();
+      return;
+    }
+    lastTapTimeRef.current = now;
 
     imageHasDraggedRef.current = false;
     if (scanWheelFrameRef.current !== null) {
@@ -596,11 +688,28 @@ export function ZoomableImage({
     dispatchAnn({ type: "load", items: persistKey ? loadAnnotations(persistKey) : [] });
     // Trigger the staggered draw-in replay of the just-loaded strokes.
     setReplayNonce((n) => n + 1);
+
+    // First-open hint: show once, dismiss automatically after 4 s.
+    if (!localStorage.getItem(ANN_HINT_KEY)) {
+      setShowHint(true);
+      const hintTimer = window.setTimeout(() => {
+        setShowHint(false);
+        localStorage.setItem(ANN_HINT_KEY, "true");
+      }, 4000);
+      return () => {
+        window.clearTimeout(hintTimer);
+      };
+    }
+
     const keyAtLoad = persistKey;
     return () => {
       if (saveTimerRef.current !== null) {
         window.clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
+      }
+      if (savedPulseTimerRef.current !== null) {
+        window.clearTimeout(savedPulseTimerRef.current);
+        savedPulseTimerRef.current = null;
       }
       if (keyAtLoad) saveAnnotations(keyAtLoad, annotationsRef.current);
     };
@@ -618,6 +727,19 @@ export function ZoomableImage({
     saveTimerRef.current = window.setTimeout(() => {
       saveAnnotations(persistKey, annotationsRef.current);
       saveTimerRef.current = null;
+      // Throttled "✓ saved" whisper: at most once every 3 s so it doesn't
+      // appear on every individual stroke.
+      const now = Date.now();
+      if (now - lastPulseTimeRef.current > 3000) {
+        lastPulseTimeRef.current = now;
+        setSavedPulse(false);   // force remount so the animation restarts
+        window.requestAnimationFrame(() => setSavedPulse(true));
+        if (savedPulseTimerRef.current !== null) window.clearTimeout(savedPulseTimerRef.current);
+        savedPulseTimerRef.current = window.setTimeout(() => {
+          setSavedPulse(false);
+          savedPulseTimerRef.current = null;
+        }, 1800);
+      }
     }, 400);
     return () => {
       if (saveTimerRef.current !== null) {
@@ -630,7 +752,54 @@ export function ZoomableImage({
   const handleToolChange = useCallback((next: AnnTool) => {
     setTool(next);
     setIsTextEditing(false);
+    navigator.vibrate?.(10);
+    if (toolHintTimerRef.current !== null) window.clearTimeout(toolHintTimerRef.current);
+    const hint = TOOL_HINTS[next] ?? null;
+    setToolHint(hint);
+    if (hint) {
+      toolHintTimerRef.current = window.setTimeout(() => {
+        setToolHint(null);
+        toolHintTimerRef.current = null;
+      }, 3500);
+    }
   }, []);
+
+  const dismissHint = useCallback(() => {
+    setShowHint(false);
+    localStorage.setItem(ANN_HINT_KEY, "true");
+  }, []);
+
+  // After the toolbar paints, query the Pen button's vertical centre so the
+  // hint arrow points at it precisely regardless of screen size.
+  useEffect(() => {
+    if (!showHint) { setHintAnchorY(null); return; }
+    const id = window.requestAnimationFrame(() => {
+      const penBtn = document.querySelector<HTMLElement>('.annotation-toolbar [aria-label="Pen"]');
+      if (penBtn) {
+        const rect = penBtn.getBoundingClientRect();
+        setHintAnchorY(rect.top + rect.height / 2);
+      }
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [showHint]);
+
+  // Position the contextual tool hint next to the active tool button.
+  useEffect(() => {
+    if (!toolHint) { setToolHintY(null); return; }
+    const labelMap: Partial<Record<AnnTool, string>> = {
+      line: "Line", arrow: "Arrow", rect: "Rectangle", ellipse: "Ellipse", text: "Text",
+    };
+    const label = labelMap[tool];
+    if (!label) { setToolHintY(null); return; }
+    const id = window.requestAnimationFrame(() => {
+      const btn = document.querySelector<HTMLElement>(`.annotation-toolbar [aria-label="${label}"]`);
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        setToolHintY(rect.top + rect.height / 2);
+      }
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [toolHint, tool]);
 
   const handleColorChange = useCallback(
     (color: string) => {
@@ -654,6 +823,10 @@ export function ZoomableImage({
 
   const handleEraseAnnotation = useCallback((id: string) => {
     dispatchAnn({ type: "erase", id });
+  }, []);
+
+  const handleUpdateAnnotation = useCallback((annotation: Annotation) => {
+    dispatchAnn({ type: "update", annotation });
   }, []);
 
   const zoomSourceScan = (factor: number) => {
@@ -737,6 +910,7 @@ export function ZoomableImage({
                     annotations={annotations}
                     onCommit={handleCommitAnnotation}
                     onErase={handleEraseAnnotation}
+                    onUpdate={handleUpdateAnnotation}
                     onTextEditingChange={setIsTextEditing}
                     replayNonce={replayNonce}
                   />
@@ -821,6 +995,30 @@ export function ZoomableImage({
               </button>
             </div>
           </div>
+          {showHint && (
+            <button
+              type="button"
+              className="annotation-hint"
+              style={hintAnchorY !== null ? { top: `${hintAnchorY}px` } : undefined}
+              onClick={dismissHint}
+              aria-label="Dismiss tip"
+            >
+              Tap the <strong>pen</strong> to annotate
+            </button>
+          )}
+          {toolHint && (
+            <div
+              className="annotation-tool-hint"
+              style={toolHintY !== null ? { top: `${toolHintY}px` } : undefined}
+            >
+              Hint: {toolHint}
+            </div>
+          )}
+          {savedPulse && (
+            <div className="annotation-saved-pulse" aria-live="polite">
+              Saved ✓
+            </div>
+          )}
         </div>,
         document.body
       )}

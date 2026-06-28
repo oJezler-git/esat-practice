@@ -172,6 +172,7 @@ export function AnnotationToolbar({
   }, []);
 
   const handleClearClick = () => {
+    navigator.vibrate?.(10);
     if (confirmingClear) {
       if (confirmTimerRef.current !== null) window.clearTimeout(confirmTimerRef.current);
       confirmTimerRef.current = null;

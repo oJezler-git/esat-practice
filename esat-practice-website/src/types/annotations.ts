@@ -62,4 +62,6 @@ export const HIGHLIGHTER_COLORS = [
   "#86efac", // green
   "#93c5fd", // blue
   "#f9a8d4", // pink
+  "#fdba74", // orange
+  "#c4b5fd", // lavender
 ] as const;
