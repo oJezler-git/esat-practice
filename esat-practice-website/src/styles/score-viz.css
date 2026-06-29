@@ -34,7 +34,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: 0.9rem;
   background: var(--surface-1);
-  padding: 1.25rem;
+  padding: 0.9rem 1rem;
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.14);
 }
 
@@ -50,12 +50,13 @@
 .sv-headline-row {
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
-  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  flex-wrap: wrap;
 }
 
 .sv-band-headline {
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
@@ -205,8 +206,54 @@
   overflow: visible;
 }
 
+.sv-track-wrapper {
+  position: relative;
+}
+
+.sv-tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 220px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  line-height: 1.45;
+}
+
+.sv-tooltip-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.sv-tooltip-body {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.sv-tooltip-badge {
+  margin-top: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.sv-tooltip-badge--official { color: var(--color-success, #5aaf5a); }
+.sv-tooltip-badge--inferred { color: var(--color-amber); }
+
 .sv-scale-track {
-  height: 4.5rem;
+  /* aspect-ratio matches the viewBox (100×28) so CSS auto-sizes the height
+     and preserveAspectRatio="meet" (default) fills the box with uniform scale.
+     At a typical 330px card width the track renders ~90px tall with ~3× scale. */
+  aspect-ratio: 100 / 28;
+  height: auto;
+  margin-bottom: 0.35rem;
 }
 
 .sv-chart-caption {
@@ -225,6 +272,7 @@
   border-radius: 0.6rem;
   background: var(--surface-2);
   line-height: 1.5;
+  max-width: none;
 }
 
 .sv-empty {
