@@ -56,12 +56,12 @@ describe("getScoreBand", () => {
   it("6.4 → Above Average", () => expect(getScoreBand(6.4).label).toBe("Above Average"));
   it("6.5 → Competitive", () => expect(getScoreBand(6.5).label).toBe("Competitive"));
   it("6.9 → Competitive", () => expect(getScoreBand(6.9).label).toBe("Competitive"));
-  it("7.0 → Strong", () => expect(getScoreBand(7.0).label).toBe("Strong"));
-  it("7.4 → Strong", () => expect(getScoreBand(7.4).label).toBe("Strong"));
-  it("7.5 → Excellent", () => expect(getScoreBand(7.5).label).toBe("Excellent"));
-  it("8.4 → Excellent", () => expect(getScoreBand(8.4).label).toBe("Excellent"));
-  it("8.5 → Outstanding", () => expect(getScoreBand(8.5).label).toBe("Outstanding"));
-  it("9.0 → Outstanding", () => expect(getScoreBand(9.0).label).toBe("Outstanding"));
+  it("7.0 → Top ~10%", () => expect(getScoreBand(7.0).label).toBe("Top ~10%"));
+  it("7.4 → Top ~10%", () => expect(getScoreBand(7.4).label).toBe("Top ~10%"));
+  it("7.5 → Strongly Competitive", () => expect(getScoreBand(7.5).label).toBe("Strongly Competitive"));
+  it("8.4 → Strongly Competitive", () => expect(getScoreBand(8.4).label).toBe("Strongly Competitive"));
+  it("8.5 → Exceptional", () => expect(getScoreBand(8.5).label).toBe("Exceptional"));
+  it("9.0 → Exceptional", () => expect(getScoreBand(9.0).label).toBe("Exceptional"));
 });
 
 // --- wilsonInterval ---
@@ -229,6 +229,19 @@ describe("gapToNextBenchmark", () => {
   it("scaled 7.3 → next benchmark at 7.5", () => {
     const r = gapToNextBenchmark(7.3);
     expect(r!.benchmark.value).toBe(7.5);
+  });
+
+  it("scaled 6.2 → next benchmark is Cambridge offer holder avg at 6.35", () => {
+    const r = gapToNextBenchmark(6.2);
+    expect(r!.benchmark.label).toBe("Cambridge offer holder avg");
+    expect(r!.benchmark.value).toBe(6.35);
+    expect(r!.gap).toBeCloseTo(0.15, 2);
+  });
+
+  it("Cambridge offer holder avg has isHighConfidence true", () => {
+    const b = BENCHMARKS.find((bm) => bm.label === "Cambridge offer holder avg");
+    expect(b).toBeDefined();
+    expect(b!.isHighConfidence).toBe(true);
   });
 });
 

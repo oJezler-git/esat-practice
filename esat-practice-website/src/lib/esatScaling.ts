@@ -37,23 +37,24 @@ const MODULE_CEILINGS: Record<EsatModule, number> = {
 };
 
 export const SCORE_BANDS: ScoreBand[] = [
-  { label: "Below Average", color: "red",      min: 1.0, max: 4.5 },
-  { label: "Average",       color: "amber",    min: 4.5, max: 5.5 },
-  { label: "Above Average", color: "amber-hi", min: 5.5, max: 6.5 },
-  { label: "Competitive",   color: "green",    min: 6.5, max: 7.0 },
-  { label: "Strong",        color: "teal",     min: 7.0, max: 7.5 },
-  { label: "Excellent",     color: "strong",   min: 7.5, max: 8.5 },
-  { label: "Outstanding",   color: "strong",   min: 8.5, max: 9.0 },
+  { label: "Below Average",        color: "red",      min: 1.0, max: 4.5 },
+  { label: "Average",              color: "amber",    min: 4.5, max: 5.5 },
+  { label: "Above Average",        color: "amber-hi", min: 5.5, max: 6.5 },
+  { label: "Competitive",          color: "green",    min: 6.5, max: 7.0 },
+  { label: "Top ~10%",             color: "teal",     min: 7.0, max: 7.5 },
+  { label: "Strongly Competitive", color: "strong",   min: 7.5, max: 8.5 },
+  { label: "Exceptional",          color: "strong",   min: 8.5, max: 9.0 },
 ];
 
+// Values and confidence flags sourced directly from reference_score.md
 export const BENCHMARKS: Benchmark[] = [
-  { label: "Average applicant",        value: 4.5, isHighConfidence: false },
-  { label: "Mean offer holder",        value: 5.5, isHighConfidence: true  },
-  { label: "Engineering typical",      value: 6.0, isHighConfidence: true  },
-  { label: "NatSci typical",           value: 6.5, isHighConfidence: true  },
-  { label: "Strong offer holder",      value: 7.0, isHighConfidence: true  },
-  { label: "Top 20%",                  value: 7.5, isHighConfidence: false },
-  { label: "Top 10%",                  value: 8.0, isHighConfidence: false },
+  { label: "Average applicant",          value: 4.5,  isHighConfidence: true  }, // UAT-UK official
+  { label: "Above average",              value: 5.5,  isHighConfidence: true  }, // UAT-UK distribution
+  { label: "Cambridge offer holder avg", value: 6.35, isHighConfidence: true  }, // Cambridge FOI Nov 2025
+  { label: "Competitive / interview",    value: 6.5,  isHighConfidence: false }, // tutoring sites / TSR
+  { label: "Top ~10%",                   value: 7.0,  isHighConfidence: true  }, // UAT-UK official
+  { label: "Strongly competitive",       value: 7.5,  isHighConfidence: false }, // inferred
+  { label: "Top ~3–5%",                  value: 8.0,  isHighConfidence: false }, // prep provider estimates
 ];
 
 export function convertRawToScaled(raw: number, module: EsatModule): number {
@@ -171,5 +172,5 @@ export function gapToNextBenchmark(scaled: number): { benchmark: Benchmark; gap:
   const above = BENCHMARKS.filter((b) => b.value > scaled).sort((a, b) => a.value - b.value);
   if (above.length === 0) return null;
   const next = above[0];
-  return { benchmark: next, gap: next.value - scaled };
+  return { benchmark: next, gap: Math.round((next.value - scaled) * 100) / 100 };
 }
