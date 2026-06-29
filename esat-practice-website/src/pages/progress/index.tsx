@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { EsatAllTimePanel } from "../../components/score-viz/EsatAllTimePanel";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
@@ -179,6 +180,8 @@ export default function Progress() {
           )}
 
           {summaries.length > 0 && <TrendCard summaries={summaries} />}
+
+          <EsatAllTimePanel stats={stats} />
 
           {categories.length > 0 && <CategoryCard categories={categories} />}
 
