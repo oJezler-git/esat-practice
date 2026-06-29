@@ -47,36 +47,47 @@
   margin-bottom: 0.5rem;
 }
 
+.sv-headline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
 .sv-band-headline {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
-  margin-bottom: 0.2rem;
 }
 
 .sv-score-range {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 0.9rem;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .sv-track {
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
+.sv-meta-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .sv-raw-line {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  margin-bottom: 0.4rem;
   font-variant-numeric: tabular-nums;
 }
 
 .sv-gap-line {
   font-size: 0.78rem;
   color: var(--text-muted);
-  margin-bottom: 0.5rem;
 }
 
 .sv-low-sample {
@@ -192,6 +203,10 @@
   display: block;
   width: 100%;
   overflow: visible;
+}
+
+.sv-scale-track {
+  height: 4.5rem;
 }
 
 .sv-chart-caption {
