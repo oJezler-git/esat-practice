@@ -32,6 +32,17 @@ describe("convertRawToScaled", () => {
     expect(result).toBeGreaterThan(1.5);
     expect(result).toBeLessThan(9.0);
   });
+
+  // Key anchor points from reference_score.md table
+  it("M1 raw=17 → 6.5 (lower offer-holder avg boundary)", () => {
+    expect(convertRawToScaled(17, "maths1")).toBeCloseTo(6.5, 5);
+  });
+  it("M2 raw=17 → 7.5 (strongly competitive boundary)", () => {
+    expect(convertRawToScaled(17, "maths2")).toBeCloseTo(7.5, 5);
+  });
+  it("Physics raw=19 → ~7.0 (top 10% boundary)", () => {
+    expect(convertRawToScaled(19, "physics")).toBeCloseTo(7.026, 2);
+  });
 });
 
 // --- extrapolateRaw ---

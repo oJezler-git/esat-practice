@@ -126,33 +126,14 @@ export function moduleForTopic(topic: string | null | undefined): "m1" | "m2" | 
   return "unclassified";
 }
 
-export interface GroupableItem {
+interface ScoredItem {
   question: { taxonomy: { primary_topic: string } };
-}
-
-export function groupByModule(items: GroupableItem[]): {
-  m1: ModuleGroup;
-  m2: ModuleGroup;
-  physics: ModuleGroup;
-  unclassified: ModuleGroup;
-} {
-  const result = {
-    m1:           { correct: 0, total: 0 },
-    m2:           { correct: 0, total: 0 },
-    physics:      { correct: 0, total: 0 },
-    unclassified: { correct: 0, total: 0 },
-  };
-  for (const item of items) {
-    const mod = moduleForTopic(item.question.taxonomy.primary_topic);
-    result[mod].total++;
-  }
-  return result;
-}
-
-interface ScoredItem extends GroupableItem {
   attempt: { result: "correct" | "incorrect" | "skipped" };
 }
 
+// Skipped attempts count toward `total` (not `correct`) because in the real
+// ESAT an unanswered question scores 0, so skipping dilutes the raw score just
+// as leaving an exam question blank would.
 export function detectModuleGroups(items: ScoredItem[]): {
   m1: ModuleGroup;
   m2: ModuleGroup;
