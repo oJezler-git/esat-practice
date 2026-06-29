@@ -677,3 +677,4 @@ p {
 @import "./styles/offline.css";
 @import "./styles/ask-claude.css";
 @import "./styles/progress.css";
+@import "./styles/score-viz.css";

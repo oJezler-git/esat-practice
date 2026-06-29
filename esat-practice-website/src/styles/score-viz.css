@@ -1,0 +1,283 @@
+/* --- ESAT Score Visualisation panel ----------------------------------------
+   Prefix: sv-   All colours via CSS custom properties so light theme works. */
+
+:root {
+  --sv-band-red:      #c0392b;
+  --sv-band-amber:    #d4813a;
+  --sv-band-amber-hi: #c9ad3a;
+  --sv-band-green:    #5aaf5a;
+  --sv-band-teal:     #3aafaf;
+  --sv-band-strong:   #5a8fd4;
+}
+
+:root[data-theme="light"] {
+  --sv-band-red:      #c0392b;
+  --sv-band-amber:    #c47a25;
+  --sv-band-amber-hi: #a08c00;
+  --sv-band-green:    #2e8b2e;
+  --sv-band-teal:     #1a8f8f;
+  --sv-band-strong:   #2a6fb5;
+}
+
+.sv-panel {
+  margin-bottom: 2rem;
+}
+
+.sv-module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sv-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.9rem;
+  background: var(--surface-1);
+  padding: 0.9rem 1rem;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.14);
+}
+
+.sv-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.sv-headline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.sv-band-headline {
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.sv-score-range {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sv-track {
+  margin-bottom: 0.6rem;
+}
+
+.sv-meta-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sv-raw-line {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-gap-line {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sv-low-sample {
+  font-size: 0.75rem;
+  color: var(--color-amber);
+  margin-bottom: 0.4rem;
+}
+
+.sv-disclaimer {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+  line-height: 1.45;
+}
+
+/* Topic breakdown */
+.sv-breakdown {
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.9rem;
+  background: var(--surface-1);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.sv-breakdown-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.sv-module-group {
+  margin-bottom: 1rem;
+}
+
+.sv-module-group:last-child {
+  margin-bottom: 0;
+}
+
+.sv-module-group-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.sv-topic-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.sv-topic-name {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sv-topic-name--weak {
+  color: var(--color-danger-text);
+}
+
+.sv-topic-stat {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sv-topic-bar {
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+  margin-bottom: 0.35rem;
+}
+
+.sv-topic-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 300ms ease;
+}
+
+.sv-topic-bar-fill--green  { background: var(--sv-band-green); }
+.sv-topic-bar-fill--amber  { background: var(--sv-band-amber); }
+.sv-topic-bar-fill--red    { background: var(--sv-band-red); }
+
+/* Accuracy history chart */
+.sv-history {
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.9rem;
+  background: var(--surface-1);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.sv-history-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.sv-chart {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.sv-track-wrapper {
+  position: relative;
+}
+
+.sv-tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 220px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  line-height: 1.45;
+}
+
+.sv-tooltip-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.sv-tooltip-body {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.sv-tooltip-badge {
+  margin-top: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.sv-tooltip-badge--official { color: var(--color-success, #5aaf5a); }
+.sv-tooltip-badge--inferred { color: var(--color-amber); }
+
+.sv-scale-track {
+  /* aspect-ratio matches the viewBox (100×28) so CSS auto-sizes the height
+     and preserveAspectRatio="meet" (default) fills the box with uniform scale.
+     At a typical 330px card width the track renders ~90px tall with ~3× scale. */
+  aspect-ratio: 100 / 28;
+  height: auto;
+  margin-bottom: 0.35rem;
+}
+
+.sv-chart-caption {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  opacity: 0.7;
+}
+
+.sv-ambiguity-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.6rem;
+  background: var(--surface-2);
+  line-height: 1.5;
+  max-width: none;
+}
+
+.sv-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
