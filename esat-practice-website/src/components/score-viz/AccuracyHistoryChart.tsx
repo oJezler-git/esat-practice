@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getSessionSummaries } from "../../lib/statsStore";
 import type { SessionSummary } from "../../types/schema";
 
@@ -14,13 +14,19 @@ interface ReferenceBand {
 }
 
 const REFERENCE_BANDS: ReferenceBand[] = [
-  { label: "Average applicant",  lo: 41, hi: 47, color: "var(--sv-band-amber)"  },
-  { label: "Typical offer",      lo: 54, hi: 64, color: "var(--sv-band-green)"  },
-  { label: "Top 10%",            lo: 59, hi: 70, color: "var(--sv-band-teal)"   },
+  { label: "Average applicant", lo: 41, hi: 47, color: "var(--sv-band-amber)" },
+  { label: "Typical offer",     lo: 54, hi: 64, color: "var(--sv-band-green)" },
+  { label: "Top 10%",           lo: 59, hi: 70, color: "var(--sv-band-teal)"  },
 ];
+
+const H = 160;
+const PAD = { top: 14, right: 14, bottom: 28, left: 38 };
 
 export function AccuracyHistoryChart({ currentAccuracy }: AccuracyHistoryChartProps) {
   const [summaries, setSummaries] = useState<SessionSummary[]>([]);
+  const [W, setW] = useState(0);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const hasData = summaries.length >= 3;
 
   useEffect(() => {
     getSessionSummaries()
@@ -28,12 +34,20 @@ export function AccuracyHistoryChart({ currentAccuracy }: AccuracyHistoryChartPr
       .catch(() => {});
   }, []);
 
-  if (summaries.length < 3) return null;
+  // Re-runs when hasData flips true so the SVG is in the DOM before we measure.
+  useEffect(() => {
+    if (!hasData) return;
+    const el = svgRef.current;
+    if (!el) return;
+    setW(el.clientWidth);
+    const ro = new ResizeObserver(() => setW(el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [hasData]);
 
-  const W = 200;
-  const H = 60;
-  const PAD = { top: 6, right: 8, bottom: 18, left: 28 };
-  const chartW = W - PAD.left - PAD.right;
+  if (!hasData) return null;
+
+  const chartW = Math.max(0, W - PAD.left - PAD.right);
   const chartH = H - PAD.top - PAD.bottom;
 
   const allPcts = summaries.map((s) => s.accuracy * 100);
@@ -54,7 +68,6 @@ export function AccuracyHistoryChart({ currentAccuracy }: AccuracyHistoryChartPr
 
   const terminalX = toXi(summaries.length, summaries.length + 1);
   const terminalY = toY(currentAccuracy * 100);
-
   const polyline = histPoints.map((p) => `${p.x},${p.y}`).join(" ");
   const lastHist = histPoints[histPoints.length - 1];
 
@@ -62,83 +75,84 @@ export function AccuracyHistoryChart({ currentAccuracy }: AccuracyHistoryChartPr
     <div className="sv-history">
       <div className="sv-history-title">Accuracy over time</div>
       <svg
-        viewBox={`0 0 ${W} ${H}`}
+        ref={svgRef}
+        viewBox={W > 0 ? `0 0 ${W} ${H}` : undefined}
+        width="100%"
+        height={H}
         className="sv-chart"
-        style={{ height: "5rem" }}
         aria-hidden="true"
       >
-        {/* Reference bands */}
-        {REFERENCE_BANDS.map((band) => {
-          const bandLo = toY(band.hi);
-          const bandHi = toY(band.lo);
-          return (
-            <rect
-              key={band.label}
-              x={PAD.left}
-              y={Math.max(PAD.top, bandLo)}
-              width={chartW}
-              height={Math.max(0, Math.min(PAD.top + chartH, bandHi) - Math.max(PAD.top, bandLo))}
-              fill={band.color}
-              opacity={0.12}
-            />
-          );
-        })}
+        {W > 0 && (
+          <>
+            {REFERENCE_BANDS.map((band) => {
+              const bandLo = toY(band.hi);
+              const bandHi = toY(band.lo);
+              return (
+                <rect
+                  key={band.label}
+                  x={PAD.left}
+                  y={Math.max(PAD.top, bandLo)}
+                  width={chartW}
+                  height={Math.max(0, Math.min(PAD.top + chartH, bandHi) - Math.max(PAD.top, bandLo))}
+                  fill={band.color}
+                  opacity={0.12}
+                />
+              );
+            })}
 
-        {/* Y-axis ticks */}
-        {[Math.round(yMin), Math.round((yMin + yMax) / 2), Math.round(yMax)].map((v) => (
-          <g key={v}>
-            <line
-              x1={PAD.left - 3}
-              y1={toY(v)}
-              x2={PAD.left + chartW}
-              y2={toY(v)}
-              stroke="var(--border-subtle)"
-              strokeWidth={0.5}
-            />
-            <text
-              x={PAD.left - 4}
-              y={toY(v) + 1.5}
-              textAnchor="end"
-              fontSize={4}
-              fill="var(--text-muted)"
-            >
-              {v}%
-            </text>
-          </g>
-        ))}
+            {[Math.round(yMin), Math.round((yMin + yMax) / 2), Math.round(yMax)].map((v) => (
+              <g key={v}>
+                <line
+                  x1={PAD.left - 4}
+                  y1={toY(v)}
+                  x2={PAD.left + chartW}
+                  y2={toY(v)}
+                  stroke="var(--border-subtle)"
+                  strokeWidth={0.8}
+                />
+                <text
+                  x={PAD.left - 6}
+                  y={toY(v)}
+                  textAnchor="end"
+                  dominantBaseline="middle"
+                  fontSize={10}
+                  fill="var(--text-muted)"
+                >
+                  {v}%
+                </text>
+              </g>
+            ))}
 
-        {/* History polyline */}
-        {histPoints.length > 1 && (
-          <polyline
-            points={polyline}
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth={1.2}
-            strokeLinejoin="round"
-          />
+            {histPoints.length > 1 && (
+              <polyline
+                points={polyline}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth={1.5}
+                strokeLinejoin="round"
+              />
+            )}
+
+            {lastHist && (
+              <line
+                x1={lastHist.x}
+                y1={lastHist.y}
+                x2={terminalX}
+                y2={terminalY}
+                stroke="var(--accent)"
+                strokeWidth={1.5}
+                strokeDasharray="4 3"
+                opacity={0.75}
+              />
+            )}
+
+            <circle cx={terminalX} cy={terminalY} r={4} fill="var(--accent)" />
+
+            {histPoints.map((p, i) => (
+              <circle key={i} cx={p.x} cy={p.y} r={2.5} fill="var(--accent)" opacity={0.6} />
+            ))}
+          </>
         )}
-
-        {/* Dashed line from last history point to current session terminal */}
-        {lastHist && (
-          <line
-            x1={lastHist.x}
-            y1={lastHist.y}
-            x2={terminalX}
-            y2={terminalY}
-            stroke="var(--accent)"
-            strokeWidth={1}
-            strokeDasharray="2.5 2"
-            opacity={0.75}
-          />
-        )}
-
-        {/* Terminal point (current session) */}
-        <circle cx={terminalX} cy={terminalY} r={2.5} fill="var(--accent)" />
-
-        {/* History dots */}
-        {histPoints.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={1.5} fill="var(--accent)" opacity={0.6} />
-        ))}
       </svg>
       <p className="sv-chart-caption">
         Accuracy % across completed sessions. Dashed point = this session.
