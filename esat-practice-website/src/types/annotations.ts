@@ -14,7 +14,8 @@ export type AnnTool =
   | "arrow"
   | "rect"
   | "ellipse"
-  | "text";
+  | "text"
+  | "math";
 
 export type FreehandKind = "pen" | "highlighter";
 export type ShapeKind = "line" | "arrow" | "rect" | "ellipse";
@@ -46,7 +47,17 @@ export type TextAnnotation = {
   text: string;
 };
 
-export type Annotation = FreehandAnnotation | ShapeAnnotation | TextAnnotation;
+export type MathAnnotation = {
+  id: string;
+  kind: "math";
+  color: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  latex: string;
+};
+
+export type Annotation = FreehandAnnotation | ShapeAnnotation | TextAnnotation | MathAnnotation;
 
 export const ANNOTATION_COLORS = [
   "#1f2933", // ink

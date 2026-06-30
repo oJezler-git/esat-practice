@@ -18,12 +18,18 @@
   cursor: cell;
 }
 
-.drawing-svg-active[data-tool="text"] {
+.drawing-svg-active[data-tool="text"],
+.drawing-svg-active[data-tool="math"] {
   cursor: text;
 }
 
 /* Text annotations are draggable when the text tool is active. */
 .drawing-svg-active[data-tool="text"] text[data-ann-id] {
+  cursor: grab;
+}
+
+/* Math labels are draggable when the math tool is active. */
+.drawing-svg-active[data-tool="math"] .drawing-math {
   cursor: grab;
 }
 
@@ -44,7 +50,7 @@
   width: 100%;
   border: none;
   outline: none;
-  background: rgb(255 255 255 / 0.55);
+  background: rgb(255 255 255 / 0.92);
   border-bottom: 2px solid currentColor;
   padding: 0 2px;
   margin: 0;
@@ -52,6 +58,66 @@
   font-weight: 600;
   line-height: 1;
   box-sizing: border-box;
+}
+
+/* --- Math (LaTeX) labels --- */
+
+.drawing-math {
+  display: inline-block;
+  user-select: none;
+}
+
+/* Rendered (committed) math labels get an opaque backing card so the scan's
+   own ink doesn't bleed through and muddy the formula. */
+.drawing-math .katex {
+  background: rgb(255 255 255 / 0.88);
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.3rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.drawing-math-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  width: 100%;
+  /* The wrapper's box is sized generously so the preview has room to grow,
+     but only the input/preview themselves should be clickable — not the
+     empty space around them. */
+  pointer-events: none;
+}
+
+.drawing-math-editor .drawing-text-input,
+.drawing-math-editor .drawing-math-preview {
+  pointer-events: auto;
+}
+
+/* In the math editor, the input takes plain monospace LaTeX source rather
+   than the handwriting font used for plain-text annotations. Solid (not
+   translucent) so it stays legible over busy scan backgrounds. */
+.drawing-math-editor .drawing-text-input {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-weight: 500;
+  background: #ffffff;
+  border: 1px solid rgb(0 0 0 / 0.18);
+  border-bottom: 1px solid rgb(0 0 0 / 0.18);
+  border-radius: 0.35rem;
+  padding: 0.2em 0.45em;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+.drawing-math-preview {
+  background: #ffffff;
+  border: 1px solid rgb(0 0 0 / 0.12);
+  border-radius: 0.35rem;
+  padding: 0.25em 0.5em;
+  width: max-content;
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.14);
 }
 
 /* --- Reopen "draw-in" replay -------------------------------------------------

@@ -83,6 +83,15 @@ const PRIMARY_TOOLS: ToolDef[] = [
       </svg>
     ),
   },
+  {
+    id: "math",
+    label: "Math (LaTeX)",
+    icon: (
+      <svg {...iconProps}>
+        <path d="M3 13h3l2.5 7L13 4h8" />
+      </svg>
+    ),
+  },
 ];
 
 const SHAPE_TOOLS: ToolDef[] = [

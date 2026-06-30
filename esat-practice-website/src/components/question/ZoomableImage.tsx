@@ -17,6 +17,7 @@ const TOOL_HINTS: Partial<Record<AnnTool, string>> = {
   rect:    "Hold Shift for a perfect square",
   ellipse: "Hold Shift for a perfect circle",
   text:    "Enter to confirm · Esc to cancel",
+  math:    "Type LaTeX, e.g. \\frac{1}{2} · Enter to confirm · Esc to cancel",
 };
 interface AnnPrefs { penColor: string; highlighterColor: string; widthIndex: number }
 function loadAnnPrefs(): Partial<AnnPrefs> {
@@ -421,7 +422,7 @@ export function ZoomableImage({
       // T text, V/Esc pan, [ / ] cycle stroke width.
       if (enableDrawing && !event.ctrlKey && !event.metaKey && !event.altKey) {
         const toolKeys: Partial<Record<string, AnnTool>> = {
-          p: "pen", h: "highlighter", e: "eraser", t: "text", v: "pan",
+          p: "pen", h: "highlighter", e: "eraser", t: "text", m: "math", v: "pan",
         };
         const mapped = toolKeys[event.key.toLowerCase()];
         if (mapped) {
@@ -788,6 +789,7 @@ export function ZoomableImage({
     if (!toolHint) { setToolHintY(null); return; }
     const labelMap: Partial<Record<AnnTool, string>> = {
       line: "Line", arrow: "Arrow", rect: "Rectangle", ellipse: "Ellipse", text: "Text",
+      math: "Math (LaTeX)",
     };
     const label = labelMap[tool];
     if (!label) { setToolHintY(null); return; }

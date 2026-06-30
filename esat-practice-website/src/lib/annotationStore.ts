@@ -29,6 +29,8 @@ function isValidAnnotation(value: unknown): value is Annotation {
       );
     case "text":
       return typeof ann.text === "string";
+    case "math":
+      return typeof ann.latex === "string";
     default:
       return false;
   }

@@ -6,6 +6,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ensureBundledQuestionsBootstrapped } from "./lib/loader";
 import { recomputeAllStats } from "./lib/statsStore";
 import { registerDebugCommands } from "./lib/debug";
+import "katex/dist/katex.min.css";
 import "./styles.css";
 
 // Reload whenever a new service worker takes control — covers mobile browsers
