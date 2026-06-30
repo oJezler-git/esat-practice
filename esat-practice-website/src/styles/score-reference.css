@@ -88,6 +88,49 @@
   margin-bottom: 2rem;
 }
 
+/* ── TL;DR ──────────────────────────────────────────────────────── */
+
+.ref-tldr {
+  list-style: none;
+  padding: 0.875rem 1rem;
+  margin: 0 0 0.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  background: var(--surface-1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ref-tldr li {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.ref-tldr li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
+
+.ref-tldr-head {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding-left: 0;
+  margin-bottom: 0.1rem;
+}
+
+.ref-tldr .ref-tldr-head::before {
+  content: none;
+}
+
 /* ── Sections ───────────────────────────────────────────────────── */
 
 .ref-section {

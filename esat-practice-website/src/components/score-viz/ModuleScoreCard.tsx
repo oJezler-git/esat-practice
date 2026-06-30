@@ -1,4 +1,4 @@
-import { gapToNextBenchmark, getScoreBand } from "../../lib/esatScaling";
+import { SCORE_BANDS, gapToNextBenchmark, getScoreBand } from "../../lib/esatScaling";
 import type { ModuleResult } from "../../lib/esatScaling";
 import { ScaleTrack } from "./ScaleTrack";
 
@@ -10,10 +10,14 @@ interface ModuleScoreCardProps {
 export function ModuleScoreCard({ result, label }: ModuleScoreCardProps) {
   const lowBand  = getScoreBand(result.scaledLow);
   const highBand = getScoreBand(result.scaledHigh);
+  const lowIdx   = SCORE_BANDS.indexOf(lowBand);
+  const highIdx  = SCORE_BANDS.indexOf(highBand);
   const bandHeadline =
     lowBand.label === highBand.label
       ? lowBand.label
-      : `${lowBand.label}–${highBand.label}`;
+      : highIdx - lowIdx > 1
+        ? "Wide range"
+        : `${lowBand.label}–${highBand.label}`;
 
   const gap = gapToNextBenchmark(result.scaled);
 

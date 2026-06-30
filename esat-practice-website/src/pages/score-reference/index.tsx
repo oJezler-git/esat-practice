@@ -328,6 +328,13 @@ export default function ScoreReference() {
           and the assumptions behind the score panel.
         </p>
 
+        <ul className="ref-tldr">
+          <li className="ref-tldr-head">TL;DR</li>
+          <li>Score ranges are 80% confidence intervals on your <strong>practice accuracy</strong> — not predictions of your actual ESAT score.</li>
+          <li>Module ceilings (23/27 M1, 20/27 M2, 24/27 Physics) are the weakest link: sourced from TSR self-reports, not confirmed by UAT-UK.</li>
+          <li>80% confidence chosen over 95% so ranges stay narrow enough to be useful on a 10-question session; a 95% CI would span nearly the full 1–9 scale.</li>
+        </ul>
+
         {/* ── Overview ─────────────────────────────────────────────── */}
         <section id="overview" className="ref-section">
           <div className="ref-callout ref-callout--warning">
@@ -766,9 +773,11 @@ export default function ScoreReference() {
 
           <p className="ref-prose">
             The point-estimate scaled score, used for the gap-to-next-benchmark calculation, is
-            computed directly from the observed proportion: round(correct/total * 27). It is not
+            computed directly from the observed proportion: round(correct/total × 27). It is not
             computed from the Wilson centre. This keeps the "you need +0.7 to reach offer-holder
             average" figure tied to the observed result rather than the uncertainty-adjusted centre.
+            As a side effect, the point estimate can sit off-centre in the range bar — this is
+            intentional, not a bug.
           </p>
         </section>
 
