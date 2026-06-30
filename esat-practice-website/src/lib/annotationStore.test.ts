@@ -20,6 +20,16 @@ const TEXT: Annotation = {
   text: "note",
 };
 
+const MATH: Annotation = {
+  id: "m1",
+  kind: "math",
+  color: "#222",
+  x: 7,
+  y: 8,
+  fontSize: 20,
+  latex: "\\frac{1}{2}",
+};
+
 describe("annotationStore", () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -34,8 +44,8 @@ describe("annotationStore", () => {
   });
 
   it("round-trips annotations through save/load", () => {
-    saveAnnotations("q1", [PEN, TEXT]);
-    expect(loadAnnotations("q1")).toEqual([PEN, TEXT]);
+    saveAnnotations("q1", [PEN, TEXT, MATH]);
+    expect(loadAnnotations("q1")).toEqual([PEN, TEXT, MATH]);
   });
 
   it("removes the entry when saving an empty list", () => {
@@ -53,7 +63,7 @@ describe("annotationStore", () => {
   it("filters out malformed entries", () => {
     window.localStorage.setItem(
       "esat-annotations:q1",
-      JSON.stringify([PEN, { id: "bad" }, { kind: "pen" }, 42]),
+      JSON.stringify([PEN, { id: "bad" }, { kind: "pen" }, { kind: "math" }, 42]),
     );
     expect(loadAnnotations("q1")).toEqual([PEN]);
   });
