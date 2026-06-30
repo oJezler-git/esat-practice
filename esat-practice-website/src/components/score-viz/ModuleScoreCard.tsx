@@ -45,9 +45,6 @@ export function ModuleScoreCard({ result, label }: ModuleScoreCardProps) {
         </div>
       )}
 
-      <div className="sv-disclaimer">
-        80% CI estimate. Practice accuracy ≠ real exam raw score.
-      </div>
     </div>
   );
 }

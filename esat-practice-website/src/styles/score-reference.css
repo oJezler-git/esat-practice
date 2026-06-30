@@ -1,0 +1,465 @@
+/* ── Layout ─────────────────────────────────────────────────────── */
+
+.ref-page-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: 3rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem;
+}
+
+.ref-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ref-content p {
+  max-width: none;
+}
+
+/* ── Title row & copy button ────────────────────────────────────── */
+
+.ref-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.625rem;
+}
+
+.ref-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 0.375rem;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.ref-copy-btn:hover {
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+/* ── Breadcrumb & title ─────────────────────────────────────────── */
+
+.ref-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.ref-breadcrumb-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.ref-breadcrumb-link:hover { color: var(--text-secondary); }
+
+.ref-breadcrumb-sep { opacity: 0.4; }
+
+.ref-page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.ref-page-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* ── Sections ───────────────────────────────────────────────────── */
+
+.ref-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding-top: 2.5rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ref-section:first-of-type {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: none;
+}
+
+.ref-h2 {
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  scroll-margin-top: 5rem;
+}
+
+.ref-h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.ref-prose {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+}
+
+.ref-prose-list {
+  padding-left: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ref-prose-list li {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+}
+
+/* ── Callout ────────────────────────────────────────────────────── */
+
+.ref-callout {
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.ref-callout--warning {
+  background: #1f1c0f;
+  border: 1px solid #5a4e1a;
+  border-left: 3px solid #c8a84b;
+}
+
+/* ── Formula block ──────────────────────────────────────────────── */
+
+.ref-formula {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1.125rem;
+  font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.775rem;
+  line-height: 1;
+}
+
+.ref-formula-line {
+  display: block;
+  color: var(--text-secondary);
+  padding: 0.2rem 0;
+}
+
+.ref-formula-line--gap {
+  padding-top: 0.6rem;
+}
+
+.ref-formula-comment-line {
+  color: var(--text-muted);
+}
+
+/* ── Tables ─────────────────────────────────────────────────────── */
+
+.ref-table-wrap {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.ref-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.ref-table td {
+  padding: 0.45rem 0.75rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.ref-table tbody tr:last-child td { border-bottom: none; }
+.ref-table tbody tr:hover td { background: var(--surface-1); }
+
+.ref-table--mono td { font-variant-numeric: tabular-nums; }
+
+.ref-td-note { color: var(--text-muted); font-size: 0.75rem; }
+
+.ref-row--highlight td {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--color-accent-soft) 50%, transparent);
+}
+
+/* ── Badges ─────────────────────────────────────────────────────── */
+
+.ref-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ref-badge--high     { background: var(--color-success-soft); color: var(--color-success-text); border: 1px solid var(--color-success); }
+.ref-badge--moderate { background: #2a2410; color: #c8a84b; border: 1px solid #7a6a2a; }
+.ref-badge--low      { background: var(--color-danger-soft); color: #e09090; border: 1px solid #7a3a3a; }
+
+/* ── Band chips (inline in table) ──────────────────────────────── */
+
+.ref-band-chip {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.375rem;
+  white-space: nowrap;
+}
+
+.ref-band-chip--red      { background: #3b1a1a; color: #e09090; border: 1px solid #7a3a3a; }
+.ref-band-chip--amber    { background: #2a2410; color: #c8a84b; border: 1px solid #7a6a2a; }
+.ref-band-chip--amber-hi { background: #2a2c10; color: #b8c84b; border: 1px solid #6a7a2a; }
+.ref-band-chip--green    { background: #1b2520; color: #87ddb2; border: 1px solid #49614f; }
+.ref-band-chip--teal     { background: #102025; color: #6acfe0; border: 1px solid #2a6570; }
+.ref-band-chip--strong   { background: #101a2a; color: #87b5dd; border: 1px solid #2a4570; }
+
+/* ── Steps list ─────────────────────────────────────────────────── */
+
+.ref-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: ref-step;
+  margin: 0;
+}
+
+.ref-steps li {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  counter-increment: ref-step;
+}
+
+.ref-steps li::before {
+  content: counter(ref-step);
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+.ref-steps li:last-child { border-bottom: none; }
+
+.ref-step-head {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.ref-step-body {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+  max-width: none;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+}
+
+.ref-step-body code {
+  font-family: "Fira Code", "Cascadia Code", monospace;
+  font-size: 0.75rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.25rem;
+  padding: 0.05rem 0.3rem;
+  color: var(--color-accent-strong);
+}
+
+/* ── Limitations ────────────────────────────────────────────────── */
+
+.ref-limitation {
+  padding: 0.875rem 1rem;
+  border-left: 2px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ref-limitation .ref-prose { max-width: none; text-align: justify; text-align-last: left; hyphens: auto; }
+
+.ref-limitation-head {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Sources ────────────────────────────────────────────────────── */
+
+.ref-link {
+  font-size: 0.8125rem;
+  color: var(--color-accent-strong);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-accent-strong) 35%, transparent);
+  text-underline-offset: 2px;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.ref-link:hover {
+  color: var(--text-primary);
+  text-decoration-color: var(--text-primary);
+}
+
+.ref-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding-left: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.ref-source-list li {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-start;
+}
+
+.ref-source-list li > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ref-source-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  max-width: none;
+}
+
+.ref-source-list--compact { gap: 0.5rem; }
+.ref-source-list--compact li { align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+
+.ref-source-aside {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.ref-source-sep {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0 0.1rem;
+}
+
+/* ── Sticky TOC ─────────────────────────────────────────────────── */
+
+.ref-toc {
+  flex-shrink: 0;
+  width: 11rem;
+  position: sticky;
+  top: 5.5rem;
+  align-self: flex-start;
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .ref-toc { display: block; }
+}
+
+.ref-toc-inner { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.ref-toc-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.ref-toc-link {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-left: 2px solid transparent;
+  border-radius: 0 0.25rem 0.25rem 0;
+  line-height: 1.4;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.ref-toc-link:hover {
+  color: var(--text-secondary);
+  background: var(--surface-1);
+}
+
+.ref-toc-link--active {
+  color: var(--color-accent-strong);
+  border-left-color: var(--color-accent-strong);
+  background: color-mix(in srgb, var(--color-accent-soft) 60%, transparent);
+}
+

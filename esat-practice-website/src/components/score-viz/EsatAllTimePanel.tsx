@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { computeModuleResult, moduleForTopic } from "../../lib/esatScaling";
 import type { TopicStat } from "../../types/schema";
 import { ModuleScoreCard } from "./ModuleScoreCard";
@@ -26,7 +27,12 @@ export function EsatAllTimePanel({ stats }: Props) {
     <section className="prog-section card">
       <div className="prog-section-head">
         <h2 className="prog-section-title">ESAT scaled score estimate</h2>
-        <span className="text-xs text-muted">All-time · across all sessions</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted">All-time · across all sessions</span>
+          <Link to="/score-reference" className="text-xs text-muted hover:text-secondary transition-colors underline underline-offset-2 decoration-dotted">
+            How is this calculated?
+          </Link>
+        </div>
       </div>
 
       <div className="sv-module-grid">
@@ -34,13 +40,6 @@ export function EsatAllTimePanel({ stats }: Props) {
         {m2Result      && <ModuleScoreCard result={m2Result}      label="Mathematics 2" />}
         {physicsResult && <ModuleScoreCard result={physicsResult} label="Physics"        />}
       </div>
-
-      {m1Result && m2Result && (
-        <p className="sv-ambiguity-note">
-          M-prefix topics count as Mathematics 1; MM-prefix topics count as Mathematics 2.
-          Mixed practice may not reflect the exact module split of the real exam.
-        </p>
-      )}
     </section>
   );
 }

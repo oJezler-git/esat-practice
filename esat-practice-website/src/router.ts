@@ -7,6 +7,7 @@ export const ROUTES = {
   progress: "/progress",
   history: "/history",
   settings: "/settings",
+  scoreReference: "/score-reference",
 } as const;
 
 export const routeForSession = (sessionId: string): string =>

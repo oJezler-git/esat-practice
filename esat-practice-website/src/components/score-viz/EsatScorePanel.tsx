@@ -30,8 +30,6 @@ export function EsatScorePanel({ items }: EsatScorePanelProps) {
     );
   }
 
-  const hasM1andM2 = m1Result && m2Result;
-
   const attempted = items.filter((i) => i.attempt.result !== "skipped");
   const correct   = attempted.filter((i) => i.attempt.result === "correct");
   const currentAccuracy = attempted.length > 0 ? correct.length / attempted.length : 0;
@@ -43,14 +41,6 @@ export function EsatScorePanel({ items }: EsatScorePanelProps) {
         {m2Result     && <ModuleScoreCard result={m2Result}     label="Mathematics 2" />}
         {physicsResult && <ModuleScoreCard result={physicsResult} label="Physics"       />}
       </div>
-
-      {hasM1andM2 && (
-        <p className="sv-ambiguity-note">
-          Mathematics 1 (M-prefix) and Mathematics 2 (MM-prefix) are shown separately.
-          Mixed sessions spanning both modules may have different topic distributions
-          than the real exam.
-        </p>
-      )}
 
       <TopicModuleBreakdown items={items} />
 
