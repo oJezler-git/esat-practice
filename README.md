@@ -3,6 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Node >=20](https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white)
 ![Monorepo](https://img.shields.io/badge/repo-monorepo-1f6feb)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/oJezler-git/esat-practice)
 
 Monorepo for an ESAT prep platform with two apps:
 
