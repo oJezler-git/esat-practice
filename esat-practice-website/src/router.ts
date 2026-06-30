@@ -5,6 +5,7 @@ export const ROUTES = {
   results: "/results/:id",
   questionBank: "/question-bank",
   progress: "/progress",
+  history: "/history",
   settings: "/settings",
 } as const;
 

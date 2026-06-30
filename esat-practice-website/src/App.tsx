@@ -13,6 +13,7 @@ import SessionPage from "./pages/session";
 import ResultsPage from "./pages/results";
 import QuestionBank from "./pages/question-bank";
 import Progress from "./pages/progress";
+import History from "./pages/history";
 import Settings from "./pages/settings";
 import NotFound from "./pages/not-found";
 
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/results/:id" element={<ResultsPage />} />
           <Route path="/question-bank" element={<QuestionBank />} />
           <Route path="/progress" element={<Progress />} />
+          <Route path="/history" element={<History />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

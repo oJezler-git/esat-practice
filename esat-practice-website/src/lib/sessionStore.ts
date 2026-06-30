@@ -100,6 +100,12 @@ export async function getRecentSessions(limit: number = 10): Promise<Session[]> 
     .slice(0, limit);
 }
 
+export async function getAllSessions(): Promise<Session[]> {
+  const database = await getDb();
+  const sessions = await database.getAll("sessions");
+  return sessions.sort((left, right) => right.created_at - left.created_at);
+}
+
 export async function getAttemptsForSession(sessionId: string): Promise<Attempt[]> {
   const database = await getDb();
   const attemptsRaw = await database.getAllFromIndex(
@@ -208,6 +214,7 @@ export async function updateSessionQuestionIds(
 const sessionStoreApi = {
   createSession: createSessionRecord,
   getSession: getSessionById,
+  getAllSessions,
   getRecentSessions,
   getAttempts: getAttemptsForSession,
   upsertAttempt: upsertAttemptRecord,

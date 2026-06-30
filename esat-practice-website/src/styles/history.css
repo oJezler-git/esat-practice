@@ -1,0 +1,263 @@
+/* History page — activity heatmap + session log */
+
+:root {
+  --hist-cell-0: var(--surface-2);
+  --hist-cell-1: color-mix(in srgb, var(--accent) 22%, var(--surface-2));
+  --hist-cell-2: color-mix(in srgb, var(--accent) 48%, var(--surface-2));
+  --hist-cell-3: color-mix(in srgb, var(--accent) 74%, var(--surface-2));
+  --hist-cell-4: var(--accent);
+}
+
+/* ---- Stat strip ---- */
+.hist-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.hist-stat {
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  border-radius: 0.9rem;
+  padding: 1rem 0.75rem;
+  text-align: center;
+}
+
+.hist-stat--highlight {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.hist-stat__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.hist-stat--highlight .hist-stat__value {
+  color: var(--accent-strong);
+}
+
+.hist-stat__label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+/* ---- Heatmap card ---- */
+.hist-heatmap-section {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+}
+
+.hist-svg {
+  display: block;
+  overflow: visible;
+  margin-top: 0.25rem;
+}
+
+.hist-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+  justify-content: flex-end;
+}
+
+.hist-legend-text {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+}
+
+.hist-legend-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.hist-clear-btn {
+  font-size: 0.72rem;
+  color: var(--accent-strong);
+  padding: 0.18rem 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  transition: background 150ms;
+}
+
+.hist-clear-btn:hover {
+  background: var(--accent-soft);
+}
+
+/* ---- Session list ---- */
+.hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ---- Session card ---- */
+.hist-card {
+  display: grid;
+  grid-template-columns: 2.8rem 1fr auto;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--hist-border, var(--border-subtle));
+  border-radius: 0.75rem;
+  text-align: left;
+  width: 100%;
+  background: var(--surface-1);
+  transition: background 140ms ease, transform 160ms var(--motion-snappy);
+}
+
+.hist-card--clickable {
+  cursor: pointer;
+}
+
+.hist-card--clickable:hover {
+  background: var(--surface-2);
+  transform: translateX(3px);
+}
+
+.hist-card:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Date column */
+.hist-card__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.hist-card__day {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-card__month {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Body column */
+.hist-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.hist-card__top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.hist-card__score-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mode badges */
+.hist-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  background: var(--surface-2);
+  text-transform: capitalize;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.hist-badge--timed {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.hist-badge--mixed {
+  border-color: var(--color-amber);
+  color: var(--color-amber);
+  background: var(--color-amber-soft);
+}
+
+/* Score bar */
+.hist-score-bar {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+  display: flex;
+}
+
+.hist-score-bar__correct {
+  height: 100%;
+  background: var(--color-success-text);
+  transition: width 300ms ease;
+}
+
+.hist-score-bar__incorrect {
+  height: 100%;
+  background: var(--color-danger-text);
+  transition: width 300ms ease;
+}
+
+/* Meta row */
+.hist-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-meta-sep {
+  color: var(--border-strong);
+}
+
+/* Right column */
+.hist-card__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.hist-pct {
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.hist-card__duration {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-card__arrow {
+  font-size: 0.72rem;
+  color: var(--border-strong);
+  margin-top: 0.1rem;
+}

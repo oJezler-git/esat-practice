@@ -145,6 +145,14 @@ export default function ResultsPage() {
 
   return (
     <div className="page-shell max-w-3xl">
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="mb-6 flex items-center gap-1.5 text-sm text-muted hover:text-secondary transition-colors"
+      >
+        ← Back
+      </button>
+
       {autoExcludedCount !== null && (
         <div className="auto-exclude-notice">
           <span>

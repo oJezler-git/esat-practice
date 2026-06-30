@@ -7,6 +7,7 @@ const links = [
   { to: "/practice", label: "Practice" },
   { to: "/question-bank", label: "Bank" },
   { to: "/progress", label: "Progress" },
+  { to: "/history", label: "History" },
   { to: "/settings", label: "Settings" },
 ];
 
@@ -174,9 +175,9 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
             Math.abs(target.current.width - nextTarget.width) > 0.1 ||
             Math.abs(target.current.height - nextTarget.height) > 0.1;
 
+          setIsVisible(true);
           if (hasChanged) {
             target.current = nextTarget;
-            setIsVisible(true);
             startAnimation();
           }
         }
