@@ -1,0 +1,90 @@
+{
+  "m1/algebra": {
+    "title": "Algebra",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of M4. Algebra — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"M4. Algebra\">\nFind algebra questions\n</PracticeLink>"
+  },
+  "m1/geometry": {
+    "title": "Geometry",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of M5. Geometry — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"M5. Geometry\">\nFind geometry questions\n</PracticeLink>"
+  },
+  "m1/number": {
+    "title": "Number",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of M2. Number — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"M2. Number\">\nFind number questions\n</PracticeLink>"
+  },
+  "m1/probability": {
+    "title": "Probability",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of M7. Probability — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"M7. Probability\">\nFind probability questions\n</PracticeLink>"
+  },
+  "m1/ratio-and-proportion": {
+    "title": "Ratio and Proportion",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of M3. Ratio and Proportion — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"M3. Ratio and Proportion\">\nFind ratio and proportion questions\n</PracticeLink>"
+  },
+  "m1/statistics": {
+    "title": "Statistics",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of M6. Statistics — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"M6. Statistics\">\nFind statistics questions\n</PracticeLink>"
+  },
+  "m1/units": {
+    "title": "Units",
+    "content": "## M1.1 Standard and compound units\n\nEvery measurement question is really two questions: what quantity is this, and what unit is it sensible to measure it in? Pick a unit that keeps the number a manageable size.\n\n| Quantity | Common units |\n|---|---|\n| Mass | mg, g, kg, t |\n| Force | N |\n| Length | mm, cm, m, km |\n| Area | mm$^2$, cm$^2$, m$^2$, km$^2$ |\n| Capacity | ml, l |\n| Volume | mm$^3$, cm$^3$, m$^3$ (also ml, l) |\n| Time | seconds, minutes, hours, days, weeks, months, years |\n\n<Tip title=\"Match the unit to the scale\">\nA swimming pool's volume is measured in m$^3$, a kitchen floor's area in m$^2$, and a can of drink's volume in ml — using cm$^3$ or mm$^2$ for these would just produce unwieldy numbers.\n</Tip>\n\nFor capacity and volume specifically:\n\n$$\n1 \\text{ ml} = 1 \\text{ cm}^3, \\qquad 1 \\text{ l} = 1000 \\text{ cm}^3, \\qquad 1000 \\text{ l} = 1 \\text{ m}^3\n$$\n\n### Compound units\n\nA compound unit combines two measurements, such as metres and seconds into metres per second. It is always read as \"per\": km h$^{-1}$ means kilometres *per* hour.\n\n<FormulaCard title=\"Common compound units\">\n$$\n\\text{density} = \\frac{\\text{mass}}{\\text{volume}}, \\qquad\n\\text{average speed} = \\frac{\\text{distance travelled}}{\\text{time taken}}\n$$\n\n$$\n\\text{rate of pay} = \\frac{\\text{pay received}}{\\text{time worked}}, \\qquad\n\\text{pressure} = \\frac{\\text{perpendicular force}}{\\text{area}}\n$$\n</FormulaCard>\n\n<WorkedExample title=\"Unit cost of an item\">\n50 boxes of sweets cost £215. What is the unit cost of a box?\n\nThe unit cost is the cost of 1 box, so divide the total cost by the number of items:\n\n$$\n\\frac{215}{50} = 4.30\n$$\n\nA box costs £4.30.\n</WorkedExample>\n\n<Shortcut title=\"Reading off the units tells you the operation\">\nIf mass is in grams and volume is in cm$^3$, density comes out in g cm$^{-3}$ automatically — you don't need to remember the formula direction, just divide the first quantity by the second.\n</Shortcut>\n\n## M1.2 Converting between units\n\n### Standard unit conversions\n\n| Type | Conversions |\n|---|---|\n| Length | 1 km = 1000 m; 1 m = 100 cm = 1000 mm; 1 cm = 10 mm |\n| Area | 1 km$^2$ = 1 000 000 m$^2$; 1 m$^2$ = 10 000 cm$^2$; 1 cm$^2$ = 100 mm$^2$ |\n| Volume/capacity | 1 l = 1000 ml = 1000 cm$^3$; 1000 l = 1 m$^3$; 1 m$^3$ = 1 000 000 cm$^3$ |\n| Mass | 1 kg = 1000 g; 1 g = 1000 mg |\n| Time | 60 s = 1 min; 60 min = 1 hour; 24 hours = 1 day; 7 days = 1 week |\n\n<Trap title=\"Area and volume conversions are not the length factor\">\nConverting length multiplies by the linear factor once, but area squares it and volume cubes it. Since $1 \\text{ m} = 100 \\text{ cm}$, it follows that $1 \\text{ m}^2 = 100^2 \\text{ cm}^2 = 10\\,000 \\text{ cm}^2$ and $1 \\text{ m}^3 = 100^3 \\text{ cm}^3 = 1\\,000\\,000 \\text{ cm}^3$.\n</Trap>\n\n### Compound unit conversions\n\nTo convert a compound unit, convert each part separately, then recombine.\n\n<WorkedExample title=\"Density in different units\">\nA piece of metal has density $20 \\text{ g cm}^{-3}$. What is this in kg m$^{-3}$?\n\nWrite it as a fraction and convert each unit:\n\n$$\n20 \\text{ g cm}^{-3} = \\frac{20 \\text{ g}}{1 \\text{ cm}^3} = \\frac{20 \\div 1000 \\text{ kg}}{1 \\div 1\\,000\\,000 \\text{ m}^3} = \\frac{0.02 \\text{ kg}}{0.000001 \\text{ m}^3} = 20\\,000 \\text{ kg m}^{-3}\n$$\n</WorkedExample>\n\n<WorkedExample title=\"Average speed with mixed units\">\nA car travels 35 000 m in 30 minutes. What is its average speed in km h$^{-1}$?\n\nConvert distance to km and time to hours first:\n\n$$\n35\\,000 \\text{ m} = 35 \\text{ km}, \\qquad 30 \\text{ min} = 0.5 \\text{ hours}\n$$\n\nThen apply the formula:\n\n$$\n\\text{average speed} = \\frac{35}{0.5} = 70 \\text{ km h}^{-1}\n$$\n</WorkedExample>\n\n## Formula and shortcut summary\n\n- $\\text{density} = \\dfrac{\\text{mass}}{\\text{volume}}$\n- $\\text{average speed} = \\dfrac{\\text{distance}}{\\text{time}}$\n- $\\text{rate of pay} = \\dfrac{\\text{pay}}{\\text{time worked}}$\n- $\\text{pressure} = \\dfrac{\\text{force}}{\\text{area}}$\n- $\\text{unit cost} = \\dfrac{\\text{total cost}}{\\text{number of items}}$\n- Length $\\times 1$, area $\\times$ (factor)$^2$, volume $\\times$ (factor)$^3$ when converting\n\n<PracticeLink topic=\"M1. Units\">\nFind units questions\n</PracticeLink>"
+  },
+  "m2/algebra-and-functions": {
+    "title": "Algebra and Functions",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM1. Algebra and Functions — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM1. Algebra and Functions\">\nFind algebra and functions questions\n</PracticeLink>"
+  },
+  "m2/coordinate-geometry": {
+    "title": "Coordinate Geometry",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM3. Coordinate Geometry — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM3. Coordinate Geometry\">\nFind coordinate geometry questions\n</PracticeLink>"
+  },
+  "m2/differentiation": {
+    "title": "Differentiation",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM6. Differentiation — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM6. Differentiation\">\nFind differentiation questions\n</PracticeLink>"
+  },
+  "m2/exponentials-and-logarithms": {
+    "title": "Exponentials and Logarithms",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM5. Exponentials and Logarithms — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM5. Exponentials and Logarithms\">\nFind exponentials and logarithms questions\n</PracticeLink>"
+  },
+  "m2/graphs-of-functions": {
+    "title": "Graphs of Functions",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM8. Graphs of Functions — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM8. Graphs of Functions\">\nFind graphs of functions questions\n</PracticeLink>"
+  },
+  "m2/integration": {
+    "title": "Integration",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM7. Integration — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM7. Integration\">\nFind integration questions\n</PracticeLink>"
+  },
+  "m2/sequences-and-series": {
+    "title": "Sequences and Series",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM2. Sequences and Series — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM2. Sequences and Series\">\nFind sequences and series questions\n</PracticeLink>"
+  },
+  "m2/trigonometry": {
+    "title": "Trigonometry",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of MM4. Trigonometry — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"MM4. Trigonometry\">\nFind trigonometry questions\n</PracticeLink>"
+  },
+  "physics/electricity": {
+    "title": "Electricity",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P1. Electricity — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P1. Electricity\">\nFind electricity questions\n</PracticeLink>"
+  },
+  "physics/magnetism": {
+    "title": "Magnetism",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P2. Magnetism — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P2. Magnetism\">\nFind magnetism questions\n</PracticeLink>"
+  },
+  "physics/matter": {
+    "title": "Matter",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P5. Matter — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P5. Matter\">\nFind matter questions\n</PracticeLink>"
+  },
+  "physics/mechanics": {
+    "title": "Mechanics",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P3. Mechanics — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P3. Mechanics\">\nFind mechanics questions\n</PracticeLink>"
+  },
+  "physics/radioactivity": {
+    "title": "Radioactivity",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P7. Radioactivity — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P7. Radioactivity\">\nFind radioactivity questions\n</PracticeLink>"
+  },
+  "physics/thermal-physics": {
+    "title": "Thermal Physics",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P4. Thermal Physics — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P4. Thermal Physics\">\nFind thermal physics questions\n</PracticeLink>"
+  },
+  "physics/waves": {
+    "title": "Waves",
+    "content": "## What you need to know\n\nThis guide is a placeholder. The full breakdown of P6. Waves — core facts, fast methods, worked examples, and common traps — is coming soon.\n\n<PracticeLink topic=\"P6. Waves\">\nFind waves questions\n</PracticeLink>"
+  }
+}

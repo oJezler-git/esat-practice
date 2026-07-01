@@ -5,6 +5,8 @@ function makeEnv({
   kvGetResult = null,
   kvPutResult = undefined,
   rateLimitSuccess = true,
+  aiRateLimitSuccess = true,
+  geminiApiKey = "test-key",
 } = {}) {
   return {
     KV: {
@@ -14,6 +16,10 @@ function makeEnv({
     RATE_LIMITER: {
       limit: vi.fn().mockResolvedValue({ success: rateLimitSuccess }),
     },
+    AI_RATE_LIMITER: {
+      limit: vi.fn().mockResolvedValue({ success: aiRateLimitSuccess }),
+    },
+    GEMINI_API_KEY: geminiApiKey,
   };
 }
 
@@ -244,5 +250,137 @@ describe("POST /sync/create — key generation", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.key).toMatch(/^cool-words-\d{5}$/);
+  });
+});
+
+describe("POST /revision/ask", () => {
+  function mockGeminiResponse(text) {
+    return vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+  }
+
+  it("returns 400 for an invalid JSON body", async () => {
+    const req = new Request("https://sync.example.com/revision/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "CF-Connecting-IP": "1.2.3.4" },
+      body: "not valid json {{{",
+    });
+    const res = await worker.fetch(req, makeEnv());
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for an empty question", async () => {
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", { method: "POST", body: { moduleSlug: "m1", topicSlug: "units", question: "  " } }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for a question over the length limit", async () => {
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "a".repeat(401) },
+      }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 404 for an unknown topic", async () => {
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "nope", topicSlug: "nope", question: "What is a unit?" },
+      }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 503 when GEMINI_API_KEY is not configured", async () => {
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "What is a unit?" },
+      }),
+      makeEnv({ geminiApiKey: null }),
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("returns 429 when the AI rate limit is exceeded", async () => {
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "What is a unit?" },
+      }),
+      makeEnv({ aiRateLimitSuccess: false }),
+    );
+    expect(res.status).toBe(429);
+  });
+
+  it("returns 200 with the answer text from Gemini on success", async () => {
+    global.fetch = mockGeminiResponse("Use SI units and keep the number sensible.");
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "What is a unit?" },
+      }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.answer).toBe("Use SI units and keep the number sensible.");
+
+    const [, requestInit] = global.fetch.mock.calls[0];
+    const sentBody = JSON.parse(requestInit.body);
+    expect(sentBody.system_instruction.parts[0].text).toContain("Units");
+    expect(sentBody.contents.at(-1)).toEqual({ role: "user", parts: [{ text: "What is a unit?" }] });
+  });
+
+  it("returns 502 when Gemini responds with a non-OK status", async () => {
+    global.fetch = vi.fn().mockResolvedValue(new Response("error", { status: 500 }));
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "What is a unit?" },
+      }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(502);
+  });
+
+  it("returns 429 when Gemini itself rate-limits the request", async () => {
+    global.fetch = vi.fn().mockResolvedValue(new Response("busy", { status: 429 }));
+    const res = await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "What is a unit?" },
+      }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(429);
+  });
+
+  it("caps history to the last 4 turns and forwards them to Gemini", async () => {
+    global.fetch = mockGeminiResponse("ok");
+    const history = Array.from({ length: 6 }, (_, i) => ({ role: "user", text: `turn ${i}` }));
+    await worker.fetch(
+      makeRequest("/revision/ask", {
+        method: "POST",
+        body: { moduleSlug: "m1", topicSlug: "units", question: "final question", history },
+      }),
+      makeEnv(),
+    );
+    const [, requestInit] = global.fetch.mock.calls[0];
+    const sentBody = JSON.parse(requestInit.body);
+    expect(sentBody.contents).toHaveLength(5); // 4 history turns + the new question
+    expect(sentBody.contents[0].parts[0].text).toBe("turn 2");
   });
 });

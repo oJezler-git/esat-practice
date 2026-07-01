@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { getRevisionModule } from "../../content/revision/manifest";
 import type { RevisionDoc, RevisionHeading } from "../../content/revision/types";
+import { RevisionAsk } from "./RevisionAsk";
 import { useActiveHeading } from "./useActiveHeading";
 
 export function RevisionLayout({
@@ -71,6 +72,15 @@ export function RevisionLayout({
             )}
           </div>
         </aside>
+      )}
+
+      {currentDoc && (
+        <RevisionAsk
+          moduleSlug={currentDoc.meta.module}
+          topicSlug={currentDoc.meta.slug}
+          docId={currentDoc.id}
+          docTitle={currentDoc.meta.title}
+        />
       )}
     </div>
   );

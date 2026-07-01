@@ -14,3 +14,15 @@ namespace_id = "1001"
 [ratelimits.simple]
 limit = 30
 period = 60
+
+# Separate, stricter limiter for the AI endpoint since each request costs LLM tokens.
+[[ratelimits]]
+name = "AI_RATE_LIMITER"
+namespace_id = "1002"
+
+[ratelimits.simple]
+limit = 8
+period = 60
+
+# GEMINI_API_KEY is a secret, not a var — set it with:
+#   npx wrangler secret put GEMINI_API_KEY

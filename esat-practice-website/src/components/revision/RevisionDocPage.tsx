@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { findRevisionDoc, getRevisionModule } from "../../content/revision/manifest";
+import { stripMdxExports } from "../../content/revision/mdxSource";
 import { buildUniqueHeadingId } from "../../content/revision/slug";
 import type { RevisionHeading } from "../../content/revision/types";
 import { revisionMdxComponents } from "./RevisionMdxComponents";
@@ -88,32 +89,4 @@ export function RevisionDocPage() {
       </article>
     </RevisionLayout>
   );
-}
-
-export function stripMdxExports(raw: string): string {
-  const marker = "export const meta = {";
-  const start = raw.indexOf(marker);
-  if (start === -1) {
-    return raw.trim();
-  }
-
-  let depth = 0;
-  let end = start + marker.length - 1;
-  for (; end < raw.length; end += 1) {
-    if (raw[end] === "{") {
-      depth += 1;
-    } else if (raw[end] === "}") {
-      depth -= 1;
-      if (depth === 0) {
-        end += 1;
-        break;
-      }
-    }
-  }
-
-  if (raw[end] === ";") {
-    end += 1;
-  }
-
-  return raw.slice(end).trim();
 }

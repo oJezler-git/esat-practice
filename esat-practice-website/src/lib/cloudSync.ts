@@ -174,7 +174,7 @@ async function importData(payload: SyncPayload): Promise<void> {
 // Public API
 // ---------------------------------------------------------------------------
 
-function getApiUrl(): string {
+export function getApiUrl(): string {
   const url = import.meta.env.VITE_SYNC_API_URL as string | undefined;
   if (!url) throw new Error("VITE_SYNC_API_URL is not set. Deploy the Cloudflare Worker and add the URL to your .env.local.");
   return url.replace(/\/$/, "");
