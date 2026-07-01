@@ -314,6 +314,9 @@
   color: var(--text-primary);
   font-size: 0.88rem;
   font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .rev-ask-drawer-close {
@@ -390,18 +393,19 @@
   gap: 0.9rem;
 }
 
-.rev-ask-turn p {
+.rev-ask-turn--user p {
+  align-self: flex-end;
   margin: 0;
   padding: 0.6rem 0.8rem;
   border-radius: 0.65rem;
   font-size: 0.86rem;
   line-height: 1.6;
-}
-
-.rev-ask-turn--user p {
-  align-self: flex-end;
   background: var(--color-accent-soft);
   color: var(--text-primary);
+}
+
+.rev-ask-markdown p {
+  margin: 0.5rem 0;
 }
 
 .rev-ask-turn--user {
@@ -409,9 +413,37 @@
   justify-content: flex-end;
 }
 
-.rev-ask-turn--model p {
+.rev-ask-turn--model .rev-ask-markdown {
   background: var(--surface-1);
   color: var(--text-secondary);
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.65rem;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.rev-ask-markdown > :first-child {
+  margin-top: 0;
+}
+
+.rev-ask-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.rev-ask-markdown pre {
+  overflow-x: auto;
+  background: var(--surface-2);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.rev-ask-markdown code {
+  font-size: 0.82em;
+}
+
+.rev-ask-markdown ul,
+.rev-ask-markdown ol {
+  padding-left: 1.2rem;
 }
 
 .rev-ask-loading,
@@ -443,6 +475,38 @@
   }
   to {
     background-position: -200% 0;
+  }
+}
+
+/* Animated circle shown while typewriter is mid-stream */
+.rev-ask-indicator {
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  margin-left: 0.35em;
+  vertical-align: middle;
+  background: var(--text-muted);
+  border-radius: 50%;
+  animation: rev-ask-indicator-pulse 1s ease-in-out infinite;
+}
+
+@keyframes rev-ask-indicator-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* Respect prefers-reduced-motion: disable shimmer + cursor blink */
+@media (prefers-reduced-motion: reduce) {
+  .rev-ask-loading {
+    animation: none;
+    background: none;
+    color: var(--text-muted);
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+
+  .rev-ask-indicator {
+    animation: none;
   }
 }
 

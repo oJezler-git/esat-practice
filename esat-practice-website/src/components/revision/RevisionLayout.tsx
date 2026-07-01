@@ -79,7 +79,6 @@ export function RevisionLayout({
           moduleSlug={currentDoc.meta.module}
           topicSlug={currentDoc.meta.slug}
           docId={currentDoc.id}
-          docTitle={currentDoc.meta.title}
         />
       )}
     </div>

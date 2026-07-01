@@ -30,3 +30,24 @@ Object.defineProperty(window, "ResizeObserver", {
   configurable: true,
   value: MockResizeObserver,
 });
+
+if (typeof window.requestAnimationFrame !== "function") {
+  window.requestAnimationFrame = (callback: FrameRequestCallback) =>
+    window.setTimeout(() => callback(performance.now()), 16);
+  window.cancelAnimationFrame = (handle: number) => window.clearTimeout(handle);
+}
+
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  configurable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+});

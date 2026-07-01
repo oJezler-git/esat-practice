@@ -69,26 +69,46 @@ async function handleRevisionAsk(request, env) {
       body: JSON.stringify({
         system_instruction: { parts: [{ text: buildSystemInstruction(doc.title, doc.content) }] },
         contents,
-        generationConfig: { maxOutputTokens: 500, temperature: 0.3 },
+        generationConfig: {
+          maxOutputTokens: 1024,
+          temperature: 0.3,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       }),
     });
-  } catch {
-    return new Response("Could not reach the AI provider.", { status: 502, headers: CORS });
+  } catch (err) {
+    return new Response(`Could not reach the AI provider: ${err instanceof Error ? err.message : String(err)}`, {
+      status: 502,
+      headers: CORS,
+    });
   }
 
   if (!geminiResponse.ok) {
     const status = geminiResponse.status === 429 ? 429 : 502;
-    return new Response(
-      status === 429 ? "The AI assistant is busy. Try again shortly." : "The AI assistant failed to respond.",
-      { status, headers: CORS },
-    );
+    const rawBody = await geminiResponse.text().catch(() => "");
+    let detail = rawBody;
+    try {
+      detail = JSON.parse(rawBody)?.error?.message ?? rawBody;
+    } catch {
+      // rawBody wasn't JSON — use it as-is.
+    }
+    const prefix =
+      status === 429
+        ? "Gemini's free-tier rate limit was hit"
+        : `Gemini API request failed (HTTP ${geminiResponse.status})`;
+    return new Response(detail ? `${prefix}: ${detail}` : `${prefix}.`, { status, headers: CORS });
   }
 
   const data = await geminiResponse.json();
-  const answer = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  const candidate = data.candidates?.[0];
+  const answer = candidate?.content?.parts?.[0]?.text?.trim();
 
   if (!answer) {
-    return new Response("The AI assistant did not return an answer.", { status: 502, headers: CORS });
+    const reason = candidate?.finishReason ?? "unknown reason";
+    return new Response(`The AI assistant did not return an answer (finish reason: ${reason}).`, {
+      status: 502,
+      headers: CORS,
+    });
   }
 
   return new Response(JSON.stringify({ answer }), {
@@ -189,7 +209,10 @@ export default {
       const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
       const { success } = await env.AI_RATE_LIMITER.limit({ key: ip });
       if (!success) {
-        return new Response("Too many requests", { status: 429, headers: CORS });
+        return new Response("You've hit this site's AI request limit. Wait a minute and try again.", {
+          status: 429,
+          headers: CORS,
+        });
       }
       return handleRevisionAsk(request, env);
     }

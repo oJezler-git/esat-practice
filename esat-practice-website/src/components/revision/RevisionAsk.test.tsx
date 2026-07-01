@@ -4,7 +4,7 @@ import { RevisionAsk } from "./RevisionAsk";
 import * as revisionAsk from "../../lib/revisionAsk";
 
 function renderAsk(docId = "m1/units") {
-  return render(<RevisionAsk moduleSlug="m1" topicSlug="units" docId={docId} docTitle="Units" />);
+  return render(<RevisionAsk moduleSlug="m1" topicSlug="units" docId={docId} />);
 }
 
 describe("RevisionAsk", () => {
@@ -70,7 +70,7 @@ describe("RevisionAsk", () => {
     fireEvent.click(screen.getByRole("button", { name: /send/i }));
     await screen.findByText("An answer.");
 
-    rerender(<RevisionAsk moduleSlug="m1" topicSlug="algebra" docId="m1/algebra" docTitle="Algebra" />);
+    rerender(<RevisionAsk moduleSlug="m1" topicSlug="algebra" docId="m1/algebra" />);
     expect(screen.queryByText("Q1")).not.toBeInTheDocument();
     expect(screen.queryByText("An answer.")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ask ai/i })).toBeInTheDocument();
