@@ -8,6 +8,7 @@ export const ROUTES = {
   history: "/history",
   settings: "/settings",
   scoreReference: "/score-reference",
+  revision: "/revision",
 } as const;
 
 export const routeForSession = (sessionId: string): string =>

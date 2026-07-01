@@ -6,6 +6,7 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/practice", label: "Practice" },
   { to: "/question-bank", label: "Bank" },
+  { to: "/revision", label: "Revision" },
   { to: "/progress", label: "Progress" },
   { to: "/history", label: "History" },
   { to: "/settings", label: "Settings" },

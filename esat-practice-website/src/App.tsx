@@ -17,6 +17,8 @@ import History from "./pages/history";
 import Settings from "./pages/settings";
 import NotFound from "./pages/not-found";
 import ScoreReference from "./pages/score-reference";
+import RevisionHome from "./pages/revision";
+import RevisionDocPage from "./pages/revision/doc";
 
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
@@ -56,6 +58,8 @@ export default function App() {
           <Route path="/history" element={<History />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/score-reference" element={<ScoreReference />} />
+          <Route path="/revision" element={<RevisionHome />} />
+          <Route path="/revision/:moduleSlug/:topicSlug" element={<RevisionDocPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
