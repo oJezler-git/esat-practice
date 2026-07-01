@@ -1,11 +1,35 @@
 import { defineConfig } from "vitest/config";
+import mdx from "@mdx-js/rollup";
 import react from "@vitejs/plugin-react";
+import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
+
+const mdxPlugin = mdx({
+  remarkPlugins: [remarkGfm, remarkMath],
+  rehypePlugins: [rehypeKatex],
+});
+
+// @mdx-js/rollup strips the query string before checking the file extension, so it
+// recompiles .mdx files requested with ?raw into MDX components instead of leaving
+// them as plain text. Skip MDX compilation for those requests so Vite's own ?raw
+// handling can return the raw source.
+const mdxPluginRawSafe = {
+  ...mdxPlugin,
+  transform(code: string, id: string) {
+    if (id.includes("?raw")) {
+      return null;
+    }
+    return mdxPlugin.transform(code, id);
+  },
+};
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
+    mdxPluginRawSafe,
     react(),
     VitePWA({
       registerType: "prompt",
