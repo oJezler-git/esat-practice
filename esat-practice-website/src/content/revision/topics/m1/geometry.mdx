@@ -2,18 +2,548 @@ export const meta = {
   slug: "geometry",
   module: "m1",
   title: "Geometry",
-  subtitle: "Placeholder overview for M5. Geometry — full guide coming soon.",
+  subtitle: "Angle facts, shapes, congruence and similarity, transformations, Pythagoras, circle theorems, trigonometry, and vectors.",
   topicCode: "M5",
-  estimatedMinutes: 5,
+  estimatedMinutes: 30,
   order: 50,
   relatedQuestionFilters: {
     topics: ["M5. Geometry"],
   },
 };
 
-## What you need to know
+## M5.1 Terms and notation
 
-This guide is a placeholder. The full breakdown of M5. Geometry — core facts, fast methods, worked examples, and common traps — is coming soon.
+| Term | Meaning |
+|---|---|
+| Point | A single position |
+| Line | Infinitely long, one-dimensional |
+| Line segment | Part of a line, with two endpoints |
+| Vertex / vertices | A corner, where edges meet |
+| Edge | A side of a polygon or polyhedron |
+| Plane | A flat surface |
+| Parallel lines | Always the same perpendicular distance apart (shown with arrows) |
+| Perpendicular lines | Meet at a right angle |
+| Subtended angle | The angle formed at a point by two rays through the ends of a line/arc |
+| Regular polygon | All sides equal *and* all angles equal |
+
+A shape's **line symmetry** counts the mirror lines that map it onto itself; its **order of rotational symmetry** counts how many times it fits its own outline in one full turn. Regular polygons generally have both equal to the number of sides.
+
+<Tip title="Regular polygon symmetry is just 'count the sides'">
+A regular polygon with $n$ sides has $n$ lines of symmetry and rotational symmetry of order $n$ — you never need to sketch every reflection to find this.
+</Tip>
+
+## M5.2 Angle facts and polygon angle sums
+
+<FormulaCard title="Core angle facts">
+$$
+\text{angles at a point} = 360°, \qquad \text{angles on a straight line} = 180°, \qquad \text{vertically opposite angles are equal}
+$$
+
+$$
+\text{angle sum of a triangle} = 180°, \qquad \text{exterior angle of a triangle} = \text{sum of the two opposite interior angles}
+$$
+
+$$
+\text{interior angle sum of an $n$-gon} = 180(n-2)°, \qquad \text{exterior angle sum of any polygon} = 360°
+$$
+</FormulaCard>
+
+<svg viewBox="0 0 260 140" width="100%" height="auto" role="img" aria-label="Two parallel lines cut by a transversal, showing alternate, corresponding, and co-interior angle pairs">
+  <line x1="20" y1="35" x2="240" y2="35" stroke="var(--border-subtle)" strokeWidth="2" />
+  <line x1="20" y1="105" x2="240" y2="105" stroke="var(--border-subtle)" strokeWidth="2" />
+  <line x1="70" y1="10" x2="190" y2="130" stroke="var(--color-accent-strong)" strokeWidth="2" />
+  <text x="10" y="30" fontSize="10" fill="var(--text-muted)">l₁</text>
+  <text x="10" y="100" fontSize="10" fill="var(--text-muted)">l₂</text>
+  <text x="105" y="28" fontSize="10" fill="var(--text-secondary)">d</text>
+  <text x="83" y="45" fontSize="10" fill="var(--text-secondary)">c</text>
+  <text x="150" y="100" fontSize="10" fill="var(--text-secondary)">f</text>
+  <text x="172" y="118" fontSize="10" fill="var(--text-secondary)">e</text>
+</svg>
+
+At a transversal crossing two parallel lines: alternate angles are equal ("Z" shape), corresponding angles are equal ("F" shape), and co-interior (allied) angles sum to $180°$ ("C" shape).
+
+<WorkedExample title="Combining several angle facts">
+Find angle $a$ where a transversal crosses two parallel lines, and the angle on the other line co-interior with $a$'s corresponding angle is $35°$.
+
+$$
+b = 180°-35° = 145° \ (\text{straight line}), \qquad a = b = 145° \ (\text{corresponding})
+$$
+</WorkedExample>
+
+<WorkedExample title="Angles in a pentagon">
+Three angles of a pentagon are $100°,110°,82°$; the other two are equal. Find each.
+
+$$
+\text{sum} = 180(5-2) = 540°, \qquad 540-(100+110+82) = 248°, \qquad 248\div2 = 124°
+$$
+</WorkedExample>
+
+<Shortcut title="Interior + exterior angle always add to 180°">
+For a regular polygon, it's usually faster to find the exterior angle first ($360°\div n$) and subtract from $180°$, rather than computing the full interior angle sum and dividing — e.g. a regular 12-gon: exterior $=360\div12=30°$, interior $=180-30=150°$.
+</Shortcut>
+
+## M5.3 Quadrilaterals and triangles
+
+| Quadrilateral | Key properties |
+|---|---|
+| Square | All sides equal, all angles $90°$, 4 lines of symmetry, rotational order 4 |
+| Rectangle | 2 pairs parallel sides, all angles $90°$, 2 lines of symmetry, rotational order 2 |
+| Parallelogram | 2 pairs parallel sides, opposite sides equal, opposite angles equal, no line symmetry (usually), rotational order 2 |
+| Trapezium | Exactly one pair of parallel sides |
+| Kite | 2 pairs of adjacent equal sides, 1 line of symmetry, diagonals meet at right angles |
+| Rhombus | All sides equal, 2 pairs parallel sides, diagonals bisect each other at right angles, 2 lines of symmetry |
+
+Triangles are classified by angles (acute / right-angled / obtuse) and by sides: **scalene** (no equal sides), **isosceles** (2 equal sides, 1 line of symmetry), **equilateral** (3 equal sides, 3 lines of symmetry, rotational order 3).
+
+<WorkedExample title="Identifying a quadrilateral from a construction">
+Two identical equilateral triangles are joined along one edge. Name the resulting quadrilateral.
+
+All 4 sides are equal, so it's a rhombus or square — but the angles are $60°,120°,60°,120°$, not all $90°$, so it's a **rhombus**, with 2 lines of symmetry and rotational order 2.
+</WorkedExample>
+
+<Trap title="A kite's diagonals meet at right angles, but don't necessarily bisect each other">
+Only the diagonal *between the two pairs of equal sides* is bisected by the other — don't assume both diagonals of a kite behave like a rhombus's.
+</Trap>
+
+## M5.4 Congruence criteria for triangles
+
+| Criterion | What must match |
+|---|---|
+| SSS | All three sides |
+| SAS | Two sides and the angle *between* them |
+| ASA | Two angles and a corresponding side |
+| RHS | Right angle, hypotenuse, and one other side |
+
+<Trap title="SAS needs the included angle — not just any matching angle">
+If the equal angle isn't sandwiched between the two equal sides, the triangles are **not** guaranteed congruent, even though all three corresponding measurements might look similar at a glance. Always check the angle sits between the two known sides before claiming SAS.
+</Trap>
+
+<WorkedExample title="Proving congruence with SSS">
+$PQR$ is isosceles with $PQ=PR$. $S$ is the midpoint of $QR$. Show $\triangle PQS \equiv \triangle PRS$.
+
+$$
+PQ=PR \ (\text{given}), \qquad PS \text{ is common}, \qquad QS=SR \ (\text{$S$ is the midpoint})
+$$
+
+So $\triangle PQS \equiv \triangle PRS$ (SSS).
+</WorkedExample>
+
+<WorkedExample title="Proving congruence with RHS">
+$AB$ is a diameter of circle $S$; $C,D$ are on the circumference on opposite sides of $AB$, with $AC=BD$. Show $\triangle ACB \equiv \triangle ADB$.
+
+$$
+\angle ACB = \angle ADB = 90° \ (\text{angle in a semicircle}), \qquad AB \text{ is the shared hypotenuse}, \qquad AC=BD \ (\text{given})
+$$
+
+So $\triangle ACB \equiv \triangle ADB$ (RHS).
+</WorkedExample>
+
+## M5.5 Combining angle facts with congruence and similarity
+
+Multi-step angle problems almost always come down to: mark every equal length and given angle onto the diagram first, spot which triangles are isosceles (equal sides → equal base angles), then chase the angles around.
+
+<WorkedExample title="Chaining isosceles-triangle angle facts">
+$\triangle ABC$ is isosceles with $AB=AC$ and $\angle BAC=50°$. $\triangle CAD$ is isosceles with $CA=AD$ and $\angle CAD=18°$, in the same plane. Find $\angle DBC$.
+
+$$
+\angle ABC = \angle ACB = \frac{180-50}{2} = 65° \qquad (\triangle ABC \text{ isosceles})
+$$
+
+$$
+\angle BAD = 50°+18° = 68°, \qquad \angle ABD = \angle ADB = \frac{180-68}{2} = 56° \qquad (\triangle ABD \text{ isosceles, since } AB=AD)
+$$
+
+$$
+\angle DBC = \angle ABC - \angle ABD = 65°-56° = 9°
+$$
+</WorkedExample>
+
+<Shortcut title="Look for a shared equal length to spot a hidden isosceles triangle">
+If two of the marked-equal lengths share a vertex (like $AB=AC=AD$ above), a *third* isosceles triangle is often hiding in the diagram even though it wasn't stated directly — always mark all equal lengths before hunting for the angle chain.
+</Shortcut>
+
+## M5.6 Transformations: rotation, reflection, translation, enlargement
+
+| Transformation | Preserves | Defined by |
+|---|---|---|
+| Rotation | Size and shape (congruent) | Centre, angle, direction |
+| Reflection | Size and shape (congruent, but "flipped") | Mirror line |
+| Translation | Size and shape (congruent) | Vector $\binom{a}{b}$ |
+| Enlargement | Shape only (similar, not congruent unless scale factor $\pm1$) | Centre, scale factor |
+
+A translation vector $\binom{a}{b}$ moves $a$ squares right (negative = left) and $b$ squares up (negative = down). For an enlargement of scale factor $k$ about centre $P$, the image of point $A$ is:
+
+$$
+A' = P + k(A-P)
+$$
+
+A negative scale factor puts the image on the *opposite* side of the centre; a scale factor between $-1$ and $1$ shrinks the object.
+
+<WorkedExample title="Rotating a point using coordinates">
+Rotate $A(1,0)$ through $90°$ anticlockwise about $(5,5)$.
+
+$A$ is 4 left and 5 down from the centre: $(-4,-5)$ relative to $(5,5)$. Rotating $(x,y)\to(-y,x)$ for $90°$ anticlockwise gives $(5,-4)$, so:
+
+$$
+A' = (5,5) + (5,-4) = (10,1)
+$$
+</WorkedExample>
+
+<WorkedExample title="Enlargement using the vector method">
+Enlarge $A(2,2)$ by scale factor 2 about $P(0,4)$.
+
+$$
+A-P = (2,-2), \qquad A' = P + 2(A-P) = (0,4)+(4,-4) = (4,0)
+$$
+</WorkedExample>
+
+<Trap title="Track the sign of every coordinate in A − P carefully">
+A single dropped minus sign in $A-P$ sends the image to entirely the wrong quadrant. Compute $A-P$ as one clean subtraction before multiplying by the scale factor, rather than trying to do it in your head.
+</Trap>
+
+<Tip title="Two reflections in non-parallel lines make one rotation">
+Combining two reflections is equivalent to a single rotation (if the mirror lines cross) or a single translation (if they're parallel) — you never need to describe "reflect, then reflect" as the final answer if a single transformation is asked for.
+</Tip>
+
+## M5.7 Pythagoras' theorem
+
+$$
+a^2+b^2=c^2 \qquad (c = \text{hypotenuse, opposite the right angle})
+$$
+
+In 3D, for a cuboid with edges $a,b,c$ and space diagonal $d$: $a^2+b^2+c^2=d^2$ (apply 2D Pythagoras twice).
+
+<WorkedExample title="Distance between two coordinates">
+Find the distance between $M(-1,-1)$ and $N(2,3)$.
+
+$$
+MN^2 = 3^2+4^2 = 25, \qquad MN=5
+$$
+</WorkedExample>
+
+<WorkedExample title="Checking whether a triangle is right-angled">
+$PQ=15,\ QR=8,\ PR=17$. Is $\triangle PQR$ right-angled?
+
+$$
+PQ^2+QR^2 = 225+64 = 289 = 17^2 = PR^2
+$$
+
+Since Pythagoras' theorem holds with $PR$ as hypotenuse, the triangle **is** right-angled.
+</WorkedExample>
+
+<Shortcut title="Check Pythagoras against the longest side only">
+You only ever need to test one combination: (sum of the two shorter sides squared) vs. (longest side squared). If they're not equal, the triangle definitely isn't right-angled — no need to try the other pairings.
+</Shortcut>
+
+## M5.8 Circle vocabulary
+
+| Term | Meaning |
+|---|---|
+| Radius | Centre to circumference |
+| Diameter | Through the centre, endpoint to endpoint ($=2\times$ radius) |
+| Chord | Any line joining two points on the circumference |
+| Tangent | Touches the circle at exactly one point |
+| Arc | Part of the circumference (minor = shorter, major = longer) |
+| Sector | Bounded by two radii and an arc |
+| Segment | Bounded by a chord and an arc |
+
+<Tip title="A chord splits into segments; radii split into sectors">
+Don't mix these up: a segment always comes from a **chord**, a sector always comes from **two radii** — they look similar but are bounded differently, and circle theorem questions rely on you telling them apart.
+</Tip>
+
+## M5.9 Circle theorems
+
+<FormulaCard title="The core theorems">
+- Angle at the centre $=2\times$ angle at the circumference (same arc).
+- Angle in a semicircle $=90°$.
+- Angles in the same segment (same chord, same side) are equal.
+- Alternate segment theorem: angle between a tangent and a chord $=$ angle in the alternate segment.
+- Angle between a radius and a tangent $=90°$.
+- Cyclic quadrilateral: opposite angles sum to $180°$; exterior angle $=$ opposite interior angle.
+</FormulaCard>
+
+<WorkedExample title="Angle at the centre — watch for the reflex angle">
+$A,B,C$ are on a circle centre $O$. The *obtuse* angle $AOB=130°$. Find $\angle ACB$.
+
+The angle at the centre subtending the *same arc* as $\angle ACB$ is the **reflex** angle, not the obtuse one shown:
+
+$$
+\text{reflex } \angle AOB = 360°-130° = 230°, \qquad \angle ACB = 230°\div2 = 115°
+$$
+</WorkedExample>
+
+<WorkedExample title="Alternate segment theorem">
+$BDE$ is inscribed in a circle; $ABC$ is a tangent at $B$. $\angle BDE=68°$, $\angle EBC=58°$. Find $\angle BED$.
+
+$$
+\angle ABD = 180°-68°-58° = 54° \qquad (\text{angles on a straight line, using triangle } BDE)
+$$
+
+By the alternate segment theorem, the angle between tangent and chord $BD$ equals the angle in the alternate segment:
+
+$$
+\angle BED = \angle ABD = 54°
+$$
+</WorkedExample>
+
+<Trap title="Angle at the centre must use the SAME arc as the circumference angle">
+Before doubling or halving, check carefully whether the given central angle is the one on the same side of the chord as the circumference angle, or its reflex partner — this is the single most common circle-theorem slip.
+</Trap>
+
+<Shortcut title="Tangent-and-radius questions usually hide a quadrilateral">
+When two tangents are drawn from an external point, the two radii-to-tangent-points and the two tangent segments form a quadrilateral (angle sum $360°$) with two known right angles — that's almost always the fastest route to the unknown angle at the centre.
+</Shortcut>
+
+## M5.10 Geometry on coordinate axes
+
+$$
+AB^2 = (x_2-x_1)^2+(y_2-y_1)^2, \qquad \text{midpoint of } A(a,b),\ C(c,d) = \left(\frac{a+c}{2},\ \frac{b+d}{2}\right)
+$$
+
+<WorkedExample title="Distance and midpoint together">
+$A(2,-3)$, $B(-4,5)$. Find $AB$ and the midpoint of $AB$.
+
+$$
+AB^2 = 6^2+8^2 = 100, \qquad AB=10, \qquad \text{midpoint} = \left(\frac{2-4}{2},\frac{-3+5}{2}\right) = (-1,1)
+$$
+</WorkedExample>
+
+<Shortcut title="Sketch the right-angled triangle before reaching for the distance formula">
+Draw the horizontal and vertical gaps between the two points directly on a quick sketch — it makes the formula's differences self-evident and stops you subtracting coordinates in the wrong order.
+</Shortcut>
+
+## M5.11 Faces, edges and vertices of 3D solids
+
+A **face** is a flat polygon surface (a sphere has none); a **surface** can be curved (a cylinder has 2 flat surfaces and 1 curved surface); an **edge** joins two faces in a straight line; a **vertex** is where edges meet, or the point of a cone.
+
+<WorkedExample title="Counting for a square-based pyramid">
+Faces: 4 triangles + 1 square base $=5$. Vertices: 4 base corners + 1 apex $=5$. Edges: 4 base edges + 4 sloping edges $=8$.
+</WorkedExample>
+
+<Tip title="Euler's check: faces + vertices = edges + 2">
+For the pyramid above: $5+5=10=8+2$. Any polyhedron answer you compute should satisfy this — it's a fast way to catch a miscount before submitting.
+</Tip>
+
+## M5.12 Plans and elevations
+
+The **plan** is the view from directly above; the **front elevation** and **side elevation** are the views looking straight at the front and side. A cone's plan is a circle with a central dot (the apex); its side elevation is a triangle. A cylinder's plan is a plain circle; its side elevation is a rectangle.
+
+<Shortcut title="Dashed lines in a plan mark hidden or internal edges">
+When sketching a plan or elevation yourself, only solid outlines are required for the answer — internal construction lines used just to work out the shape don't need to be included in the final drawing.
+</Shortcut>
+
+## M5.13 Maps, scale drawings and bearings
+
+Bearings are always measured **clockwise from north**, written as three digits (e.g. $050°$).
+
+<Shortcut title="Back bearings: add or subtract 180°">
+If the bearing of $B$ from $A$ is $\theta$, the bearing of $A$ from $B$ is $\theta+180°$ (or $\theta-180°$ if that keeps it under $360°$) — because the north lines at $A$ and $B$ are parallel, so the angle facts guarantee a clean $180°$ shift. If the bearing of $B$ from $A$ is $070°$, the bearing of $A$ from $B$ is $070°+180°=250°$.
+</Shortcut>
+
+<WorkedExample title="Converting a map distance to a real scale">
+A map shows two points 2 km apart in real life and 8 cm apart on the map. Give the scale as $1:n$.
+
+$$
+2 \text{ km} = 200\,000 \text{ cm}, \qquad 8:200\,000 = 1:25\,000
+$$
+</WorkedExample>
+
+<WorkedExample title="Bearings combined with right-angle trigonometry">
+$X$ is 10 km from $Z$ on a bearing of $060°$. $Y$ is due north of $Z$ and due west of $X$. Find $XY$.
+
+Since $Y$ is due north of $Z$ and due west of $X$, angle $ZYX=90°$, and the angle at $Z$ between north and $ZX$ is $60°$, so:
+
+$$
+XY = XZ\sin60° = 10\times\frac{\sqrt3}{2} = 5\sqrt3 \text{ km}
+$$
+</WorkedExample>
+
+## M5.14 Area of triangles, parallelograms, trapezia; volume of prisms
+
+<FormulaCard title="Area and volume formulas">
+$$
+\text{triangle} = \frac12 bh, \qquad \text{parallelogram} = bh, \qquad \text{trapezium} = \frac12 h(a+b)
+$$
+
+$$
+\text{volume of a right prism} = \text{area of cross-section}\times\text{length}
+$$
+</FormulaCard>
+
+<WorkedExample title="Trapezium area, ignoring the irrelevant side">
+$WXYZ$ has $WX\parallel ZY$, $XY\perp WX$, $WX=6,\ XY=8,\ ZY=12,\ WZ=10$. Find the area.
+
+$$
+\text{area} = \frac12\times8\times(6+12) = 72 \text{ cm}^2
+$$
+
+$WZ=10$ isn't needed — it's only relevant if you needed the perimeter.
+</WorkedExample>
+
+<Tip title="Any face of a cuboid can be the cross-section">
+For a cuboid, it doesn't matter which pair of opposite faces you treat as the "ends" — the volume comes out the same either way, so pick whichever face makes the cross-sectional area easiest to compute.
+</Tip>
+
+## M5.15 Circles, spheres, cones and pyramids
+
+<FormulaCard title="Must memorise">
+$$
+\text{circumference} = 2\pi r = \pi d, \qquad \text{area of a circle} = \pi r^2, \qquad \text{volume of a cylinder} = \pi r^2 h
+$$
+</FormulaCard>
+
+<FormulaCard title="Usually given in the question">
+$$
+\text{sphere volume} = \frac43\pi r^3, \quad \text{sphere surface area} = 4\pi r^2, \quad \text{cone volume} = \frac13\pi r^2h
+$$
+
+$$
+\text{cone curved surface} = \pi r l \ (l=\text{slant height}), \qquad \text{pyramid volume} = \frac13 Ah
+$$
+</FormulaCard>
+
+<WorkedExample title="Composite solid: cone + hemisphere">
+A cone (radius 10, height 25) sits on a hemisphere of the same radius. Find the total surface area and volume.
+
+Slant height via Pythagoras: $l^2=10^2+25^2=725,\ l=5\sqrt{29}$.
+
+$$
+S = \pi rl + 2\pi r^2 = 50\sqrt{29}\pi + 200\pi = 50\pi(\sqrt{29}+4)
+$$
+
+$$
+V = \frac13\pi r^2h + \frac23\pi r^3 = \frac{2500\pi}{3}+\frac{2000\pi}{3} = 1500\pi
+$$
+</WorkedExample>
+
+<Trap title="A hemisphere contributes half a sphere's surface area AND leaves its flat circle hidden">
+When a hemisphere is glued to another solid, its curved surface is $\tfrac12(4\pi r^2)=2\pi r^2$ — but its flat circular face is *not* part of the outer surface anymore, since it's glued to the cone's base. Only add the curved part.
+</Trap>
+
+## M5.16 Arc length and sector area
+
+<FormulaCard title="Sector formulas">
+$$
+\text{sector area} = \frac{x}{360}\times\pi r^2, \qquad \text{arc length} = \frac{x}{360}\times2\pi r
+$$
+
+where $x°$ is the angle between the two radii.
+</FormulaCard>
+
+<WorkedExample title="Finding an unknown sector angle from arc length">
+A sector of radius 18 cm has arc length $15\pi$ cm. Find the sector angle.
+
+$$
+\frac{x}{360}\times2\pi(18) = 15\pi \ \Rightarrow\ \frac{x\pi}{10} = 15\pi \ \Rightarrow\ x=150°
+$$
+</WorkedExample>
+
+<Shortcut title="Sector perimeter = 2r + arc length, never 2r + full circumference">
+It's easy to accidentally add the whole circle's circumference — remember a sector's boundary is the two straight radii plus *only* its own arc.
+</Shortcut>
+
+## M5.17 Congruence, similarity, and length/area/volume scaling
+
+If shape $Y$ is a similar enlargement of shape $X$ with scale factor $n$: lengths $\times n$, areas $\times n^2$, volumes $\times n^3$.
+
+<WorkedExample title="Scaling mass via volume">
+A chocolate bar (mass 25 g, wrapper area 60 cm²) is enlarged by scale factor 2 in every dimension for the "family bar." Find the new wrapper area and mass.
+
+$$
+\text{area} = 60\times2^2 = 240 \text{ cm}^2, \qquad \text{mass} \propto \text{volume} = 25\times2^3 = 200 \text{ g}
+$$
+</WorkedExample>
+
+<Trap title="Equal hypotenuses don't guarantee congruent right-angled triangles">
+Two right-angled triangles can share the same hypotenuse length yet have completely different leg lengths ($b^2+c^2$ can equal $100$ many different ways) — matching hypotenuses alone is never enough to prove congruence.
+</Trap>
+
+## M5.18 Trigonometric ratios and exact values
+
+<FormulaCard title="Exact trig values to memorise">
+| $\theta$ | $0°$ | $30°$ | $45°$ | $60°$ | $90°$ |
+|---|---|---|---|---|---|
+| $\sin\theta$ | $0$ | $\frac12$ | $\frac{1}{\sqrt2}$ | $\frac{\sqrt3}{2}$ | $1$ |
+| $\cos\theta$ | $1$ | $\frac{\sqrt3}{2}$ | $\frac{1}{\sqrt2}$ | $\frac12$ | $0$ |
+| $\tan\theta$ | $0$ | $\frac{1}{\sqrt3}$ | $1$ | $\sqrt3$ | — |
+</FormulaCard>
+
+<Shortcut title="Derive 30°/60°/45° instead of memorising if you blank">
+Split an equilateral triangle of side 2 in half: the height is $\sqrt{2^2-1^2}=\sqrt3$, giving $\sin30°=\sin60°$'s co-ratios directly. Halve a unit square along its diagonal for $45°$: hypotenuse $\sqrt2$, giving $\sin45°=\cos45°=\tfrac{1}{\sqrt2}$.
+</Shortcut>
+
+<WorkedExample title="Trig in a circle problem">
+Circle centre $O$, radius 6, $PQ$ is a diameter, $R$ on the circumference, $PR=8$. Find $\sin(\angle RPQ)$.
+
+$$
+\angle PRQ = 90° \ (\text{semicircle}), \qquad PQ=12, \qquad RQ^2 = 12^2-8^2=80,\ RQ=4\sqrt5
+$$
+
+$$
+\sin(\angle RPQ) = \frac{RQ}{PQ} = \frac{4\sqrt5}{12} = \frac{\sqrt5}{3}
+$$
+</WorkedExample>
+
+<WorkedExample title="Trig in three dimensions">
+Square-based pyramid, base side 10, vertical height 8. Find the sine of the angle between a triangular face and the base.
+
+Let $O$ be the base centre, $M$ the midpoint of a base edge: $OM=5$. The required angle is $\angle TMO$:
+
+$$
+TM^2 = TO^2+OM^2 = 64+25=89, \qquad \sin(\angle TMO) = \frac{TO}{TM} = \frac{8}{\sqrt{89}}
+$$
+</WorkedExample>
+
+## M5.19 Vectors
+
+A vector has both size and direction. Column vectors add/subtract row-by-row and scale by multiplying every entry.
+
+<FormulaCard title="Vector arithmetic">
+$$
+\binom{a}{b}+\binom{c}{d} = \binom{a+c}{b+d}, \qquad k\binom{a}{b} = \binom{ka}{kb}
+$$
+
+Vectors $\mathbf{x}$ and $\mathbf{y}$ are parallel exactly when $\mathbf{x}=k\mathbf{y}$ for some constant $k$.
+</FormulaCard>
+
+<WorkedExample title="Checking which vectors are parallel">
+$\mathbf{x}=\binom{2}{-3}$, $\mathbf{y}=\binom{-6}{-1}$. Is $\binom{16}{-4}$ parallel to $\mathbf{x}-\mathbf{y}$?
+
+$$
+\mathbf{x}-\mathbf{y} = \binom{8}{-2}, \qquad \binom{16}{-4} = 2\binom{8}{-2}
+$$
+
+Yes — it's a scalar multiple, so it's parallel (and points the same way, since the scalar is positive).
+</WorkedExample>
+
+<WorkedExample title="A classic vector proof — the midpoint triangle">
+$D,E$ are the midpoints of $AB,AC$ in $\triangle ABC$. Show $DE$ is parallel to $BC$ and half its length.
+
+Let $\overrightarrow{AB}=\mathbf{x}$, $\overrightarrow{AC}=\mathbf{y}$. Then $\overrightarrow{AD}=\tfrac12\mathbf{x}$, $\overrightarrow{AE}=\tfrac12\mathbf{y}$, so:
+
+$$
+\overrightarrow{DE} = \overrightarrow{DA}+\overrightarrow{AE} = -\tfrac12\mathbf{x}+\tfrac12\mathbf{y} = \tfrac12(\mathbf{y}-\mathbf{x}) = \tfrac12\overrightarrow{BC}
+$$
+
+Since $\overrightarrow{DE}$ is a scalar multiple of $\overrightarrow{BC}$, they're parallel, and $DE=\tfrac12 BC$.
+</WorkedExample>
+
+<Tip title="Route every vector proof through a shared vertex">
+Writing every vector in a proof as a combination of two starting vectors from the same vertex (like $\mathbf{x}=\overrightarrow{AB}$, $\mathbf{y}=\overrightarrow{AC}$ above) turns "show these are parallel" into pure algebra — the geometry does itself once the setup is right.
+</Tip>
+
+## Formula and shortcut summary
+
+- Polygon angle sums: interior $=180(n-2)°$, exterior always sums to $360°$.
+- Parallel-line angles: alternate equal, corresponding equal, co-interior sum to $180°$.
+- Congruence: SSS, SAS (included angle only), ASA, RHS.
+- Enlargement: image $=$ centre $+$ scale factor $\times$ (object $-$ centre); negative scale factor flips to the other side of the centre.
+- Pythagoras: check (shorter sides)$^2$ sum against the longest side to test a right angle.
+- Circle theorems: angle at centre $=2\times$ circumference angle (same arc, watch for reflex angles); semicircle angle $=90°$; alternate segment theorem for tangent/chord angles.
+- Length ratio $x:y$ $\Rightarrow$ area ratio $x^2:y^2$ $\Rightarrow$ volume ratio $x^3:y^3$.
+- Sector area $=\frac{x}{360}\pi r^2$; arc length $=\frac{x}{360}\times2\pi r$; sector perimeter $=2r+\text{arc}$.
+- Exact trig values at $0°,30°,45°,60°,90°$ — derive from a split equilateral triangle or a split unit square if you forget them.
+- Back bearing $=$ bearing $\pm180°$.
 
 <PracticeLink topic="M5. Geometry">
 Find geometry questions

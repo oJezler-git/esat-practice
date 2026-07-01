@@ -2,18 +2,629 @@ export const meta = {
   slug: "algebra",
   module: "m1",
   title: "Algebra",
-  subtitle: "Placeholder overview for M4. Algebra — full guide coming soon.",
+  subtitle: "Notation, indices, expanding and factorising, formulae, graphs, simultaneous and quadratic equations, inequalities, and sequences.",
   topicCode: "M4",
-  estimatedMinutes: 5,
+  estimatedMinutes: 26,
   order: 40,
   relatedQuestionFilters: {
     topics: ["M4. Algebra"],
   },
 };
 
-## What you need to know
+## M4.1 Algebraic notation
 
-This guide is a placeholder. The full breakdown of M4. Algebra — core facts, fast methods, worked examples, and common traps — is coming soon.
+Algebra is just arithmetic with letters standing in for numbers, and it follows a few writing conventions that let you drop unnecessary symbols:
+
+| Instead of... | Write... |
+|---|---|
+| $a \times b$ | $ab$ |
+| $y+y+y$ or $3\times y$ | $3y$ |
+| $a\times a$ | $a^2$ |
+| $a\times a\times b$ | $a^2b$ |
+| $a\div b$ | $\dfrac{a}{b}$ |
+
+When a term has both a number and letters, the number goes first, then the letters in alphabetical order — $6pqr$, not $pq6r$.
+
+<Tip title="Brackets apply to everything inside">
+$(ab)^2$ means $ab\times ab = a^2b^2$ — the power hits *every* factor inside the bracket, not just the last one written.
+</Tip>
+
+## M4.2 Index laws in algebra
+
+The same index laws from the Number chapter apply here, just with letters standing in for the base.
+
+<FormulaCard title="Index laws">
+$$
+a^m\times a^n = a^{m+n}, \qquad a^m\div a^n = a^{m-n}, \qquad (a^m)^n = a^{mn}
+$$
+
+$$
+a^0 = 1, \qquad a^1 = a, \qquad \left(\frac{a}{b}\right)^m = \frac{a^m}{b^m}, \qquad a^{-m} = \frac{1}{a^m}
+$$
+
+$$
+a^{\frac1b} = \sqrt[b]{a}, \qquad a^{\frac{m}{n}} = \left(\sqrt[n]{a}\right)^m = \sqrt[n]{a^m}
+$$
+</FormulaCard>
+
+<Shortcut title="Coefficients and indices are two separate jobs">
+When multiplying or dividing terms like $5p^2q\times2pq^2$, handle the numbers and the letters completely separately: multiply/divide the coefficients ($5\times2=10$), then add/subtract the indices of each matching letter ($p^{2+1}q^{1+2}=p^3q^3$). Mixing the two jobs up is the single most common index-law mistake.
+</Shortcut>
+
+<WorkedExample title="Multiplying, dividing, and raising to a further power">
+$$
+4a^2\times2a^3 = 8a^5, \qquad 12a^6\div2a^3 = 6a^3, \qquad (2p^3)^5 = 2^5p^{15} = 32p^{15}
+$$
+</WorkedExample>
+
+<WorkedExample title="Negative and fractional powers together">
+Simplify $(8a^{-3})^{\frac13}$.
+
+Apply the power to the number and the letter separately:
+
+$$
+(8)^{\frac13}(a^{-3})^{\frac13} = 2\times a^{-1} = \frac{2}{a}
+$$
+</WorkedExample>
+
+<Trap title="A fractional power is 'root first' — order doesn't usually matter, but rooting first keeps numbers small">
+For $\left(25y^4\right)^{\frac12}$, taking the square root first gives $5y^2$ immediately. Raising to the power first ($25y^4$ squared-then-rooted) works too but forces you through much larger numbers — always root first when the numbers cooperate.
+</Trap>
+
+## M4.3 Substitution and algebraic vocabulary
+
+| Term | Meaning |
+|---|---|
+| Expression | A collection of terms with no `=` sign, e.g. $2l+2w$ |
+| Formula | An equation relating variables, e.g. $P=2l+2w$ |
+| Equation | True only for specific value(s) of the variable, e.g. $3x+1=7$ |
+| Identity | True for *every* value of the variable, shown with $\equiv$, e.g. $3x+2x-4x\equiv x$ |
+| Inequality | Compares size using $<,\le,>,\ge,\ne$ |
+| Factor | Divides exactly into an expression with no remainder |
+
+<WorkedExample title="Substituting with BIDMAS">
+Find $3x^3 - 5(x-y)$ when $x=2$ and $y=5$.
+
+$$
+3(2)^3 - 5(2-5) = 3(8) - 5(-3) = 24+15 = 39
+$$
+</WorkedExample>
+
+<WorkedExample title="Substituting into a formula with a surd">
+$\dfrac{B}{2} = \dfrac{P}{3D\left(D-\sqrt{D^2-d^2}\right)}$. Find $B$ when $P=27$, $D=17$, $d=8$.
+
+$$
+D^2-d^2 = 289-64 = 225, \qquad \sqrt{225}=15, \qquad D-15=2
+$$
+
+$$
+\frac{B}{2} = \frac{27}{3\times17\times2} = \frac{27}{102} = \frac{9}{34} \ \Rightarrow\ B = \frac{9}{17}
+$$
+</WorkedExample>
+
+<Shortcut title="D² − d² is a difference of two squares">
+$D^2-d^2$ factorises as $(D-d)(D+d)$, which is often faster to evaluate than squaring both numbers separately — here $\sqrt{(17-8)(17+8)} = \sqrt{9\times25} = 3\times5=15$, avoiding $17^2$ and $8^2$ entirely.
+</Shortcut>
+
+## M4.4 Expanding, factorising, and collecting like terms
+
+Like terms have identical letters *and* identical powers on those letters — $12x^2y^4$ and $-6x^2y^4$ can combine; $12x^2y^4$ and $12x^2y^3$ cannot.
+
+$$
+a(b+c) = ab+ac \qquad \text{(single term over a bracket)}
+$$
+
+$$
+(x+a)(x+b) = x^2+(a+b)x+ab \qquad \text{(two binomials)}
+$$
+
+<WorkedExample title="Expanding a single term over a bracket">
+$$
+-3p(2p-5q+6r) = -6p^2+15pq-18pr
+$$
+</WorkedExample>
+
+<WorkedExample title="Taking out a common factor">
+Factorise $6x^2y^3z+15x^3y^2z^2-21x^5y$.
+
+The numbers share a factor of 3. Every term has at least $x^2$ and $y^1$ — but not $z$, since the last term has none. So the common factor is $3x^2y$:
+
+$$
+6x^2y^3z+15x^3y^2z^2-21x^5y = 3x^2y\left(2y^2z+5xyz^2-7x^3\right)
+$$
+</WorkedExample>
+
+<WorkedExample title="Expanding three binomials">
+Expand $(x+3)(x-5)(2x-5)$.
+
+Multiply the first two brackets, then multiply that result by the third:
+
+$$
+(x+3)(x-5) = x^2-2x-15
+$$
+
+$$
+(2x-5)(x^2-2x-15) = 2x^3-4x^2-30x-5x^2+10x+75 = 2x^3-9x^2-20x+75
+$$
+</WorkedExample>
+
+<Shortcut title="A grid keeps long expansions error-free">
+For anything bigger than two binomials, lay the multiplication out as a grid (one bracket's terms along the top, the other's down the side) — it's slower to set up but far harder to drop a term than doing it all in your head.
+</Shortcut>
+
+## M4.5 Factorising quadratics
+
+For $x^2+bx+c$, look for two numbers $p,q$ with $p+q=b$ and $pq=c$: then it factorises as $(x+p)(x+q)$.
+
+For $ax^2+bx+c$ (with $a\ne1$), find two numbers that multiply to $a\times c$ and add to $b$, split the middle term using them, then factorise in pairs.
+
+<FormulaCard title="Difference of two squares">
+$$
+x^2-a^2 = (x+a)(x-a), \qquad a^2x^2-b^2 = (ax+b)(ax-b)
+$$
+</FormulaCard>
+
+<WorkedExample title="Simple trinomial and difference of squares">
+$$
+x^2+17x+72 = (x+8)(x+9) \qquad (8+9=17,\ 8\times9=72)
+$$
+
+$$
+16x^2-49 = (4x+7)(4x-7)
+$$
+</WorkedExample>
+
+<WorkedExample title="Splitting the middle term when a ≠ 1">
+Factorise $14x^2-x-3$.
+
+Need two numbers multiplying to $14\times(-3)=-42$ and adding to $-1$: these are $-7$ and $+6$.
+
+$$
+14x^2-x-3 = 14x^2+6x-7x-3 = 2x(7x+3)-1(7x+3) = (7x+3)(2x-1)
+$$
+</WorkedExample>
+
+<Tip title="An irrational difference of squares still factorises">
+$x^2-3$ isn't a "nice" difference of squares, but $3=(\sqrt3)^2$ still works: $x^2-3 = (x+\sqrt3)(x-\sqrt3)$. Don't assume a quadratic won't factorise just because $c$ isn't a perfect square.
+</Tip>
+
+## M4.6 Simplifying algebraic fractions
+
+Treat algebraic fractions exactly like numerical ones: cancel common factors, and factorise first if the numerator or denominator is a sum, difference, or quadratic.
+
+<FormulaCard title="The four rules for algebraic fractions">
+$$
+\frac{x}{a}+\frac{y}{b} = \frac{xb+ya}{ab}, \qquad \frac{x}{a}\times\frac{y}{b}=\frac{xy}{ab}, \qquad \frac{x}{a}\div\frac{y}{b} = \frac{x}{a}\times\frac{b}{y} = \frac{xb}{ay}
+$$
+</FormulaCard>
+
+<WorkedExample title="Factorise, then cancel">
+Simplify $\dfrac{6x^2+19x+10}{4x^2-25}$.
+
+$$
+6x^2+19x+10 = (3x+2)(2x+5), \qquad 4x^2-25 = (2x+5)(2x-5)
+$$
+
+$$
+\frac{(3x+2)(2x+5)}{(2x+5)(2x-5)} = \frac{3x+2}{2x-5}
+$$
+</WorkedExample>
+
+<WorkedExample title="Adding fractions with a factorised denominator">
+Simplify $\dfrac{p+1}{p-p^2}-\dfrac{2}{p-1}$.
+
+Factorise the first denominator and flip the sign of the second so both share $(1-p)$:
+
+$$
+\frac{p+1}{p(1-p)} + \frac{2}{1-p} = \frac{(p+1)+2p}{p(1-p)} = \frac{3p+1}{p(1-p)}
+$$
+</WorkedExample>
+
+<Trap title="Never cancel terms that are added or subtracted">
+$\dfrac{x+2}{x}$ does **not** simplify to $\dfrac{1}{1}+2=3$, and it doesn't simplify at all unless you can factorise the whole numerator or denominator. Only ever cancel whole *factors*, never individual terms inside a sum.
+</Trap>
+
+## M4.7 Rearranging formulae
+
+To change the subject, you can add, subtract, multiply, divide, invert, square, or square-root **both sides** of the formula — the same toolkit as solving an equation, just with letters instead of numbers on the other side.
+
+<WorkedExample title="Rearranging with the subject in two places">
+Make $p$ the subject of $q+2p = p+4q-6r$.
+
+$$
+q+2p-p = 4q-6r \ \Rightarrow\ q+p = 4q-6r \ \Rightarrow\ p = 3q-6r = 3(q-2r)
+$$
+</WorkedExample>
+
+<WorkedExample title="Rearranging when the subject is in a denominator">
+Make $u$ the subject of $\dfrac1v-\dfrac1u=\dfrac1p$.
+
+$$
+\frac1v-\frac1p = \frac1u \ \Rightarrow\ \frac{p-v}{vp} = \frac1u \ \Rightarrow\ u = \frac{vp}{p-v}
+$$
+</WorkedExample>
+
+<WorkedExample title="Rearranging with a square root">
+Make $x$ the subject of $y=\sqrt{\dfrac{3x+5}{4}}$.
+
+$$
+y^2 = \frac{3x+5}{4} \ \Rightarrow\ 4y^2 = 3x+5 \ \Rightarrow\ x = \frac{4y^2-5}{3}
+$$
+</WorkedExample>
+
+<Shortcut title="Invert both sides to escape a 'one over everything' formula">
+When the new subject only appears as $\dfrac1u$ on its own, get $\dfrac1u = (\text{stuff})$ first, then flip both sides upside down in one move — it's much cleaner than cross-multiplying.
+</Shortcut>
+
+## M4.8 Equations vs identities
+
+An equation is only true for particular values; an identity ($\equiv$) is true for every value. To test which one you have, fully simplify one side and compare it to the other — if they match exactly, it's an identity.
+
+<WorkedExample title="Testing whether a statement is an identity">
+Is $\dfrac{4}{x+1}-\dfrac{3}{x-1} = \dfrac{1}{x^2-1}$ an equation or an identity?
+
+$$
+\frac{4}{x+1}-\frac{3}{x-1} = \frac{4(x-1)-3(x+1)}{(x+1)(x-1)} = \frac{x-7}{x^2-1}
+$$
+
+This isn't identical to $\dfrac{1}{x^2-1}$, so it's an **equation** — true only when $x-7=1$, i.e. $x=8$.
+</WorkedExample>
+
+<Tip title="Solving an identity gives you '0 = 0'">
+If you try to solve what turns out to be an identity, every variable cancels and you're left with a true-but-useless statement like $0=0$. That's your signal to stop solving and instead show both sides simplify to the same expression.
+</Tip>
+
+## M4.9 Coordinates in all four quadrants
+
+The $x$-axis and $y$-axis divide the plane into four quadrants, meeting at the origin. Coordinates are always written $(x,y)$ — horizontal first, vertical second.
+
+<svg viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Coordinate axes with four quadrants labelled">
+  <line x1="10" y1="110" x2="210" y2="110" stroke="var(--border-subtle)" strokeWidth="1" />
+  <line x1="110" y1="10" x2="110" y2="210" stroke="var(--border-subtle)" strokeWidth="1" />
+  <text x="150" y="55" fontSize="11" fill="var(--text-muted)">1st (+,+)</text>
+  <text x="30" y="55" fontSize="11" fill="var(--text-muted)">2nd (−,+)</text>
+  <text x="30" y="165" fontSize="11" fill="var(--text-muted)">3rd (−,−)</text>
+  <text x="150" y="165" fontSize="11" fill="var(--text-muted)">4th (+,−)</text>
+  <circle cx="150" cy="70" r="3" fill="var(--color-accent-strong)" />
+</svg>
+
+<WorkedExample title="Finding missing vertices from symmetry">
+Square $ABCD$ has $A=(-6,4)$ and $B=(3,4)$. $C$ is in the 4th quadrant, $D$ in the 3rd. Find $C$ and $D$.
+
+The side length is the distance $AB = 3-(-6) = 9$. Since $C$ is directly below $B$ and $D$ directly below $A$, both 9 units down:
+
+$$
+C = (3,-5), \qquad D = (-6,-5)
+$$
+</WorkedExample>
+
+## M4.10 Straight lines: gradients, intercepts, parallel and perpendicular
+
+$$
+y = mx+c \qquad (m = \text{gradient}, \ c = \text{$y$-intercept})
+$$
+
+Parallel lines share the same gradient. Perpendicular lines have gradients that **multiply to $-1$**.
+
+<WorkedExample title="Reading off gradient and intercept">
+Rearrange $2y-3x=6$ into $y=mx+c$ form.
+
+$$
+2y = 3x+6 \ \Rightarrow\ y = \frac32 x+3
+$$
+
+Gradient $m=\dfrac32$, $y$-intercept $c=3$.
+</WorkedExample>
+
+<Shortcut title="Rearrange every line the same way before comparing">
+Whenever you need to compare gradients across several lines (parallel/perpendicular questions), rearrange *all* of them into $y=mx+c$ first — trying to compare gradients from mixed forms is where mistakes creep in.
+</Shortcut>
+
+<WorkedExample title="Equation of a line through two points">
+Find the line through $(3,5)$ and $(-1,-3)$.
+
+$$
+m = \frac{5-(-3)}{3-(-1)} = \frac{8}{4} = 2, \qquad y=2x+c
+$$
+
+Substitute $(3,5)$: $5 = 6+c \Rightarrow c=-1$, so $y=2x-1$.
+</WorkedExample>
+
+## M4.11 Roots, intercepts and turning points of quadratics
+
+For $f(x)=ax^2+bx+c$: the graph is a parabola, the $y$-intercept is $c$ (set $x=0$), the roots are where $f(x)=0$ (set $y=0$), and the turning point is found by completing the square.
+
+<FormulaCard title="Completing the square finds the turning point">
+$$
+y = ax^2+bx+c \ \Rightarrow\ x = -\frac{b}{2a}, \qquad y = c-\frac{b^2}{4a}
+$$
+
+The curve opens upward ($\cup$, minimum) if $a>0$, downward ($\cap$, maximum) if $a<0$.
+</FormulaCard>
+
+<WorkedExample title="Turning point by completing the square">
+Find the turning point of $y=2x^2+6x+5$.
+
+$$
+2x^2+6x+5 = 2\left(x^2+3x\right)+5 = 2\left[\left(x+\tfrac32\right)^2-\tfrac94\right]+5 = 2\left(x+\tfrac32\right)^2+\tfrac12
+$$
+
+The bracket is smallest (zero) when $x=-\tfrac32$, giving turning point $\left(-\tfrac32,\ \tfrac12\right)$.
+</WorkedExample>
+
+<WorkedExample title="Roots by factorising">
+Find the roots of $f(x)=2x^2+5x+3$.
+
+$$
+2x^2+5x+3 = (2x+3)(x+1) = 0 \ \Rightarrow\ x=-\frac32 \text{ or } x=-1
+$$
+</WorkedExample>
+
+<Tip title="A quadratic graph is always symmetric about its turning point">
+Once you know the turning point's $x$-value, any two points with the same $y$-value are mirrored across it — useful for sanity-checking a sketch or reading roots off a graph.
+</Tip>
+
+## M4.12 Recognising and sketching standard graphs
+
+| Function | Shape |
+|---|---|
+| $y=mx+c$ | Straight line |
+| $y=ax^2+bx+c$ | Parabola (∪ if $a>0$, ∩ if $a<0$) |
+| $y=ax^3$ | S-shaped curve, rotational symmetry about the origin |
+| $y=\dfrac1x$ | Two branches in opposite quadrants, never touches either axis |
+| $y=k^x$ ($k>0$) | Passes through $(0,1)$; grows (or decays) rapidly |
+| $y=\sin x,\ y=\cos x$ | Wave between $-1$ and $1$ |
+| $y=\tan x$ | Repeats every $180°$, undefined at $90°,270°,\ldots$ |
+
+<Trap title="The reciprocal graph never touches the axes">
+As $x\to0$, $y=\dfrac1x$ shoots off to $\pm\infty$ rather than crossing the $y$-axis, and it never reaches $y=0$ either — both axes are asymptotes, not intercepts.
+</Trap>
+
+<WorkedExample title="Comparing xⁿ curves">
+For $0\le x\le2$, compare $y=x^2$ and $y=x^3$.
+
+At $x=0$ and $x=1$ they're equal (both $0$ and both $1$). For $x>1$, $x^3>x^2$ (multiplying by a number bigger than 1 again makes it grow faster); for $0<x<1$, $x^3<x^2$ (multiplying by a fraction shrinks it further).
+</WorkedExample>
+
+<Shortcut title="sin and cos cross exactly once between 0° and 180°">
+$\sin\theta=\cos\theta$ at $\theta=45°$ — memorising this single crossing point instantly tells you the sign of $\sin\theta-\cos\theta$ on either side without needing to sketch anything.
+</Shortcut>
+
+## M4.13 Interpreting graphs in real contexts
+
+A straight line through the origin means simple direct proportion (no fixed charge). A straight line that *doesn't* pass through the origin usually means a fixed starting charge plus a constant rate.
+
+<WorkedExample title="Reading a fixed charge and a rate from a line">
+A poster's printing cost has a fixed set-up fee plus a cost per poster. The graph passes through $(0,3)$ and $(10,9)$.
+
+$$
+\text{set-up cost} = \pounds3, \qquad \text{unit cost} = \frac{9-3}{10} = \pounds0.60
+$$
+
+$$
+\text{cost of 500 posters} = 3 + 500\times0.60 = \pounds303
+$$
+</WorkedExample>
+
+<WorkedExample title="Confirming inverse proportion from a graph"
+>
+A graph plots pressure $P$ against volume $V$ of a gas. Reading points off the graph and checking $PV$:
+
+| $P$ | $V$ | $PV$ |
+|---|---|---|
+| 1.0 | 2.50 | 2.5 |
+| 2.5 | 1.00 | 2.5 |
+| 5.0 | 0.50 | 2.5 |
+
+Since $PV\approx2.5$ throughout, $V$ is inversely proportional to $P$, with $V=\dfrac{2.5}{P}$.
+</WorkedExample>
+
+<Shortcut title="A curved section of a distance-time graph means changing speed">
+Straight sections of a distance-time graph mean constant speed (the gradient is the speed); a flat section means stationary; a curved section means accelerating or decelerating — read the *shape*, not just the height, to describe the motion in words.
+</Shortcut>
+
+## M4.14 Gradients and areas under graphs
+
+The gradient of a **curve** at a point equals the gradient of the tangent drawn at that point. The area under a **speed–time** graph gives distance; the area under any graph, more generally, is (vertical quantity) × (horizontal quantity).
+
+<WorkedExample title="Estimating the gradient of a curve using a tangent">
+Estimate the gradient of $y=x^2$ at $(2,4)$ by drawing the tangent, which also passes through $(1,0)$ and $(3,8)$.
+
+$$
+\text{gradient} = \frac{8-0}{3-1} = 4
+$$
+</WorkedExample>
+
+<WorkedExample title="Area under a speed-time graph, split into simple shapes">
+A car's speed–time graph is made of a triangle, two rectangles, a trapezium, and another triangle with areas $3.75$, $7.5$, $27.5$, $60$, and $10$ (all in km, since speed × time gives distance). The total distance travelled is:
+
+$$
+3.75+7.5+27.5+60+10 = 108.75 \text{ km}
+$$
+</WorkedExample>
+
+<Shortcut title="Split first, then add — don't try to integrate a hand-drawn curve">
+Break any area under a graph into triangles, rectangles, and trapezia you already have formulas for. For a genuinely curved boundary, approximate with several trapezia (or triangles) rather than one big shape — more, narrower strips always give a better estimate.
+</Shortcut>
+
+## M4.15 Simultaneous equations
+
+**Linear–linear**: eliminate one variable by substitution or by combining the equations (multiply so one variable's coefficients match, then add or subtract).
+
+**Linear–quadratic**: rearrange the linear equation for one variable, substitute into the quadratic, and solve — expect *two* solution pairs.
+
+<WorkedExample title="Elimination method">
+Solve $3x-4y=7$ and $x+2y=9$.
+
+From the second equation, $x=9-2y$. Substitute into the first:
+
+$$
+3(9-2y)-4y=7 \ \Rightarrow\ 27-10y=7 \ \Rightarrow\ y=2, \qquad x=9-4=5
+$$
+
+Check: $3(5)-4(2)=15-8=7$. ✓
+</WorkedExample>
+
+<WorkedExample title="Linear and quadratic together">
+Solve $x+4y=7$ and $x^2+4xy+2y^2=1$.
+
+$$
+x=7-4y \ \Rightarrow\ (7-4y)^2+4(7-4y)y+2y^2 = 1
+$$
+
+$$
+49-56y+16y^2+28y-16y^2+2y^2 = 1 \ \Rightarrow\ 2y^2-28y+48=0 \ \Rightarrow\ y^2-14y+24=0
+$$
+
+$$
+(y-12)(y-2)=0 \ \Rightarrow\ y=12 \text{ or } y=2
+$$
+
+Substituting back: $(x,y) = (-41,12)$ or $(-1,2)$.
+</WorkedExample>
+
+<Trap title="A linear-quadratic system usually has two solution pairs — keep them paired up">
+Once you've solved for the second variable and get two values, substitute *each one back separately* into the linear equation to get its matching partner. Mixing and matching $x$- and $y$-values from different solutions gives a pair that doesn't actually satisfy either equation.
+</Trap>
+
+## M4.16 Solving quadratic equations
+
+<FormulaCard title="The quadratic formula">
+$$
+ax^2+bx+c=0 \ \Rightarrow\ x = \frac{-b\pm\sqrt{b^2-4ac}}{2a}
+$$
+</FormulaCard>
+
+Use whichever method suits the equation: **factorise** if it splits into nice integers, **complete the square** if you also need the turning point, and the **formula** whenever it won't factorise (leave surds unsimplified only if the question allows a decimal).
+
+<WorkedExample title="Solving by the quadratic formula, leaving a surd">
+Solve $3x^2-4x=5$.
+
+Rearranged: $3x^2-4x-5=0$, so $a=3,\ b=-4,\ c=-5$.
+
+$$
+x = \frac{4\pm\sqrt{16+60}}{6} = \frac{4\pm\sqrt{76}}{6} = \frac{4\pm2\sqrt{19}}{6} = \frac{2\pm\sqrt{19}}{3}
+$$
+</WorkedExample>
+
+<WorkedExample title="A 'disguised' quadratic">
+Solve $\dfrac{3}{x^2}+\dfrac{7}{x}=6$.
+
+Multiply every term by $x^2$: $3+7x=6x^2$, i.e. $6x^2-7x-3=0$, which factorises as $(2x-3)(3x+1)=0$:
+
+$$
+x = \frac32 \text{ or } x=-\frac13
+$$
+</WorkedExample>
+
+<Shortcut title="Spot a disguised quadratic by its exponent pattern">
+Any equation with terms in $g(x)^2$, $g(x)$, and a constant — for any expression $g(x)$ — is a quadratic in disguise. Substitute $u=g(x)$, solve the ordinary quadratic in $u$, then solve back for $x$ (e.g. $6p^6-7p^3-3=0$ becomes $6u^2-7u-3=0$ with $u=p^3$).
+</Shortcut>
+
+## M4.17 Linear inequalities
+
+$<$ and $>$ exclude the boundary (open circle); $\le$ and $\ge$ include it (solid circle). You solve inequalities exactly like equations — with one crucial exception.
+
+<Trap title="Multiplying or dividing by a negative flips the inequality sign">
+Solve $3x-5 < 2(2+3x)$.
+
+$$
+3x-5 < 4+6x \ \Rightarrow\ -3x < 9 \ \Rightarrow\ x > -3
+$$
+
+Dividing both sides by $-3$ flipped $<$ into $>$. Whenever a negative coefficient is left in front of $x$, either flip the sign when you divide, or add the $x$-term to the *other* side instead so you're always dividing by a positive.
+</Trap>
+
+<WorkedExample title="A combined (two-sided) inequality">
+Solve $20\ge3x-4>8$.
+
+Apply the same operation to all three parts at once:
+
+$$
+24\ge3x>12 \ \Rightarrow\ 8\ge x>4
+$$
+</WorkedExample>
+
+<Shortcut title="Solve compound inequalities separately, then combine on one number line">
+If a question gives two separate inequalities instead of one combined one, solve each independently first. If the resulting ranges overlap, write the overlap as a single combined inequality; if they don't overlap at all, there's no solution.
+</Shortcut>
+
+<WorkedExample title="Shading a region in two variables">
+Shade the region $3x+4y\le12$.
+
+Draw the boundary line $3x+4y=12$ as **solid** (since $\le$ includes it). Test a point not on the line, e.g. $(0,0)$: $3(0)+4(0)=0\le12$ ✓, so shade the side containing the origin.
+</WorkedExample>
+
+<Tip title="With several inequalities, shade OUT the unwanted regions">
+When a graph needs to satisfy three or more inequalities at once, it's much easier to read if you shade the regions you *don't* want and leave the answer region blank, rather than overlaying multiple shaded regions on top of each other.
+</Tip>
+
+## M4.18 Generating sequences
+
+A **term-to-term** rule tells you how to get from one term to the next (e.g. "add 4 each time"). A **position-to-term** rule (the $n$th term) tells you how to jump straight to any term from its position number.
+
+<WorkedExample title="Term-to-term rule">
+$t_1=3$, $t_{n+1}=2t_n-1$. Find the next four terms.
+
+$$
+t_2 = 2(3)-1=5, \quad t_3=2(5)-1=9, \quad t_4=2(9)-1=17, \quad t_5=2(17)-1=33
+$$
+</WorkedExample>
+
+<WorkedExample title="Checking whether a number belongs to a sequence">
+Is 272 a term in $2,6,10,14,\ldots$ (first term 2, term-to-term rule $+4$)?
+
+Every term satisfies (term $-2$) is a multiple of 4. Here $272-2=270$, and $270\div4=67.5$ isn't an integer, so **272 is not in the sequence**.
+</WorkedExample>
+
+<Shortcut title="Reverse-engineer 'is this term in the sequence?' using the nth-term structure">
+Rather than listing terms until you pass 272, subtract the first term and check divisibility by the common difference — it turns a search into a single division.
+</Shortcut>
+
+## M4.19 Finding the nth term of linear and quadratic sequences
+
+For a **linear** sequence, the constant difference $d$ between terms tells you the coefficient of $n$ directly: $n$th term $= dn + (\text{first term} - d)$.
+
+For a **quadratic** sequence, the *second* differences are constant; the coefficient of $n^2$ is half the second difference.
+
+<WorkedExample title="Linear sequence with a negative difference">
+Find the $n$th term for $14, 8, 2, -4,\ldots$
+
+The difference is $-6$, so the rule involves $-6n$. Comparing $-6n$ ($-6,-12,-18,\ldots$) to the actual terms ($14,8,2,\ldots$) shows each term is $20$ more:
+
+$$
+n\text{th term} = -6n+20
+$$
+</WorkedExample>
+
+<WorkedExample title="Quadratic sequence">
+Find the $n$th term for $5, 14, 27, 44, 65,\ldots$
+
+$$
+\text{1st differences: } 9,13,17,21 \qquad \text{2nd differences: } 4,4,4
+$$
+
+Coefficient of $n^2$ is $4\div2=2$. Compare $2n^2 = 2,8,18,32,50$ to the actual terms — each is bigger by $3,6,9,12,15$, which is $3n$:
+
+$$
+n\text{th term} = 2n^2+3n
+$$
+</WorkedExample>
+
+<Tip title="A constant 2nd difference means quadratic, full stop">
+If the first differences aren't constant but keep changing by the same amount each time, you're always looking at an $an^2+bn+c$ sequence — you never need a cubic or higher unless the *second* differences also change.
+</Tip>
+
+## Formula and shortcut summary
+
+- Index laws: $a^m a^n=a^{m+n}$, $a^m\div a^n=a^{m-n}$, $(a^m)^n=a^{mn}$, $a^{-m}=\frac1{a^m}$, $a^{1/n}=\sqrt[n]{a}$.
+- Factorising $x^2+bx+c$: find $p,q$ with $p+q=b$, $pq=c$. Difference of two squares: $x^2-a^2=(x+a)(x-a)$.
+- Algebraic fractions: only cancel whole factors, never individual added/subtracted terms.
+- Perpendicular lines: gradients multiply to $-1$. Parallel lines: gradients equal.
+- Turning point of $y=ax^2+bx+c$: complete the square, or use $x=-\frac{b}{2a}$.
+- Quadratic formula: $x=\dfrac{-b\pm\sqrt{b^2-4ac}}{2a}$ — use it whenever factorising doesn't work cleanly.
+- Multiplying or dividing an inequality by a negative number flips its direction.
+- Linear sequence $n$th term: (common difference) $\times n$ + adjustment. Quadratic: coefficient of $n^2$ = half the 2nd difference.
 
 <PracticeLink topic="M4. Algebra">
 Find algebra questions

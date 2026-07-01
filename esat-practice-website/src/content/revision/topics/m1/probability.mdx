@@ -2,18 +2,391 @@ export const meta = {
   slug: "probability",
   module: "m1",
   title: "Probability",
-  subtitle: "Placeholder overview for M7. Probability — full guide coming soon.",
+  subtitle: "Relative frequency, sample spaces, exhaustive and mutually exclusive events, Venn/tree diagrams, and conditional probability.",
   topicCode: "M7",
-  estimatedMinutes: 5,
+  estimatedMinutes: 24,
   order: 70,
   relatedQuestionFilters: {
     topics: ["M7. Probability"],
   },
 };
 
-## What you need to know
+## M7.1 Tables and frequency trees
 
-This guide is a placeholder. The full breakdown of M7. Probability — core facts, fast methods, worked examples, and common traps — is coming soon.
+Recorded outcomes of an experiment can be organised in a **frequency table** and used to estimate probability via relative frequency: $\dfrac{\text{frequency of outcome}}{\text{total trials}}$.
+
+<WorkedExample title="Testing for bias with relative frequency">
+A spinner is spun 50 times: red $19$, blue $15$, yellow $16$. Is the spinner biased?
+
+$$
+\text{relative frequencies: } \tfrac{19}{50}=0.38,\quad \tfrac{15}{50}=0.3,\quad \tfrac{16}{50}=0.32
+$$
+
+All three are close to $\tfrac13\approx0.33$, so there isn't enough evidence to call the spinner biased.
+</WorkedExample>
+
+A **frequency tree** breaks a total down by successive yes/no splits, with each branch's frequencies summing to the total that feeds into it.
+
+<Shortcut title="Frequency trees: fill in what you can, then subtract">
+At each branching point, if you know the total and one branch, the other branch is just the total minus what you know — work outward from whichever numbers the question actually gives you, rather than trying to fill the tree in a fixed order.
+</Shortcut>
+
+<WorkedExample title="Completing a frequency tree">
+50 students take a driving test. $18$ have had $15+$ hours of lessons; of those, $11$ pass first time. $27$ students overall do not pass first time. How many students had *fewer* than $15$ hours of lessons **and** passed first time?
+
+$$
+\text{<15 hrs} = 50-18=32, \qquad \text{15+ hrs, fail} = 18-11=7
+$$
+
+$$
+\text{<15 hrs, fail} = 27-7=20 \implies \text{<15 hrs, pass} = 32-20=12
+$$
+</WorkedExample>
+
+## M7.2 Expected outcomes, randomness and fairness
+
+A **fair** die or spinner gives every outcome an equal chance. **Equally likely events** share the same probability.
+
+<FormulaCard title="Expected frequency">
+$$
+\text{expected number of outcomes} = P(\text{outcome}) \times \text{number of trials}
+$$
+</FormulaCard>
+
+<Trap title="'Expected' doesn't mean 'guaranteed'">
+An expected count is a long-run average, not a prediction for any one run. Rolling a fair die 30 times gives an *expected* five 6s, but the actual count could reasonably be $3$, $4$, $7$, or anything else — repeating an experiment can (and usually does) give a different outcome each time.
+</Trap>
+
+<WorkedExample title="Expected outcomes from a fair die">
+A fair six-sided die is rolled $90$ times. How many times would you expect to land on $5$, an even number, and a square number?
+
+$$
+P(5)=\tfrac16 \implies 90\times\tfrac16=15, \qquad P(\text{even})=\tfrac12 \implies 90\times\tfrac12=45, \qquad P(1\text{ or }4)=\tfrac13 \implies 90\times\tfrac13=30
+$$
+</WorkedExample>
+
+## M7.3 Theoretical probability and the probability scale
+
+$$
+P(\text{event}) = \frac{\text{number of favourable outcomes}}{\text{number of possible outcomes}}
+$$
+
+Probability can be written as a fraction, decimal, or percentage, and always lies on the scale $0$ (impossible) to $1$ (certain).
+
+<Tip title="List outcomes before counting">
+For "how many are prime / square / even," write out the full set of possible outcomes first (e.g. $1$–$6$ for a die), then tick off the ones that qualify — it's far easier to miscount in your head than on paper.
+</Tip>
+
+<WorkedExample title="Several probabilities from one die">
+A fair six-sided die is rolled. Find $P(3)$, $P(\text{even})$, $P(\text{prime})$, $P(\text{square})$.
+
+$$
+P(3)=\tfrac16, \qquad P(\text{even})=\tfrac36=\tfrac12, \qquad P(\text{prime})=P(2,3,5)=\tfrac36=\tfrac12, \qquad P(\text{square})=P(1,4)=\tfrac26=\tfrac13
+$$
+</WorkedExample>
+
+## M7.4 Exhaustive and mutually exclusive events
+
+Events are **exhaustive** if at least one of them must happen, and **mutually exclusive** if no two of them can happen at the same time. A set that is both exhaustive and mutually exclusive has probabilities that sum to exactly $1$.
+
+<FormulaCard title="Complementary events">
+$$
+P(A) + P(\text{not } A) = 1 \implies P(\text{not } A) = 1-P(A)
+$$
+</FormulaCard>
+
+<WorkedExample title="Complement across different notations">
+$P(\text{ace})=\tfrac1{13}$; $P(\text{rain tomorrow})=0.3$; $P(\text{fiction book})=65\%$. Find each complement.
+
+$$
+P(\text{not ace}) = 1-\tfrac1{13}=\tfrac{12}{13}, \qquad P(\text{no rain}) = 1-0.3=0.7, \qquad P(\text{non-fiction}) = 100\%-65\%=35\%
+$$
+</WorkedExample>
+
+<WorkedExample title="Unknown probability from an exhaustive, mutually exclusive set">
+A bag has only red, green and yellow counters: $P(\text{red})=0.35$, $P(\text{yellow})=0.2$. Find $P(\text{green})$.
+
+$$
+P(\text{green}) = 1-0.35-0.2 = 0.45
+$$
+</WorkedExample>
+
+<WorkedExample title="Unknown probabilities split by a ratio">
+A biased spinner has $P(\text{red})=\tfrac15$, $P(\text{blue})=\tfrac18$, $P(\text{yellow})=\tfrac3{10}$, and $P(\text{green}):P(\text{purple})=3:2$. Find $P(\text{green})$.
+
+$$
+\tfrac15+\tfrac18+\tfrac3{10} = \tfrac{8}{40}+\tfrac5{40}+\tfrac{12}{40}=\tfrac{25}{40} \implies P(\text{green})+P(\text{purple}) = 1-\tfrac{25}{40}=\tfrac{15}{40}
+$$
+
+$$
+\tfrac{15}{40}\div(3+2) = \tfrac3{40} \text{ per share} \implies P(\text{green}) = 3\times\tfrac3{40}=\tfrac9{40}
+$$
+</WorkedExample>
+
+## M7.5 Listing outcomes: grids, tables, Venn diagrams and tree diagrams
+
+Systematic listing avoids missing or double-counting outcomes. Choose the tool that fits the structure of the problem:
+
+<FormulaCard title="Which diagram for which situation">
+| Situation | Tool |
+|---|---|
+| Two independent experiments, want *all* pairings | Grid or sample space table |
+| Membership in overlapping categories | Venn diagram |
+| A sequence of experiments, one after another | Tree diagram |
+</FormulaCard>
+
+<WorkedExample title="Grid: coin and spinner combined">
+A coin is flipped and a fair five-sided spinner ($1$–$5$) is spun. Find $P(\text{head, or odd number, or both})$ and $P(\text{tail and not odd})$.
+
+There are $2\times5=10$ equally likely outcomes.
+
+$$
+P(\text{head or odd or both}) = \tfrac{8}{10}=\tfrac45, \qquad P(\text{tail and even}) = \tfrac{2}{10}=\tfrac15
+$$
+</WorkedExample>
+
+<WorkedExample title="Sample space table for two dice">
+Two four-sided dice ($1$–$4$) are rolled. How many outcomes give equal scores, a total of $5$ or more, and a total of exactly $1$?
+
+$$
+\text{16 outcomes total}, \qquad \text{equal scores: } (1,1),(2,2),(3,3),(4,4) = 4
+$$
+
+$$
+\text{total} \ge 5: 10 \text{ outcomes}, \qquad \text{total} = 1: 0 \text{ outcomes (minimum possible total is }2\text{)}
+$$
+</WorkedExample>
+
+<Trap title="Read a Venn diagram's overlap carefully">
+A number in the *overlap* of two circles belongs to **both** sets — don't double-count it when finding "A or B," and remember "neither" means outside every circle, not just outside one.
+</Trap>
+
+<WorkedExample title="Venn diagram: primes and factors of 30">
+For the integers 1–30, the set of factors of $30$ has $8$ members and the set of primes has $10$ members; $3$ numbers ($2,3,5$) are in both. Find $P(\text{prime and factor of }30)$, $P(\text{prime but not a factor})$, and $P(\text{neither})$.
+
+$$
+P(\text{prime and factor}) = \tfrac{3}{30}=\tfrac1{10}, \qquad P(\text{prime, not factor}) = \tfrac{10-3}{30}=\tfrac{7}{30}
+$$
+
+$$
+\text{union} = 8+10-3=15 \implies P(\text{neither}) = \tfrac{30-15}{30}=\tfrac{15}{30}=\tfrac12
+$$
+</WorkedExample>
+
+<WorkedExample title="Three overlapping sets: odd numbers, multiples and squares">
+Among the odd numbers $1$–$49$ ($25$ of them), $8$ are multiples of $3$, $5$ are multiples of $5$, and $2$ (namely $15,45$) are multiples of both. The odd squares are $1,9,25,49$. Find $P(\text{square, not a multiple of }3\text{ or }5)$ and $P(\text{neither square, nor multiple of }3\text{ or }5)$.
+
+Of the four odd squares, only $9$ and $25$ are multiples of $3$ or $5$, leaving $1$ and $49$:
+
+$$
+P(\text{square, not mult. of }3\text{ or }5) = \tfrac2{25}
+$$
+
+By inclusion–exclusion, $|\text{square}\cup3\cup5| = 4+8+5-1-1-2+0=13$, so:
+
+$$
+P(\text{neither}) = \tfrac{25-13}{25}=\tfrac{12}{25}
+$$
+</WorkedExample>
+
+<Shortcut title="Inclusion–exclusion for three sets">
+$$
+|A\cup B\cup C| = |A|+|B|+|C|-|A\cap B|-|A\cap C|-|B\cap C|+|A\cap B\cap C|
+$$
+
+Add all the singles, subtract every pairwise overlap once, then add back the triple overlap (which got subtracted three times by mistake). This is faster and more reliable than trying to shade three circles freehand under time pressure.
+</Shortcut>
+
+<WorkedExample title="Tree diagram: listing and counting outcomes">
+A fair three-sided spinner (red, yellow, blue) is spun twice. Find $P(\text{same colour twice})$, $P(\text{yellow and blue, either order})$, and $P(\text{red at least once})$.
+
+$$
+9 \text{ equally likely outcomes}, \qquad P(\text{same twice}) = \tfrac39=\tfrac13, \qquad P(\text{yellow \& blue}) = \tfrac29
+$$
+
+$$
+P(\text{no red at all}) = \tfrac49 \implies P(\text{red at least once}) = 1-\tfrac49=\tfrac59
+$$
+</WorkedExample>
+
+<WorkedExample title="Tree diagram: three coin tosses">
+A coin is tossed three times. Find $P(\text{no heads})$, $P(\text{exactly two heads})$, and $P(\text{at least one head})$.
+
+$$
+8 \text{ outcomes: HHH, HHT, HTH, HTT, THH, THT, TTH, TTT}
+$$
+
+$$
+P(\text{no heads}) = \tfrac18 \ (\text{TTT}), \qquad P(\text{exactly two heads}) = \tfrac38 \ (\text{HHT, HTH, THH})
+$$
+
+$$
+P(\text{at least one head}) = 1-\tfrac18=\tfrac78
+$$
+</WorkedExample>
+
+## M7.6 Theoretical possibility spaces for single and combined experiments
+
+A **possibility space** (sample space) lists every equally-likely outcome of an experiment; for two combined experiments it's usually shown as a grid, with $|\text{space}| = (\text{outcomes of first})\times(\text{outcomes of second})$.
+
+<WorkedExample title="Possibility space for two dice">
+Two fair six-sided dice are rolled. Find $P(\text{both odd})$.
+
+$$
+3\times3 = 9 \text{ outcomes with both odd, out of } 6\times6=36 \implies P(\text{both odd}) = \tfrac9{36}=\tfrac14
+$$
+</WorkedExample>
+
+<WorkedExample title="Possibility space of a product">
+Two fair six-sided dice are rolled and their scores multiplied. Find $P(\text{product is odd})$ and $P(10<\text{product}<20)$.
+
+A product is odd only if **both** factors are odd, so there are $3\times3=9$ odd products:
+
+$$
+P(\text{odd product}) = \tfrac{9}{36}=\tfrac14
+$$
+
+The only achievable products strictly between $10$ and $20$ are $12$ (4 ways), $15$ (2 ways), $16$ (1 way), and $18$ (2 ways):
+
+$$
+P(10<\text{product}<20) = \tfrac{4+2+1+2}{36}=\tfrac9{36}=\tfrac14
+$$
+</WorkedExample>
+
+<Shortcut title="Not every value between two extremes is achievable">
+When a question asks for a range of *products* (rather than sums), check which values in that range can actually be formed from factors of $1$–$6$ before counting ways — primes like $11,13,17,19$, or values needing a factor above $6$ (like $14=2\times7$), simply don't occur.
+</Shortcut>
+
+## M7.7 Adding and multiplying probabilities; conditional probability
+
+<FormulaCard title="Addition rule">
+$$
+\text{mutually exclusive: } P(A \text{ or } B) = P(A)+P(B) \qquad \text{general: } P(A \text{ or } B) = P(A)+P(B)-P(A \text{ and } B)
+$$
+</FormulaCard>
+
+<FormulaCard title="Multiplication rule (independent events)">
+$$
+P(A \text{ and } B) = P(A)\times P(B)
+$$
+</FormulaCard>
+
+<Trap title="'Or' usually means add; 'and' usually means multiply — but check independence and overlap first">
+The simple addition rule only holds for mutually exclusive events, and the simple multiplication rule only holds for independent events. If events can overlap, subtract $P(A\text{ and }B)$; if one event's outcome affects the other's probability, you need conditional probability instead of a plain product.
+</Trap>
+
+<WorkedExample title="Addition rule for mutually exclusive events">
+A spinner has $P(\text{square number})=\tfrac37$ and $P(\text{prime number})=\tfrac13$ (no number is both). Find $P(\text{prime or square})$.
+
+$$
+P(\text{prime or square}) = \tfrac13+\tfrac37 = \tfrac7{21}+\tfrac9{21}=\tfrac{16}{21}
+$$
+</WorkedExample>
+
+<WorkedExample title="Using the general addition rule to test mutual exclusivity">
+$P(A)=0.32$, $P(B)=0.19$, $P(\text{neither})=0.54$. Are $A$ and $B$ mutually exclusive?
+
+$$
+P(A\text{ or }B) = 1-0.54=0.46 \implies P(A\text{ and }B) = 0.32+0.19-0.46 = 0.05
+$$
+
+Since $P(A\text{ and }B)\ne0$, the events are **not** mutually exclusive.
+</WorkedExample>
+
+<WorkedExample title="Multiplication rule for independent events">
+$P(\text{machine A breaks down})=0.4$, $P(\text{machine B breaks down})=0.25$, independently. Find $P(\text{both break down})$ and $P(\text{neither breaks down})$.
+
+$$
+P(\text{both}) = 0.4\times0.25=0.1, \qquad P(\text{neither}) = 0.6\times0.75=0.45
+$$
+</WorkedExample>
+
+<WorkedExample title="Tree diagram for two independent three-outcome events">
+A football team has $P(\text{win})=0.6$, $P(\text{draw})=0.15$; a cricket team has $P(\text{win})=0.4$, $P(\text{draw})=0.05$ (both independent). Find $P(\text{both win})$, $P(\text{both lose})$, $P(\text{at least one win})$, $P(\text{neither draws})$.
+
+$$
+P(\text{football lose}) = 1-0.6-0.15=0.25, \qquad P(\text{cricket lose}) = 1-0.4-0.05=0.55
+$$
+
+$$
+P(\text{both win}) = 0.6\times0.4=0.24, \qquad P(\text{both lose}) = 0.25\times0.55=0.1375
+$$
+
+$$
+P(\text{at least one win}) = 1-P(\text{neither wins}) = 1-(0.4)(0.6) = 0.76
+$$
+
+$$
+P(\text{neither draws}) = 0.85\times0.95 = 0.8075
+$$
+</WorkedExample>
+
+<Shortcut title="'At least one' is almost always easier via the complement">
+Rather than adding up every branch where at least one success occurs, find $P(\text{no successes at all})$ and subtract from $1$. It's one multiplication instead of several additions.
+</Shortcut>
+
+<WorkedExample title="Tree diagrams with and without replacement">
+A bag has $7$ red and $3$ blue counters. Two are picked at random. Compare $P(\text{both red})$ **with** replacement and **without** replacement.
+
+$$
+\text{with replacement: } P(\text{both red}) = \tfrac{7}{10}\times\tfrac{7}{10}=\tfrac{49}{100}
+$$
+
+$$
+\text{without replacement: } P(\text{both red}) = \tfrac{7}{10}\times\tfrac{6}{9}=\tfrac{42}{90}=\tfrac{7}{15}
+$$
+</WorkedExample>
+
+<Trap title="Without replacement, the second branch's denominator changes">
+Once a counter is removed and not replaced, both the count of that colour *and* the total in the bag drop by one for the second pick — the tree's second-stage probabilities are no longer identical to the first stage's, unlike sampling with replacement.
+</Trap>
+
+**Conditional probability** is the probability of $B$ *given that* $A$ has already happened. If $A$ and $B$ are independent, $P(B\mid A)=P(B)$; otherwise they differ, and two-way tables, Venn diagrams, or tree diagrams can all be used to read conditional probabilities directly off known frequencies.
+
+<WorkedExample title="Conditional probability from a two-way table">
+A factory's workers are split by department (production/warehouse/office) and by whether they drive to work, e.g. $37$ of the $57$ warehouse workers drive. Find $P(\text{drives}\mid\text{warehouse})$.
+
+$$
+P(\text{drives}\mid\text{warehouse}) = \frac{\text{drives and warehouse}}{\text{total warehouse}} = \frac{37}{57}
+$$
+</WorkedExample>
+
+<WorkedExample title="Conditional probability from a Venn diagram">
+Students study French, German and/or Spanish. Of the $47$ who study German, $19+7=26$ also study French. Find $P(\text{studies French}\mid\text{studies German})$.
+
+$$
+P(\text{French}\mid\text{German}) = \frac{19+7}{47} = \frac{26}{47}
+$$
+</WorkedExample>
+
+<Shortcut title="Conditional probability is just 'restrict, then divide'">
+$P(B\mid A) = \dfrac{\text{outcomes with both }A\text{ and }B}{\text{outcomes with }A}$ — mentally shrink the sample space down to just the "given" condition, then treat it as an ordinary probability within that smaller space.
+</Shortcut>
+
+<WorkedExample title="Bayes-style conditional probability from a tree diagram">
+A test for a bacterium is positive $90\%$ of the time when the bacterium is present ($P(\text{present})=0.2$), but also gives a false positive $7\%$ of the time when it's absent. Given a **positive test result**, what is the probability the bacterium is actually present?
+
+$$
+P(\text{present}\mid\text{positive}) = \frac{P(\text{present})\times P(\text{positive}\mid\text{present})}{P(\text{present})P(\text{positive}\mid\text{present}) + P(\text{absent})P(\text{positive}\mid\text{absent})}
+$$
+
+$$
+= \frac{0.2\times0.9}{0.2\times0.9+0.8\times0.07} = \frac{0.18}{0.236} \approx 0.763
+$$
+</WorkedExample>
+
+<Tip title="Reversed conditional probability needs every branch of the tree">
+$P(\text{present}\mid\text{positive})$ is *not* the same number as $P(\text{positive}\mid\text{present})$ — to reverse a conditional probability you need the full tree (both ways positive can happen: true positive and false positive), not just the one branch that seems relevant.
+</Tip>
+
+### Formula and shortcut summary
+
+- Relative frequency $=\dfrac{\text{frequency}}{\text{trials}}$; expected count $=P(\text{event})\times\text{trials}$ (an average, not a guarantee).
+- Exhaustive + mutually exclusive $\implies$ probabilities sum to $1$; $P(\text{not }A)=1-P(A)$.
+- $P(A\text{ or }B)=P(A)+P(B)-P(A\text{ and }B)$; drop the subtraction only when mutually exclusive.
+- $P(A\text{ and }B)=P(A)\times P(B)$ only when independent; otherwise use a tree diagram with changing branch probabilities.
+- "At least one" $=1-P(\text{none})$.
+- $P(B\mid A)=\dfrac{P(A\text{ and }B)}{P(A)}$ — restrict to the given condition, then divide.
 
 <PracticeLink topic="M7. Probability">
 Find probability questions

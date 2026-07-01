@@ -2,18 +2,369 @@ export const meta = {
   slug: "statistics",
   module: "m1",
   title: "Statistics",
-  subtitle: "Placeholder overview for M6. Statistics — full guide coming soon.",
+  subtitle: "Tables, charts and diagrams for categorical, discrete and continuous data, averages and spread, and scatter graphs.",
   topicCode: "M6",
-  estimatedMinutes: 5,
+  estimatedMinutes: 20,
   order: 60,
   relatedQuestionFilters: {
     topics: ["M6. Statistics"],
   },
 };
 
-## What you need to know
+## M6.1 Tables, charts and diagrams for categorical and discrete data
 
-This guide is a placeholder. The full breakdown of M6. Statistics — core facts, fast methods, worked examples, and common traps — is coming soon.
+<FormulaCard title="Matching the diagram to the data">
+| Data | Best representations |
+|---|---|
+| Categorical (few categories) | Bar chart, pie chart, pictogram |
+| Categorical (many categories, or subcategories) | Frequency table, grouped/stacked bar chart |
+| Ungrouped discrete numerical | Vertical line chart |
+| Time series | Table and line graph |
+</FormulaCard>
+
+A **two-way table** has rows and columns forming cells; each cell counts how many items fall into that row *and* that column, and totals go in an extra row/column with the grand total where they cross.
+
+<WorkedExample title="Filling a missing two-way table entry">
+150 pupils each study French or Spanish, not both. A partial two-way table (split by gender) gives boy-French $=42$, boy-Spanish $=37$, girl-French $=44$. How many girls study Spanish?
+
+$$
+42+37+44+x=150 \implies x = 150-123 = 27
+$$
+</WorkedExample>
+
+A **frequency table** records how many times each category occurs, usually tallied in groups of 5 (four verticals and a diagonal strike-through), then totalled.
+
+<Tip title="Check your total">
+Always sum the frequency column at the end and compare it against the number of items you were told were surveyed. It catches most tallying slips instantly.
+</Tip>
+
+- **Bar chart**: bar *length* is proportional to frequency; bars can be simple, grouped (side-by-side subcategories), or stacked (subcategories within one bar).
+- **Pie chart**: sector *angle* is proportional to frequency, out of $360°$.
+- **Pictogram**: a symbol represents a fixed frequency, with a key showing what a full and partial symbol represent.
+- **Vertical line chart**: like a bar chart but the "bars" are lines with no width, used only for *discrete* ungrouped data (the gaps emphasise that in-between values don't occur).
+- **Time series table/line graph**: time always goes on the horizontal axis, with a linear, continuous scale; points are usually joined by straight lines, and a trend line can be added to show the overall pattern.
+
+<Trap title="3D pie charts distort area">
+A pie chart drawn "in 3D" tilts the circle and adds depth, which makes front sectors look larger than their true angle. Treat any 3D pie chart in a question with suspicion — the true proportions are given by the angles, not the apparent area.
+</Trap>
+
+<WorkedExample title="Pie chart from percentages and fractions">
+120 cars pass a school gate. $40\%$ are silver, $12$ are red, $\tfrac14$ are blue, the rest are black. Find each sector angle, and how many cars are black.
+
+$$
+40\% \text{ of } 360° = 144°, \qquad \tfrac{12}{120}=\tfrac1{10} \implies \tfrac1{10}\times360°=36°, \qquad \tfrac14\times360°=90°
+$$
+
+$$
+\text{black} = 360°-144°-36°-90° = 90° = \tfrac14 \text{ of } 360° \implies \tfrac14\times120 = 30 \text{ cars}
+$$
+</WorkedExample>
+
+<Shortcut title="Sector angle without a protractor">
+Once you know a sector's angle, its fraction of the whole is that angle divided by $360°$ — so you never need to measure the frequency directly off a pie chart if the angles are marked.
+</Shortcut>
+
+<WorkedExample title="Reading a pictogram with part-symbols">
+A pictogram uses triangles to show how many of 60 students have a given number of siblings; the triangle counts (including part-triangles) are $2, 3.5, 4.5, 3, 2$. How many students does one triangle represent, and how many students have 2 or more siblings?
+
+$$
+\text{total triangles} = 2+3.5+4.5+3+2=15, \qquad 60\div15 = 4 \text{ students per triangle}
+$$
+
+$$
+\text{2+ siblings: } 4.5+3+2 = 9.5 \text{ triangles} = 9.5\times4 = 38 \text{ students}
+$$
+</WorkedExample>
+
+<WorkedExample title="Vertical line chart totals">
+A vertical line chart shows marks out of 10 for a class, with line "heights" (frequencies) $1,3,4,5,10,9,7,6,4,1$ for marks $1$ to $10$. How many students took the test, and how many scored $6$ or more?
+
+$$
+\text{total} = 1+3+4+5+10+9+7+6+4+1 = 50
+$$
+
+$$
+6 \text{ or more: } 9+7+6+4+1 = 27
+$$
+</WorkedExample>
+
+## M6.2 Diagrams for grouped discrete and continuous data
+
+**Discrete data** can only take fixed (usually integer) values — number of pupils, number of cars. **Continuous data** can take any value in a range — height, mass, time.
+
+Class intervals group continuous data using inequalities, so the upper boundary of one class is the lower boundary of the next. If measurements are given "to the nearest cm," the class boundaries sit half a unit either side of the rounded limits.
+
+<WorkedExample title="Converting rounded limits to class boundaries">
+Heights are measured to the nearest cm and grouped as $150$–$154$, $155$–$159$, and so on. Write the class interval for the first group.
+
+$$
+149.5 \le h < 154.5
+$$
+
+The lower boundary $149.5$ is the smallest value that *rounds up* to $150$; the upper boundary $154.5$ is the smallest value that rounds up to the next group's start.
+</WorkedExample>
+
+<Trap title="Class intervals need not be equal width">
+The final class in a table is often wider than the rest (e.g. covering $170$–$179$ instead of a $5$-unit gap) to avoid very low frequencies in a "tail." Always read the class width off the boundaries — don't assume every bar in a histogram is the same width.
+</Trap>
+
+<FormulaCard title="Histogram rules">
+$$
+\text{area of bar} \propto \text{frequency}, \qquad \text{frequency density} = \frac{\text{frequency}}{\text{class width}}
+$$
+
+Bars sit on a continuous, linear scale with **no gaps** (unless a class is empty), and the vertical axis is always frequency density — never frequency, once class widths differ.
+</FormulaCard>
+
+<Trap title="Never read frequency straight off a histogram's height">
+A histogram's height is frequency *density*, not frequency. To recover the actual frequency of a bar, multiply its height (density) by its width: $\text{frequency} = \text{frequency density}\times\text{class width}$.
+</Trap>
+
+<WorkedExample title="Frequency density table">
+Tomato plant heights (nearest cm) are grouped $50$–$59$ ($f=15$), $60$–$69$ ($f=20$), $70$–$79$ ($f=25$), $80$–$89$ ($f=53$), $90$–$109$ ($f=30$). Find the class width and frequency density of each group.
+
+$$
+\text{widths: } 10,10,10,10,20 \qquad \text{densities: } 1.5,\ 2,\ 2.5,\ 5.3,\ 1.5
+$$
+
+The last class is twice as wide as the others, so despite having the second-highest frequency ($30$), it does **not** produce the tallest bar.
+</WorkedExample>
+
+**Cumulative frequency** is the running total of frequency, plotted against the *upper* class boundary. The curve is usually an elongated S-shape, and (0, 0) is included as the starting point.
+
+<FormulaCard title="Reading a cumulative frequency graph (total $n$)">
+$$
+\text{median} \leftrightarrow \tfrac{n}{2}, \qquad \text{lower quartile} \leftrightarrow \tfrac{n}{4}, \qquad \text{upper quartile} \leftrightarrow \tfrac{3n}{4}, \qquad \text{IQR} = Q_3-Q_1
+$$
+</FormulaCard>
+
+<WorkedExample title="Cumulative frequency: median and a threshold count">
+Insects caught in $65$ traps have frequencies $5,8,15,20,14,3$ for classes $0<n\le5$ up to $25<n\le30$. Estimate the median number of insects, and the number of traps with **more than** $17$ insects.
+
+$$
+\text{cumulative: } 5,\ 13,\ 28,\ 48,\ 62,\ 65
+$$
+
+$$
+\text{median} \leftrightarrow \tfrac{65}{2}=32.5 \implies \text{read off} \approx 16 \text{ insects (interval } 15<n\le20\text{)}
+$$
+
+$$
+\text{traps with} \le17: \text{read off} \approx 36 \implies \text{more than }17: 65-36=29
+$$
+</WorkedExample>
+
+<Tip title="Interpolate along the curve, not just at plotted points">
+To answer "traps with more than 17 insects" you need the height of the curve *at* $n=17$, which sits inside a class rather than at a plotted point — draw a vertical line up to the curve and read across, treating the curve as roughly straight between its plotted points.
+</Tip>
+
+## M6.3 Averages and range; estimates from grouped data
+
+<FormulaCard title="Mean, median, mode, range">
+$$
+\text{mean} = \frac{\text{sum of values}}{\text{number of values}}, \qquad \text{median: the } \frac{n+1}{2}\text{th value when ordered}
+$$
+
+$$
+\text{mode: the most frequent value}, \qquad \text{range} = \text{largest} - \text{smallest}
+$$
+</FormulaCard>
+
+If $n$ is even, the median position $\tfrac{n+1}{2}$ falls between two list entries, so the median is their average — it need not be a value in the list. The mode, by contrast, always is a value in the list (there can be no mode, or several).
+
+<Shortcut title="Subtract a convenient number before averaging">
+When every value clusters near a large number (e.g. all close to $1200$), subtract that number from each value first, average the small differences, then add the number back. Adding/subtracting to find a running total of signed differences is far less error-prone than summing large numbers directly.
+</Shortcut>
+
+<WorkedExample title="Mean via a convenient offset">
+Find the mean of $1193, 1194, 1196, 1198, 1199, 1201, 1203, 1204, 1205, 1207$.
+
+Subtract $1200$ from each: $-7,-6,-4,-2,-1,1,3,4,5,7$, which sum to $0$ (the negatives and positives cancel in pairs).
+
+$$
+\text{mean} = 1200 + \frac{0}{10} = 1200
+$$
+</WorkedExample>
+
+<WorkedExample title="Median, mode(s) and range from a raw list">
+Find the median, mode, and range of $2,5,4,1,0,6,4,8,6,9,3,8,7,1,8,6$.
+
+Ordered: $0,1,1,2,3,4,4,5,6,6,6,7,8,8,8,9$ ($n=16$).
+
+$$
+\text{median position} = \tfrac{17}{2}=8.5 \implies \text{median} = \tfrac{5+6}{2}=5.5
+$$
+
+Both $6$ and $8$ occur three times, so there are **two modes**: $6$ and $8$. Range $=9-0=9$.
+</WorkedExample>
+
+<Trap title="Don't read the range off the frequency column">
+For a frequency table, the range comes from the largest and smallest *data values* listed, not from the largest and smallest frequency. It's an easy mix-up under time pressure.
+</Trap>
+
+For **grouped data** you don't know the individual values, so range, mean and median can only be *estimated*:
+
+- **Range**: highest class limit $-$ lowest class limit (an estimate, since the true extreme values within those classes are unknown).
+- **Mean**: use each class's **mid-interval value** as a stand-in for every item in that class, multiply by frequency, sum, then divide by total frequency. This assumes data is spread evenly across each class.
+- **Median**: find which class contains the $\tfrac{n+1}{2}$th item by adding a running total of frequencies, then interpolate within that class.
+- **Modal class**: the class with the highest frequency (or, from a histogram, the highest frequency *density*).
+
+<WorkedExample title="Estimating mean and median from a grouped frequency table">
+125 shoppers' ages are grouped in tens from $10$–$19$ to $70$–$79$, with frequencies $5,10,12,18,25,35,20$. Estimate the mean and median age.
+
+$$
+\sum fx = 5(14.5)+10(24.5)+12(34.5)+18(44.5)+25(54.5)+35(64.5)+20(74.5) = 6642.5
+$$
+
+$$
+\text{mean} \approx 6642.5\div125 = 53.14 \approx 53 \text{ years}
+$$
+
+Running totals $5,15,27,45,70,105,125$ show the $\tfrac{126}{2}=63$rd age falls in $50$–$59$, as the $18$th of $25$ values in that class:
+
+$$
+\text{median} \approx 50 + \tfrac{18}{25}\times10 = 57.2 \approx 57 \text{ years}
+$$
+</WorkedExample>
+
+<Tip title="Estimates from a histogram, step by step">
+Frequency density gives you the *shape* only — to estimate statistics, first recover each bar's actual frequency ($\text{density}\times\text{width}$), then treat the histogram exactly like an ordinary grouped frequency table for the mean, median and modal class.
+</Tip>
+
+**Comparing distributions.** The mean uses every value so is pulled around by outliers; the median ignores extreme values and needs orderable data; the mode works even for non-numerical categories but may sit at either end of the data. The range is easy but outlier-sensitive; the interquartile range (the middle $50\%$ of the data, $Q_3-Q_1$) is more robust but says nothing about the extremes.
+
+<WorkedExample title="Comparing two factories with summary statistics">
+Factories $A$ and $B$ (each open $48$ weeks/year) have weekly output stats: mean $14$ vs $15$, range $4$ vs $11$, lower quartile $13$ each, IQR $2$ vs $6$. Which factory can *guarantee* $11$ or more motorbikes every week?
+
+$$
+A: \text{total} = 48\times14=672, \quad B: \text{total} = 48\times15=720 \implies \text{difference } 48
+$$
+
+The lowest possible output in a factory is (highest output) $-$ range, and highest output $\ge$ upper quartile $=$ lower quartile $+$ IQR:
+
+$$
+A: \text{UQ}=13+2=15 \implies \text{min} \ge 15-4=11 \qquad B: \text{UQ}=13+6=19 \implies \text{min}\ge19-11=8
+$$
+
+Only factory $A$ guarantees $11$ or more every week, even though $B$ has the higher mean.
+</WorkedExample>
+
+<Trap title="A bigger mean doesn't mean 'always more'">
+The worked example above is a classic trap: Factory $B$ has the higher mean *and* a higher minimum bound of only $8$, so it cannot guarantee the buyer's requirement — always check spread (range/IQR) alongside the average before concluding one data set is "better."
+</Trap>
+
+<WorkedExample title="Estimating median and IQR from a cumulative frequency graph">
+70 students sit a History test out of $40$. Estimate the median, IQR, and modal class from a cumulative frequency graph.
+
+$$
+\text{median} \leftrightarrow \tfrac{70}{2}=35\text{th student} \approx 17.5 \text{ marks}
+$$
+
+$$
+Q_1 \leftrightarrow 0.25\times70=17.5\text{th} \approx 12.25, \qquad Q_3 \leftrightarrow 0.75\times70=52.5\text{th}\approx21.5 \implies \text{IQR}\approx9.25
+$$
+
+The modal class is the **steepest** section of the curve (when class widths are equal) — here, marks $15$ to $20$.
+</WorkedExample>
+
+<Shortcut title="Estimating a mean from a cumulative frequency graph">
+Read off the frequency in each class as the *difference* in cumulative frequency between consecutive class boundaries, then treat it exactly like an ordinary grouped-mean calculation: multiply each class's mid-interval value by its (recovered) frequency, sum, and divide by the total.
+</Shortcut>
+
+<WorkedExample title="Estimating a mean from a histogram">
+Plant heights after 6 weeks are grouped as $4.5$–$9.5$, $9.5$–$14.5$, $14.5$–$19.5$, $19.5$–$24.5$, $24.5$–$34.5$ with frequencies $5,8,12,15,20$ recovered from frequency density $\times$ width. Estimate the mean height and identify the modal class.
+
+$$
+\sum f x = 5(7)+8(12)+12(17)+15(22)+20(29.5) = 1255, \qquad n = 5+8+12+15+20=60
+$$
+
+$$
+\text{mean} \approx 1255\div60 = 20.9 \text{ cm (1 d.p.)}
+$$
+
+The modal class is the one with the highest **frequency density** (tallest bar), not the highest frequency — here $19.5\le x<24.5$, since $15\div5=3$ beats every other class's density, even the $20$-strong last class ($20\div10=2$).
+</WorkedExample>
+
+## M6.4 Scatter graphs, correlation, and lines of best fit
+
+**Bivariate data** involves two variables measured on the same items (e.g. height and weight). A **scatter graph** plots one point per item. If one variable plausibly causes changes in the other, the *explanatory* variable goes on the horizontal axis and the *response* variable on the vertical axis.
+
+<FormulaCard title="Describing correlation">
+$$
+\text{positive correlation: both variables increase together} \qquad \text{negative correlation: one increases as the other decreases}
+$$
+
+Strength ranges from **no correlation** through **weak**, **strong**, to **perfect** (all points exactly on a line).
+</FormulaCard>
+
+<svg viewBox="0 0 300 130" width="100%" height="auto" role="img" aria-label="Two scatter graphs: strong positive correlation and no correlation">
+  <line x1="15" y1="15" x2="15" y2="115" stroke="var(--border-subtle)" strokeWidth="1.5" />
+  <line x1="15" y1="115" x2="130" y2="115" stroke="var(--border-subtle)" strokeWidth="1.5" />
+  <circle cx="30" cy="100" r="3" fill="var(--color-accent-strong)" />
+  <circle cx="45" cy="88" r="3" fill="var(--color-accent-strong)" />
+  <circle cx="55" cy="80" r="3" fill="var(--color-accent-strong)" />
+  <circle cx="70" cy="65" r="3" fill="var(--color-accent-strong)" />
+  <circle cx="80" cy="55" r="3" fill="var(--color-accent-strong)" />
+  <circle cx="95" cy="45" r="3" fill="var(--color-accent-strong)" />
+  <circle cx="110" cy="30" r="3" fill="var(--color-accent-strong)" />
+  <text x="35" y="128" fontSize="10" fill="var(--text-muted)">strong positive</text>
+  <line x1="185" y1="15" x2="185" y2="115" stroke="var(--border-subtle)" strokeWidth="1.5" />
+  <line x1="185" y1="115" x2="300" y2="115" stroke="var(--border-subtle)" strokeWidth="1.5" />
+  <circle cx="200" cy="95" r="3" fill="var(--text-secondary)" />
+  <circle cx="260" cy="90" r="3" fill="var(--text-secondary)" />
+  <circle cx="215" cy="50" r="3" fill="var(--text-secondary)" />
+  <circle cx="280" cy="60" r="3" fill="var(--text-secondary)" />
+  <circle cx="235" cy="30" r="3" fill="var(--text-secondary)" />
+  <circle cx="250" cy="105" r="3" fill="var(--text-secondary)" />
+  <circle cx="290" cy="40" r="3" fill="var(--text-secondary)" />
+  <text x="205" y="128" fontSize="10" fill="var(--text-muted)">no correlation</text>
+</svg>
+
+<Shortcut title="Sketch a rectangle around the points">
+Draw the tightest rectangle enclosing all the points, aligned with the general trend. A narrow rectangle means strong correlation; a nearly square/circular one means little or none. The line of best fit runs parallel to the rectangle's long sides.
+</Shortcut>
+
+<Trap title="Correlation is not causation">
+Two variables can move together because one causes the other, because a third factor drives both, or purely by chance (spurious correlation). Ice-cream sales and sunburn cases correlate — but neither causes the other directly; both are driven by hot weather.
+</Trap>
+
+<WorkedExample title="Correlation without causation">
+A teacher plots test marks against days absent and finds a strong negative correlation. Can she conclude absence *causes* lower marks?
+
+The narrow, downward-sloping scatter shows a genuine association, but not proof of causation — factors like prior ability, illness, or missed topics could drive both the absences and the lower marks.
+</WorkedExample>
+
+The **line of best fit** is drawn through the scatter so roughly equal numbers of points lie above and below it, running parallel to the long sides of the enclosing rectangle; it need not pass through any actual point.
+
+<FormulaCard title="Interpolation vs. extrapolation">
+$$
+\text{interpolation: estimating \textit{within} the range of the data (usually reliable)}
+$$
+
+$$
+\text{extrapolation: estimating \textit{outside} the range of the data (less reliable)}
+$$
+</FormulaCard>
+
+<Trap title="Extrapolation assumes the trend continues unchanged">
+There's no evidence the line of best fit still applies once you go beyond the data you actually collected — the true relationship could curve, level off, or reverse. Always flag extrapolated estimates as less reliable than interpolated ones.
+</Trap>
+
+<WorkedExample title="Using a line of best fit for interpolation and extrapolation">
+15 pupils' Physics and Chemistry marks (both out of 90) show strong positive correlation. Using the line of best fit, estimate the Physics mark for a pupil scoring $50$ in Chemistry, and the Chemistry mark for a pupil scoring $85$ in Physics.
+
+Reading up from $50$ on the Chemistry axis to the line and across gives a Physics mark of $\approx49$ — this is **interpolation** ($50$ lies within the data's Chemistry range), so reasonably reliable.
+
+Reading across from $85$ on the Physics axis requires extending the line beyond the plotted points, giving a Chemistry mark of $\approx86$ — this is **extrapolation**, so less certain, since nothing guarantees the trend holds beyond the recorded marks.
+</WorkedExample>
+
+### Formula and shortcut summary
+
+- Frequency density $=\dfrac{\text{frequency}}{\text{class width}}$; histogram bar **area** (not height) represents frequency.
+- Cumulative frequency plots against the **upper** class boundary; median $\leftrightarrow\frac n2$, quartiles $\leftrightarrow\frac n4,\frac{3n}{4}$.
+- Grouped-data mean: use mid-interval values, $\text{mean}\approx\dfrac{\sum fx}{\sum f}$.
+- Range and IQR both measure spread; IQR is more resistant to outliers, range is more complete but less robust.
+- Draw a bounding rectangle to judge correlation strength at a glance; interpolate with confidence, extrapolate with caution.
 
 <PracticeLink topic="M6. Statistics">
 Find statistics questions

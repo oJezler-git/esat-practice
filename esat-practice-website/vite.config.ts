@@ -104,6 +104,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "*.png"],
         globIgnores: ["data/**"],
         navigateFallback: "/index.html",
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /\/data\/images\//,

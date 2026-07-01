@@ -2,18 +2,590 @@ export const meta = {
   slug: "number",
   module: "m1",
   title: "Number",
-  subtitle: "Placeholder overview for M2. Number — full guide coming soon.",
+  subtitle: "Ordering, arithmetic, primes, indices, and working exactly with fractions, surds, and bounds.",
   topicCode: "M2",
-  estimatedMinutes: 5,
+  estimatedMinutes: 10,
   order: 20,
   relatedQuestionFilters: {
     topics: ["M2. Number"],
   },
 };
 
-## What you need to know
+## M2.1 Ordering numbers and inequality symbols
 
-This guide is a placeholder. The full breakdown of M2. Number — core facts, fast methods, worked examples, and common traps — is coming soon.
+| Symbol | Meaning | Example |
+|---|---|---|
+| $=$ | is equal to | $6 + 4 = 10$ |
+| $\neq$ | is not equal to | $6 + 4 \neq 11$ |
+| $<$ | is less than | $6 + 4 < 11$ |
+| $>$ | is greater than | $6 + 4 > 9$ |
+| $\leq$ | is less than or equal to | $6 + 5 \leq 11$ |
+| $\geq$ | is greater than or equal to | $6 + 5 \geq 11$ |
+
+<Tip title="Which way does the symbol point?">
+The symbol always "opens" toward the bigger number — think of it as a mouth eating the larger value. $6 > 4$ has the wide side facing 6.
+</Tip>
+
+<WorkedExample title="Testing inequalities">
+If $x = 6$ and $y = -4$, is $x + y > 4$ true or false?
+
+$$
+x + y = 6 + (-4) = 2
+$$
+
+2 isn't greater than 4, so this is **false**.
+</WorkedExample>
+
+### Ordering integers and decimals
+
+Sort by sign first, then compare column by column with the decimal points lined up. A number line does the same job visually — bigger numbers sit further right (or higher, on a vertical axis).
+
+<Trap title="Negative numbers flip the usual order">
+$-1356$ looks "bigger" than $-235$ since 1356 > 235, but for negatives the bigger magnitude is the smaller value: $-1356 < -235$.
+</Trap>
+
+### Ordering fractions
+
+Put them all over a common denominator and compare numerators, or just convert each to a decimal and compare those directly.
+
+<WorkedExample title="Ordering a mix of fractions and decimals">
+Write in order of size, smallest first: $\dfrac{3}{7}$, $0.434$, $\dfrac{9}{20}$, $0.0934$, $\dfrac{89}{1000}$
+
+Convert every fraction to a decimal:
+
+$$
+\frac{3}{7} = 0.428\ldots, \qquad \frac{9}{20} = 0.45, \qquad \frac{89}{1000} = 0.089
+$$
+
+Now line up all five decimals: $0.089,\ 0.0934,\ 0.428,\ 0.434,\ 0.45$
+
+$$
+\frac{89}{1000},\ 0.0934,\ \frac{3}{7},\ 0.434,\ \frac{9}{20}
+$$
+</WorkedExample>
+
+<Shortcut title="Convert to a common form first">
+Whenever a list mixes integers, decimals, fractions and percentages, turn everything into decimals before comparing — much safer than eyeballing mixed formats.
+</Shortcut>
+
+## M2.2 The four operations, and place value
+
+Addition, subtraction, multiplication and division all work the same way on integers, decimals, fractions and mixed numbers — the trick is just handling place value and denominators carefully.
+
+<Tip title="Line up the decimal points">
+For addition and subtraction of decimals, write the numbers with their decimal points stacked directly above each other, padding with zeros where needed. Get this wrong and every digit after it is wrong too.
+</Tip>
+
+### Fractions: common denominator first
+
+To add or subtract fractions, convert to a common denominator. For mixed numbers, it's often cleanest to convert to improper fractions first rather than juggling whole and fractional parts separately.
+
+<WorkedExample title="Subtracting mixed numbers">
+Find $1\dfrac{1}{4} - \dfrac{7}{8}$.
+
+Convert to an improper fraction: $1\dfrac{1}{4} = \dfrac{5}{4} = \dfrac{10}{8}$
+
+$$
+\frac{10}{8} - \frac{7}{8} = \frac{3}{8}
+$$
+</WorkedExample>
+
+### Multiplying and dividing decimals
+
+<Shortcut title="Multiply as integers, place the point last">
+To multiply decimals, ignore the decimal points, multiply as whole numbers, then count the total number of decimal places across both original numbers and put the point back that many places from the right.
+</Shortcut>
+
+<WorkedExample title="Multiplying decimals">
+Calculate $12.3 \times 0.46$.
+
+$$
+123 \times 46 = 5658
+$$
+
+$12.3$ has 1 decimal place and $0.46$ has 2, so the answer has 3:
+
+$$
+12.3 \times 0.46 = 5.658
+$$
+</WorkedExample>
+
+To divide by a decimal, multiply both the dividend and the divisor by the same power of 10 until the divisor is a whole number — this doesn't change the answer, since you're scaling top and bottom equally.
+
+<WorkedExample title="Dividing by a decimal">
+Calculate $23.856 \div 0.06$.
+
+Multiply both numbers by 100 so the divisor becomes an integer:
+
+$$
+23.856 \div 0.06 = 2385.6 \div 6 = 397.6
+$$
+</WorkedExample>
+
+<Shortcut title="Sanity-check with a rough estimate">
+$23.856 \div 0.06$ is roughly $24 \div 0.06 \approx 400$, which confirms $397.6$ has the decimal point in the right place. Always run this check on multi-step decimal arithmetic — misplaced decimal points are the single most common ESAT arithmetic error.
+</Shortcut>
+
+## M2.3 Primes, factors and multiples
+
+A prime number has exactly two factors: 1 and itself.
+
+<Trap title="1 is not prime, and 2 is the odd one out">
+1 only has one factor, so it's excluded by definition. 2 is the only *even* prime — every other even number is divisible by 2, so it can't be prime.
+</Trap>
+
+<Tip title="Memorise the primes under 30">
+$$
+2, 3, 5, 7, 11, 13, 17, 19, 23, 29
+$$
+Apart from 2 and 5, every prime ends in 1, 3, 7 or 9 — useful for quickly ruling numbers *in* as candidates, though not proving them prime.
+</Tip>
+
+Divisibility tests let you check for small factors without dividing:
+
+| Divisible by | Test |
+|---|---|
+| 2 | last digit is even |
+| 3 | digit sum divisible by 3 |
+| 4 | last two digits divisible by 4 |
+| 5 | last digit is 0 or 5 |
+| 6 | divisible by both 2 and 3 |
+| 8 | last three digits divisible by 8 |
+| 9 | digit sum divisible by 9 |
+
+<Shortcut title="The 7-test">
+Double the last digit, subtract it from the rest of the number, and check if *that's* divisible by 7. For 546: $54 - 2\times 6 = 42$, and $42 = 6 \times 7$, so 546 is a multiple of 7.
+</Shortcut>
+
+### Prime factorisation, HCF and LCM
+
+Every integer greater than 1 has exactly one prime factorisation (the *unique factorisation theorem*) — write it using index notation.
+
+<WorkedExample title="Prime factorisation in index form">
+Write 180 as a product of primes.
+
+Repeatedly divide by the smallest prime that fits:
+
+$$
+180 = 2 \times 2 \times 3 \times 3 \times 5 = 2^2 \times 3^2 \times 5
+$$
+</WorkedExample>
+
+To find the **HCF**, take the *lowest* power of every prime common to both numbers. To find the **LCM**, take the *highest* power of every prime appearing in either number.
+
+<WorkedExample title="HCF and LCM from prime factors">
+Find the HCF and LCM of 180 and 420.
+
+$$
+180 = 2^2 \times 3^2 \times 5, \qquad 420 = 2^2 \times 3 \times 5 \times 7
+$$
+
+HCF uses the lowest power of each shared prime: $2^2 \times 3 \times 5 = 60$
+
+LCM uses the highest power of every prime present: $2^2 \times 3^2 \times 5 \times 7 = 1260$
+</WorkedExample>
+
+<Shortcut title="Free check: HCF × LCM = product of the numbers">
+$$
+\text{HCF} \times \text{LCM} = \text{first number} \times \text{second number}
+$$
+Here, $60 \times 1260 = 75\,600$ and $180 \times 420 = 75\,600$ — they match, so both answers are almost certainly right. (Only works for exactly two numbers.)
+</Shortcut>
+
+<Shortcut title="Square roots from prime factorisation">
+If every prime in a factorisation appears to an even power, you can halve every index to get the square root without a calculator. Given $129\,600 = 2^6 \times 3^4 \times 5^2$:
+$$
+\sqrt{129\,600} = 2^3 \times 3^2 \times 5 = 360
+$$
+</Shortcut>
+
+## M2.4 Inverse operations, cancelling, and order of operations
+
+Addition and subtraction undo each other; multiplication and division undo each other. To "undo" an operation applied to an unknown, apply its inverse to both sides.
+
+<WorkedExample title="Using inverse operations">
+A number is divided by 8, giving 104. What was the number?
+
+$$
+\frac{x}{8} = 104 \implies x = 104 \times 8 = 832
+$$
+</WorkedExample>
+
+### Cancelling before you calculate
+
+<Shortcut title="Simplify first, multiply last">
+Look for common factors across the whole calculation — not just within one fraction — before multiplying anything out.
+</Shortcut>
+
+<WorkedExample title="Cancelling across a calculation">
+Simplify $\dfrac{21 \times 55}{63 \times 85}$.
+
+$63 = 3 \times 21$, so cancel the 21s; $85 = 17 \times 5$, so cancel a factor of 5 from 55:
+
+$$
+\frac{21 \times 55}{63 \times 85} = \frac{1 \times 11}{3 \times 17} = \frac{11}{51}
+$$
+</WorkedExample>
+
+### Order of operations
+
+<FormulaCard title="BIDMAS / PEMDAS">
+1. **Brackets** — innermost first
+2. **Indices** (powers, roots, reciprocals)
+3. **Division and Multiplication** — left to right
+4. **Addition and Subtraction** — left to right
+</FormulaCard>
+
+<Trap title="An index only applies to what's directly attached">
+In $8 - 3(6-8)^2$, the power 2 applies only to the bracket, not to the 3 in front of it:
+
+$$
+8 - 3(6-8)^2 = 8 - 3(-2)^2 = 8 - 3 \times 4 = 8 - 12 = -4
+$$
+</Trap>
+
+<Trap title="Subtracting a negative flips to addition">
+$$
+3 - (6 - 9) = 3 - (-3) = 3 + 3 = 6
+$$
+</Trap>
+
+## M2.5 Systematic listing strategies
+
+<FormulaCard title="The counting principle">
+If there are $m$ ways to do one task, and for each of those there are $n$ ways to do a second task, the two tasks together can be done in $m \times n$ ways.
+</FormulaCard>
+
+<WorkedExample title="Codes with and without repeats">
+A 4-digit code uses digits 0–9. How many codes are possible, and how many have no repeated digit?
+
+With repeats allowed: $10 \times 10 \times 10 \times 10 = 10\,000$
+
+With every digit different, each choice removes one option from the next digit's pool:
+
+$$
+10 \times 9 \times 8 \times 7 = 5040
+$$
+</WorkedExample>
+
+<Shortcut title="'At least one repeat' = total minus 'no repeats'">
+It's almost always easier to count the complement. Codes with at least two matching digits:
+$$
+10\,000 - 5040 = 4960
+$$
+rather than trying to list every way a repeat could occur directly.
+</Shortcut>
+
+## M2.6 Squares, square roots, cubes and cube roots
+
+| Operation | Rule | Example |
+|---|---|---|
+| Square | $x^2 = x \times x$ | $(-4)^2 = 16$ |
+| Square root | positive value that squares to give the number | $\sqrt{9} = 3$ |
+| Cube | $x^3 = x \times x \times x$ | $(-4)^3 = -64$ |
+| Cube root | value that cubes to give the number | $\sqrt[3]{64} = 4$ |
+
+<Trap title="Squaring always gives a positive result, cubing keeps the sign">
+$(-4)^2 = 16$ (positive), but $(-4)^3 = -64$ (still negative) — the sign only survives an odd number of multiplications.
+</Trap>
+
+<Tip title="√ means the positive root, by definition">
+$\sqrt{9} = 3$ only — never $\pm 3$. If you need the negative one too (e.g. solving $x^2 = 9$), say so explicitly: $x = \pm 3$.
+</Tip>
+
+<Shortcut title="Memorise squares to 15² and cubes to 5³">
+Knowing $1^2$–$15^2$ (up to 225) and $1^3$–$5^3$ (up to 125) by heart saves real time recognising perfect squares and cubes under exam pressure — especially useful for spotting simplifiable surds (see M2.11).
+</Shortcut>
+
+## M2.7 Index laws
+
+<FormulaCard title="Index laws">
+$$
+a^m \times a^n = a^{m+n}, \qquad a^m \div a^n = a^{m-n}, \qquad (a^m)^n = a^{mn}
+$$
+
+$$
+a^0 = 1, \qquad a^1 = a, \qquad a^{-m} = \frac{1}{a^m}, \qquad \left(\frac{a}{b}\right)^m = \frac{a^m}{b^m}
+$$
+
+$$
+a^{\frac{m}{n}} = \sqrt[n]{a^m} = \left(\sqrt[n]{a}\right)^m
+$$
+</FormulaCard>
+
+<Shortcut title="Root first, then power">
+For a fractional index like $a^{m/n}$, take the $n$th root *before* raising to the power $m$ — the numbers stay far smaller.
+</Shortcut>
+
+<WorkedExample title="Fractional and negative indices">
+Evaluate $16^{-3/4}$.
+
+Root first (fourth root of 16 is 2), then cube, then flip for the negative sign:
+
+$$
+16^{-3/4} = \frac{1}{16^{3/4}} = \frac{1}{\left(\sqrt[4]{16}\right)^3} = \frac{1}{2^3} = \frac{1}{8}
+$$
+</WorkedExample>
+
+<WorkedExample title="Power of a fraction">
+Work out $\left(\dfrac{3}{4}\right)^4$.
+
+$$
+\left(\frac{3}{4}\right)^4 = \frac{3^4}{4^4} = \frac{81}{256}
+$$
+</WorkedExample>
+
+## M2.8 Standard form
+
+A number in standard form is written as $a \times 10^n$, where $1 \leq a < 10$ and $n$ is an integer.
+
+<WorkedExample title="Converting into standard form">
+Express 0.0000124 in standard form.
+
+Move the decimal point until you have a number between 1 and 10 — here that's 1.24 — and count how many places you moved it: 5 places to the right, so divide by $10^5$, i.e. multiply by $10^{-5}$.
+
+$$
+0.0000124 = 1.24 \times 10^{-5}
+$$
+</WorkedExample>
+
+<Shortcut title="Ordering standard form numbers: exponent first">
+Compare the powers of 10 first; only compare the leading coefficients if the powers are equal.
+</Shortcut>
+
+To calculate with standard form, combine the coefficients and the powers of 10 separately, then renormalise if needed.
+
+<WorkedExample title="Multiplying in standard form">
+$p = 4 \times 10^5$ and $q = 8 \times 10^{-3}$. Find $pq$.
+
+$$
+pq = (4 \times 8) \times 10^{5 + (-3)} = 32 \times 10^2
+$$
+
+32 isn't between 1 and 10, so renormalise:
+
+$$
+32 \times 10^2 = 3.2 \times 10^1 \times 10^2 = 3.2 \times 10^3
+$$
+</WorkedExample>
+
+<Trap title="Don't forget to renormalise">
+An answer like $32 \times 10^2$ is *correct* but not in standard form — always check the coefficient still satisfies $1 \leq a < 10$ after multiplying, dividing, or squaring.
+</Trap>
+
+## M2.9 Converting between fractions, decimals and percentages
+
+<FormulaCard title="Quick conversions">
+Decimal → percentage: $\times 100$. Percentage → decimal: $\div 100$.
+
+Terminating decimal → fraction: use the smallest place value as the denominator, e.g. $0.0307 = \dfrac{307}{10\,000}$ (the 7 is in the 10 000ths column).
+</FormulaCard>
+
+### Recurring decimals to fractions
+
+<Shortcut title="Multiply, subtract, solve">
+Let $x$ equal the recurring decimal. Multiply by $10^{(\text{number of recurring digits})}$ so the recurring part lines up exactly, then subtract the original $x$ — the repeating tail cancels out completely.
+</Shortcut>
+
+<WorkedExample title="Converting a recurring decimal to a fraction">
+Convert $0.\dot{4}\dot{5}$ (i.e. $0.454545\ldots$) to a fraction.
+
+$$
+x = 0.454545\ldots \qquad 100x = 45.454545\ldots
+$$
+
+Subtract to cancel the recurring part:
+
+$$
+100x - x = 45 \implies 99x = 45 \implies x = \frac{45}{99} = \frac{5}{11}
+$$
+</WorkedExample>
+
+<WorkedExample title="Ordering fractions, decimals and percentages together">
+Order these smallest first: $\dfrac{4}{11}$, $37\%$, $\dfrac{7}{20}$, $0.3\dot{6}$
+
+Convert everything to decimals:
+
+$$
+\frac{4}{11} = 0.\dot{3}\dot{6} = 0.3636\ldots, \quad 37\% = 0.370, \quad \frac{7}{20} = 0.350, \quad 0.3\dot{6} = 0.3666\ldots
+$$
+
+$$
+\frac{7}{20}, \ \frac{4}{11}, \ 0.3\dot{6}, \ 37\%
+$$
+</WorkedExample>
+
+## M2.10 Using fractions, decimals and percentages interchangeably
+
+<FormulaCard title="Equivalent fractions">
+$$
+\frac{x}{y} = \frac{nx}{ny}
+$$
+</FormulaCard>
+
+<Shortcut title="Pick whichever form is easiest at each step">
+Don't commit to one format for a whole problem — convert a decimal to a fraction mid-calculation if it makes the multiplication cleaner, then convert the final answer to whatever form the question asks for.
+</Shortcut>
+
+<WorkedExample title="Chaining fraction, decimal and percentage steps">
+A chair's sale price is $\dfrac{3}{4}$ of the original price. On the final day it's reduced to $0.6$ of the sale price. What percentage of the original price is the final price?
+
+Convert $0.6$ to a fraction ($\frac{3}{5}$) so it combines cleanly:
+
+$$
+\frac{3}{5} \times \frac{3}{4} = \frac{9}{20}
+$$
+
+As a percentage: $\dfrac{9}{20} \times 100 = 45\%$
+</WorkedExample>
+
+## M2.11 Exact calculation: fractions, surds and multiples of $\pi$
+
+"Calculate exactly" means: no decimal approximations, no rounding — leave fractions as fractions, surds as surds, and $\pi$ as $\pi$.
+
+<FormulaCard title="Surd rules">
+$$
+\sqrt{x}\sqrt{y} = \sqrt{xy}, \qquad \frac{\sqrt{x}}{\sqrt{y}} = \sqrt{\frac{x}{y}}
+$$
+</FormulaCard>
+
+<Trap title="Surds don't distribute over addition">
+$$
+\sqrt{x} + \sqrt{y} \neq \sqrt{x + y}
+$$
+There's no shortcut here — surds can only be combined by multiplication or division, never by adding or subtracting under one root.
+</Trap>
+
+<Shortcut title="Simplifying surds: pull out the largest square factor">
+$$
+\sqrt{128} = \sqrt{64 \times 2} = \sqrt{64}\sqrt{2} = 8\sqrt{2}
+$$
+Always check for the *largest* square factor — spotting $64$ instead of $4$ saves a repeat simplification step.
+</Shortcut>
+
+### Rationalising the denominator
+
+<WorkedExample title="Single-surd denominator">
+Rationalise $\dfrac{3}{\sqrt{7}}$.
+
+Multiply top and bottom by $\sqrt{7}$:
+
+$$
+\frac{3}{\sqrt{7}} = \frac{3\sqrt{7}}{7}
+$$
+</WorkedExample>
+
+<WorkedExample title="Two-term surd denominator">
+Rationalise $\dfrac{3}{\sqrt{5} - \sqrt{2}}$.
+
+Multiply top and bottom by the *conjugate*, $\sqrt{5} + \sqrt{2}$, so the denominator becomes a difference of two squares:
+
+$$
+\frac{3}{\sqrt{5} - \sqrt{2}} = \frac{3(\sqrt{5}+\sqrt{2})}{(\sqrt{5}-\sqrt{2})(\sqrt{5}+\sqrt{2})} = \frac{3(\sqrt{5}+\sqrt{2})}{5 - 2} = \sqrt{5} + \sqrt{2}
+$$
+</WorkedExample>
+
+<Tip title="Multiples of π stay exact">
+Leave $\pi$ as $\pi$ throughout — a circle of radius 4 cm has area $\pi \times 4^2 = 16\pi \text{ cm}^2$ exactly, not $50.3 \text{ cm}^2$.
+</Tip>
+
+## M2.12 Upper and lower bounds
+
+If a value is rounded to $x$, the **lower bound** is the smallest number that rounds up to $x$, and the **upper bound** is the smallest number that would round to the *next* value up. For a measurement rounded to the nearest whole unit, the bounds are $x \pm 0.5$.
+
+<FormulaCard title="Combining bounds">
+$$
+\text{UB}(A \times B) = \text{UB}(A) \times \text{UB}(B), \qquad \text{UB}(A + B) = \text{UB}(A) + \text{UB}(B)
+$$
+
+$$
+\text{UB}(A - B) = \text{UB}(A) - \text{LB}(B), \qquad \text{UB}\left(\frac{A}{B}\right) = \frac{\text{UB}(A)}{\text{LB}(B)}
+$$
+
+(Swap every UB/LB for the lower bound version.)
+</FormulaCard>
+
+<Trap title="Subtraction and division mix upper and lower bounds">
+For $+$ and $\times$, pairing UB with UB (and LB with LB) gives the extreme values. For $-$ and $\div$, it's the *opposite* pairing — UB of the result needs the upper bound of the first quantity combined with the **lower** bound of the second. This is the single most common bounds mistake.
+</Trap>
+
+<WorkedExample title="Bounds with division">
+A block of wood has volume 270 cm³ (nearest 10 cm³) and mass 540 g (nearest 10 g). Find the bounds of its density in g/cm³.
+
+Volume bounds: 265 to 275. Mass bounds: 535 to 545.
+
+$$
+\text{UB(density)} = \frac{\text{UB(mass)}}{\text{LB(volume)}} = \frac{545}{265} \approx 2.06 \text{ g/cm}^3
+$$
+
+$$
+\text{LB(density)} = \frac{\text{LB(mass)}}{\text{UB(volume)}} = \frac{535}{275} \approx 1.95 \text{ g/cm}^3
+$$
+</WorkedExample>
+
+## M2.13 Rounding, truncation and error intervals
+
+Rounding to $n$ decimal places or significant figures: look one digit past where you're cutting off — 5 or more rounds up, otherwise stays the same.
+
+<Trap title="Truncating is not rounding">
+Truncating just chops off the extra digits with no correction, regardless of what they are. Truncating $3.45699$ to 3 d.p. gives $3.456$ — no rounding decision needed, even though the digits after are $99$.
+</Trap>
+
+<WorkedExample title="Error intervals from rounding vs truncating">
+A number $x$ is 3.6 when rounded to 1 d.p. What's the full range of possible values?
+
+The smallest value that rounds up to 3.6 is 3.55; the largest is anything up to (but not including) 3.65:
+
+$$
+3.55 \leq x < 3.65
+$$
+
+If instead $x$ is 3.6 when **truncated** to 1 d.p., the smallest possible value is exactly 3.6 itself (truncation never rounds down further), and the largest is just under 3.7:
+
+$$
+3.6 \leq x < 3.7
+$$
+</WorkedExample>
+
+<Shortcut title="Rounding vs truncation bounds are centred differently">
+Rounding bounds straddle the stated value symmetrically ($\pm$ half a unit). Truncation bounds sit entirely on one side — the stated value is always the *lower* bound, never the midpoint.
+</Shortcut>
+
+## M2.14 Estimation
+
+Round each number in a calculation to 1–2 significant figures before evaluating, to sanity-check a precise answer.
+
+<Tip title="Standard approximations">
+Use $\pi \approx 3$ (or $\frac{22}{7}$ for more precision), and round surds to the nearest perfect square, e.g. $\sqrt{15.6} \approx \sqrt{16} = 4$.
+</Tip>
+
+<WorkedExample title="Estimating a multi-step calculation">
+A calculator gives $\sqrt{\dfrac{2 \times 26.37 \times \pi}{0.00389}} \approx 2063.8$. Is that plausible?
+
+Approximate each part:
+
+$$
+2 \times 26.37 \times \pi \approx 2 \times 25 \times 3 = 150, \qquad 0.00389 \approx 0.004
+$$
+
+$$
+\sqrt{\frac{150}{0.004}} = \sqrt{37\,500} \approx \sqrt{40\,000} = 200
+$$
+</WorkedExample>
+
+<Shortcut title="Estimation catches decimal-point errors">
+200 is roughly a tenth of the calculator's 2063.8 — a strong sign the true answer is 206.38 and a decimal point slipped somewhere. This "order of magnitude" check is the fastest way to catch a misplaced decimal point without redoing the whole calculation.
+</Shortcut>
+
+## Formula and shortcut summary
+
+- $\text{HCF} \times \text{LCM} = $ product of the two numbers (for exactly two numbers)
+- $a^m \times a^n = a^{m+n}$, $\ a^m \div a^n = a^{m-n}$, $\ (a^m)^n = a^{mn}$, $\ a^{-m} = \dfrac{1}{a^m}$, $\ a^{m/n} = \left(\sqrt[n]{a}\right)^m$
+- Standard form: $a \times 10^n$ where $1 \leq a < 10$ — compare exponents first when ordering
+- Rationalise a single-surd denominator by multiplying by that surd; rationalise a two-term surd denominator by multiplying by its conjugate
+- $\text{UB}(A - B) = \text{UB}(A) - \text{LB}(B)$ and $\text{UB}(A/B) = \text{UB}(A)/\text{LB}(B)$ — subtraction and division swap bound pairing
+- Rounding bounds are symmetric ($\pm 0.5$ of a unit); truncation bounds start exactly at the stated value
+- Estimate with 1–2 sig figs, $\pi \approx 3$, surds to the nearest perfect square, to catch order-of-magnitude errors
 
 <PracticeLink topic="M2. Number">
 Find number questions

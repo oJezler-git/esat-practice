@@ -2,18 +2,560 @@ export const meta = {
   slug: "ratio-and-proportion",
   module: "m1",
   title: "Ratio and Proportion",
-  subtitle: "Placeholder overview for M3. Ratio and Proportion — full guide coming soon.",
+  subtitle: "Scale factors, ratio notation, percentages, direct/inverse proportion, similarity, and growth and decay.",
   topicCode: "M3",
-  estimatedMinutes: 5,
+  estimatedMinutes: 16,
   order: 30,
   relatedQuestionFilters: {
     topics: ["M3. Ratio and Proportion"],
   },
 };
 
-## What you need to know
+## M3.1 Scale factors, scale diagrams and maps
 
-This guide is a placeholder. The full breakdown of M3. Ratio and Proportion — core facts, fast methods, worked examples, and common traps — is coming soon.
+If two shapes are mathematically similar, every length on one shape is the corresponding length on the other multiplied by the same number — the **scale factor**. A scale factor greater than 1 enlarges; a scale factor between 0 and 1 shrinks.
+
+A scale diagram is a smaller (or larger) version of the real thing that's mathematically similar to it. A map is just a scale diagram where the scale is written as a ratio, e.g. 1 cm representing 1 km is the same as $1 : 100\,000$ (since $1 \text{ km} = 100\,000 \text{ cm}$).
+
+<svg viewBox="0 0 340 150" width="100%" height="auto" role="img" aria-label="Two similar trapeziums, the second an enlargement of the first by scale factor 3">
+  <polygon points="20,110 60,110 50,50 30,50" fill="none" stroke="var(--color-accent-strong)" strokeWidth="2" />
+  <text x="6" y="130" fontSize="11" fill="var(--text-secondary)">10</text>
+  <text x="52" y="82" fontSize="11" fill="var(--text-secondary)">4</text>
+  <text x="30" y="45" fontSize="11" fill="var(--text-secondary)">14</text>
+  <text x="12" y="82" fontSize="11" fill="var(--text-secondary)">3</text>
+  <text x="30" y="140" fontSize="12" fill="var(--text-muted)">Trapezium A</text>
+  <polygon points="140,140 260,140 230,20 170,20" fill="none" stroke="var(--color-accent-strong)" strokeWidth="2" />
+  <text x="190" y="150" fontSize="11" fill="var(--text-secondary)">30</text>
+  <text x="240" y="90" fontSize="11" fill="var(--text-secondary)">12</text>
+  <text x="180" y="15" fontSize="11" fill="var(--text-secondary)">42</text>
+  <text x="145" y="90" fontSize="11" fill="var(--text-secondary)">9</text>
+  <text x="175" y="8" fontSize="12" fill="var(--text-muted)">Trapezium B (scale factor 3)</text>
+</svg>
+
+<WorkedExample title="Applying a scale factor">
+Trapezium B is an enlargement of Trapezium A with scale factor 3. Trapezium A has sides $10, 4, 14, 3$. Find the corresponding sides of B.
+
+Multiply every length by 3:
+
+$$
+p = 3\times10 = 30, \quad q = 3\times4 = 12, \quad r = 3\times14 = 42, \quad s = 3\times3 = 9
+$$
+</WorkedExample>
+
+<WorkedExample title="Reading a scale factor from a diagram">
+Figure B is a scale drawing of Figure A. A length of 15 cm on A corresponds to 7.5 cm on B. If $y = 10$ cm on A, what is the matching length on B, and if $x = 2.5$ cm on B, what is it on A?
+
+$7.5$ is half of $15$, so the scale factor from A to B is $\frac12$:
+
+$$
+y \to \frac12 \times 10 = 5, \qquad x \text{ on A} = 2.5 \times 2 = 5
+$$
+</WorkedExample>
+
+<WorkedExample title="Working with a map scale">
+A map has scale $1 : 25\,000$. The bank to the post office is 3 cm on the map — how far is that in real life? Two locations are 200 m apart in real life — how far apart is that on the map?
+
+$$
+3 \text{ cm} \times 25\,000 = 75\,000 \text{ cm} = 750 \text{ m}
+$$
+
+$$
+200 \text{ m} = 20\,000 \text{ cm}, \qquad 20\,000 \div 25\,000 = 0.8 \text{ cm} = 8 \text{ mm}
+$$
+</WorkedExample>
+
+<Shortcut title="One multiplication does both directions">
+Multiplying by the scale factor takes map → real life; dividing by it takes real life → map. You never need to memorise which way round — just check whether your answer should be bigger or smaller than what you started with.
+</Shortcut>
+
+## M3.2 Expressing a quantity as a fraction of another
+
+$\dfrac{x}{y}$ is $x$ expressed as a fraction of $y$. Before you can do this, both quantities must be in the **same units** — convert to the smaller unit first so you avoid decimals.
+
+<WorkedExample title="Fraction less than 1">
+Express 200 g as a fraction of 1 kg.
+
+$$
+1 \text{ kg} = 1000 \text{ g}, \qquad \frac{200}{1000} = \frac15
+$$
+</WorkedExample>
+
+<WorkedExample title="Fraction greater than 1">
+Express 1 litre as a fraction of 450 ml.
+
+$$
+1 \text{ litre} = 1000 \text{ ml}, \qquad \frac{1000}{450} = \frac{20}{9} = 2\frac29
+$$
+</WorkedExample>
+
+<Tip title="A fraction over 1 just means 'more than'">
+There's nothing wrong with a top-heavy fraction here — it simply means the first quantity is bigger than the second. Don't force it to be less than 1 by flipping it; check which quantity the question asks you to express "as a fraction of" the other.
+</Tip>
+
+## M3.3 Ratio notation
+
+The ratio of $x$ to $y$ is written $x:y$ (or "$x$ to $y$"). Multiplying or dividing **both** sides by the same positive number leaves the ratio unchanged — this is exactly how you simplify a ratio, the same way you simplify a fraction.
+
+To compare two quantities as a ratio, their units must match first.
+
+<WorkedExample title="Writing a ratio">
+Jana has 63 cm of red ribbon and 59 cm of blue ribbon. What is the ratio of red ribbon to the *total* length of ribbon?
+
+$$
+\text{total} = 63 + 59 = 122 \text{ cm}, \qquad \text{red} : \text{total} = 63 : 122
+$$
+</WorkedExample>
+
+<WorkedExample title="Simplifying a decimal ratio">
+A mixture has 2.5 kg of flour and 750 g of sugar. Give the ratio of flour to sugar in lowest integer terms.
+
+$$
+2.5 \text{ kg} = 2500 \text{ g}, \qquad 2500 : 750 = 2500\div250 : 750\div250 = 10 : 3
+$$
+</WorkedExample>
+
+<Shortcut title="Clear decimals by scaling up first">
+If a ratio has a decimal in it, like $2.5 : 1.5$, multiply both sides by whatever clears the decimal (here, $\times2$) before you simplify: $5 : 3$. It's much less error-prone than trying to cancel a decimal ratio directly.
+</Shortcut>
+
+## M3.4 Dividing a quantity in a given ratio
+
+To divide a quantity $Q$ in the ratio $x:y$: add the parts to get $x+y$, divide $Q$ by that to find the value of *one part*, then multiply by $x$ and by $y$. Always check the two shares add back up to $Q$.
+
+<WorkedExample title="Dividing an amount">
+Divide £450 in the ratio $11:7$.
+
+$$
+11+7 = 18 \text{ parts}, \qquad 1 \text{ part} = 450\div18 = 25
+$$
+
+$$
+11 \text{ parts} = 25\times11 = 275, \qquad 7 \text{ parts} = 25\times7 = 175
+$$
+
+Check: $275+175 = 450$. ✓
+</WorkedExample>
+
+<WorkedExample title="Going the other way — finding the ratio">
+A ribbon is cut into piece A (125 cm) and piece B (2.75 m). What is the ratio $A:B$?
+
+$$
+2.75 \text{ m} = 275 \text{ cm}, \qquad A:B = 125:275 = 5:11 \ (\div 25)
+$$
+</WorkedExample>
+
+<Trap title="'1 part' isn't always the answer">
+Once you've found the value of one part, the question is usually asking for a *share* (several parts), not the single-part value itself — don't stop halfway through the calculation.
+</Trap>
+
+## M3.5 Applying ratio to real contexts
+
+Ratio problems tend to fall into one of five flavours: **conversion**, **comparison**, **scaling**, **mixing**, and **concentration**. The setup is always the same idea — find what one "unit" of ratio is worth, then scale up or down.
+
+If there's $a$ times as much of $X$ in a mixture as $Y$, then $X = aY$, the ratio is $X:Y = a:1$, and as a fraction $\dfrac{X}{Y} = a$.
+
+### Conversion
+
+<WorkedExample title="Currency conversion">
+The conversion ratio of dinars to dollars is $11:2$. How many dollars for 2530 dinars?
+
+$$
+2530 \div 11 = 230, \qquad 230 \times 2 = 460 \text{ dollars}
+$$
+</WorkedExample>
+
+### Comparison
+
+<WorkedExample title="Linking two ratios through a shared quantity">
+A mixture's orange purée to water ratio is $3:5$; mango purée to water is $11:15$. What is orange to mango?
+
+The link is water — make its share match in both ratios. Scale $3:5$ by $\times3$ to get water $=15$:
+
+$$
+3:5 \;\to\; 9:15 \qquad (\text{orange : water})
+$$
+
+Water to mango is $15:11$, so orange : water : mango is $9:15:11$, giving orange : mango $= 9:11$.
+</WorkedExample>
+
+<Shortcut title="Scale ratios to a shared 'bridge' number">
+Whenever two ratios share a variable, scale each one so that shared variable has the *same* value in both — then you can read the missing ratio straight off. This is exactly the LCM trick you use to add fractions with different denominators.
+</Shortcut>
+
+### Scaling
+
+<WorkedExample title="Map ratio to real length">
+A scale drawing of a park uses ratio $1:10\,000$. Its length on the drawing is 30 cm — what's the real length in km?
+
+$$
+30 \times 10\,000 = 300\,000 \text{ cm} = 3000 \text{ m} = 3 \text{ km}
+$$
+</WorkedExample>
+
+### Mixing
+
+<WorkedExample title="Combining two mixtures">
+Mixture X has orange:water $= 3:7$. Mixture Y has orange:water $=1:4$. You mix 1 l of X with 2 l of Y. What's the orange:water ratio in the result?
+
+Split each into parts of the same total volume: X has $3+7=10$ parts of $100$ ml each; Y has $1+4=5$ parts of $400$ ml each.
+
+$$
+X: \ 300 \text{ ml orange}, \ 700 \text{ ml water} \qquad Y: \ 400 \text{ ml orange}, \ 1600 \text{ ml water}
+$$
+
+$$
+\text{orange} = 300+400=700, \qquad \text{water} = 700+1600=2300, \qquad \text{ratio} = 700:2300 = 7:23
+$$
+</WorkedExample>
+
+<Shortcut title="Skip the volumes entirely with matched parts">
+Rewrite both ratios with the *same number of parts* first: $3:7$ already has 10 parts, and $1:4 = 2:8$ also has 10 parts. Since X contributes 1 l and Y contributes 2 l (twice as much), the combined ratio is $(3 + 2\times2):(7+2\times8) = 7:23$ — no need to compute a single millilitre.
+</Shortcut>
+
+### Concentration
+
+<WorkedExample title="Gas compressed to a liquid">
+Gas compresses to liquid in the ratio (gas volume) : (liquid volume) $= 100:3$. How many litres of gas are needed for 1 litre of liquid?
+
+$$
+100 \div 3 = 33\tfrac13 \text{ litres}
+$$
+</WorkedExample>
+
+### Multiplicative relationships as a ratio or fraction
+
+<WorkedExample title="From 'twice as much' to a ratio and a fraction">
+A smoothie contains only apple and mango juice, with twice as much apple as mango. What is the ratio apple:mango, and what fraction of the smoothie is apple?
+
+Let $a$ = apple, $m$ = mango. Then $a = 2m$, so:
+
+$$
+a:m = 2m:m = 2:1
+$$
+
+The fraction that is apple is $\dfrac{2}{2+1} = \dfrac23$.
+</WorkedExample>
+
+<Tip title="'Fraction of the mixture' = part over (sum of ratio parts)">
+Any time a ratio splits a whole into pieces, the fraction that's any one piece is that piece's ratio number over the *sum* of all the ratio numbers — you never need the actual quantities.
+</Tip>
+
+## M3.6 Understanding and using proportion
+
+If $x$ bars of chocolate cost $\pounds y$, one bar costs $\pounds\dfrac{y}{x}$ and $a$ bars cost $\pounds\dfrac{ay}{x}$ — this is the **unitary method**: find the value of one unit, then scale.
+
+Ratios, fractions and linear functions are three views of the same relationship. If $x:y = a:b$ in a mixture made only of $x$ and $y$:
+
+$$
+\text{fraction of } x = \frac{a}{a+b}, \qquad bx = ay \ \ (\text{so } y = \tfrac{bx}{a})
+$$
+
+<WorkedExample title="Unitary method">
+12 boxes of biscuits cost £42. How much do 20 boxes cost?
+
+$$
+1 \text{ box} = 42\div12, \qquad 20 \text{ boxes} = 42 \div 12 \times 20 = \frac{42\times20}{12} = 70
+$$
+
+A quicker route: the HCF of 12 and 20 is 4, so find the cost of 4 boxes first. $42 \div 3 = 14$ for 4 boxes, so $20$ boxes ($5\times4$) cost $14\times5 = \pounds70$.
+</WorkedExample>
+
+<Shortcut title="Use the HCF to shortcut the unitary method">
+Instead of always scaling down to "1 unit," scale down to the *highest common factor* of the two quantities you're comparing — it's usually a nicer number to work with and skips a division step.
+</Shortcut>
+
+<WorkedExample title="Combining ratios into a fraction">
+Yellow : green $= 3:4$ and green : red $= 6:9$ in a bag of sweets. What fraction of the sweets is yellow?
+
+Scale $3:4$ so green matches $6$: multiply by $\tfrac32$ to get $4.5:6$. So yellow : green : red $= 4.5:6:9$, or $9:12:18$ (×2).
+
+$$
+\text{fraction yellow} = \frac{9}{9+12+18} = \frac{9}{39} = \frac{3}{13}
+$$
+</WorkedExample>
+
+<WorkedExample title="Ratio as a linear function">
+If $x:y = 2:3$, write $y$ as a function of $x$.
+
+$$
+\frac{x}{y} = \frac23 \ \Rightarrow\ 3x = 2y \ \Rightarrow\ y = \frac{3x}{2}
+$$
+</WorkedExample>
+
+## M3.7 Fractions in ratio problems
+
+If $x:y = p:q$ then $\dfrac{x}{y} = \dfrac{p}{q}$ — ratios and fractions are interchangeable, so you can multiply fraction chains together exactly like you would with probabilities.
+
+<WorkedExample title="Chaining two ratios via a fraction multiplication">
+A bag has yellow ($y$), green ($g$) and red ($r$) counters. $r:y = 2:3$ and $g:r = 4:5$. Find $g:y$.
+
+Write both as fractions and multiply, letting $r$ cancel:
+
+$$
+\frac{g}{y} = \frac{g}{r}\times\frac{r}{y} = \frac45 \times \frac23 = \frac{8}{15}
+$$
+
+So $g:y = 8:15$.
+</WorkedExample>
+
+<Shortcut title="Multiply straight through, don't merge tables"
+>
+When you have two ratios sharing one variable, converting both to fractions and multiplying (cancelling the shared variable) is faster and less error-prone than trying to rescale both ratios onto a single combined table.
+</Shortcut>
+
+## M3.8 Percentages
+
+A percentage is "number of parts per hundred." $24\%$ as a fraction is $\dfrac{24}{100} = \dfrac{6}{25}$, and as a decimal it's $0.24$ — both are used **multiplicatively**: to find $24\%$ of 50, compute $0.24 \times 50 = 12$.
+
+<FormulaCard title="Percentage change">
+$$
+\text{percentage increase or decrease} = \frac{\text{actual change}}{\text{original amount}} \times 100
+$$
+
+If the new value is $Q$ after a decrease of $x\%$, the original value is $\dfrac{Q}{100-x}\times100$. If the new value is $R$ after an increase of $y\%$, the original value is $\dfrac{R}{100+y}\times100$.
+</FormulaCard>
+
+<WorkedExample title="Percentage as parts per hundred">
+3 out of 8 pupils eat 5-a-day. What percentage is that?
+
+$$
+\frac{3}{8}\times100 = 37.5\%
+$$
+</WorkedExample>
+
+<WorkedExample title="Expressing one quantity as a percentage of another">
+What percentage of 80 is 24?
+
+$$
+\frac{24}{80}\times100 = 30\%
+$$
+</WorkedExample>
+
+<Trap title="Percentages above 100% are completely normal">
+If something is sold for more than it cost, or a value grows past its starting point, the percentage will exceed 100% — that isn't a sign you've made an error. £77 as a percentage of £22 is $\frac{77}{22}\times100 = 350\%$.
+</Trap>
+
+<WorkedExample title="Finding the original value after a change">
+After a 20% increase, shoes cost £96. What was the original price?
+
+Original is 100%, so the new price is $120\%$. If $120\% = \pounds96$, then:
+
+$$
+100\% = \frac{96}{120}\times100 = \pounds80
+$$
+</WorkedExample>
+
+<Shortcut title="Never take x% off the new value to reverse a change">
+A common mistake is to take 20% *off* £96 to "undo" a 20% increase — that gives the wrong answer (£76.80, not £80), because the 20% was a fraction of the *original* price, not the new one. Always rebuild from "new price = (100 ± x)%" instead.
+</Shortcut>
+
+<WorkedExample title="Simple interest">
+£400 is saved at 3.5% per annum simple interest. How much interest after 8 years?
+
+$$
+\text{interest per year} = \frac{3.5}{100}\times400 = \pounds14, \qquad 8\times14 = \pounds112
+$$
+
+Or in one step: $8\times3.5\% = 28\%$ of £400 $= \pounds112$.
+</WorkedExample>
+
+## M3.9 Direct and inverse proportion
+
+$y$ is **directly proportional** to $x$ (written $y \propto x$) if $y = kx$ for a constant $k$ — doubling $x$ doubles $y$. Its graph is a **straight line through the origin**.
+
+$y$ is **inversely proportional** to $x$ (written $y \propto \dfrac1x$) if $y = \dfrac{k}{x}$ — doubling $x$ halves $y$. Its graph is a curve that never touches either axis.
+
+<div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+<svg viewBox="0 0 200 160" width="200" height="160" role="img" aria-label="Straight line graph through the origin showing direct proportion">
+  <line x1="20" y1="140" x2="190" y2="140" stroke="var(--border-subtle)" strokeWidth="1" />
+  <line x1="20" y1="140" x2="20" y2="10" stroke="var(--border-subtle)" strokeWidth="1" />
+  <line x1="20" y1="140" x2="170" y2="20" stroke="var(--color-accent-strong)" strokeWidth="2" />
+  <text x="80" y="155" fontSize="11" fill="var(--text-muted)">x</text>
+  <text x="4" y="20" fontSize="11" fill="var(--text-muted)">y</text>
+  <text x="55" y="150" fontSize="11" fill="var(--text-secondary)">direct: y = kx</text>
+</svg>
+<svg viewBox="0 0 200 160" width="200" height="160" role="img" aria-label="Reciprocal curve showing inverse proportion">
+  <line x1="20" y1="140" x2="190" y2="140" stroke="var(--border-subtle)" strokeWidth="1" />
+  <line x1="20" y1="140" x2="20" y2="10" stroke="var(--border-subtle)" strokeWidth="1" />
+  <path d="M 28 20 C 45 60, 70 120, 180 132" fill="none" stroke="var(--color-accent-strong)" strokeWidth="2" />
+  <text x="80" y="155" fontSize="11" fill="var(--text-muted)">x</text>
+  <text x="4" y="20" fontSize="11" fill="var(--text-muted)">y</text>
+  <text x="45" y="35" fontSize="11" fill="var(--text-secondary)">inverse: y = k/x</text>
+</svg>
+</div>
+
+<WorkedExample title="Setting up a direct proportion">
+Ice cream sales, $n$, are proportional to $(t-15)$ where $t$ is the temperature above 20°C. At $t=20$, $n=30$. How many are sold at $t=28$?
+
+$$
+n = k(t-15) \ \Rightarrow\ 30 = k(5) \ \Rightarrow\ k=6 \ \Rightarrow\ n = 6(28-15) = 78
+$$
+</WorkedExample>
+
+<Shortcut title="Testing whether a graph really is direct proportion">
+A straight line alone isn't enough — it must pass through the origin. If it doesn't, find $k$ from one point ($y=kx$) and check a *second* point against it: if the two $k$ values disagree, it's not direct proportion, just a straight line with an offset.
+</Shortcut>
+
+<WorkedExample title="Inverse proportion">
+Glove sales $n$ are inversely proportional to temperature $t$ for $1\le t\le10$. At $t=5$, $n=15$. Find $n$ at $t=3$.
+
+$$
+n = \frac{k}{t} \ \Rightarrow\ 15 = \frac{k}{5} \ \Rightarrow\ k = 75 \ \Rightarrow\ n = \frac{75}{3} = 25
+$$
+</WorkedExample>
+
+<Tip title="Confirming inverse proportion from a table">
+For inverse proportion, $xy$ should be *constant* across every row of a table — check it the same way you'd check $y/x$ is constant for direct proportion.
+</Tip>
+
+<WorkedExample title="Proportion to a power">
+Bottled water sales $n$ are proportional to the square of the temperature $t$, for $10\le t\le30$. At $t=12$, $n=72$. Find $n$ at $t=24$.
+
+$$
+n = kt^2 \ \Rightarrow\ 72 = k(144) \ \Rightarrow\ k=0.5 \ \Rightarrow\ n = 0.5(24^2) = 288
+$$
+</WorkedExample>
+
+<Shortcut title="Scale the proportionality constant instead of restarting"
+>
+Once you've found $k$, you don't need to recompute it for each new value — just plug the new $x$ into $y=kx^n$ directly. If $x$ scales by a factor $m$, $y$ scales by $m^n$: doubling $x$ in $n=kt^2$ quadruples $n$.
+</Shortcut>
+
+## M3.10 Comparing lengths, areas and volumes; links to similarity
+
+If shape B's lengths are $x$ times shape A's, then B's **areas** are $x^2$ times A's, and B's **volumes** are $x^3$ times A's. As a ratio: if lengths are $x:y$, areas are $x^2:y^2$ and volumes are $x^3:y^3$.
+
+<FormulaCard title="Going the other way — from area or volume ratio to length ratio">
+$$
+\text{area ratio } x:y \ \Rightarrow\ \text{length ratio } \sqrt{x} : \sqrt{y}
+$$
+
+$$
+\text{volume ratio } x:y \ \Rightarrow\ \text{length ratio } \sqrt[3]{x} : \sqrt[3]{y} \ \Rightarrow\ \text{area ratio } \left(\sqrt[3]{x}\right)^2 : \left(\sqrt[3]{y}\right)^2
+$$
+</FormulaCard>
+
+<WorkedExample title="Length ratio to volume ratio">
+Cube X has side $x$; cube Y has side $3x$. If X has volume 100 cm³, what's Y's volume?
+
+Length scale factor is 3, so volume scale factor is $3^3=27$:
+
+$$
+27\times100 = 2700 \text{ cm}^3
+$$
+</WorkedExample>
+
+<WorkedExample title="Length ratio to area ratio">
+Spheres A and B have diameters in ratio $2:5$. A's surface area is 250 cm². Find B's.
+
+$$
+\text{area ratio} = 2^2:5^2 = 4:25, \qquad \text{area of B} = \frac{25}{4}\times250 = 1562.5 \text{ cm}^2
+$$
+</WorkedExample>
+
+<WorkedExample title="Area ratio back to length ratio">
+Similar shapes A and B have area ratio $9:25$. A's length is 21 cm — find B's.
+
+$$
+\text{length ratio} = \sqrt9:\sqrt{25} = 3:5, \qquad \text{length of B} = 21\div3\times5 = 35 \text{ cm}
+$$
+</WorkedExample>
+
+<Trap title="Never apply a volume or area ratio directly to a length">
+The single most common error here: multiplying a length by an area or volume ratio without square- or cube-rooting first. Always convert back to a *length* ratio before scaling a length.
+</Trap>
+
+<WorkedExample title="Volume ratio all the way to an area">
+Cylinder P has 64 times the volume of similar cylinder Q. Q's surface area is 300 cm². Find P's.
+
+$$
+\text{volume ratio } Q:P = 1:64 \ \Rightarrow\ \text{length ratio} = \sqrt[3]{1}:\sqrt[3]{64} = 1:4
+$$
+
+$$
+\text{area ratio} = 1^2:4^2 = 1:16 \ \Rightarrow\ \text{area of P} = 300\times16 = 4800 \text{ cm}^2
+$$
+</WorkedExample>
+
+Similarity also preserves angles and trigonometric ratios: if triangle DEF is an enlargement of triangle ABC by scale factor $p$, then $\tan F = \dfrac{px}{pz} = \dfrac{x}{z} = \tan C$ — the scale factor cancels, so corresponding angles are always equal.
+
+<Tip title="Match sides to angles by size, not by label">
+In similar triangles, the smallest side is always opposite the smallest angle, and the largest side opposite the largest — use that to match up corresponding sides even when the vertex labelling doesn't make it obvious.
+</Tip>
+
+## M3.11 Growth, decay and iterative processes
+
+If a quantity starts at $q$ and is multiplied by a fixed factor $x$ every time period, after $n$ periods it's $qx^n$. Growth means $x>1$; decay means $0<x<1$.
+
+<FormulaCard title="Compound interest">
+$$
+A = P\left(1+\frac{r}{100}\right)^{n}
+$$
+
+where $P$ is the initial amount, $r\%$ is the rate per annum, and $n$ is the number of years.
+</FormulaCard>
+
+<WorkedExample title="Exponential growth">
+Patients in an epidemic treble every day; at the end of day 1 there are 50. How many at the end of day 4?
+
+Day 4 is **3 doubling periods** after day 1, so:
+
+$$
+50\times3^3 = 50\times27 = 1350
+$$
+</WorkedExample>
+
+<Trap title="Count the number of jumps, not the day label">
+It's tempting to write $3^4$ because the question says "day 4," but day 1 is already the starting point — day 4 is only 3 periods later ($1\to2\to3\to4$). Always count the *gaps* between your start point and end point, not the end label itself.
+</Trap>
+
+<WorkedExample title="Exponential decay, finding the rate first">
+Once patient numbers hit 4000, a cure is applied and numbers decay exponentially. After 4 days of the cure there are 500. How many after 6 days?
+
+Treat day 0 of the cure (4000 patients) as the start; day 4 is then 4 periods later... but if the question's "4 days" already includes the count from the 4000 mark as day 1, use whichever convention matches the given data — here $4000r^3 = 500$ ties out with the numbers given:
+
+$$
+r^3 = \frac{500}{4000} = \frac18 \ \Rightarrow\ r = \sqrt[3]{\tfrac18} = \frac12
+$$
+
+Six days out is 5 periods from the start:
+
+$$
+4000\times\left(\frac12\right)^5 = 4000\times\frac{1}{32} = 125
+$$
+</WorkedExample>
+
+<Shortcut title="Find k or r from one data point, then reuse it freely">
+Growth/decay and compound interest questions almost always give you one known pair of values to pin down the constant ($k$ or $r$) — once you have it, every other value in the question is a one-line substitution.
+</Shortcut>
+
+<WorkedExample title="Compound interest">
+£1000 is invested at 4% per annum compound interest for 5 years. How much interest is earned, to the nearest penny?
+
+$$
+A = 1000(1.04)^5 = 1000\times1.2166529\ldots = \pounds1216.65
+$$
+
+$$
+\text{interest} = 1216.65 - 1000 = \pounds216.65
+$$
+</WorkedExample>
+
+<Trap title="Compound interest is not simple interest × years">
+Simple interest adds the same amount every year; compound interest adds a percentage of the *current* balance, so the amount added grows each year. Don't shortcut compound interest to $P + n\times\frac{r}{100}P$ — that's the simple-interest formula, and it will undershoot the real answer.
+</Trap>
+
+## Formula and shortcut summary
+
+- Unitary method: find the value of 1 unit, then scale — or scale to the HCF for a shortcut.
+- $x:y$ scales like a fraction: multiply or divide both sides by the same number.
+- Linking two ratios: rescale so the shared quantity matches, or convert both to fractions and multiply, cancelling the shared term.
+- Percentage change $= \dfrac{\text{actual change}}{\text{original}}\times100$; to reverse a change, rebuild from $(100\pm x)\%$, never subtract $x\%$ from the new value.
+- Direct proportion: $y=kx$, straight line through the origin — check a second point before trusting a straight-looking line.
+- Inverse proportion: $y=\dfrac{k}{x}$, and $xy$ is constant across every data point.
+- Length ratio $x:y$ $\Rightarrow$ area ratio $x^2:y^2$ $\Rightarrow$ volume ratio $x^3:y^3$ — always convert back to a length ratio before scaling a length.
+- Growth/decay: $qx^n$, where $n$ is the number of *periods elapsed*, not the day label.
+- Compound interest: $A = P(1+\frac{r}{100})^n$ — never approximate it as simple interest.
 
 <PracticeLink topic="M3. Ratio and Proportion">
 Find ratio and proportion questions
