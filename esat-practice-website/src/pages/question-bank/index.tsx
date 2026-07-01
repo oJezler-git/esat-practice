@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   type DuplicateNearMissDebug,
   type DuplicatePairDebug,
@@ -113,6 +113,11 @@ function buildCountItems(
 
 export default function QuestionBank() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTopicFilter = useMemo(() => {
+    const topic = searchParams.get("topic")?.trim();
+    return topic ? [topic] : [];
+  }, [searchParams]);
   const {
     allQuestions,
     fullPracticeBank,
@@ -131,7 +136,7 @@ export default function QuestionBank() {
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
     search: "",
     scope: "practice",
-    topicFilter: [],
+    topicFilter: initialTopicFilter,
     yearFilter: [],
     verifiedOnly: false,
     hideNsaaDuplicates: true,
