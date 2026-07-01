@@ -1,0 +1,127 @@
+export const meta = {
+  slug: "units",
+  module: "m1",
+  title: "Units",
+  subtitle: "Standard and compound units, and converting cleanly between them for speed, density, pressure, and cost problems.",
+  topicCode: "M1",
+  estimatedMinutes: 10,
+  order: 10,
+  relatedQuestionFilters: {
+    topics: ["M1. Units"],
+  },
+};
+
+## M1.1 Standard and compound units
+
+Every measurement question is really two questions: what quantity is this, and what unit is it sensible to measure it in? Pick a unit that keeps the number a manageable size.
+
+| Quantity | Common units |
+|---|---|
+| Mass | mg, g, kg, t |
+| Force | N |
+| Length | mm, cm, m, km |
+| Area | mm$^2$, cm$^2$, m$^2$, km$^2$ |
+| Capacity | ml, l |
+| Volume | mm$^3$, cm$^3$, m$^3$ (also ml, l) |
+| Time | seconds, minutes, hours, days, weeks, months, years |
+
+<Tip title="Match the unit to the scale">
+A swimming pool's volume is measured in m$^3$, a kitchen floor's area in m$^2$, and a can of drink's volume in ml — using cm$^3$ or mm$^2$ for these would just produce unwieldy numbers.
+</Tip>
+
+For capacity and volume specifically:
+
+$$
+1 \text{ ml} = 1 \text{ cm}^3, \qquad 1 \text{ l} = 1000 \text{ cm}^3, \qquad 1000 \text{ l} = 1 \text{ m}^3
+$$
+
+### Compound units
+
+A compound unit combines two measurements, such as metres and seconds into metres per second. It is always read as "per": km h$^{-1}$ means kilometres *per* hour.
+
+<FormulaCard title="Common compound units">
+$$
+\text{density} = \frac{\text{mass}}{\text{volume}}, \qquad
+\text{average speed} = \frac{\text{distance travelled}}{\text{time taken}}
+$$
+
+$$
+\text{rate of pay} = \frac{\text{pay received}}{\text{time worked}}, \qquad
+\text{pressure} = \frac{\text{perpendicular force}}{\text{area}}
+$$
+</FormulaCard>
+
+<WorkedExample title="Unit cost of an item">
+50 boxes of sweets cost £215. What is the unit cost of a box?
+
+The unit cost is the cost of 1 box, so divide the total cost by the number of items:
+
+$$
+\frac{215}{50} = 4.30
+$$
+
+A box costs £4.30.
+</WorkedExample>
+
+<Shortcut title="Reading off the units tells you the operation">
+If mass is in grams and volume is in cm$^3$, density comes out in g cm$^{-3}$ automatically — you don't need to remember the formula direction, just divide the first quantity by the second.
+</Shortcut>
+
+## M1.2 Converting between units
+
+### Standard unit conversions
+
+| Type | Conversions |
+|---|---|
+| Length | 1 km = 1000 m; 1 m = 100 cm = 1000 mm; 1 cm = 10 mm |
+| Area | 1 km$^2$ = 1 000 000 m$^2$; 1 m$^2$ = 10 000 cm$^2$; 1 cm$^2$ = 100 mm$^2$ |
+| Volume/capacity | 1 l = 1000 ml = 1000 cm$^3$; 1000 l = 1 m$^3$; 1 m$^3$ = 1 000 000 cm$^3$ |
+| Mass | 1 kg = 1000 g; 1 g = 1000 mg |
+| Time | 60 s = 1 min; 60 min = 1 hour; 24 hours = 1 day; 7 days = 1 week |
+
+<Trap title="Area and volume conversions are not the length factor">
+Converting length multiplies by the linear factor once, but area squares it and volume cubes it. Since $1 \text{ m} = 100 \text{ cm}$, it follows that $1 \text{ m}^2 = 100^2 \text{ cm}^2 = 10\,000 \text{ cm}^2$ and $1 \text{ m}^3 = 100^3 \text{ cm}^3 = 1\,000\,000 \text{ cm}^3$.
+</Trap>
+
+### Compound unit conversions
+
+To convert a compound unit, convert each part separately, then recombine.
+
+<WorkedExample title="Density in different units">
+A piece of metal has density $20 \text{ g cm}^{-3}$. What is this in kg m$^{-3}$?
+
+Write it as a fraction and convert each unit:
+
+$$
+20 \text{ g cm}^{-3} = \frac{20 \text{ g}}{1 \text{ cm}^3} = \frac{20 \div 1000 \text{ kg}}{1 \div 1\,000\,000 \text{ m}^3} = \frac{0.02 \text{ kg}}{0.000001 \text{ m}^3} = 20\,000 \text{ kg m}^{-3}
+$$
+</WorkedExample>
+
+<WorkedExample title="Average speed with mixed units">
+A car travels 35 000 m in 30 minutes. What is its average speed in km h$^{-1}$?
+
+Convert distance to km and time to hours first:
+
+$$
+35\,000 \text{ m} = 35 \text{ km}, \qquad 30 \text{ min} = 0.5 \text{ hours}
+$$
+
+Then apply the formula:
+
+$$
+\text{average speed} = \frac{35}{0.5} = 70 \text{ km h}^{-1}
+$$
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- $\text{density} = \dfrac{\text{mass}}{\text{volume}}$
+- $\text{average speed} = \dfrac{\text{distance}}{\text{time}}$
+- $\text{rate of pay} = \dfrac{\text{pay}}{\text{time worked}}$
+- $\text{pressure} = \dfrac{\text{force}}{\text{area}}$
+- $\text{unit cost} = \dfrac{\text{total cost}}{\text{number of items}}$
+- Length $\times 1$, area $\times$ (factor)$^2$, volume $\times$ (factor)$^3$ when converting
+
+<PracticeLink topic="M1. Units">
+Find units questions
+</PracticeLink>
