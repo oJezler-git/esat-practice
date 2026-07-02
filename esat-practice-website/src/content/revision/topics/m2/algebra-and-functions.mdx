@@ -2,18 +2,264 @@ export const meta = {
   slug: "algebra-and-functions",
   module: "m2",
   title: "Algebra and Functions",
-  subtitle: "Placeholder overview for MM1. Algebra and Functions — full guide coming soon.",
+  subtitle: "Indices, surds, quadratics and the discriminant, simultaneous equations, inequalities, polynomial division, the factor and remainder theorems, and functions.",
   topicCode: "MM1",
-  estimatedMinutes: 5,
+  estimatedMinutes: 24,
   order: 10,
   relatedQuestionFilters: {
     topics: ["MM1. Algebra and Functions"],
   },
 };
 
-## What you need to know
+## MM1.1 Laws of indices for all rational exponents
 
-This guide is a placeholder. The full breakdown of MM1. Algebra and Functions — core facts, fast methods, worked examples, and common traps — is coming soon.
+The index laws below hold for any positive base $a$ and any rational (in fact any real) exponents $m,n$.
+
+<FormulaCard title="Index laws">
+$$
+a^m\times a^n = a^{m+n}, \qquad a^m\div a^n = a^{m-n}, \qquad (a^m)^n = a^{mn}
+$$
+
+$$
+a^0=1, \qquad a^{-m}=\frac{1}{a^m}, \qquad a^{\frac1n}=\sqrt[n]{a}, \qquad a^{\frac{m}{n}} = \left(\sqrt[n]{a}\right)^m = \sqrt[n]{a^m}
+$$
+</FormulaCard>
+
+Each rule is really just a consequence of what $a^m$ means (repeated multiplication) — e.g. $a^{\frac13}$ has to mean $\sqrt[3]{a}$ because $a^{\frac13}\cdot a^{\frac13}\cdot a^{\frac13}=a^{\frac13+\frac13+\frac13}=a^1=a$.
+
+<WorkedExample title="Combining several index laws">
+Simplify $\left(8a^{-3}\right)^{\frac13}$.
+
+Apply the power to the number and the letter separately:
+
+$$
+8^{\frac13}\times\left(a^{-3}\right)^{\frac13} = 2\times a^{-1} = \frac{2}{a}
+$$
+</WorkedExample>
+
+<Trap title="(aᵐ)ⁿ is not the same as aᵐⁿ written as a power tower">
+$(a^3)^2 = a^3\times a^3 = a^6$, using RULE $(a^m)^n=a^{mn}$. This is completely different from $a^{(3^2)}=a^9$. The two expressions look similar on paper but mean different things — always check whether a power is applied to an already-raised quantity or sits in the exponent itself.
+</Trap>
+
+## MM1.2 Surds
+
+A surd is a root (usually a square root) that cannot be simplified to a rational number, e.g. $3+5\sqrt2$. By convention $\sqrt{a}$ always means the **positive** root — write $\pm\sqrt{a}$ if you want both.
+
+<WorkedExample title="Simplifying roots">
+$$
+\sqrt{50} = \sqrt{25\times2} = 5\sqrt2, \qquad \sqrt{40} = \sqrt{4\times10} = 2\sqrt{10}
+$$
+</WorkedExample>
+
+<WorkedExample title="Multiplying out surd expressions">
+Expand $(2+3\sqrt5)^2$ by treating $\sqrt5$ like an unknown and simplifying $\sqrt5\times\sqrt5=5$ at the end:
+
+$$
+(2+3\sqrt5)^2 = 2^2 + 2(2)(3\sqrt5) + 3^2(\sqrt5)^2 = 4+12\sqrt5+45 = 49+12\sqrt5
+$$
+</WorkedExample>
+
+Rationalising the denominator means rewriting a fraction so no surd is left on the bottom. Multiply top and bottom by 1, written in a form that clears the surd.
+
+<FormulaCard title="Rationalising the denominator">
+$$
+\frac{1}{\sqrt a} = \frac{1}{\sqrt a}\times\frac{\sqrt a}{\sqrt a} = \frac{\sqrt a}{a}
+$$
+
+For a two-term denominator, multiply by the conjugate and use $a^2-b^2=(a+b)(a-b)$:
+
+$$
+\frac{c}{p+q\sqrt n} \times \frac{p-q\sqrt n}{p-q\sqrt n} = \frac{c(p-q\sqrt n)}{p^2-q^2n}
+$$
+</FormulaCard>
+
+<WorkedExample title="Rationalising a two-term denominator">
+Rationalise $\dfrac{3}{2+\sqrt5}$.
+
+Multiply by the conjugate $\dfrac{\sqrt5-2}{\sqrt5-2}$ (chosen so the denominator comes out positive):
+
+$$
+\frac{3}{2+\sqrt5}\times\frac{\sqrt5-2}{\sqrt5-2} = \frac{3\sqrt5-6}{5-4} = 3\sqrt5-6
+$$
+</WorkedExample>
+
+<Trap title="√5 × √5 = 5, never 25">
+It's easy under time pressure to square the number under the root instead of just removing the root sign. $\sqrt5\times\sqrt5=5$; squaring 5 itself would give 25, which is a different (and wrong) number entirely.
+</Trap>
+
+<Shortcut title="Recognise a squared surd expression by its middle term">
+To "unsquare" something like $49+12\sqrt5$ back into $(a+b\sqrt5)^2$, match the middle term: $2ab\sqrt5=12\sqrt5$ gives $ab=6$, then try integer pairs multiplying to 6 in $a^2+5b^2=49$ until one fits ($a=2,\ b=3$ works).
+</Shortcut>
+
+## MM1.3 Quadratic functions and their graphs
+
+A quadratic $y=ax^2+bx+c$ ($a\ne0$) is always the graph of $y=x^2$ translated and stretched. Completing the square makes the translation explicit and gives the turning point directly.
+
+<FormulaCard title="Completed square, quadratic formula, and the discriminant">
+$$
+ax^2+bx+c = a\left(x+\frac{b}{2a}\right)^2 - \left(\frac{b^2-4ac}{4a}\right)
+$$
+
+$$
+x = \frac{-b\pm\sqrt{b^2-4ac}}{2a}
+$$
+
+Line of symmetry: $x=-\dfrac{b}{2a}$. Distance between the two roots: $\dfrac{\sqrt{b^2-4ac}}{a}$.
+</FormulaCard>
+
+<WorkedExample title="Discriminant conditions">
+
+| Discriminant | Meaning |
+|---|---|
+| $b^2-4ac>0$ | two distinct real roots (curve crosses the $x$-axis twice) |
+| $b^2-4ac=0$ | one repeated root (curve touches the $x$-axis) |
+| $b^2-4ac<0$ | no real roots (curve never meets the $x$-axis) |
+
+These fall straight out of completing the square: the turning point's $y$-value is $c-\dfrac{b^2}{4a}$, and the curve only crosses $y=0$ if that minimum (for $a>0$) sits below the $x$-axis.
+</WorkedExample>
+
+<Tip title="Always try factorising before the formula">
+If $ax^2+bx+c$ factorises with integers, it's almost always faster to spot the factors than to grind through the quadratic formula — reserve the formula (or completing the square) for equations that don't factorise nicely.
+</Tip>
+
+## MM1.4 Simultaneous equations
+
+Solving simultaneous equations means finding the $(x,y)$ pairs common to both equations — geometrically, where their graphs cross.
+
+<WorkedExample title="Linear-linear by substitution or elimination">
+Solve $x+2y=5$ and $2x+y=4$.
+
+**Substitution**: $x=5-2y$, so $2(5-2y)+y=4 \Rightarrow 10-3y=4 \Rightarrow y=2,\ x=1$.
+
+**Elimination**: double the first equation to $2x+4y=10$, then subtract $2x+y=4$ to get $3y=6 \Rightarrow y=2,\ x=1$.
+</WorkedExample>
+
+A pair of linear equations has exactly **one** solution unless the lines are parallel: **no** solutions if parallel and distinct (same gradient, different intercept), or **infinitely many** if the two equations describe the same line.
+
+<WorkedExample title="Linear and quadratic together">
+Solve $y=x^2+3x+2$ and $y=x+1$.
+
+Eliminate $y$:
+
+$$
+x^2+3x+2 = x+1 \ \Rightarrow\ x^2+2x+1=0 \ \Rightarrow\ (x+1)^2=0
+$$
+
+A single repeated solution $x=-1,\ y=0$ — the line is **tangent** to the quadratic here.
+</WorkedExample>
+
+A line and a quadratic can cross at **two** points, touch at **one** (tangent), or miss entirely (**no real** solutions) — factorise or check the discriminant of the equation left after eliminating one variable to see which case you're in.
+
+## MM1.5 Solution of linear and quadratic inequalities
+
+Adding and subtracting on both sides of an inequality is always safe. Multiplying, dividing, or applying a function to both sides is **not** safe unless you check it preserves the direction.
+
+<Trap title="Multiplying or dividing by a negative number flips the inequality">
+$-2<-1$ is true, but squaring both sides gives $4<1$ (false), and dividing both sides of $-8<-4$ by $-2$ gives $4<1$ (also false unless you flip to $4>1$). Whenever the thing you're multiplying or dividing by could be negative, either check its sign first or avoid the operation.
+</Trap>
+
+<WorkedExample title="Quadratic inequality by factorising and sketching">
+Solve $x^2+5x+6\ge0$.
+
+$$
+(x+2)(x+3) \ge 0
+$$
+
+Sketching the $\cup$-shaped graph with roots at $x=-3,-2$ shows it's above the $x$-axis outside the roots:
+
+$$
+x\le-3 \ \text{ or } \ x\ge-2
+$$
+</WorkedExample>
+
+<Shortcut title="Multiply by (denominator)² to clear a fraction safely">
+For $\dfrac{2x+5}{x+3}>1$, don't multiply by $(x+3)$ — its sign is unknown. Multiply both sides by $(x+3)^2$ instead, which is always positive, then rearrange: $(2x+5)(x+3)-(x+3)^2>0 \Rightarrow (x+3)(x+2)>0$, solved exactly as the quadratic example above.
+</Shortcut>
+
+<Tip title="Write combined ranges with the smaller value on the left">
+Write $-3<x<5$, not disconnected or contradictory strings like $1<x<-5$. If a variable must satisfy two non-overlapping conditions (e.g. $x<-4$ or $x>-2$), join them with "or" — never write them as a single chained inequality.
+</Tip>
+
+Modulus inequalities compare distances from a point on the number line: $|x-a|$ is the distance of $x$ from $a$.
+
+<WorkedExample title="Modulus inequality by sketching or by distance">
+Solve $|x-3|<|x-5|$.
+
+This asks: which $x$ are closer to 3 than to 5? Sketching $y=|x-3|$ and $y=|x-5|$ and finding where the first is below the second (or reasoning about distances directly) gives:
+
+$$
+x<4
+$$
+</WorkedExample>
+
+## MM1.6 Algebraic manipulation of polynomials
+
+Expanding brackets and collecting like terms, factorising, and algebraic long division are the core toolkit; the factor and remainder theorems connect division to roots.
+
+<WorkedExample title="Algebraic long division">
+Divide $x^4+2x^2+3x-4$ by $x+3$.
+
+Working through the long division (matching powers of $x$ column by column) gives:
+
+$$
+x^4+2x^2+3x-4 = (x^3-3x^2+11x-30)(x+3) + 86
+$$
+
+The quotient is $x^3-3x^2+11x-30$ and the remainder is $86$ — just like $11=2\times4+3$ for numbers.
+</WorkedExample>
+
+<FormulaCard title="Factor theorem and remainder theorem">
+If $f(x)$ is a polynomial, then $f(a)=0$ **if and only if** $(x-a)$ is a factor of $f(x)$.
+
+When $f(x)$ is divided by $(x-b)$, the remainder is $f(b)$. Dividing by $(px-q)$ instead gives remainder $f\!\left(\dfrac qp\right)$.
+</FormulaCard>
+
+<WorkedExample title="Factorising a cubic using the factor theorem">
+Factorise $f(x)=x^3+x^2-5x+3$.
+
+The constant term is 3, so try factors $\pm1,\pm3$: $f(1)=1+1-5+3=0$, so $(x-1)$ is a factor. Dividing $f(x)$ by $(x-1)$ gives $x^2+2x-3=(x-1)(x+3)$, so overall:
+
+$$
+f(x) = (x-1)(x-1)(x+3) = (x-1)^2(x+3)
+$$
+</WorkedExample>
+
+<Shortcut title="The factor theorem is a special case of the remainder theorem">
+If dividing $f(x)$ by $(x-b)$ leaves remainder $f(b)=0$, then $(x-b)$ is a factor. You don't need to remember them as two separate facts — the factor theorem is just "remainder $=0$".
+</Shortcut>
+
+<Trap title="When only two of three expected factors turn up, suspect a repeated root">
+If a cubic's constant term has, say, four possible integer factors to test but the factor theorem only finds two roots before the possibilities run out, the missing root is very likely repeated — confirm with long division rather than assuming an error.
+</Trap>
+
+## MM1.7 Functions: mappings, and the shapes of √x and |x|
+
+A function needs three things: a rule mapping inputs to outputs, a domain (the allowed inputs), and — crucially — **exactly one output for every input in the domain**.
+
+<WorkedExample title="Testing whether a rule is a function">
+$f(x)=x^2$ is a function: every $x$ gives one output. $f(x)=\pm\sqrt x$ is **not** a function, since (for $x\ne0$) it gives two outputs — e.g. $x=16$ gives both $4$ and $-4$.
+</WorkedExample>
+
+Graphically: the **vertical line test** checks it's a function at all (any vertical line meets the graph at most once); the **horizontal line test** then distinguishes **one-to-one** (every horizontal line meets the graph at most once) from **many-to-one** (some horizontal line meets it more than once).
+
+<Tip title="√x and |x| are both defined to give one positive output">
+$f(x)=\sqrt x$ always means the positive square root, with domain $x\ge0$ — this is a standard convention, not something a question will restate each time. $f(x)=|x|$ takes the positive value of whatever is inside: $|7|=7$, $|-2|=2$, $|0|=0$.
+</Tip>
+
+<Shortcut title="Sketch y = |f(x)| by reflecting the negative part upward">
+Sketch $y=f(x)$ normally, then reflect anything below the $x$-axis up into the positive region, leaving anything already above the axis untouched. This is much faster than re-deriving the modulus function piecewise.
+</Shortcut>
+
+## Formula and shortcut summary
+
+- Index laws: $a^ma^n=a^{m+n}$, $a^m\div a^n=a^{m-n}$, $(a^m)^n=a^{mn}$, $a^{-m}=\frac1{a^m}$, $a^{m/n}=\left(\sqrt[n]{a}\right)^m$. All require $a>0$.
+- Rationalise a single surd with $\frac{1}{\sqrt a}=\frac{\sqrt a}{a}$; rationalise a two-term surd denominator by multiplying by its conjugate.
+- Discriminant $b^2-4ac$: positive → two real roots, zero → one repeated root, negative → no real roots.
+- Quadratic formula: $x=\dfrac{-b\pm\sqrt{b^2-4ac}}{2a}$. Turning point: $x=-\dfrac{b}{2a}$.
+- Linear-linear systems: one solution unless the lines are parallel (then none, or infinitely many if identical).
+- Never multiply or divide an inequality by an expression of unknown sign — multiply by its square instead, or check the sign first.
+- Factor theorem: $f(a)=0 \iff (x-a)$ is a factor. Remainder theorem: dividing by $(x-b)$ leaves remainder $f(b)$.
+- A function needs one output per input. Vertical line test confirms it's a function; horizontal line test distinguishes one-to-one from many-to-one.
 
 <PracticeLink topic="MM1. Algebra and Functions">
 Find algebra and functions questions

@@ -2,18 +2,180 @@ export const meta = {
   slug: "exponentials-and-logarithms",
   module: "m2",
   title: "Exponentials and Logarithms",
-  subtitle: "Placeholder overview for MM5. Exponentials and Logarithms — full guide coming soon.",
+  subtitle: "The graph of y = aˣ, the laws of logarithms, and solving exponential equations.",
   topicCode: "MM5",
-  estimatedMinutes: 5,
+  estimatedMinutes: 20,
   order: 50,
   relatedQuestionFilters: {
     topics: ["MM5. Exponentials and Logarithms"],
   },
 };
 
-## What you need to know
+## MM5.1 The graph of y = aˣ
 
-This guide is a placeholder. The full breakdown of MM5. Exponentials and Logarithms — core facts, fast methods, worked examples, and common traps — is coming soon.
+$y=a^x$ (for $a>0$) is worth sketching mentally in three cases, and you should be able to explain the features of each rather than just recognise the shapes:
+
+- **$a>1$**: the classic growth curve. Always positive, passes through $(0,1)$, increases faster and faster as $x$ grows, and creeps towards $0$ (never reaching it) as $x\to-\infty$. The bigger $a$ is, the steeper the climb.
+- **$a=1$**: $1^x=1$ for every $x$, so this is just the flat line $y=1$ — not really "exponential" behaviour at all, which is exactly why it's excluded as a base for logarithms later.
+- **$0<a<1$**: a mirror image of the $a>1$ case — it's the same curve reflected in the $y$-axis, since $a^x=\left(\frac1a\right)^{-x}$ and $\frac1a>1$. It starts high, decreases, and creeps towards $0$ as $x\to+\infty$.
+
+<Tip title="Play with a graphing tool">
+Sketching these by hand is useful practice, but it's worth also plugging $y=2^x$, $y=10^x$ and a couple of fractional bases into a graphing package to see how quickly they grow and how the three cases above relate to each other.
+</Tip>
+
+Every curve $y=a^x$ (for $a\ne1$) passes through $(0,1)$, since $a^0=1$ regardless of $a$, and is never zero or negative — this is why the *domain* of the inverse function (the logarithm) will turn out to be restricted to positive numbers.
+
+We don't consider $a<0$ here for the same reason this was excluded when you met indices with fractional powers: something like $(-4)^{\frac12}$ isn't a real number, so $a^x$ isn't even always defined once $a$ is negative.
+
+## MM5.2 Laws of logarithms
+
+A logarithm just answers the question "what power do I need?" — it's the inverse operation to raising a number to a power.
+
+<FormulaCard title="The defining relationship">
+$$
+a^b=c \iff b=\log_a c
+$$
+
+Read $\log_a c$ as "the power $a$ must be raised to, to get $c$".
+</FormulaCard>
+
+<WorkedExample title="Getting a feel for logs">
+$$
+\log_{10}100=2 \quad\text{because}\quad 10^2=100
+$$
+
+$$
+\log_2 32=5 \quad\text{because}\quad 2^5=32
+$$
+
+$$
+\log_2\tfrac12=-1 \quad\text{because}\quad 2^{-1}=\tfrac12
+$$
+</WorkedExample>
+
+There are three conditions built into that definition that are easy to forget under exam pressure but genuinely matter:
+
+<FormulaCard title="Conditions on the base and the argument">
+
+- The base must be positive and not equal to $1$: $a>0,\ a\ne1$.
+- You can only take the log of a positive number: $c>0$.
+- The **result** of a log can be any real number, including negative or zero — there's no restriction on $b$.
+
+</FormulaCard>
+
+<Trap title="log of a non-positive number is undefined">
+It's tempting to treat $\log_a c$ like an ordinary function that's defined everywhere, but $c\le0$ simply isn't in its domain — there's no real power you can raise a positive base to and get zero or a negative number. This has genuinely shown up as the crux of a past TMUA/ESAT question, so don't wave it away as a technicality.
+</Trap>
+
+### The log graph as a reflection
+
+Since $\log_a x$ is the *inverse* of $a^x$, its graph is just $y=a^x$ reflected in the line $y=x$ — equivalently, swap the roles of the axes. Sketching $y=2^x$ and reading it "backwards" (start on the $y$-axis, trace across to the curve, then down to the $x$-axis) is exactly the process of taking a log base $2$.
+
+<WorkedExample title="Reading off features of y = logₐ x">
+The graph of $y=\log_2 x$ is only defined for $x>0$ (matching the "$c>0$" condition above), and it crosses the $x$-axis at $x=1$ — because $\log_2 1=0$, since $2^0=1$.
+</WorkedExample>
+
+### The three log laws
+
+Each of the following is really the "logarithm translation" of a familiar index law, and it's worth being able to derive each one rather than just quoting it — the trick each time is to raise $a$ to the power of both sides and use $a^{\log_a x}=x$ (which is just the definition of a logarithm restated).
+
+<FormulaCard title="Addition, subtraction, and multiplication laws">
+$$
+\log_a x+\log_a y=\log_a(xy)
+$$
+
+$$
+\log_a x-\log_a y=\log_a\left(\frac xy\right)
+$$
+
+$$
+k\log_a x=\log_a\left(x^k\right)
+$$
+</FormulaCard>
+
+<WorkedExample title="Deriving the addition law">
+Why does $\log_a x+\log_a y=\log_a(xy)$? Raise $a$ to the power of the left-hand side and use the index law $a^pa^q=a^{p+q}$:
+
+$$
+a^{\log_a x+\log_a y}=a^{\log_a x}\times a^{\log_a y}=x\times y
+$$
+
+So $a$ raised to $(\log_a x+\log_a y)$ gives $xy$ — which is exactly what "$\log_a x+\log_a y=\log_a(xy)$" means.
+</WorkedExample>
+
+There are two special cases worth knowing outright rather than re-deriving each time:
+
+<FormulaCard title="Special cases">
+$$
+\log_a\frac1x=-\log_a x, \qquad \log_a a=1
+$$
+</FormulaCard>
+
+$\log_a a=1$ should feel obvious once you see it — it's just asking "what power does $a$ need to be raised to, to get $a$?", and the answer is $1$.
+
+<Shortcut title="Change of base — useful, but not examined">
+The specification says you won't be asked a question that depends on the change-of-base formula, so don't spend exam time on it. It's still worth having in your back pocket as general mathematical knowledge, and it derives the same way as the laws above: let $p=\log_a b$, so $a^p=b$, then take $\log_c$ of both sides to get $p\log_c a=\log_c b$, giving
+
+$$
+\log_a b=\frac{\log_c b}{\log_c a}
+$$
+
+Setting $c=b$ gives the neat corollary $\log_a b=\dfrac{1}{\log_b a}$.
+</Shortcut>
+
+## MM5.3 Solving exponential equations
+
+The core move for solving $a^x=b$ is to take logs of both sides — the base you choose is up to you, and a well-chosen base can make the algebra much cleaner.
+
+<WorkedExample title="Choosing a convenient base">
+Solve $5^{2x}=27$ exactly (i.e. leave the answer as a log expression, not a rounded decimal — many log values are irrational, just like surds, so rounding early throws away precision).
+
+**Taking $\log_5$ of both sides:**
+
+$$
+\log_5 5^{2x}=\log_5 27=\log_5 3^3 \ \Longrightarrow\ 2x=3\log_5 3 \ \Longrightarrow\ x=\frac32\log_5 3
+$$
+
+**Taking $\log_3$ of both sides instead** (since $27=3^3$ is a clean power of $3$):
+
+$$
+\log_3 5^{2x}=\log_3 27 \ \Longrightarrow\ 2x\log_3 5=3 \ \Longrightarrow\ x=\frac{3}{2\log_3 5}
+$$
+
+Both are correct — they're the same number written two different ways, which you can check using the change-of-base identity above.
+</WorkedExample>
+
+<Tip title="Spot when the numbers on both sides share a common base">
+Before reaching for logs, check whether both sides can be written as powers of the same number — $27=3^3$, $32=2^5$, and so on. If they can, you can often equate exponents directly without logs at all. Logs are the general-purpose tool; spotting a shared base is the shortcut.
+</Tip>
+
+Some equations aren't immediately in the form $a^x=b$ but can be reduced to it with a bit of algebraic manipulation first — commonly, spotting a hidden quadratic.
+
+<WorkedExample title="Reducing to a hidden quadratic">
+Solve $25^x-3\times5^x+2=0$.
+
+Notice $25^x=(5^x)^2$, so substituting $u=5^x$ turns this into an ordinary quadratic:
+
+$$
+u^2-3u+2=0 \ \Longrightarrow\ (u-1)(u-2)=0 \ \Longrightarrow\ u=1 \text{ or } u=2
+$$
+
+Now undo the substitution: $5^x=1$ gives $x=0$ directly (since $5^0=1$), and $5^x=2$ gives $x=\log_5 2$.
+</WorkedExample>
+
+<Trap title="Don't forget to undo the substitution">
+Once you've solved for $u$, the question asked for $x$, not $u$ — it's an easy mark to drop by stopping one step too early after a substitution trick like $u=5^x$.
+</Trap>
+
+## Formula and shortcut summary
+
+- $y=a^x$: passes through $(0,1)$, always positive. Growth curve for $a>1$, flat line $y=1$ for $a=1$, decay curve for $0<a<1$ (a reflection of the $a>1$ case in the $y$-axis).
+- Definition: $a^b=c \iff b=\log_a c$, requiring $a>0,\ a\ne1,\ c>0$; $b$ itself can be any real number.
+- $y=\log_a x$ is $y=a^x$ reflected in $y=x$; defined only for $x>0$, crosses the $x$-axis at $x=1$.
+- $\log_a x+\log_a y=\log_a(xy)$; $\log_a x-\log_a y=\log_a\left(\frac xy\right)$; $k\log_a x=\log_a(x^k)$.
+- Special cases: $\log_a\frac1x=-\log_a x$; $\log_a a=1$.
+- Change of base (not examined, but useful): $\log_a b=\dfrac{\log_c b}{\log_c a}$, giving $\log_a b=\dfrac1{\log_b a}$.
+- To solve $a^x=b$: take logs of a well-chosen base, or spot a shared base and equate exponents directly. Watch for hidden quadratics via a substitution like $u=a^x$.
 
 <PracticeLink topic="MM5. Exponentials and Logarithms">
 Find exponentials and logarithms questions
