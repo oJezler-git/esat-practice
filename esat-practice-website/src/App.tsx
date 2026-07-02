@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -7,18 +7,19 @@ import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay
 import { UpdatePrompt } from "./components/ui/UpdatePrompt";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
 import { useSettingsStore } from "./lib/settingsStore";
-import Home from "./pages/home";
-import PracticeSetup from "./pages/practice-setup";
-import SessionPage from "./pages/session";
-import ResultsPage from "./pages/results";
-import QuestionBank from "./pages/question-bank";
-import Progress from "./pages/progress";
-import History from "./pages/history";
-import Settings from "./pages/settings";
-import NotFound from "./pages/not-found";
-import ScoreReference from "./pages/score-reference";
-import RevisionHome from "./pages/revision";
-import RevisionDocPage from "./pages/revision/doc";
+
+const Home = lazy(() => import("./pages/home"));
+const PracticeSetup = lazy(() => import("./pages/practice-setup"));
+const SessionPage = lazy(() => import("./pages/session"));
+const ResultsPage = lazy(() => import("./pages/results"));
+const QuestionBank = lazy(() => import("./pages/question-bank"));
+const Progress = lazy(() => import("./pages/progress"));
+const History = lazy(() => import("./pages/history"));
+const Settings = lazy(() => import("./pages/settings"));
+const NotFound = lazy(() => import("./pages/not-found"));
+const ScoreReference = lazy(() => import("./pages/score-reference"));
+const RevisionHome = lazy(() => import("./pages/revision"));
+const RevisionDocPage = lazy(() => import("./pages/revision/doc"));
 
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
@@ -48,6 +49,7 @@ export default function App() {
       <LoadingProgressDisplay />
       <UpdatePrompt />
       <main id="app-main" className={`app-main ${isSession ? "h-screen overflow-hidden" : ""}`}>
+        <Suspense fallback={<div className="route-loading" aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/practice" element={<PracticeSetup />} />
@@ -62,6 +64,7 @@ export default function App() {
           <Route path="/revision/:moduleSlug/:topicSlug" element={<RevisionDocPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </main>
       <Analytics />
       <SpeedInsights />

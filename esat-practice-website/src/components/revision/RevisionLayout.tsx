@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { getRevisionModule } from "../../content/revision/manifest";
-import type { RevisionDoc, RevisionHeading } from "../../content/revision/types";
+import { getRevisionModule, prefetchRevisionContent } from "../../content/revision/manifest";
+import type { RevisionDocEntry, RevisionHeading } from "../../content/revision/types";
 import { RevisionAsk } from "./RevisionAsk";
 import { useActiveHeading } from "./useActiveHeading";
 
@@ -11,7 +11,7 @@ export function RevisionLayout({
   headings = [],
 }: {
   children: ReactNode;
-  currentDoc?: RevisionDoc;
+  currentDoc?: RevisionDocEntry;
   headings?: RevisionHeading[];
 }) {
   const activeHeading = useActiveHeading(headings);
@@ -33,6 +33,9 @@ export function RevisionLayout({
                   <NavLink
                     key={doc.id}
                     to={`/revision/${doc.meta.module}/${doc.meta.slug}`}
+                    onMouseEnter={() => prefetchRevisionContent(doc.path)}
+                    onFocus={() => prefetchRevisionContent(doc.path)}
+                    onPointerDown={() => prefetchRevisionContent(doc.path)}
                     className={({ isActive }) =>
                       `rev-sidebar-link ${isActive || activeDocId === doc.id ? "rev-sidebar-link--active" : ""}`
                     }

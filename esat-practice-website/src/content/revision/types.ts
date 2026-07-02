@@ -18,11 +18,15 @@ export type RevisionDocMeta = {
   relatedQuestionFilters?: RelatedQuestionFilters;
 };
 
-export type RevisionDoc = {
+/** Lightweight doc descriptor available synchronously (metadata only, no content). */
+export type RevisionDocEntry = {
   id: string;
   path: string;
-  raw: string;
   meta: RevisionDocMeta;
+};
+
+/** A doc entry with its compiled MDX component, loaded on demand. */
+export type RevisionDoc = RevisionDocEntry & {
   Content: ComponentType<any>;
 };
 
@@ -31,7 +35,7 @@ export type RevisionModule = {
   title: string;
   shortTitle: string;
   description: string;
-  docs: RevisionDoc[];
+  docs: RevisionDocEntry[];
 };
 
 export type RevisionHeading = {

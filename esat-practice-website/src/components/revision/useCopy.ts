@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useCopy(text: string) {
+export function useCopy(getText: () => string | Promise<string>) {
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function copy() {
+    const text = await getText();
     const didCopy = await writeClipboardText(text);
 
     if (!didCopy) {

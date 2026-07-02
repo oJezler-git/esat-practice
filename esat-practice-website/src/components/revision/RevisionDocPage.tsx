@@ -1,9 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { Link, useParams } from "react-router-dom";
-import { findRevisionDoc, getRevisionModule } from "../../content/revision/manifest";
+// Pre-rendered doc math (and the Ask panel, which only appears on doc pages)
+// needs KaTeX styles; scope them to this route instead of loading app-wide.
+import "katex/dist/katex.min.css";
+import {
+  findRevisionDoc,
+  getRevisionModule,
+  loadRevisionContent,
+  loadRevisionRaw,
+} from "../../content/revision/manifest";
 import { stripMdxExports } from "../../content/revision/mdxSource";
 import { buildUniqueHeadingId } from "../../content/revision/slug";
 import type { RevisionHeading } from "../../content/revision/types";
+import { preloadKatexFonts } from "./katexFontPreload";
 import { revisionMdxComponents } from "./RevisionMdxComponents";
 import { RevisionLayout } from "./RevisionLayout";
 import { useCopy } from "./useCopy";
@@ -38,10 +47,62 @@ export function RevisionDocPage() {
   const doc = findRevisionDoc(moduleSlug, topicSlug);
   const articleRef = useRef<HTMLElement | null>(null);
   const [headings, setHeadings] = useState<RevisionHeading[]>([]);
+  const docPath = doc?.path;
+  const docId = doc?.id;
 
+  // The loaded guide is tagged with the doc id it belongs to. We only render it
+  // when that id matches the current route, so navigating to another topic drops
+  // to the skeleton on the very next paint — no stale content, and the heavy new
+  // guide is never rendered in the same commit as the click.
+  const [loaded, setLoaded] = useState<{ id: string; Content: ComponentType<any> } | null>(null);
+  const ready = loaded && loaded.id === docId ? loaded : null;
+
+  // Warm the KaTeX fonts as soon as a guide is opened so math never pops in.
   useEffect(() => {
-    setHeadings(collectHeadings(articleRef.current));
-  }, [doc?.id]);
+    preloadKatexFonts();
+  }, []);
+
+  // Fetch the compiled MDX guide for the current topic on demand.
+  useEffect(() => {
+    if (!docPath || !docId) {
+      return;
+    }
+
+    let cancelled = false;
+    setHeadings([]);
+
+    loadRevisionContent(docPath)
+      .then((Content) => {
+        if (cancelled) {
+          return;
+        }
+        // Defer the heavy MDX render to the next frame so the skeleton paints
+        // first and the click feels instant, even when the chunk is warm.
+        requestAnimationFrame(() => {
+          if (!cancelled) {
+            setLoaded({ id: docId, Content });
+          }
+        });
+      })
+      .catch(() => {
+        // Leave the skeleton in place on failure.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [docPath, docId]);
+
+  // Build the table of contents once the guide has rendered.
+  useEffect(() => {
+    if (ready) {
+      setHeadings(collectHeadings(articleRef.current));
+    }
+  }, [ready, docId]);
+
+  const { copied, copy } = useCopy(async () =>
+    docPath ? stripMdxExports(await loadRevisionRaw(docPath)) : "",
+  );
 
   if (!doc) {
     return (
@@ -57,8 +118,6 @@ export function RevisionDocPage() {
   }
 
   const module = getRevisionModule(doc.meta.module);
-  const { copied, copy } = useCopy(stripMdxExports(doc.raw));
-  const Content = doc.Content;
 
   return (
     <RevisionLayout currentDoc={doc} headings={headings}>
@@ -84,7 +143,19 @@ export function RevisionDocPage() {
         </div>
 
         <div className="rev-mdx">
-          <Content components={revisionMdxComponents} />
+          {ready ? (
+            <ready.Content components={revisionMdxComponents} />
+          ) : (
+            <div className="rev-mdx-skeleton" aria-hidden="true">
+              <span className="rev-skel-line rev-skel-line--head" />
+              <span className="rev-skel-line" />
+              <span className="rev-skel-line" />
+              <span className="rev-skel-line rev-skel-line--short" />
+              <span className="rev-skel-line rev-skel-line--head" />
+              <span className="rev-skel-line" />
+              <span className="rev-skel-line rev-skel-line--short" />
+            </div>
+          )}
         </div>
       </article>
     </RevisionLayout>

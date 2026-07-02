@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { revisionModules } from "../../content/revision/manifest";
+import { prefetchRevisionContent, revisionModules } from "../../content/revision/manifest";
 import { RevisionLayout } from "./RevisionLayout";
 
 export function RevisionHome() {
@@ -28,7 +28,13 @@ export function RevisionHome() {
                   <span className="rev-subject-empty">Coming soon</span>
                 ) : (
                   module.docs.map((doc) => (
-                    <Link key={doc.id} to={`/revision/${doc.meta.module}/${doc.meta.slug}`}>
+                    <Link
+                      key={doc.id}
+                      to={`/revision/${doc.meta.module}/${doc.meta.slug}`}
+                      onMouseEnter={() => prefetchRevisionContent(doc.path)}
+                      onFocus={() => prefetchRevisionContent(doc.path)}
+                      onPointerDown={() => prefetchRevisionContent(doc.path)}
+                    >
                       <span className="rev-subject-topic-main">
                         <span>{doc.meta.title}</span>
                         <span>{doc.meta.topicCode}</span>

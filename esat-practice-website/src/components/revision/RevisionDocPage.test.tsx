@@ -23,11 +23,19 @@ describe("Revision docs routes", () => {
     expect(screen.getAllByRole("link", { name: /units/i }).length).toBeGreaterThan(0);
   });
 
-  it("renders an MDX topic with teaching blocks and practice link", () => {
+  it("renders an MDX topic with teaching blocks and practice link", async () => {
     renderAt("/revision/m1/units");
 
+    // Metadata title renders synchronously; the compiled guide loads on demand.
     expect(screen.getByRole("heading", { name: "Units" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "M1.1 Standard and compound units" })).toBeInTheDocument();
+    expect(
+      // The compiled guide is a lazy chunk; allow time for the dynamic import.
+      await screen.findByRole(
+        "heading",
+        { name: "M1.1 Standard and compound units" },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "M1.2 Converting between units" })).toBeInTheDocument();
     expect(screen.getByText("Find units questions")).toBeInTheDocument();
   });

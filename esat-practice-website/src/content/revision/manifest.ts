@@ -1,7 +1,14 @@
-import type { RevisionDoc, RevisionDocMeta, RevisionModule, RevisionModuleSlug } from "./types";
+import type { ComponentType } from "react";
+import metaEntries from "./revision-meta.json";
+import type {
+  RevisionDocEntry,
+  RevisionDocMeta,
+  RevisionModule,
+  RevisionModuleSlug,
+} from "./types";
 
 type MdxModule = {
-  default: RevisionDoc["Content"];
+  default: ComponentType<any>;
   meta: RevisionDocMeta;
 };
 
@@ -26,29 +33,23 @@ const moduleInfo: Record<RevisionModuleSlug, Omit<RevisionModule, "docs">> = {
   },
 };
 
-const modules = import.meta.glob<MdxModule>("./topics/**/*.mdx", { eager: true });
-type RawModule = string | { default: string };
+// Lazy: each compiled guide is its own chunk, fetched only when its topic is opened.
+const contentLoaders = import.meta.glob<MdxModule>("./topics/**/*.mdx");
 
-const rawModules = import.meta.glob<RawModule>("./topics/**/*.mdx", {
-  eager: true,
+// Lazy: raw MDX source, fetched only when "Copy page" is used.
+const rawLoaders = import.meta.glob<string>("./topics/**/*.mdx", {
   query: "?raw",
   import: "default",
 });
 
-export const revisionDocs: RevisionDoc[] = Object.entries(modules)
-  .map(([path, mod]) => {
-    const rawModule = rawModules[path];
-    const raw = typeof rawModule === "string" ? rawModule : rawModule?.default ?? "";
-    const id = `${mod.meta.module}/${mod.meta.slug}`;
+type MetaEntry = { path: string; meta: RevisionDocMeta };
 
-    return {
-      id,
-      path,
-      raw,
-      meta: mod.meta,
-      Content: mod.default,
-    };
-  })
+export const revisionDocs: RevisionDocEntry[] = (metaEntries as MetaEntry[])
+  .map(({ path, meta }) => ({
+    id: `${meta.module}/${meta.slug}`,
+    path,
+    meta,
+  }))
   .sort(compareDocs);
 
 export const revisionModules: RevisionModule[] = (Object.keys(moduleInfo) as RevisionModuleSlug[])
@@ -57,7 +58,7 @@ export const revisionModules: RevisionModule[] = (Object.keys(moduleInfo) as Rev
     docs: revisionDocs.filter((doc) => doc.meta.module === slug).sort(compareDocs),
   }));
 
-export function compareDocs(left: RevisionDoc, right: RevisionDoc): number {
+export function compareDocs(left: RevisionDocEntry, right: RevisionDocEntry): number {
   return (
     left.meta.module.localeCompare(right.meta.module) ||
     left.meta.order - right.meta.order ||
@@ -65,7 +66,10 @@ export function compareDocs(left: RevisionDoc, right: RevisionDoc): number {
   );
 }
 
-export function findRevisionDoc(moduleSlug: string | undefined, topicSlug: string | undefined): RevisionDoc | undefined {
+export function findRevisionDoc(
+  moduleSlug: string | undefined,
+  topicSlug: string | undefined,
+): RevisionDocEntry | undefined {
   if (!moduleSlug || !topicSlug) {
     return undefined;
   }
@@ -75,10 +79,52 @@ export function findRevisionDoc(moduleSlug: string | undefined, topicSlug: strin
   );
 }
 
-export function getFirstRevisionDoc(): RevisionDoc | undefined {
+export function getFirstRevisionDoc(): RevisionDocEntry | undefined {
   return revisionDocs[0];
 }
 
 export function getRevisionModule(slug: RevisionModuleSlug): RevisionModule {
   return revisionModules.find((module) => module.slug === slug) ?? revisionModules[0];
+}
+
+const prefetched = new Set<string>();
+const contentCache = new Map<string, ComponentType<any>>();
+
+/** Warms a doc's compiled MDX chunk ahead of navigation (e.g. on link hover/focus). */
+export function prefetchRevisionContent(path: string): void {
+  if (prefetched.has(path) || contentCache.has(path)) {
+    return;
+  }
+  if (!contentLoaders[path]) {
+    return;
+  }
+  prefetched.add(path);
+  void loadRevisionContent(path).catch(() => {
+    // Allow a retry on a later hover if the prefetch failed.
+    prefetched.delete(path);
+  });
+}
+
+/** Loads the compiled MDX component for a doc on demand. */
+export async function loadRevisionContent(path: string): Promise<ComponentType<any>> {
+  const cached = contentCache.get(path);
+  if (cached) {
+    return cached;
+  }
+  const loader = contentLoaders[path];
+  if (!loader) {
+    throw new Error(`No revision content registered for ${path}`);
+  }
+  const mod = await loader();
+  contentCache.set(path, mod.default);
+  return mod.default;
+}
+
+/** Loads the raw MDX source for a doc on demand (used for "Copy page"). */
+export async function loadRevisionRaw(path: string): Promise<string> {
+  const loader = rawLoaders[path];
+  if (!loader) {
+    return "";
+  }
+  return loader();
 }

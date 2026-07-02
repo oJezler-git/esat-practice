@@ -41,7 +41,9 @@ Object.defineProperty(window, "matchMedia", {
   writable: true,
   configurable: true,
   value: (query: string) => ({
-    matches: false,
+    // Report reduced-motion so animated components render their final state
+    // immediately, keeping assertions deterministic under load.
+    matches: query.includes("prefers-reduced-motion"),
     media: query,
     onchange: null,
     addListener: () => {},

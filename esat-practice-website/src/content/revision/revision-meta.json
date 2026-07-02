@@ -1,0 +1,376 @@
+[
+  {
+    "path": "./topics/m1/algebra.mdx",
+    "meta": {
+      "slug": "algebra",
+      "module": "m1",
+      "title": "Algebra",
+      "subtitle": "Notation, indices, expanding and factorising, formulae, graphs, simultaneous and quadratic equations, inequalities, and sequences.",
+      "topicCode": "M4",
+      "estimatedMinutes": 26,
+      "order": 40,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M4. Algebra"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m1/geometry.mdx",
+    "meta": {
+      "slug": "geometry",
+      "module": "m1",
+      "title": "Geometry",
+      "subtitle": "Angle facts, shapes, congruence and similarity, transformations, Pythagoras, circle theorems, trigonometry, and vectors.",
+      "topicCode": "M5",
+      "estimatedMinutes": 30,
+      "order": 50,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M5. Geometry"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m1/number.mdx",
+    "meta": {
+      "slug": "number",
+      "module": "m1",
+      "title": "Number",
+      "subtitle": "Ordering, arithmetic, primes, indices, and working exactly with fractions, surds, and bounds.",
+      "topicCode": "M2",
+      "estimatedMinutes": 10,
+      "order": 20,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M2. Number"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m1/probability.mdx",
+    "meta": {
+      "slug": "probability",
+      "module": "m1",
+      "title": "Probability",
+      "subtitle": "Relative frequency, sample spaces, exhaustive and mutually exclusive events, Venn/tree diagrams, and conditional probability.",
+      "topicCode": "M7",
+      "estimatedMinutes": 24,
+      "order": 70,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M7. Probability"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m1/ratio-and-proportion.mdx",
+    "meta": {
+      "slug": "ratio-and-proportion",
+      "module": "m1",
+      "title": "Ratio and Proportion",
+      "subtitle": "Scale factors, ratio notation, percentages, direct/inverse proportion, similarity, and growth and decay.",
+      "topicCode": "M3",
+      "estimatedMinutes": 16,
+      "order": 30,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M3. Ratio and Proportion"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m1/statistics.mdx",
+    "meta": {
+      "slug": "statistics",
+      "module": "m1",
+      "title": "Statistics",
+      "subtitle": "Tables, charts and diagrams for categorical, discrete and continuous data, averages and spread, and scatter graphs.",
+      "topicCode": "M6",
+      "estimatedMinutes": 20,
+      "order": 60,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M6. Statistics"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m1/units.mdx",
+    "meta": {
+      "slug": "units",
+      "module": "m1",
+      "title": "Units",
+      "subtitle": "Standard and compound units, and converting cleanly between them for speed, density, pressure, and cost problems.",
+      "topicCode": "M1",
+      "estimatedMinutes": 10,
+      "order": 10,
+      "relatedQuestionFilters": {
+        "topics": [
+          "M1. Units"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/algebra-and-functions.mdx",
+    "meta": {
+      "slug": "algebra-and-functions",
+      "module": "m2",
+      "title": "Algebra and Functions",
+      "subtitle": "Indices, surds, quadratics and the discriminant, simultaneous equations, inequalities, polynomial division, the factor and remainder theorems, and functions.",
+      "topicCode": "MM1",
+      "estimatedMinutes": 24,
+      "order": 10,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM1. Algebra and Functions"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/coordinate-geometry.mdx",
+    "meta": {
+      "slug": "coordinate-geometry",
+      "module": "m2",
+      "title": "Coordinate Geometry",
+      "subtitle": "Equations of straight lines, parallel and perpendicular conditions, the equation of a circle, and the circle theorems.",
+      "topicCode": "MM3",
+      "estimatedMinutes": 22,
+      "order": 30,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM3. Coordinate Geometry"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/differentiation.mdx",
+    "meta": {
+      "slug": "differentiation",
+      "module": "m2",
+      "title": "Differentiation",
+      "subtitle": "The derivative as a gradient and rate of change, differentiating powers of x, tangents and normals, stationary points, and increasing/decreasing functions.",
+      "topicCode": "MM6",
+      "estimatedMinutes": 18,
+      "order": 60,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM6. Differentiation"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/exponentials-and-logarithms.mdx",
+    "meta": {
+      "slug": "exponentials-and-logarithms",
+      "module": "m2",
+      "title": "Exponentials and Logarithms",
+      "subtitle": "The graph of y = aˣ, the laws of logarithms, and solving exponential equations.",
+      "topicCode": "MM5",
+      "estimatedMinutes": 20,
+      "order": 50,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM5. Exponentials and Logarithms"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/graphs-of-functions.mdx",
+    "meta": {
+      "slug": "graphs-of-functions",
+      "module": "m2",
+      "title": "Graphs of Functions",
+      "subtitle": "Sketching common functions, modulus graphs, transformations of y = f(x), and composite functions f(g(x)).",
+      "topicCode": "MM8",
+      "estimatedMinutes": 26,
+      "order": 80,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM8. Graphs of Functions"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/integration.mdx",
+    "meta": {
+      "slug": "integration",
+      "module": "m2",
+      "title": "Integration",
+      "subtitle": "Integrating powers of x, definite integrals and area, the Fundamental Theorem of Calculus, combining integrals, the trapezium rule, and solving dy/dx = f(x).",
+      "topicCode": "MM7",
+      "estimatedMinutes": 22,
+      "order": 70,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM7. Integration"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/sequences-and-series.mdx",
+    "meta": {
+      "slug": "sequences-and-series",
+      "module": "m2",
+      "title": "Sequences and Series",
+      "subtitle": "Recurrence relations, arithmetic and geometric series, sum to infinity, and the binomial expansion with nCr.",
+      "topicCode": "MM2",
+      "estimatedMinutes": 20,
+      "order": 20,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM2. Sequences and Series"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/m2/trigonometry.mdx",
+    "meta": {
+      "slug": "trigonometry",
+      "module": "m2",
+      "title": "Trigonometry",
+      "subtitle": "Sine and cosine rules, triangle area, radians, arc length and sector area, standard angles, graphs, identities, and solving trig equations.",
+      "topicCode": "MM4",
+      "estimatedMinutes": 24,
+      "order": 40,
+      "relatedQuestionFilters": {
+        "topics": [
+          "MM4. Trigonometry"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/electricity.mdx",
+    "meta": {
+      "slug": "electricity",
+      "module": "physics",
+      "title": "Electricity",
+      "subtitle": "Charging by friction and induction, circuit symbols, current, voltage, resistance, V–I graphs, and series/parallel rules.",
+      "topicCode": "P1",
+      "estimatedMinutes": 20,
+      "order": 10,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P1. Electricity"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/magnetism.mdx",
+    "meta": {
+      "slug": "magnetism",
+      "module": "physics",
+      "title": "Magnetism",
+      "subtitle": "Poles and field patterns, soft and hard magnetic materials, the field around currents and coils, the motor effect and F = BIL, dc motors, electromagnetic induction, ac generators, and transformers.",
+      "topicCode": "P2",
+      "estimatedMinutes": 28,
+      "order": 20,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P2. Magnetism"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/matter.mdx",
+    "meta": {
+      "slug": "matter",
+      "module": "physics",
+      "title": "Matter",
+      "subtitle": "States of matter and the particle model, ideal gases and PV = constant, melting/boiling and latent heat, density, and pressure including hydrostatic pressure.",
+      "topicCode": "P5",
+      "estimatedMinutes": 25,
+      "order": 50,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P5. Matter"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/mechanics.mdx",
+    "meta": {
+      "slug": "mechanics",
+      "module": "physics",
+      "title": "Mechanics",
+      "subtitle": "Scalars and vectors, motion graphs, forces, Hooke's law, Newton's laws, mass and weight, momentum, and work/energy/power.",
+      "topicCode": "P3",
+      "estimatedMinutes": 35,
+      "order": 30,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P3. Mechanics"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/radioactivity.mdx",
+    "meta": {
+      "slug": "radioactivity",
+      "module": "physics",
+      "title": "Radioactivity",
+      "subtitle": "Atomic structure, nuclide notation and isotopes, alpha/beta/gamma decay and nuclear equations, penetration, ionisation, background radiation, applications, and half-life.",
+      "topicCode": "P7",
+      "estimatedMinutes": 32,
+      "order": 70,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P7. Radioactivity"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/thermal-physics.mdx",
+    "meta": {
+      "slug": "thermal-physics",
+      "module": "physics",
+      "title": "Thermal Physics",
+      "subtitle": "Conduction, convection, thermal (infrared) radiation, and specific heat capacity.",
+      "topicCode": "P4",
+      "estimatedMinutes": 22,
+      "order": 40,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P4. Thermal Physics"
+        ]
+      }
+    }
+  },
+  {
+    "path": "./topics/physics/waves.mdx",
+    "meta": {
+      "slug": "waves",
+      "module": "physics",
+      "title": "Waves",
+      "subtitle": "Wave properties and the wave equation, reflection/refraction/the Doppler effect, ray diagrams, sound and ultrasound, and the electromagnetic spectrum.",
+      "topicCode": "P6",
+      "estimatedMinutes": 35,
+      "order": 60,
+      "relatedQuestionFilters": {
+        "topics": [
+          "P6. Waves"
+        ]
+      }
+    }
+  }
+]
