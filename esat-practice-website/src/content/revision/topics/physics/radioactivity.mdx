@@ -2,18 +2,393 @@ export const meta = {
   slug: "radioactivity",
   module: "physics",
   title: "Radioactivity",
-  subtitle: "Placeholder overview for P7. Radioactivity — full guide coming soon.",
+  subtitle: "Atomic structure, nuclide notation and isotopes, alpha/beta/gamma decay and nuclear equations, penetration, ionisation, background radiation, applications, and half-life.",
   topicCode: "P7",
-  estimatedMinutes: 5,
+  estimatedMinutes: 32,
   order: 70,
   relatedQuestionFilters: {
     topics: ["P7. Radioactivity"],
   },
 };
 
-## What you need to know
+## P7.1 The nuclear model of the atom
 
-This guide is a placeholder. The full breakdown of P7. Radioactivity — core facts, fast methods, worked examples, and common traps — is coming soon.
+<FormulaCard title="The nuclear model">
+An atom has a tiny, dense **nucleus** at its centre, containing one or more **protons** and (except for the most common hydrogen nucleus) one or more **neutrons** — collectively, **nucleons**. Outside the nucleus is mostly empty space, occupied by one or more orbiting **electrons**.
+</FormulaCard>
+
+The scale here is easy to underestimate: a nucleus is typically around 100,000 times smaller in radius than the whole atom, yet holds over 99.9% of its mass. Almost all of an atom's volume — and its overall size — comes from the electrons' orbits, not from the (comparatively minuscule) nucleus.
+
+<WorkedExample title="Finding neutrons from protons and nucleon count">
+A gold atom has 79 protons and 197 nucleons in total. How many neutrons does it have?
+
+Nucleons = protons + neutrons, so neutrons $= 197-79 = 118$.
+</WorkedExample>
+
+## P7.2 Relative charges and masses of subatomic particles
+
+<FormulaCard title="Charges and masses">
+| Particle | Relative mass | Relative charge |
+|---|---|---|
+| Proton | 1 | $+1$ |
+| Neutron | 1 | $0$ |
+| Electron | $\approx\frac{1}{2000}$ | $-1$ |
+
+A proton and an electron carry exactly equal and opposite charge, despite the proton being roughly 2000 times heavier. A neutral atom has equal numbers of protons and electrons, so its charges cancel exactly.
+</FormulaCard>
+
+<Tip title="What actually holds a nucleus together">
+Protons are all positively charged, so packed together in a tiny nucleus they should repel each other strongly — and they would, if electrostatic repulsion were the only force at play. What actually holds the nucleus together is the **strong nuclear force**, a short-range attractive force between nucleons that overpowers the electrostatic repulsion at nuclear distances.
+</Tip>
+
+## P7.3 Atomic number and mass number
+
+<FormulaCard title="Atomic number and mass number">
+**Atomic number** ($Z$, also "proton number") = number of protons = number of electrons in a neutral atom. It determines which element the atom is. **Mass number** ($A$, also "nucleon number") = total protons + neutrons.
+</FormulaCard>
+
+<WorkedExample title="Working backwards from partial information">
+An atom has 19 nucleons and 10 neutrons. How many electrons does it have?
+
+Protons $=$ nucleons $-$ neutrons $=19-10=9$. A neutral atom has equal protons and electrons, so it also has **9 electrons**.
+</WorkedExample>
+
+<WorkedExample title="Atomic and mass numbers from different starting facts">
+Find the atomic number and mass number of: (a) an atom with 1 proton and 0 neutrons; (b) an atom with 16 neutrons and 15 electrons; (c) an atom with 195 nucleons and 117 neutrons.
+
+(a) Atomic number $=1$; mass number $=1+0=1$.
+
+(b) Electrons $=$ protons, so atomic number $=15$; mass number $=15+16=31$.
+
+(c) Protons $=195-117=78$, so atomic number $=78$; mass number (nucleon count) $=195$.
+</WorkedExample>
+
+## P7.4 Isotopes
+
+<FormulaCard title="Isotopes">
+**Isotopes** are nuclides of the same element — same atomic number (same number of protons) but different numbers of neutrons, and hence different mass numbers.
+</FormulaCard>
+
+Every element has at least a few known isotopes — some have thirty or more — though for most elements only one or two of these are naturally stable in significant quantities.
+
+<WorkedExample title="Deciding whether nuclides must be the same element">
+Which of these must be isotopes of the same element? (1) 19 protons, 20 neutrons. (2) 20 protons, 20 neutrons. (3) 19 protons, 19 neutrons. (4) 40 nucleons (total unspecified split).
+
+Isotopes of the same element share the same **atomic number**, i.e. the same proton count. Nuclides (1) and (3) both have 19 protons, so they **must** be isotopes of the same element. Nuclide (2) has 20 protons — a different element from (1) and (3). Nuclide (4) only gives a nucleon total, not a proton count, so it could have 19 protons (matching (1) and (3)), 20 (matching (2)), or any other split — there isn't enough information to pin it down.
+</WorkedExample>
+
+## P7.5 Nuclide notation
+
+<FormulaCard title="Nuclide notation">
+$$
+{}^{A}_{Z}\text{X}
+$$
+
+$X$ is the element symbol, $A$ (top) is the mass number, $Z$ (bottom) is the atomic number. Number of neutrons $=A-Z$. The same nuclide is often written more compactly as, e.g., "He-4" or "U-238" — just the symbol and mass number, with no direct information about the proton count on its own.
+</FormulaCard>
+
+<WorkedExample title="Reading protons and neutrons off nuclide notation">
+Find the protons and neutrons in ${}^{1}_{1}\text{H}$, ${}^{107}_{47}\text{Ag}$, and ${}^{238}_{92}\text{U}$.
+
+Protons = atomic number (bottom), neutrons = mass number $-$ atomic number:
+
+$$
+{}^{1}_{1}\text{H}:\ 1\ \text{proton},\ 1-1=0\ \text{neutrons}
+$$
+$$
+{}^{107}_{47}\text{Ag}:\ 47\ \text{protons},\ 107-47=60\ \text{neutrons}
+$$
+$$
+{}^{238}_{92}\text{U}:\ 92\ \text{protons},\ 238-92=146\ \text{neutrons}
+$$
+</WorkedExample>
+
+<WorkedExample title="Writing nuclide notation from a description">
+Write nuclide notation for: (a) phosphorus with 15 protons, 17 neutrons; (b) barium with 82 neutrons, 138 nucleons; (c) Ra-226 with 138 neutrons.
+
+(a) Atomic number $=15$, mass number $=15+17=32$: ${}^{32}_{15}\text{P}$.
+
+(b) Protons $=138-82=56$: ${}^{138}_{56}\text{Ba}$.
+
+(c) Protons $=226-138=88$: ${}^{226}_{88}\text{Ra}$.
+</WorkedExample>
+
+## P7.6 Ionisation of atoms
+
+<FormulaCard title="Ionisation">
+An atom that **gains or loses electrons** becomes charged — it's now an **ion**, not an atom. Losing electrons leaves more protons than electrons, giving a **positive** ion; gaining electrons gives a **negative** ion. Crucially, ionisation never changes the number of protons or neutrons — only electrons move.
+</FormulaCard>
+
+<Trap title="Ionisation never touches the nucleus">
+Whatever causes the ionisation — friction, ionic bonding, or ionising radiation — only electrons are gained or lost. The atomic number and mass number of the nucleus stay exactly the same; only the charge (and hence the electron count) changes.
+</Trap>
+
+<WorkedExample title="Finding the composition of an ion, then its neutral atom">
+An ion has 45 nucleons, 19 electrons, and a charge of $+2$. It then gains electrons to become a neutral atom. Find the protons, neutrons, and electrons of the resulting atom.
+
+A charge of $+2$ means 2 more protons than electrons: protons $=19+2=21$. Neutrons $=45-21=24$. As a neutral atom, electrons $=$ protons $=21$.
+</WorkedExample>
+
+<WorkedExample title="Ionisation doesn't change atomic or mass number">
+An atom of ${}^{58}_{28}\text{Ni}$ gains two electrons. What are the atomic number and mass number of the resulting ion?
+
+Gaining electrons only changes the electron count, not the nucleus. Atomic number stays **28**, mass number stays **58** — the ion is just $\text{Ni}^{2-}$.
+</WorkedExample>
+
+## P7.7 Unstable nuclei and radioactive decay
+
+<FormulaCard title="Radioactive decay">
+Some nuclides are **stable** and persist indefinitely; others are **unstable** and eventually **decay**, emitting radiation (alpha, beta, and/or gamma) as they do so. A nuclide that decays is described as **radioactive**.
+</FormulaCard>
+
+An unstable nucleus might decay straight into a stable one and stop there, or it might decay into another unstable nuclide, continuing through a **decay chain** — possibly mixing different types of emission — until a stable nuclide is finally reached.
+
+## P7.8 The random nature of decay
+
+<Tip title="Random doesn't mean unpredictable in every sense">
+It's impossible to say *when* any individual unstable nucleus will decay — there's no known trigger, and the process is genuinely **spontaneous**. But it *is* possible to measure the **probability** that a nucleus of a given type decays in a given time period, which is exactly what half-life captures (see below). Think of it like rolling a die repeatedly: you can't predict which roll gives the first six, but you can state the probability of a six on any given roll is $\frac16$.
+</Tip>
+
+<WorkedExample title="Checking claims about decay">
+True or false: (1) heating a radioactive substance makes it decay faster; (2) an unstable nucleus can decay into another unstable nucleus; (3) an element's isotopes are either all stable or all unstable.
+
+(1) **False** — unlike chemical reaction rates, nuclear decay rate is completely unaffected by temperature (or any other external condition anyone has found). (2) **True** — this is exactly what happens in a decay chain. (3) **False** — most elements have a mix of stable and unstable isotopes.
+</WorkedExample>
+
+## P7.9 Alpha, beta, and gamma: nature and properties
+
+<FormulaCard title="Alpha, beta, gamma at a glance">
+| | Alpha ($\alpha$) | Beta ($\beta^-$) | Gamma ($\gamma$) |
+|---|---|---|---|
+| Nature | 2 protons + 2 neutrons (a He nucleus) | a fast electron | electromagnetic radiation |
+| Notation | ${}^{4}_{2}\text{He}$ | ${}^{0}_{-1}\text{e}$ | — |
+| Mass | 4 (proton masses) | $\approx\frac{1}{2000}$ | 0 |
+| Charge | $+2$ | $-1$ | $0$ |
+| Typical speed | $\approx0.1c$ | $\approx0.8c$ | $c$ |
+</FormulaCard>
+
+<Tip title="Why beta's nuclide notation has atomic number −1">
+A beta particle's "atomic number" of $-1$ isn't literal (it isn't an antiproton) — it's a bookkeeping trick so charge balances correctly in decay equations, since an electron's charge is the negative of a proton's. Its mass number of 0 is likewise just a statement that its mass is negligible next to a nucleon's.
+</Tip>
+
+<WorkedExample title="Matching properties to radiation type">
+Which type of radiation: is negatively charged? has the greatest mass? is a form of electromagnetic radiation? travels fastest? consists of two protons and two neutrons?
+
+Negatively charged — **beta**. Greatest mass — **alpha**. Electromagnetic — **gamma**. Fastest — **gamma** (travels at $c$). Two protons and two neutrons — **alpha**.
+</WorkedExample>
+
+## P7.10 Nuclear (decay) equations
+
+<FormulaCard title="What each decay does to the nucleus">
+**Alpha decay**: nucleus ejects 2 protons + 2 neutrons as a single particle. Atomic number $-2$, mass number $-4$. **Beta decay**: a neutron converts into a proton (which stays) plus an emitted electron. Atomic number $+1$, mass number unchanged. **Gamma decay**: only excess energy is released — no change to atomic number or mass number.
+</FormulaCard>
+
+<FormulaCard title="Conservation in decay equations">
+$$
+{}^{A}_{Z}\text{X} \rightarrow {}^{A-4}_{Z-2}\text{Y} + {}^{4}_{2}\text{He} \qquad\text{(alpha)}
+$$
+$$
+{}^{A}_{Z}\text{X} \rightarrow {}^{A}_{Z+1}\text{Y} + {}^{0}_{-1}\text{e} \qquad\text{(beta)}
+$$
+
+Mass numbers must balance across the arrow (no nucleons created or destroyed), and atomic numbers must balance too (charge conserved) — use these two checks to find any missing value in an equation.
+</FormulaCard>
+
+<WorkedExample title="Completing an alpha decay equation">
+Thorium-232 undergoes alpha decay to become an isotope of radium (atomic number 88). Complete the decay equation.
+
+Mass number: $232-4=228$. As a check, thorium's atomic number must be $88+2=90$ (radium's 88 plus the alpha particle's 2), which is correct for thorium.
+
+$$
+{}^{232}_{90}\text{Th} \rightarrow {}^{228}_{88}\text{Ra} + {}^{4}_{2}\text{He}
+$$
+</WorkedExample>
+
+<WorkedExample title="Following on with a beta decay">
+The radium-228 produced above undergoes beta decay to become an isotope of actinium (Ac). Write the decay equation.
+
+Beta decay leaves the mass number unchanged (228) and increases the atomic number by 1 ($88\rightarrow89$):
+
+$$
+{}^{228}_{88}\text{Ra} \rightarrow {}^{228}_{89}\text{Ac} + {}^{0}_{-1}\text{e}
+$$
+
+Check: mass numbers $228=228+0$; atomic numbers $88=89+(-1)$. Both balance.
+</WorkedExample>
+
+<WorkedExample title="Tracking a nuclide through a sequence of decays">
+Starting from ${}^{A}_{Z}\text{X}$, find the resulting nuclide after: (a) one beta decay; (b) one alpha decay then one gamma decay; (c) one alpha decay and two beta decays.
+
+(a) Beta leaves $A$ unchanged, $Z\rightarrow Z+1$: ${}^{A}_{Z+1}\text{Y}$.
+
+(b) Alpha: $A\rightarrow A-4$, $Z\rightarrow Z-2$. Gamma changes neither. Result: ${}^{A-4}_{Z-2}\text{Y}$.
+
+(c) Alpha changes $A$ by $-4$, $Z$ by $-2$; each beta changes $A$ by $0$, $Z$ by $+1$. Net over one alpha and two betas: $A\rightarrow A-4$, $Z\rightarrow Z-2+1+1=Z$. Result: ${}^{A-4}_{Z}\text{Y}$ — same element as the original, since the atomic number ends up unchanged.
+</WorkedExample>
+
+## P7.11 Penetrating power of alpha, beta, and gamma
+
+<FormulaCard title="Penetrating ability">
+**Alpha**: blocked by paper or skin; travels only a few cm in air. **Beta**: blocked by thin metal, usually passes through skin; travels up to several metres in air. **Gamma**: needs several cm of dense material (e.g. lead) to significantly reduce it; travels up to hundreds of metres in air.
+</FormulaCard>
+
+<Shortcut title="Identifying a source's emissions by what stops it">
+Place absorbers of increasing thickness/density between a source and a counter and watch the count rate. Paper removes only alpha's contribution; thin aluminium additionally removes beta; thick lead is needed to remove most of gamma. Whatever count rate remains after each barrier tells you which type(s) are still getting through.
+</Shortcut>
+
+<WorkedExample title="Identifying emission types from absorber tests">
+A counter reads a high count rate near a source. Paper barely changes the reading; thin aluminium reduces it significantly but it stays well above the reading with no source present. What is the source most likely emitting?
+
+Paper having no real effect rules out **alpha** (paper would block it). Aluminium reducing the count significantly, but not to background level, indicates **beta** is present (blocked by aluminium) alongside **gamma** (aluminium can't stop it, and there's still a clear excess above background).
+</WorkedExample>
+
+## P7.12 Ionising power, and deflection in fields
+
+<FormulaCard title="Ionising ability, and the trade-off with penetration">
+**Alpha is the most ionising, gamma the least**, with beta in between — the exact opposite order to penetrating power. A particle that interacts strongly with matter (highly ionising) loses its energy quickly and doesn't get far; one that barely interacts (weakly ionising) travels much further before losing energy — that's why penetration and ionising ability trade off against each other.
+</FormulaCard>
+
+<FormulaCard title="Deflection in electric and magnetic fields">
+Charged particles (alpha, beta) are deflected by both electric and magnetic fields; gamma rays, being uncharged, are deflected by **neither**. Alpha and beta deflect in **opposite** directions (opposite charge signs). Beta deflects **more** than alpha for the same field, mainly because beta particles are so much lighter — despite alpha having twice the charge, its far greater mass (roughly 8000× beta's) dominates the acceleration $a=F/m$, and its lower speed only partly compensates.
+</FormulaCard>
+
+<WorkedExample title="Identifying three radiation types from field and ionisation clues">
+Three radiation types P, Q, R: in a magnetic field, P and R deflect in opposite directions while Q isn't deflected at all; R is the most ionising of the three. Identify P, Q, and R.
+
+No deflection means uncharged, so Q is **gamma**. P and R deflect oppositely, so they're **alpha** and **beta** (opposite charges) — and since alpha is the most ionising of the three, R is **alpha** and P is **beta**.
+</WorkedExample>
+
+## P7.13 Background radiation
+
+<FormulaCard title="Sources of background radiation">
+Background radiation is always present at a low level, mostly **natural** (over 80% — radon gas, rocks and buildings, cosmic rays, food and drink) with a smaller **artificial** share (under 20% — the vast majority of that from medical procedures, with a small remainder from nuclear power and weapons testing).
+</FormulaCard>
+
+<Shortcut title="Always correct measured count rates for background">
+$$
+\text{source count rate} = \text{count rate with source present} - \text{mean background count rate}
+$$
+
+Measure the background rate with the source removed (but detector left in place) and subtract it before doing any half-life or count-rate calculation involving the source.
+</Shortcut>
+
+<WorkedExample title="Correcting a measurement for background radiation">
+A source gives a measured count rate of 200 cps. With the source removed (detector unmoved), the reading is 10 cps. Explain the non-zero reading, find the true source count rate, and give one reason background radiation might be higher in one region than another.
+
+The non-zero reading with no source present is **background radiation** — low-level ionising radiation always present in the environment, mainly from natural sources like rocks and cosmic rays. True source count rate $=200-10=190\ \text{cps}$. Background can vary regionally because, for example, different rock and soil types contain different concentrations of naturally radioactive isotopes (and release radon at different rates).
+</WorkedExample>
+
+## P7.14 Hazards and applications of ionising radiation
+
+<FormulaCard title="Why ionising radiation is hazardous">
+Ionisation can damage DNA within cells, potentially causing malfunction or uncontrolled division (cancer); high doses can destroy cells outright ("radiation sickness"). Danger depends on both radiation type and whether the source is **inside** or **outside** the body.
+</FormulaCard>
+
+<FormulaCard title="Hazard depends on location relative to the body">
+**Alpha**: most hazardous *inside* the body (highly ionising, all its energy dumped into nearby cells) but essentially harmless *outside* (can't even get through skin). **Beta**: moderate hazard either way — penetrates skin from outside, still ionising if inhaled/ingested. **Gamma**: hazardous both inside and outside, since it penetrates deep into tissue — though it's the least ionising per unit path length of the three.
+</FormulaCard>
+
+<WorkedExample title="Choosing a source for sterilisation, tracing, and thickness gauging">
+For each application, what type of radiation (and roughly what half-life) is most appropriate: (a) sterilising plastic syringes; (b) a medical tracer for a procedure lasting a few hours; (c) a thickness gauge for a continuously produced sheet material?
+
+(a) **Gamma** — most penetrating, so it reaches every part of the equipment, and a **long half-life** (years) means the source doesn't need frequent replacing.
+
+(b) **Gamma** — penetrates the body to be detected externally with minimal ionising damage to tissue (alpha or beta would be far too damaging internally); a **short half-life** (hours) limits the patient's radiation exposure once the scan is done, while still lasting long enough to complete the procedure.
+
+(c) **Beta** — alpha would be blocked completely by the sheet (no signal at all), while gamma would pass through almost unaffected by small thickness changes (little sensitivity); beta partially penetrates, with the exact amount sensitive to thickness. A **long half-life** (years) keeps the source's own strength roughly constant, so changes in count rate reflect only thickness changes, not the source running down.
+</WorkedExample>
+
+<Tip title="Exposure to radiation doesn't make an object radioactive">
+Gamma-sterilised food or equipment isn't left radioactive afterwards — irradiation only ionises atoms/molecules as the radiation passes through; it doesn't turn stable nuclei into unstable ones. This is exactly why gamma sterilisation is considered safe for food and medical equipment.
+</Tip>
+
+Standard precautions for anyone working with radioactive sources: store them in lead-lined, clearly labelled containers; keep as much distance as possible (e.g. long-handled tongs); and wear protective clothing — all aimed at minimising exposure, since risk always increases with dose but there's no single "safe threshold" below which harm is guaranteed not to occur.
+
+## P7.15 Interpreting decay graphs
+
+<FormulaCard title="Reading half-life off a graph">
+Pick **any** count rate (or percentage of undecayed nuclei) on the graph, then read the time taken for that value to **halve**. Doing this from several different starting points on the same graph should always give the same half-life — that consistency is a useful check that you've read the graph correctly.
+</FormulaCard>
+
+<Tip title="Percentage-remaining and count-rate graphs tell the same story">
+Since count rate is proportional to the number of undecayed nuclei remaining, a graph of "count rate vs time" and a graph of "% undecayed nuclei vs time" for the same source have exactly the same shape and give exactly the same half-life — percentages are just often easier to read precisely since the actual nuclei count can be enormous.
+</Tip>
+
+<WorkedExample title="Reading half-life, with an uncorrected background rate">
+A graph of measured count rate vs time (not corrected for background) levels off at 20 cpm at large times, and reads 220 cpm at time zero. At $t=50$ min the reading is 120 cpm. Find the half-life.
+
+The steady value the count rate settles towards is the **background rate**, 20 cpm. Source count rate at $t=0$: $220-20=200$ cpm. Source count rate at $t=50$: $120-20=100$ cpm — exactly half of 200. So the half-life is **50 minutes**.
+</WorkedExample>
+
+In a sample where a radioactive "parent" nuclide decays into a stable "daughter," the parent's percentage falls exactly as the daughter's percentage rises to match — the two percentages always sum to 100% (assuming none of the daughter nuclei leave the sample).
+
+## P7.16 What half-life means
+
+<FormulaCard title="Half-life">
+The **half-life** of a radioactive isotope is the average time taken for half the unstable nuclei in a sample to decay — equivalently, the average time for the sample's count rate to halve.
+</FormulaCard>
+
+<Trap title="Half-life doesn't depend on sample size or elapsed time">
+However much of the isotope you have, and however long it's already been decaying, the count rate still takes exactly one half-life to halve again from *whatever value it currently is*. Half-life is a fixed property of the **nuclide itself** — the only thing that changes it is which isotope you're dealing with, ranging from tiny fractions of a second to far longer than the age of the universe.
+</Trap>
+
+<WorkedExample title="What does and doesn't affect half-life">
+Which of these affects a sample's half-life: (1) the number of unstable atoms present, (2) how long the sample has already been decaying, (3) which radioactive nuclide is present?
+
+Only **(3)** — half-life is a fixed property of the specific nuclide, unaffected by sample size or elapsed decay time.
+</WorkedExample>
+
+## P7.17 Half-life calculations
+
+<FormulaCard title="Predicting count rate after n half-lives">
+$$
+N = N_0\left(\frac12\right)^n
+$$
+
+where $N_0$ is the initial count rate (or number/percentage of undecayed nuclei), and $n$ is the number of half-lives elapsed (need not be a whole number, though whole-number cases are the most common in questions).
+</FormulaCard>
+
+<WorkedExample title="Projecting count rate forward using halving steps">
+A source has an initial count rate of 4000 cpm and a half-life of 10 h. Find the count rate after 10 h, 20 h, and 50 h.
+
+$$
+10\,\text{h} = 1\ t_{1/2}:\ 4000\times\tfrac12 = 2000\ \text{cpm}
+$$
+$$
+20\,\text{h} = 2\ t_{1/2}:\ 4000\times\left(\tfrac12\right)^2 = 1000\ \text{cpm}
+$$
+$$
+50\,\text{h} = 5\ t_{1/2}:\ 4000\times\left(\tfrac12\right)^5 = 125\ \text{cpm}
+$$
+</WorkedExample>
+
+<WorkedExample title="Finding half-life from two count rates">
+A source reads 600 cps initially, and 75 cps after 12 h. Find the half-life.
+
+Count the halvings needed to get from 600 to 75: $600\rightarrow300\rightarrow150\rightarrow75$ — three halvings, so 12 h $=3$ half-lives, giving a half-life of $12\div3=4\ \text{h}$.
+</WorkedExample>
+
+<WorkedExample title="Working both forwards and backwards from the present">
+A source has half-life 10 s and a current count rate of 64,000 cps. Find: (a) the count rate 20 s ago; (b) the count rate in 30 s; (c) the time until the count rate reaches 500 cps.
+
+(a) 20 s $=2$ half-lives in the past, so **double** the count rate twice, working backwards: $64\,000\rightarrow128\,000\rightarrow256\,000$ cps.
+
+(b) 30 s $=3$ half-lives ahead, so **halve** three times: $64\,000\rightarrow32\,000\rightarrow16\,000\rightarrow8000$ cps.
+
+(c) Halve repeatedly until reaching 500: $64\,000\rightarrow32\,000\rightarrow16\,000\rightarrow8000\rightarrow4000\rightarrow2000\rightarrow1000\rightarrow500$ — seven halvings, so $7\times10=70\ \text{s}$.
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- Nucleus = protons + neutrons (nucleons); electrons orbit outside. Atomic number $Z=$ protons; mass number $A=$ protons + neutrons.
+- Proton/neutron mass $\approx1$; electron mass $\approx\frac{1}{2000}$. Proton charge $+1$, electron $-1$, neutron $0$.
+- Isotopes: same $Z$, different $A$ (different neutron count). Nuclide notation: ${}^{A}_{Z}\text{X}$.
+- Ionisation = gain/loss of electrons only; never changes $Z$ or $A$.
+- Alpha ($\alpha$, ${}^4_2\text{He}$): most ionising, least penetrating, $Z-2$/$A-4$. Beta ($\beta^-$): intermediate, $Z+1$/$A$ unchanged. Gamma ($\gamma$): least ionising, most penetrating, no change to $Z$ or $A$; uncharged, undeflected by fields.
+- Nuclear equations conserve total mass number and total atomic number across the arrow.
+- Correct measured count rates for background: source rate = measured rate $-$ background rate.
+- Half-life: average time for count rate (or undecayed nuclei) to halve; fixed for a given nuclide, independent of sample size or elapsed time.
+- $N=N_0\left(\tfrac12\right)^n$ for $n$ half-lives elapsed; count halvings to find $n$ when working out an unknown half-life.
 
 <PracticeLink topic="P7. Radioactivity">
 Find radioactivity questions

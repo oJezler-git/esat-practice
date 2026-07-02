@@ -2,18 +2,142 @@ export const meta = {
   slug: "integration",
   module: "m2",
   title: "Integration",
-  subtitle: "Placeholder overview for MM7. Integration — full guide coming soon.",
+  subtitle: "Integrating powers of x, definite integrals and area, the Fundamental Theorem of Calculus, combining integrals, the trapezium rule, and solving dy/dx = f(x).",
   topicCode: "MM7",
-  estimatedMinutes: 5,
+  estimatedMinutes: 22,
   order: 70,
   relatedQuestionFilters: {
     topics: ["MM7. Integration"],
   },
 };
 
-## What you need to know
+## MM7.2 Integrating powers of x
 
-This guide is a placeholder. The full breakdown of MM7. Integration — core facts, fast methods, worked examples, and common traps — is coming soon.
+Integration is the reverse of differentiation: $\int f(x)\,dx$ asks "what must have been differentiated to get $f(x)$?"
+
+<FormulaCard title="Power rule for integration">
+$$
+\int kx^n\,dx = \frac{kx^{n+1}}{n+1}+c \qquad (n\ne-1)
+$$
+
+Only sums of powers of $x$ are tested (no substitution, parts, or $n=-1$). Simplify an expression into that form before integrating, and integrate term by term.
+</FormulaCard>
+
+<Trap title="Don't forget +c for an indefinite integral">
+Differentiating any constant gives $0$, so integrating "undoes" the derivative only up to an unknown constant — always append $+c$ unless you're doing a *definite* integral (with limits), where the constants cancel.
+</Trap>
+
+<WorkedExample title="Simplify before integrating">
+$$
+\int(x-2)^2\,dx = \int x^2-4x+4\,dx = \frac{x^3}{3}-2x^2+4x+c
+$$
+</WorkedExample>
+
+## MM7.1 Definite integration and the area between a curve and an axis
+
+<FormulaCard title="Definite integral">
+$$
+\int_a^b f(x)\,dx = \Bigl[F(x)\Bigr]_a^b = F(b)-F(a), \qquad \text{where } F'(x)=f(x)
+$$
+</FormulaCard>
+
+A definite integral is the sum of the (positive) areas **above** the $x$-axis minus the (positive) areas **below** it — not the same thing as "total area enclosed."
+
+<Trap title="Definite integral ≠ area, when the curve crosses the axis">
+$\displaystyle\int_{-3}^{3}x^5\,dx=0$ even though the curve clearly encloses nonzero area on each side of $x=0$ — the regions above and below the axis cancel. If a question asks for **area** (not "the value of the integral"), split the interval at every root of $f(x)$ inside it, integrate each piece separately, and add the *absolute values*.
+</Trap>
+
+<WorkedExample title="Area vs. the raw definite integral">
+Find the area between the $x$-axis, $x=0$, $x=2$, and $y=x^2-1$.
+
+The curve crosses the axis at $x=1$, so split there:
+
+$$
+\int_0^1 x^2-1\,dx = \left[\frac{x^3}{3}-x\right]_0^1 = \frac13-1=-\frac23, \qquad \int_1^2 x^2-1\,dx = \left[\frac{x^3}{3}-x\right]_1^2 = \frac83-2-\left(\frac13-1\right)=\frac43
+$$
+
+Area $=\left|-\frac23\right|+\frac43=2$. (Contrast this with the raw integral $\int_0^2 x^2-1\,dx=\frac23$, which is a different, smaller number.)
+</WorkedExample>
+
+<Shortcut title="Symmetry can kill an integral without any calculation">
+If $f(x)$ is **antisymmetric** about the $y$-axis (odd function, $f(-x)=-f(x)$), then $\int_{-a}^{a}f(x)\,dx=0$ — the negative-$x$ region exactly cancels the positive-$x$ region. This is why $\int_{-\pi}^{\pi}\sin x\,dx=0$ and $\int_{-10}^{10}x^3\,dx=0$ instantly, with no working needed. If $f(x)$ is symmetric about the $y$-axis (even function), $\int_{-a}^{a}f(x)\,dx=2\int_0^a f(x)\,dx$ instead.
+</Shortcut>
+
+## MM7.3 The Fundamental Theorem of Calculus
+
+<FormulaCard title="Fundamental Theorem of Calculus">
+$$
+\int_a^b f(x)\,dx = F(b)-F(a), \quad \text{where } F'(x)=f(x), \qquad \frac{d}{dx}\int_a^x f(t)\,dt = f(x)
+$$
+
+Swapping the limits flips the sign: $\displaystyle\int_a^b f(x)\,dx = -\int_b^a f(x)\,dx$.
+</FormulaCard>
+
+Integration and differentiation are inverse operations — this is why the two statements above hold, and why solving $\dfrac{dy}{dx}=f(x)$ for $y$ is just integrating $f(x)$.
+
+## MM7.4 Combining integrals over equal or contiguous ranges
+
+<FormulaCard title="Combining rules">
+$$
+\int_a^b f(x)\,dx+\int_a^b g(x)\,dx=\int_a^b\bigl[f(x)+g(x)\bigr]\,dx
+$$
+
+$$
+\int_a^c f(x)\,dx+\int_c^b f(x)\,dx=\int_a^b f(x)\,dx
+$$
+</FormulaCard>
+
+<Tip title="c doesn't need to lie between a and b">
+The contiguous-range rule holds for any $c$, not just $a<c<b$ — it follows directly from $F(b)-F(a) = \bigl(F(c)-F(a)\bigr)+\bigl(F(b)-F(c)\bigr)$, which is true regardless of where $c$ sits on the number line (as long as $f$ is defined there).
+</Tip>
+
+## MM7.5 The trapezium rule
+
+<FormulaCard title="Trapezium rule">
+For $n$ strips of equal width $h=\dfrac{b-a}{n}$, with $y_k=f(a+kh)$:
+
+$$
+\int_a^b f(x)\,dx \approx \frac h2\bigl(y_0+2y_1+2y_2+\cdots+2y_{n-1}+y_n\bigr)
+$$
+</FormulaCard>
+
+Each interior $y_k$ is shared between two adjacent trapezia (hence the factor of 2); only the two end values $y_0$ and $y_n$ appear once.
+
+<Tip title="Judging over- or under-estimate from the curve's shape">
+If the curve is convex (bulging away from the chord — "concave up," $f''(x)>0$) on the interval, the straight trapezium edges sit *above* the curve, so the rule **overestimates** the area. If the curve is concave ("concave down," $f''(x)<0$), the trapezia sit *below* the curve and the rule **underestimates**. If the curve changes concavity within the interval, you often can't tell without further work.
+</Tip>
+
+## MM7.6 Solving dy/dx = f(x)
+
+<WorkedExample title="Solving a differential equation with a boundary condition">
+Given $\dfrac{dy}{dx}=3x^2+4x-3$ and $y=5$ when $x=1$, find $y$.
+
+Integrate both sides with respect to $x$:
+
+$$
+y = x^3+2x^2-3x+c
+$$
+
+Substitute $x=1,\ y=5$: $\ 5=1+2-3+c\ \Rightarrow\ c=5$, so
+
+$$
+y = x^3+2x^2-3x+5
+$$
+</WorkedExample>
+
+<Shortcut title="Use definite-integral limits to skip finding c explicitly">
+Instead of integrating to find $c$ then substituting, you can integrate directly between the matching pairs of limits: $\displaystyle\int_5^y d y = \int_1^x (3t^2+4t-3)\,dt$, giving $y-5=(x^3+2x^2-3x)-(1+2-3)$ in one line — the same answer without ever writing $+c$.
+</Shortcut>
+
+## Formula and shortcut summary
+
+- $\displaystyle\int kx^n\,dx=\dfrac{kx^{n+1}}{n+1}+c$ for $n\ne-1$; simplify to a sum of powers of $x$ first, and don't forget $+c$ on indefinite integrals.
+- A definite integral sums signed areas (positive above the axis, negative below) — it is **not** the same as "the area enclosed" unless the curve stays on one side of the axis throughout.
+- To find true area when a curve crosses the axis: split at each root, integrate each piece, add the absolute values.
+- Odd function on $[-a,a]$: integral is $0$. Even function: integral is $2\displaystyle\int_0^a f(x)\,dx$.
+- $\displaystyle\int_a^b f\,dx=-\int_b^a f\,dx$; $\displaystyle\int_a^c f\,dx+\int_c^b f\,dx=\int_a^b f\,dx$ for any $c$.
+- Trapezium rule: $\dfrac h2(y_0+2y_1+\cdots+2y_{n-1}+y_n)$ — overestimates on convex (concave-up) curves, underestimates on concave (concave-down) curves.
+- $\dfrac{dy}{dx}=f(x)$ is solved by integrating $f(x)$; use a boundary condition to pin down $c$.
 
 <PracticeLink topic="MM7. Integration">
 Find integration questions

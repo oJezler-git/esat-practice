@@ -9,7 +9,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 const mdxPlugin = mdx({
   remarkPlugins: [remarkGfm, remarkMath],
-  rehypePlugins: [rehypeKatex],
+  // output: "html" emits only KaTeX's HTML (no duplicate MathML tree), roughly
+  // halving the pre-rendered math DOM per guide for a much cheaper render/commit.
+  rehypePlugins: [[rehypeKatex, { output: "html" }]],
 });
 
 // @mdx-js/rollup strips the query string before checking the file extension, so it
@@ -104,7 +106,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "*.png"],
         globIgnores: ["data/**"],
         navigateFallback: "/index.html",
-        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /\/data\/images\//,

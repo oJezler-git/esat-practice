@@ -2,18 +2,184 @@ export const meta = {
   slug: "trigonometry",
   module: "m2",
   title: "Trigonometry",
-  subtitle: "Placeholder overview for MM4. Trigonometry — full guide coming soon.",
+  subtitle: "Sine and cosine rules, triangle area, radians, arc length and sector area, standard angles, graphs, identities, and solving trig equations.",
   topicCode: "MM4",
-  estimatedMinutes: 5,
+  estimatedMinutes: 24,
   order: 40,
   relatedQuestionFilters: {
     topics: ["MM4. Trigonometry"],
   },
 };
 
-## What you need to know
+## MM4.1 The sine rule, cosine rule, and area of a triangle
 
-This guide is a placeholder. The full breakdown of MM4. Trigonometry — core facts, fast methods, worked examples, and common traps — is coming soon.
+Label a triangle with capital letters at the corners (angles) and matching lower-case letters on the sides opposite them.
+
+<FormulaCard title="Area, sine rule, and cosine rule">
+$$
+\text{Area} = \frac12 ab\sin C
+$$
+
+$$
+\frac{\sin A}{a} = \frac{\sin B}{b} = \frac{\sin C}{c} \qquad\Longleftrightarrow\qquad \frac{a}{\sin A} = \frac{b}{\sin B} = \frac{c}{\sin C}
+$$
+
+$$
+a^2 = b^2+c^2-2bc\cos A \qquad\Longleftrightarrow\qquad \cos A = \frac{b^2+c^2-a^2}{2bc}
+$$
+</FormulaCard>
+
+The area formula $\frac12ab\sin C$ comes from base $a$ and vertical height $b\sin C$. Rotating which side is the "base" gives $\frac12ab\sin C=\frac12bc\sin A=\frac12ca\sin B$ — three equal expressions for the same area, which rearranges directly into the sine rule. The cosine rule is Pythagoras with a correction term for non-right angles; setting $A=90°$ recovers $a^2=b^2+c^2$ exactly.
+
+| You're given | Use | Find |
+|---|---|---|
+| Two angles and one side | Sine rule | Any other side (third angle from angles summing to $180°$) |
+| Two sides and a non-included angle | Sine rule | Another angle — **may be ambiguous** |
+| Three sides | Cosine rule | Any angle |
+| Two sides and the included angle | Cosine rule | The third side |
+
+<Trap title="The ambiguous case: two sides and a non-included angle can give two triangles">
+In triangle $ABC$, $A=30°$, $b=6$, $a=4$. The sine rule gives $\sin\theta=\dfrac{6\sin30°}{4}=\dfrac34$, so $\theta=48.6°$ **or** $\theta=180°-48.6°=131.4°$. Both are valid here since either, added to the known $30°$, stays under $180°$. Always check whether the obtuse solution is geometrically possible before discarding it — don't assume the calculator's answer is the only one.
+</Trap>
+
+<WorkedExample title="Cosine rule for an angle from three sides">
+A triangle has $a=7,\ b=8,\ c=5$. Find angle $A$.
+
+$$
+\cos A = \frac{b^2+c^2-a^2}{2bc} = \frac{64+25-49}{2(8)(5)} = \frac{40}{80} = \frac12 \ \Rightarrow\ A=60°
+$$
+</WorkedExample>
+
+<Tip title="Right-angled triangle? Use Pythagoras and SOHCAHTOA, not the sine/cosine rules">
+The sine and cosine rules always work, but if you can see a right angle, plain Pythagoras and basic trig ratios are faster and less error-prone — save the triangle rules for triangles that genuinely aren't right-angled.
+</Tip>
+
+## MM4.2 Radians, arc length, and sector area
+
+A radian is the angle subtended by an arc equal in length to the radius. One full revolution is $2\pi$ radians $=360°$.
+
+<FormulaCard title="Degree/radian conversion, arc length, sector area">
+$$
+\theta\text{ degrees} = \frac{\theta}{360}\times2\pi \text{ radians}, \qquad \alpha\text{ radians} = \frac{\alpha}{2\pi}\times360 \text{ degrees}
+$$
+
+For a sector of angle $\alpha$ radians in a circle of radius $r$:
+
+$$
+\text{arc length} = r\alpha, \qquad \text{area of sector} = \frac12 r^2\alpha
+$$
+</FormulaCard>
+
+Both formulas fall out of "$\alpha$ radians is a $\dfrac{\alpha}{2\pi}$ fraction of the full circle": arc length $=2\pi r\times\dfrac{\alpha}{2\pi}=r\alpha$; sector area $=\pi r^2\times\dfrac{\alpha}{2\pi}=\frac12r^2\alpha$.
+
+<WorkedExample title="Standard angle conversions">
+
+| Degrees | $30°$ | $45°$ | $60°$ | $90°$ | $180°$ | $360°$ |
+|---|---|---|---|---|---|---|
+| Radians | $\frac{\pi}{6}$ | $\frac{\pi}{4}$ | $\frac{\pi}{3}$ | $\frac{\pi}{2}$ | $\pi$ | $2\pi$ |
+
+Learn this table directly rather than converting each time.
+</WorkedExample>
+
+<Trap title="Calculus identities like d/dx(sin x) = cos x only hold in radians">
+Any question mixing trigonometry with differentiation or integration assumes the angle is in radians unless stated otherwise — working in degrees would introduce an extra constant factor and break the standard derivative/integral rules.
+</Trap>
+
+## MM4.3 Exact values for 0°, 30°, 45°, 60°, 90°
+
+<WorkedExample title="Exact trig values from two standard triangles">
+$45°$ comes from an isosceles right-angled triangle with legs 1 and hypotenuse $\sqrt2$. $30°$ and $60°$ come from bisecting an equilateral triangle of side 2, giving a right-angled triangle with sides $1,\sqrt3,2$.
+
+| $\theta$ | $0°$ | $30°$ | $45°$ | $60°$ | $90°$ |
+|---|---|---|---|---|---|
+| $\sin\theta$ | $0$ | $\frac12$ | $\frac{\sqrt2}{2}$ | $\frac{\sqrt3}{2}$ | $1$ |
+| $\cos\theta$ | $1$ | $\frac{\sqrt3}{2}$ | $\frac{\sqrt2}{2}$ | $\frac12$ | $0$ |
+| $\tan\theta$ | $0$ | $\frac{1}{\sqrt3}$ | $1$ | $\sqrt3$ | undefined |
+</WorkedExample>
+
+## MM4.4 Graphs of sine, cosine, and tangent
+
+$\sin$ and $\cos$ repeat every $360°$ ($2\pi$) and oscillate between $-1$ and $1$; $\tan$ repeats every $180°$ ($\pi$) and is undefined at $90°,270°,\ldots$ (where $\cos\theta=0$).
+
+<Shortcut title="Think of sin and cos as projections">
+Draw a line of fixed positive length at angle $\theta$ from the origin: $\cos\theta$ is its projection onto the $x$-axis, $\sin\theta$ its projection onto the $y$-axis. This is exactly the CAST diagram in disguise — it immediately tells you the sign of $\sin\theta$ and $\cos\theta$ in each quadrant without memorising a rule.
+</Shortcut>
+
+<WorkedExample title="Reading transformations off the graph">
+For $y=\sin\left(2x+\dfrac{\pi}{6}\right)$: the coefficient 2 halves the period (compresses horizontally by factor 2), and the phase shift is found by solving $2x+\frac\pi6=0$, i.e. a shift of $-\frac{\pi}{12}$ — always factor out the coefficient of $x$ first to read off the shift correctly: $2\left(x+\frac{\pi}{12}\right)$.
+</WorkedExample>
+
+## MM4.5 tan θ = sin θ / cos θ and sin²θ + cos²θ = 1
+
+<FormulaCard title="The core trig identities">
+$$
+\tan\theta = \frac{\sin\theta}{\cos\theta}, \qquad \sin^2\theta+\cos^2\theta \equiv 1
+$$
+
+Both hold for **every** angle $\theta$, not just acute ones in a right-angled triangle.
+</FormulaCard>
+
+$\sin^2\theta+\cos^2\theta=1$ is Pythagoras' theorem applied to $\sin\theta=\frac OH$ and $\cos\theta=\frac AH$ with $H=1$; $\tan\theta=\frac OA=\frac{O/H}{A/H}=\frac{\sin\theta}{\cos\theta}$ follows immediately from the same two definitions.
+
+<Shortcut title="Rearranged forms of the Pythagorean identity">
+$\sin^2\theta+\cos^2\theta\equiv1$ rearranges to $\cos^2\theta\equiv1-\sin^2\theta$ or $\sin^2\theta\equiv1-\cos^2\theta$ — use whichever substitution turns a mixed sin/cos equation into a quadratic in a single function.
+</Shortcut>
+
+## MM4.6 Solving trigonometric equations
+
+<WorkedExample title="Squared trig equation — find ALL solutions before rearranging">
+Solve $\sin^2(2x+60°)=\dfrac14$ for $-360°<x<360°$.
+
+Take the square root of both sides (both signs): $\sin(2x+60°)=\pm\frac12$.
+
+For $\sin(2x+60°)=\frac12$: the basic solution is $2x+60°=30°$. **Before** isolating $x$, list every solution of $2x+60°$ that could map into range once divided by 2 and shifted by $-60°$:
+
+$$
+2x+60° = -690°,-570°,-330°,-210°,30°,150°,390°,510°,750°,870°
+$$
+
+Now solve for $x$ and keep only those inside $-360°<x<360°$:
+
+$$
+x = -315°,-195°,-135°,-15°,45°,165°,225°,345°
+$$
+
+Repeat for $\sin(2x+60°)=-\frac12$ to get the remaining solutions.
+</WorkedExample>
+
+<Trap title="Rearranging to x before listing all general solutions loses answers">
+If you solve $2x+60°=30°\Rightarrow x=-15°$ first and *then* try to generate other solutions for $x$ by adding $360°$, you'll miss solutions — because the period of $2x+60°$ maps to a period of only $180°$ in $x$, not $360°$. Always list the general solutions in terms of the *original* argument, then divide/shift to isolate $x$ last.
+</Trap>
+
+<WorkedExample title="Converting a mixed sin/cos equation into a single-function quadratic">
+Solve $12\cos^2x+6\sin x-10=2$ for $0°<x<360°$.
+
+Substitute $\cos^2x=1-\sin^2x$, and let $S=\sin x$:
+
+$$
+12(1-S^2)+6S-10=2 \ \Rightarrow\ 12S^2-6S=0 \ \Rightarrow\ 6S(2S-1)=0
+$$
+
+$$
+S=0 \text{ or } S=\frac12 \ \Rightarrow\ x = 30°,\ 150°,\ 180°
+$$
+
+(Note $x=0°$ and $x=360°$ are excluded by the strict inequality — always check the boundary against the given interval.)
+</WorkedExample>
+
+<Shortcut title="Spot which identity to substitute by looking for a lone sin or cos">
+If an equation has $\cos^2x$ alongside a lone $\sin x$ term (or vice versa), substitute $\sin^2\theta+\cos^2\theta=1$ to eliminate whichever function appears only squared, leaving a normal quadratic in the other.
+</Shortcut>
+
+## Formula and shortcut summary
+
+- Area: $\frac12ab\sin C$. Sine rule: $\dfrac{\sin A}{a}=\dfrac{\sin B}{b}=\dfrac{\sin C}{c}$. Cosine rule: $a^2=b^2+c^2-2bc\cos A$.
+- Two sides + non-included angle (sine rule) can give **two** valid triangles — check both.
+- Radians: arc length $=r\alpha$, sector area $=\frac12r^2\alpha$. $180°=\pi$ rad.
+- Learn exact sin/cos/tan for $0°,30°,45°,60°,90°$ from the two standard triangles.
+- $\tan\theta=\dfrac{\sin\theta}{\cos\theta}$, $\sin^2\theta+\cos^2\theta\equiv1$ — hold for every angle, not just acute ones.
+- When solving $\sin(f(x))=k$ etc., list all general solutions for the *argument* first, then isolate $x$ last — rearranging too early loses solutions.
+- Mixed $\sin$/$\cos$ equations: substitute the Pythagorean identity to get a quadratic in one function.
 
 <PracticeLink topic="MM4. Trigonometry">
 Find trigonometry questions

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "data:prepare": "tsx scripts/build-question-data.ts && tsx scripts/build-revision-context.ts",
+    "data:prepare": "tsx scripts/build-question-data.ts && tsx scripts/build-revision-context.ts && tsx scripts/build-revision-meta.ts",
     "build": "npm run data:prepare && tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",

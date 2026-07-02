@@ -2,18 +2,135 @@ export const meta = {
   slug: "sequences-and-series",
   module: "m2",
   title: "Sequences and Series",
-  subtitle: "Placeholder overview for MM2. Sequences and Series — full guide coming soon.",
+  subtitle: "Recurrence relations, arithmetic and geometric series, sum to infinity, and the binomial expansion with nCr.",
   topicCode: "MM2",
-  estimatedMinutes: 5,
+  estimatedMinutes: 20,
   order: 20,
   relatedQuestionFilters: {
     topics: ["MM2. Sequences and Series"],
   },
 };
 
-## What you need to know
+## MM2.1 Sequences, nth-term formulae, and recurrence relations
 
-This guide is a placeholder. The full breakdown of MM2. Sequences and Series — core facts, fast methods, worked examples, and common traps — is coming soon.
+A **sequence** is an ordered list of numbers; a **series** is the sum of a sequence. A sequence can be defined either by a formula for the $n$th term, or by a **recurrence relation** that builds each term from earlier ones, e.g. $x_{n+1}=f(x_n)$.
+
+<Trap title="Don't assume a pattern from too few terms">
+For $x_0=1,\ x_1=2,\ x_{n+2}=|x_n-x_{n+1}|$, the first four terms are $1,2,1,1$ — tempting to guess it repeats "$1,2,1$" forever. But each term depends on the *previous two* terms, so you need to see a repeated **pair** of adjacent terms before concluding the pattern repeats. Writing out more terms here actually gives $1,2,1,1,0,1,1,0,1,1,\ldots$ — a repeating block of 3, not 3 as first guessed.
+</Trap>
+
+<Shortcut title="Sum a periodic sequence in blocks">
+If a recurrence produces a repeating block (e.g. every 3 terms), split the sum into full blocks plus a short leftover, and watch the ends carefully — $\displaystyle\sum_{n=0}^{100}x_n$ has $101$ terms, not 100, since it includes both endpoints (a classic "fence-post" counting slip).
+</Shortcut>
+
+## MM2.2 Arithmetic series
+
+<FormulaCard title="Arithmetic progression (AP)">
+$$
+u_n = a+(n-1)d
+$$
+
+$$
+S_n = \frac n2\bigl(2a+(n-1)d\bigr) = \frac n2(u_1+u_n) = n\times(\text{average term})
+$$
+
+where $a$ is the first term and $d=u_{n+1}-u_n$ is the common difference.
+</FormulaCard>
+
+<WorkedExample title="Sum to n terms">
+Find the sum of the first 20 terms of $3,7,11,15,\ldots$
+
+Here $a=3,\ d=4,\ n=20$:
+
+$$
+S_{20} = \frac{20}{2}\bigl(2(3)+19(4)\bigr) = 10(6+76) = 820
+$$
+</WorkedExample>
+
+<Shortcut title="Sn = number of terms × average term">
+$S_n=n\times\dfrac{u_1+u_n}{2}$ is often the fastest route: find the first and last term, average them, and multiply by how many terms there are — no need to recall the $2a+(n-1)d$ form at all.
+</Shortcut>
+
+Adding two arithmetic series term-by-term (or taking any linear combination $\alpha u_n+\beta v_n$) always produces another arithmetic series, with first term and common difference combined the same way.
+
+## MM2.3 Geometric series, and sum to infinity
+
+<FormulaCard title="Geometric progression (GP)">
+$$
+u_n = ar^{n-1}, \qquad S_n = \frac{a(1-r^n)}{1-r}, \qquad S_\infty = \frac{a}{1-r} \ \ (\text{valid only for } |r|<1)
+$$
+
+The ratio of consecutive terms is constant: $\dfrac{u_{n+1}}{u_n}=r$.
+</FormulaCard>
+
+<WorkedExample title="Sum to infinity">
+Find $S_\infty$ for $8,4,2,1,\ldots$
+
+$$
+a=8,\ r=\frac12 \ \Rightarrow\ S_\infty = \frac{8}{1-\frac12} = 16
+$$
+</WorkedExample>
+
+<Trap title="Sum to infinity only exists when |r| < 1">
+If $|r|\ge1$ the terms don't shrink to zero, so the series has no finite sum — always check $|r|<1$ before using $S_\infty=\dfrac{a}{1-r}$, especially when $r$ is given as an expression that could be $\ge1$ for some values.
+</Trap>
+
+<WorkedExample title="Summing a 'slice' of a GP (not the first n terms)">
+For $S_k=a+ar+ar^2+\cdots+ar^{k-1}$, find $ar^m+ar^{m+1}+\cdots+ar^n$ (with $n>m$).
+
+Factor out $ar^m$ and treat the bracket as a fresh GP starting at 1:
+
+$$
+ar^m+ar^{m+1}+\cdots+ar^n = ar^m\left(1+r+\cdots+r^{n-m}\right) = ar^m\times\frac{1-r^{n-m+1}}{1-r}
+$$
+
+Note there are $n-m+1$ terms here, **not** $n-m$ — count a small example on your fingers if unsure (e.g. $r^2$ to $r^4$ is 3 terms: $r^2,r^3,r^4$).
+</WorkedExample>
+
+<Shortcut title="New GPs from an old one">
+Replacing $r$ by $-r$ in a GP gives another GP with the same first term and ratio $-r$. Taking every other term of a GP (e.g. $a+ar^2+ar^4+\cdots$) gives a GP with ratio $r^2$. Raising every term of a GP to a power $k$ gives a GP with first term $a^k$ and ratio $r^k$. Recognising these patterns turns "derived series" questions into direct substitutions into the standard formulae.
+</Shortcut>
+
+## MM2.4 The binomial expansion, n! and (n choose r)
+
+<FormulaCard title="Binomial expansion">
+$$
+(a+f(x))^n = \sum_{k=0}^{n}\binom{n}{k}a^{n-k}\bigl[f(x)\bigr]^k, \qquad \binom{n}{r} = \frac{n!}{(n-r)!\,r!}
+$$
+
+The powers of the two terms in each piece of the expansion always add to $n$, and $\dbinom{n}{r}=\dbinom{n}{n-r}$.
+</FormulaCard>
+
+<WorkedExample title="Finding a single term without expanding everything">
+Find the term in $x^7$ in $(3+2x)^8$.
+
+Since we need $x^7$, that term must come from $(2x)^7$; the remaining power of $3$ must make the powers add to 8, so it's $3^1$. The binomial coefficient uses $n=8$ and either power, $r=7$ or $r=1$ (they're equal):
+
+$$
+\binom{8}{7}\,3^1(2x)^7 = 8\times3\times128\,x^7 = 3072x^7
+$$
+</WorkedExample>
+
+<Trap title="Raise the whole term to the power, including its sign and coefficient">
+For the coefficient of $x^5$ in $(2-3x)^7$, the term is $\dbinom{7}{5}2^2(-3x)^5$ — **not** $\dbinom{7}{5}2^2 3^5x^5$. Both the $-1$ and the $3$ inside $(-3x)$ must be raised to the power of 5, giving a negative coefficient. Forgetting the bracket around $-3x$ is the single most common binomial-expansion error.
+</Trap>
+
+<Shortcut title="Read off n, r, and the two powers directly from the target term">
+For the $x^k$ term in $(a+bx)^n$: the power on $bx$ is $k$, the power on $a$ is $n-k$ (they must sum to $n$), and $\dbinom{n}{k}$ (or equivalently $\dbinom{n}{n-k}$) is the coefficient — no need to write out the general sigma formula each time.
+</Shortcut>
+
+<Tip title="(n choose r) counts unordered selections">
+$\dbinom{n}{r}=\dfrac{n!}{(n-r)!\,r!}$ counts the number of ways to choose $r$ objects from $n$ without caring about order — $\dfrac{n!}{(n-r)!}$ counts *ordered* selections, and dividing by $r!$ removes the $r!$ different orderings of each selected group. This is also why $\dbinom nr=\dbinom{n}{n-r}$: choosing $r$ objects to keep is the same as choosing $n-r$ objects to discard.
+</Tip>
+
+## Formula and shortcut summary
+
+- AP: $u_n=a+(n-1)d$, $S_n=\dfrac n2(u_1+u_n)$.
+- GP: $u_n=ar^{n-1}$, $S_n=\dfrac{a(1-r^n)}{1-r}$, $S_\infty=\dfrac{a}{1-r}$ only when $|r|<1$.
+- A "slice" $ar^m+\cdots+ar^n$ has $n-m+1$ terms — factor out $ar^m$ and treat the rest as a fresh GP.
+- Binomial: $(a+f(x))^n=\sum\binom nk a^{n-k}[f(x)]^k$, with $\binom nr=\dfrac{n!}{(n-r)!\,r!}=\binom{n}{n-r}$.
+- In a binomial term, raise the *entire* bracketed expression (sign, coefficient, and variable) to its power — never split it apart.
+- Watch for fence-post errors: count terms/indices on a small example before trusting a formula's limits.
 
 <PracticeLink topic="MM2. Sequences and Series">
 Find sequences and series questions

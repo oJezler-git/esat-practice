@@ -2,18 +2,323 @@ export const meta = {
   slug: "waves",
   module: "physics",
   title: "Waves",
-  subtitle: "Placeholder overview for P6. Waves — full guide coming soon.",
+  subtitle: "Wave properties and the wave equation, reflection/refraction/the Doppler effect, ray diagrams, sound and ultrasound, and the electromagnetic spectrum.",
   topicCode: "P6",
-  estimatedMinutes: 5,
+  estimatedMinutes: 35,
   order: 60,
   relatedQuestionFilters: {
     topics: ["P6. Waves"],
   },
 };
 
-## What you need to know
+## P6.1 Wave properties, wave equation
 
-This guide is a placeholder. The full breakdown of P6. Waves — core facts, fast methods, worked examples, and common traps — is coming soon.
+A wave is a pattern of vibrations (oscillations) that transfers **energy** from a source to whatever absorbs it — with **no net transfer of matter** in that direction. When you speak, no air travels from your mouth to a listener's ear; only the vibration pattern does. Ripples on a pond move water up and down, but they don't carry water outwards.
+
+<Trap title="Something can move up and down without matter being transferred">
+A boat bobbing as an ocean wave passes doesn't mean the wave is carrying water (or the boat) along with it — the water just oscillates about a fixed average position. Don't confuse local oscillation with a genuine flow of matter in the direction of travel.
+</Trap>
+
+Waves come in two geometric flavours, based on how the vibration direction relates to the direction of travel:
+
+<FormulaCard title="Transverse vs. longitudinal">
+- **Transverse**: vibration is **perpendicular** to the direction of energy transfer. Examples: all electromagnetic waves, waves on a string, seismic S-waves.
+- **Longitudinal**: vibration is **parallel** to the direction of energy transfer. Examples: sound, ultrasound, seismic P-waves, compressions on a slinky.
+
+Water waves are a mixture of both — particles move in ellipses — but still have no net motion in the direction of travel.
+</FormulaCard>
+
+A transverse wave's pattern is described by **peaks** and **troughs**; a longitudinal wave's by **compressions** (particles pushed together, locally higher pressure) and **rarefactions** (particles pulled apart, locally lower pressure).
+
+<FormulaCard title="Defining amplitude, wavelength, period, frequency">
+- **Wavelength** ($\lambda$) — distance between adjacent peaks/troughs (or adjacent compressions/rarefactions).
+- **Amplitude** — maximum displacement of a particle from its equilibrium position.
+- **Period** ($T$) — time for one complete oscillation (seconds).
+- **Frequency** ($f$) — oscillations per unit time (Hz); $1\ \text{Hz} = 1$ oscillation per second.
+
+$$
+f = \frac{1}{T}
+$$
+</FormulaCard>
+
+<WorkedExample title="Reading amplitude, frequency, wavelength off a physical setup">
+A vibrator produces ripples that travel at $1.2\ \text{cm s}^{-1}$; a floating cork bobs 20 times per minute, moving 8.0 mm from the top to the bottom of its motion. Find the period, frequency, wavelength and amplitude.
+
+$$
+T = \frac{60}{20} = 3.0\ \text{s}, \qquad f = \frac{1}{T} = 0.33\ \text{Hz}
+$$
+
+Wavelength = distance travelled by the wave in one period: $\lambda = 1.2 \times 3.0 = 3.6\ \text{cm}$.
+
+Amplitude is *half* the peak-to-trough distance (since amplitude is measured from equilibrium): $\dfrac{8.0}{2}=4.0\ \text{mm}$.
+</WorkedExample>
+
+<Trap title="Amplitude is peak-to-equilibrium, not peak-to-trough">
+The vertical distance you read off a diagram between a peak and the next trough is *twice* the amplitude — halve it before reporting a value.
+</Trap>
+
+<FormulaCard title="Wave speed and the wave equation">
+$$
+\text{wave speed} = \frac{\text{distance}}{\text{time}}, \qquad v = f\lambda
+$$
+
+Wave speed is the speed of an identifiable feature of the wave (a peak, a compression) moving through the medium.
+</FormulaCard>
+
+<WorkedExample title="Two swimmers and a passing wave">
+Two swimmers 12 m apart (along the wave's direction of travel) each bob up and down with period 5.0 s; when one is at a peak the other is at the next trough. Find the wavelength, frequency and speed.
+
+Peak-to-trough is half a wavelength, so $\lambda = 2\times12=24\ \text{m}$.
+
+$f = \dfrac{1}{T} = \dfrac{1}{5.0}=0.20\ \text{Hz}$.
+
+$v = f\lambda = 0.20\times24=4.8\ \text{m s}^{-1}$ (matches distance/time: the peak takes half a period, 2.5 s, to cross the 12 m gap, giving $12/2.5=4.8\ \text{m s}^{-1}$ directly).
+</WorkedExample>
+
+<Shortcut title="Unit prefixes for short times and high frequencies">
+$1\ \text{ms}=10^{-3}\ \text{s}$, $1\ \mu\text{s}=10^{-6}\ \text{s}$, $1\ \text{ns}=10^{-9}\ \text{s}$; $1\ \text{kHz}=10^3\ \text{Hz}$, $1\ \text{MHz}=10^6\ \text{Hz}$, $1\ \text{GHz}=10^9\ \text{Hz}$.
+</Shortcut>
+
+**Ranging** (finding distance from wave speed and travel time) always uses the same idea — a pulse travels *there and back*, so halve the round-trip distance:
+
+<FormulaCard title="Ranging with reflected pulses">
+$$
+\text{distance to object} = \frac{1}{2}\times\text{wave speed}\times\text{time for pulse to return}
+$$
+
+Used for laser range-finding, radar, sonar, and ultrasound scanning.
+</FormulaCard>
+
+<WorkedExample title="Ultrasound A-scan of the eye">
+Ultrasound travels at $1550\ \text{m s}^{-1}$ inside the eye. Reflections return at $t_0=4.0\ \mu\text{s}$ (front of eye), $t_3=8.0\ \mu\text{s}$ (front of lens), $t_2=13.0\ \mu\text{s}$ (back of lens), $t_1=40.0\ \mu\text{s}$ (back of eye). Find the length of the eye and the thickness of the lens.
+
+$$
+\text{length of eye} = \tfrac{1}{2}v(t_1-t_0) = \tfrac12(1550)(36\times10^{-6}) = 0.028\ \text{m} = 2.8\ \text{cm}
+$$
+
+$$
+\text{lens thickness} = \tfrac{1}{2}v(t_2-t_3) = \tfrac12(1550)(5.0\times10^{-6}) = 0.0039\ \text{m} = 3.9\ \text{mm}
+$$
+</WorkedExample>
+
+Mechanical waves (sound, seismic waves, water waves) need a material medium — no particles, no wave. **Electromagnetic waves** (radio through gamma) are vibrations of electric and magnetic fields, need no medium, and travel through a vacuum at the speed of light.
+
+<Trap title="&quot;In space no one can hear you scream&quot; — but they could see you">
+Sound is a mechanical, longitudinal wave, so it needs particles to vibrate and cannot cross a vacuum — a scream in space is silent. Light, however, is electromagnetic and *can* cross a vacuum, so you'd still be visible. Don't mix up which property (mechanical vs. electromagnetic) is doing the work in each statement.
+</Trap>
+
+## P6.2 Reflection, refraction, and the Doppler effect
+
+<FormulaCard title="Law of reflection">
+$$
+i = r
+$$
+
+The angle of incidence equals the angle of reflection, both measured from the normal, with both rays and the normal in the same plane. This holds at every point on a surface — a smooth surface has parallel normals everywhere (orderly reflection, forms images); a rough surface has randomly oriented normals (diffuse, scattered reflection).
+</FormulaCard>
+
+Reflection keeps the wave in the *same medium*, so its **speed, frequency, and wavelength are all unchanged** — only direction changes.
+
+Refraction happens when a wave crosses a boundary into a medium where it travels at a different speed (and isn't travelling along the normal).
+
+<FormulaCard title="Direction of refraction">
+- Wave **slows down** → refracts **towards** the normal (e.g. air → glass).
+- Wave **speeds up** → refracts **away from** the normal (e.g. glass → air).
+- Wave travelling along the normal ($i=0$) → no change in direction, but speed still changes.
+</FormulaCard>
+
+<FormulaCard title="What changes and what doesn't">
+| | Frequency | Wavelength | Direction |
+|---|---|---|---|
+| Reflection | unchanged | unchanged | changes (law of reflection) |
+| Refraction, speed increases | unchanged | increases | away from normal |
+| Refraction, speed decreases | unchanged | decreases | towards normal |
+
+Frequency never changes at a boundary — every crest that arrives must leave, so the rate is preserved. Wavelength then follows from $v=f\lambda$: since $f$ is fixed, $\lambda$ scales with $v$.
+</FormulaCard>
+
+<WorkedExample title="Reasoning about frequency, wavelength and speed together">
+Light reflects off a silvered-back mirror, refracting into the glass, reflecting, then refracting back out. Compare wavelength and speed at points in air (A, D) versus inside the glass (B, C).
+
+Frequency is unchanged throughout (reflection and refraction both preserve it). Speed is lower in glass, so B and C share one (lower) speed while A and D share another (higher) speed. Wavelength tracks speed via $v=f\lambda$ with $f$ fixed, so wavelength is shorter at B, C than at A, D — and since A and D are both in air, they share the same wavelength as each other.
+</WorkedExample>
+
+<Trap title="Energy at a boundary splits three ways">
+At any boundary, incident energy is shared between **reflected**, **refracted (transmitted)**, and **absorbed** energy — total reflection or total transmission are special cases, not the default. Energy is conserved across the three.
+</Trap>
+
+Water waves in a ripple tank behave analogously to light in a ray box (same laws of reflection/refraction), but the analogy has limits: light is electromagnetic and can cross a vacuum; water waves are mechanical and cannot.
+
+<FormulaCard title="The Doppler effect">
+Relative motion between source and observer shifts the received wavelength and frequency:
+
+| Relative motion | Wavelength | Frequency |
+|---|---|---|
+| At rest relative to each other | unchanged | unchanged |
+| Approaching | shorter | higher |
+| Receding | longer | lower |
+
+Only motion **along the line joining source and observer** matters — purely perpendicular motion (e.g. a source circling the observer at constant distance) produces no Doppler shift.
+</FormulaCard>
+
+<Trap title="Circling at constant radius gives zero Doppler shift">
+If a buzzing insect flies in a circle around your head, the distance between you never changes, so despite the motion there's no shift — you hear the true emitted frequency throughout, not something in between "approaching" and "receding."
+</Trap>
+
+<WorkedExample title="Cosmological redshift">
+Distant galaxies' spectral lines are observed at longer wavelengths than the same lines measured from stationary lab sources, with the shift larger for more distant galaxies. What does this imply about galactic motion?
+
+An increased wavelength is a "receding" Doppler shift, so distant galaxies are moving away from us. A larger shift means a larger recession speed, so more distant galaxies are receding faster than nearer ones.
+</WorkedExample>
+
+Doppler shifts of reflected waves (radar "speed guns," ultrasound blood-flow monitors) let you measure the speed of whatever reflected the pulse, since the shift size scales with relative speed.
+
+## P6.3 Optics: ray diagrams for reflection and refraction
+
+<FormulaCard title="Ray-diagram vocabulary">
+- **Ray** — direction of energy transfer.
+- **Normal** — line perpendicular to the surface at the point of incidence.
+- **Angle of incidence ($i$)** / **angle of reflection ($r$)** / **angle of refraction** — all measured from the normal, not the surface.
+</FormulaCard>
+
+For a **plane mirror**, the image of a point source forms behind the mirror at the same perpendicular distance as the source is in front — because every reflected ray obeys $i=r$ and the rays appear to diverge from that single point behind the glass. Curved mirrors obey the same law, but the normal at each point is perpendicular to the *tangent* to the curve there, not to some fixed plane.
+
+<WorkedExample title="Rotating a mirror doubles the ray's turn">
+A mirror is turned through $2°$ about the point where a ray strikes it. By how much does the reflected ray turn?
+
+The normal rotates with the mirror, by $2°$. The incident ray direction is fixed, so the incident angle also changes by $2°$; since $r=i$ always, the reflected angle changes by the same $2°$. The reflected ray's own direction shifts by the *sum* of the incident- and reflected-angle changes: $2°+2°=4°$.
+</WorkedExample>
+
+<Shortcut title="Rule of thumb: mirror rotation doubles the ray deflection">
+Whenever a mirror rotates by angle $\theta$ about the point of incidence (with the incident ray fixed), the reflected ray deflects by $2\theta$ — useful for optics questions on rotating mirrors and galvanometers alike.
+</Shortcut>
+
+For **refraction**, the same slows-down/speeds-up rule from P6.2 applies ray by ray. A rectangular block (parallel faces) refracts the ray back parallel to its original direction, since the two boundaries produce equal and opposite bends; a triangular prism does not restore the original direction, since the faces aren't parallel — and since different wavelengths of light travel at (slightly) different speeds in glass, white light spreads into a spectrum, with blue deviating more than red.
+
+<WorkedExample title="Apparent depth: why a pool looks shallower than it is">
+Light leaves a pebble at the bottom of a pool and refracts into air at the surface. Explain why the pool looks shallower than it actually is.
+
+Light travels faster in air than in water, so rays refract *away from* the normal on leaving the water, diverging more than before. Tracing the diverging rays backwards, they appear to originate from a point *above* the pebble's true position — so the pebble (and the pool floor) looks shallower than it really is.
+</WorkedExample>
+
+<Trap title="A ray along the normal never bends — check this case first">
+If an incident ray happens to lie along the normal, it passes straight through every boundary undeviated, even though its speed still changes. Many "which diagram is correct" questions hinge on spotting this special case being violated (a ray shown bending despite arriving along the normal, or shown straight despite arriving at an angle).
+</Trap>
+
+## P6.4 Sound waves
+
+Sound is produced by a **vibrating source** — a loudspeaker cone, a string, an air column, vocal cords — which sets the surrounding medium vibrating in the same pattern.
+
+<FormulaCard title="Source vibration vs. sound produced">
+- Sound frequency = source vibration frequency.
+- Sound amplitude depends on source vibration amplitude.
+- Sound **speed** is set by the **medium**, not the source.
+</FormulaCard>
+
+Sound is **longitudinal**: particles vibrate parallel to the direction of travel, forming alternating compressions and rarefactions, and — needing particles to vibrate — sound cannot cross a vacuum (the classic bell-in-a-jar demonstration: the bell stays visible as air is pumped out, but becomes inaudible).
+
+<FormulaCard title="Loudness and pitch">
+- **Loudness** $\leftrightarrow$ amplitude — bigger amplitude, louder sound.
+- **Pitch** $\leftrightarrow$ frequency — higher frequency, higher pitch.
+
+On an oscilloscope trace (voltage against time, not a literal picture of the longitudinal wave): taller peaks = louder; closer-together peaks = shorter period = higher pitch.
+</FormulaCard>
+
+<Trap title="An oscilloscope trace of sound looks transverse but isn't">
+The wiggly line on an oscilloscope screen represents *voltage against time* from a microphone, not the physical motion of air particles. Sound itself is longitudinal even though its oscilloscope trace looks like a transverse wave — don't infer the wave type from the shape of the display.
+</Trap>
+
+Sound obeys the law of reflection, producing **echoes** — heard later than the direct sound because the reflected path is longer, even though direct and reflected waves travel at the same speed.
+
+<FormulaCard title="Distance from an echo/pulse round trip">
+$$
+d = \frac{vt}{2}
+$$
+
+$t$ is the round-trip time; halve it because the pulse travels there *and* back. Used for sonar, echolocation, and ultrasound scanning.
+</FormulaCard>
+
+<WorkedExample title="Timing hand-claps to match an echo">
+A man stands 170 m from a cliff. At what frequency should he bang wood blocks together so each echo arrives exactly halfway between hits? (Speed of sound = 340 m/s.)
+
+Round-trip distance $=2\times170=340\ \text{m}$, so echo delay $=340/340=1.0\ \text{s}$. For the echo to land halfway between hits, the gap between hits must be double the echo delay: $2.0\ \text{s}$, so $f=1/T=1/2.0=0.50\ \text{Hz}$.
+</WorkedExample>
+
+<FormulaCard title="Range of human hearing">
+$20\ \text{Hz}$ to $20\ \text{kHz}$. Using $\lambda = v/f$ with $v_{\text{sound in air}}=330\ \text{m s}^{-1}$: audible wavelengths run from $16.5\ \text{m}$ (at 20 Hz) down to $1.65\ \text{cm}$ (at 20 kHz) — low frequency corresponds to long wavelength, and vice versa.
+</FormulaCard>
+
+**Ultrasound** is just sound above 20 kHz: same longitudinal-wave physics, same need for a medium, just too high-pitched for most humans to hear. It's used for sonar (locating objects/measuring depth underwater), medical scanning (each tissue boundary partially reflects a pulse, and timing the returns builds an image), and crack detection in solids — all using the same $d=vt/2$ round-trip logic.
+
+<WorkedExample title="Sonar depth-finding">
+A boat's sonar pulse returns after 0.40 s; ultrasound travels at $1500\ \text{m s}^{-1}$ in water. Find the depth.
+
+$$
+d = \frac{vt}{2} = \frac{1500\times0.40}{2} = 300\ \text{m}
+$$
+</WorkedExample>
+
+## P6.5 The electromagnetic spectrum
+
+<FormulaCard title="Properties shared by all EM waves">
+- All are **transverse**.
+- All need **no medium** and can cross a vacuum.
+- All travel at the **speed of light**, $c=3.00\times10^8\ \text{m s}^{-1}$, in a vacuum — but slower in other media.
+- They consist of vibrating **electric and magnetic fields**, not vibrating particles — this is *why* they can cross a vacuum.
+</FormulaCard>
+
+Any accelerating/vibrating charge emits EM waves; every object above absolute zero contains vibrating charged particles and therefore emits a spectrum of EM radiation, with hotter objects emitting more radiation and shifted towards higher frequencies (a cool stone emits only infra-red; metal heated hot enough glows red, then white).
+
+<FormulaCard title="The seven regions, in order of increasing frequency / decreasing wavelength">
+Radio → Microwave → Infra-red → Visible → Ultraviolet → X-ray → Gamma-ray
+
+Regions overlap at their boundaries (a wave can be validly labelled either of two neighbouring names); X-rays and gamma-rays of the same wavelength are physically identical and are usually distinguished only by *how* they were produced (electrons hitting a target vs. radioactive decay).
+</FormulaCard>
+
+<FormulaCard title="Frequency-wavelength relationship for EM waves">
+$$
+c = f\lambda \qquad \Rightarrow \qquad f=\frac{c}{\lambda}, \qquad \lambda=\frac{c}{f}
+$$
+
+Since $c$ is fixed (in a vacuum), frequency and wavelength are inversely proportional: long-wavelength radio waves have the lowest frequencies, short-wavelength gamma-rays have the highest.
+</FormulaCard>
+
+<Trap title="Crossing a medium boundary changes speed and wavelength, never frequency">
+Exactly as with any other wave (P6.2), an EM wave's frequency is fixed by its source and stays constant as it crosses into a new medium. Speed changes because of the medium, and wavelength changes to match via $v=f\lambda$ — frequency is the one quantity that never moves.
+</Trap>
+
+<FormulaCard title="Applications and hazards, by region">
+| Region | Typical application | Typical hazard |
+|---|---|---|
+| Radio | broadcasting, radio astronomy | low, unless extremely intense |
+| Microwave | satellite/mobile/Wi-Fi comms, cooking | tissue heating, cataracts |
+| Infra-red | heaters, remote controls, thermal imaging | skin burns |
+| Visible | sight, telescopes, lasers | retinal damage from intense sources |
+| Ultraviolet | fluorescence, sterilisation | sunburn, skin cancer, retinal damage |
+| X-ray | medical imaging, security scanning | ionising — cell/DNA damage, cancer |
+| Gamma-ray | radiotherapy, sterilisation, tracers | ionising — cell damage, mutation |
+</FormulaCard>
+
+<Tip title="Ionisation is the dividing line for the most serious hazards">
+High-frequency, short-wavelength EM waves (X-ray, gamma-ray, some UV) carry enough energy per photon to **ionise** atoms in tissue, directly damaging molecules (including DNA). Lower-frequency, longer-wavelength waves can't ionise, but can still cause **heating** — which is why microwave and infra-red hazards are about burns rather than mutation.
+</Tip>
+
+<WorkedExample title="Stretching the early universe's radiation">
+As the universe expands, EM wavelengths are stretched. Which conversions are physically possible: gamma-rays → microwaves, or X-rays → infra-red?
+
+Both are possible, since in each pair the second-named radiation has the longer wavelength. (This is genuinely how the cosmic microwave background formed — early-universe gamma radiation stretched into today's microwaves.) A conversion the *other* way, towards shorter wavelength, would not be possible from stretching alone.
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- $f=\dfrac{1}{T}$; $v=f\lambda$; wave speed $=\dfrac{\text{distance}}{\text{time}}$. Amplitude is measured from equilibrium — halve a peak-to-trough reading.
+- Transverse: vibration $\perp$ travel direction (all EM waves, string waves). Longitudinal: vibration $\parallel$ travel direction (sound, ultrasound).
+- Mechanical waves need a medium; EM waves don't, and travel at $c=3.00\times10^8\ \text{m s}^{-1}$ in a vacuum.
+- Reflection: $i=r$; speed, frequency, wavelength all unchanged. Refraction: frequency unchanged, wavelength and direction follow the speed change (slow down → bend towards normal & shorter $\lambda$; speed up → bend away & longer $\lambda$). A ray along the normal never bends.
+- Doppler effect: only relative motion *along the source–observer line* matters. Approaching → shorter $\lambda$, higher $f$. Receding → longer $\lambda$, lower $f$. Perpendicular motion → no shift.
+- Round-trip ranging (echoes, sonar, radar, ultrasound): $d=\dfrac{vt}{2}$.
+- Human hearing: 20 Hz–20 kHz, i.e. 16.5 m down to 1.65 cm in air. Ultrasound is just sound above 20 kHz.
+- EM spectrum order (increasing $f$, decreasing $\lambda$): radio, microwave, infra-red, visible, ultraviolet, X-ray, gamma-ray. $c=f\lambda$, frequency constant across any boundary.
 
 <PracticeLink topic="P6. Waves">
 Find waves questions

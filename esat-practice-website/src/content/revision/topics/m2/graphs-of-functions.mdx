@@ -2,18 +2,210 @@ export const meta = {
   slug: "graphs-of-functions",
   module: "m2",
   title: "Graphs of Functions",
-  subtitle: "Placeholder overview for MM8. Graphs of Functions — full guide coming soon.",
+  subtitle: "Sketching common functions, modulus graphs, transformations of y = f(x), and composite functions f(g(x)).",
   topicCode: "MM8",
-  estimatedMinutes: 5,
+  estimatedMinutes: 26,
   order: 80,
   relatedQuestionFilters: {
     topics: ["MM8. Graphs of Functions"],
   },
 };
 
-## What you need to know
+Much of this topic is really a synthesis of things covered elsewhere in the specification — quadratics, trig, exponentials, logs, and differentiation all show up here as graphs rather than algebra. This guide focuses on the parts that are genuinely new: sketching a wide range of standard shapes on sight, the modulus function graphically, and the transformation rules that catch almost everyone out at least once.
 
-This guide is a placeholder. The full breakdown of MM8. Graphs of Functions — core facts, fast methods, worked examples, and common traps — is coming soon.
+## MM8.1 Recognising and sketching common graphs
+
+You should be able to sketch, from the equation alone and without a calculator, the general shape of: lines, quadratics, cubics, trig functions, logs, exponentials, square roots, and — as a bonus — quartics and quintics.
+
+<Tip title="Higher-power polynomials are worth exploring with a graphing package">
+Spend time in Desmos plotting quadratics, cubics, quartics and quintics with different signs and numbers of roots. Pay particular attention to what the sign of the *leading* coefficient (the $x^2$ term in a quadratic, $x^3$ in a cubic, $x^4$ in a quartic, and so on) does to the ends of the graph, and how many times the curve can wiggle up and down in between.
+</Tip>
+
+The pattern worth internalising: a positive leading coefficient means the graph eventually goes up on both ends for even powers (quadratics, quartics), or up on the right and down on the left for odd powers (cubics, quintics) — and a negative leading coefficient flips all of that. The number of times the curve can turn is capped by its degree, but not every polynomial of a given degree uses up all its turns (e.g. $y=x^3$ has no turning points at all, even though a cubic *can* have two).
+
+### The modulus function, graphically
+
+You already know $|x|$ algebraically — it takes the positive value of whatever's inside. Graphically, the rule for sketching $y=|f(x)|$ from $y=f(x)$ is just that idea drawn out:
+
+<Shortcut title="Sketch y = |f(x)| by flipping the negative part upward">
+Sketch $y=f(x)$ as normal. Then reflect anything that sits *below* the $x$-axis up into the positive region (in the $x$-axis), and leave anything already above the axis untouched. This works because $|f(x)|$ only changes something when $f(x)$ is negative — that's exactly when it needs "flipping" to become positive.
+</Shortcut>
+
+<WorkedExample title="Modulus of a quadratic and of a line">
+$y=(x+1)(x-2)$ is a $\cup$-shaped parabola dipping below the axis between $x=-1$ and $x=2$. For $y=|(x+1)(x-2)|$, that dip gets reflected upward, leaving a "W-ish" shape that touches the axis at $x=-1$ and $x=2$ and is never negative.
+
+$y=x-2$ is a straight line crossing the axis at $x=2$, negative to the left of that and positive to the right. $y=|x-2|$ keeps the positive part unchanged and reflects the negative part, giving a V-shape with its vertex sitting on the axis at $x=2$.
+</WorkedExample>
+
+It's worth being able to write down the equation of each piece of a modulus graph once it's been sketched: the reflected (flipped) piece has equation $y=-f(x)$, and the untouched piece keeps $y=f(x)$.
+
+<WorkedExample title="Solving an inequality by sketching">
+Solve $x+4<|2x-1|$.
+
+Sketch $y=x+4$ and $y=|2x-1|$ on the same axes and find where they cross. Since the modulus graph has two pieces, check both:
+
+$$
+x+4=2x-1 \implies x=5 \qquad\text{(where } 2x-1\text{ is the unflipped piece)}
+$$
+
+$$
+x+4=-(2x-1) \implies x=-1 \qquad\text{(where the piece is flipped)}
+$$
+
+The inequality asks where the line sits *below* the modulus graph. Reading that off the sketch:
+
+$$
+x<-1 \ \text{ or } \ x>5
+$$
+</WorkedExample>
+
+<Trap title="Solving modulus inequalities purely algebraically loses the picture">
+It's possible to solve modulus equations and inequalities with squaring or case-splitting, but for anything beyond the simplest cases a quick sketch tells you immediately how many crossing points to expect and which region satisfies the inequality — skipping the sketch is the most common way to lose track of a solution branch.
+</Trap>
+
+## MM8.2 Transformations of y = f(x)
+
+This is the section that trips people up most, mainly because two of the four transformations do the *opposite* of what your gut expects. The fix is to always go back to what the notation actually means, rather than trying to memorise the rules as arbitrary facts.
+
+The key idea throughout: $y=f(x)$ means "the $y$ value directly above a given $x$ is worked out using $f(x)$". Every transformation below is just a consequence of applying that same reading to a new expression.
+
+<FormulaCard title="The four transformations">
+
+| Transformation | Effect on $y=f(x)$ |
+|---|---|
+| $y=af(x)$ | vertical stretch, factor $a$, away from the $x$-axis (reflects in the $x$-axis too if $a<0$) |
+| $y=f(x)+a$ | translation by $\begin{pmatrix}0\\a\end{pmatrix}$ |
+| $y=f(x+a)$ | translation by $\begin{pmatrix}-a\\0\end{pmatrix}$ |
+| $y=f(ax)$ | horizontal squash, factor $a$, towards the $y$-axis (reflects in the $y$-axis too if $a<0$) |
+
+</FormulaCard>
+
+**$y=af(x)$** is the intuitive one: every $y$ value gets multiplied by $a$, so the graph is stretched vertically away from the $x$-axis by a factor of $a$. If $0<a<1$ the graph gets "squashed" flatter rather than taller, and a negative $a$ additionally flips it upside down.
+
+**$y=f(x)+a$** just adds $a$ to every $y$ value, so it's a straight vertical shift — up by $a$ if $a>0$, down if $a$ is negative.
+
+**$y=f(x+a)$ is the counter-intuitive one.** It looks like adding something to $x$ should shift the graph right, but it actually shifts it *left* (for positive $a$).
+
+<WorkedExample title="Why f(x + a) shifts the graph left, not right">
+Take $f(x)=2^x$ and compare it with $f(x+3)$.
+
+On $y=f(x)$: at $x=2$, $y=f(2)=4$; at $x=5$, $y=f(5)=32$.
+
+On $y=f(x+3)$: at $x=2$, $y=f(2+3)=f(5)=32$; at $x=5$, $y=f(5+3)=f(8)=256$.
+
+So the $y$ value sitting above $x=2$ on the new graph is the value that used to sit above $x=5$ on the old one — the "$32$" has moved three units to the **left**. In general, the graph of $y=f(x+a)$ is $y=f(x)$ translated by $\begin{pmatrix}-a\\0\end{pmatrix}$: left by $a$ when $a$ is positive, right by $a$ when $a$ is negative.
+</WorkedExample>
+
+**$y=f(ax)$** works the same way, and is similarly backwards from first instinct: it *squashes* the graph horizontally towards the $y$-axis by a factor of $a$, rather than stretching it.
+
+<WorkedExample title="Why f(ax) squashes the graph">
+Take $f(x)=x^3-3x^2+2$ and compare it with $f(2x)$.
+
+At $x=1$ on $y=f(x)$: $y=f(1)=0$. On $y=f(2x)$, the $y$ value above $x=1$ is $f(2\times1)=f(2)=-2$ — which is the value that used to sit above $x=2$ on the original graph. The whole graph has been pulled in towards the $y$-axis by a factor of $2$.
+</WorkedExample>
+
+<Trap title="f(ax) means every x in the expression gets replaced by ax, not just multiplied outside">
+Given $f(x)=x^2$, we have $f(3x)=(3x)^2=9x^2$ — **not** $3x^2$. The substitution replaces every occurrence of $x$, so any power or coefficient already attached to $x$ inside the function gets carried through the multiplication too. The same care applies to $f(x+a)$: given $f(x)=\cos(2x)$, $f\left(x-\frac\pi2\right)=\cos\left(2\left(x-\frac\pi2\right)\right)=\cos(2x-\pi)$, not $\cos(2x)-\frac\pi2$.
+</Trap>
+
+### Combining transformations — order matters
+
+When you chain two transformations together, the order you apply them in changes the result, and it's easy to get it backwards.
+
+<WorkedExample title="Getting the order right for cos(2x + π/6)">
+Sketch $y=\cos x$ and use it to get to $y=\cos\left(2x+\frac\pi6\right)$.
+
+**Squash by 2, then shift by $-\frac\pi6$ (wrong):**
+
+$$
+\cos x \to \cos 2x \to \cos\, 2\!\left(x+\frac\pi6\right)=\cos\left(2x+\frac\pi3\right) \quad\text{— not what we wanted}
+$$
+
+**Shift by $-\frac\pi6$, then squash by 2 (correct):**
+
+$$
+\cos x \to \cos\left(x+\frac\pi6\right) \to \cos\left(2x+\frac\pi6\right) \quad\checkmark
+$$
+
+The squash-then-shift order goes wrong because once $x$ has already been replaced by $2x$, a later "shift" of $\frac\pi6$ gets multiplied by that same $2$ before it lands. Equivalently, you could squash first and then shift by $-\frac{\pi}{12}$ instead of $-\frac\pi6$ — the amount of shift needed changes depending on when you apply it.
+</WorkedExample>
+
+<Tip title="When combining transformations, do the horizontal ones (shift, squash) in the order the algebra was built">
+If a target expression looks like $f(ax+b)$, it was built as "replace $x$ by $x+\frac ba$, then squash by $a$" — factor the expression that way first (write $ax+b=a\left(x+\frac ba\right)$) and the correct order of transformations falls straight out, rather than needing to be guessed and checked.
+</Tip>
+
+### Composite functions f(g(x))
+
+$f(g(x))$ — read "$f$ of $g$ of $x$" — means: take $g(x)$ and feed it in as the input to $f$. Since the $x$ in $f(x)$ is just a label for "whatever gets put in", you can substitute any expression in its place, including another function.
+
+<WorkedExample title="Building f(g(x))">
+Let $g(x)=2x$ and $f(x)=x^2+3x-2$.
+
+Replace every $x$ in $f(x)$ with $g(x)$, then simplify:
+
+$$
+f(g(x)) = (2x)^2+3(2x)-2 = 4x^2+6x-2
+$$
+</WorkedExample>
+
+<Trap title="f(g(x)) is generally not the same as g(f(x))">
+Composition doesn't commute in general — swapping the order of $f$ and $g$ usually gives a different function entirely. Always apply the *inner* function first (the one closest to $x$), and don't assume you can reorder them.
+</Trap>
+
+## MM8.3 How m and c affect y = mx + c
+
+You already know $m$ is the gradient and $c$ is the $y$-intercept, but it's worth seeing this as a composition of the transformations above, starting from $y=x$:
+
+$$
+y=x \ \to\ y=mx \ \to\ y=m\left(x+\frac cm\right)=mx+c
+$$
+
+or equivalently, shifting before stretching:
+
+$$
+y=x \ \to\ y=x+c \ \to\ y=mx+c
+$$
+
+Both routes land on the same graph, which is a good sanity check that the transformation rules are self-consistent — try following either sequence through with specific numbers for $m$ and $c$ to see it directly.
+
+## MM8.4 How a, b, c affect y = a(x + b)² + c
+
+The same idea applies to a quadratic written in completed-square form. One way to build it up (for $a>0$):
+
+$$
+y=x^2 \ \to\ y=(\sqrt a\,x)^2=ax^2 \ \to\ y=a(x+b)^2 \ \to\ y=a(x+b)^2+c
+$$
+
+using a horizontal squash by $\sqrt a$ to get the vertical stretch. Or, more directly, stretch vertically first:
+
+$$
+y=x^2 \ \to\ y=ax^2 \ \to\ y=a(x+b)^2 \ \to\ y=a(x+b)^2+c
+$$
+
+<Trap title="√a only works when a is positive">
+The horizontal-squash route needs $\sqrt a$, which breaks down the moment $a$ is negative. When $a<0$, it's much simpler to just use the vertical-stretch route ($y=ax^2$ directly) rather than trying to force a square root through a negative number.
+</Trap>
+
+Either way, $b$ shifts the graph horizontally by $-b$ (left if $b>0$, following the same "backwards" rule as $f(x+a)$ above), and $c$ shifts it vertically by $c$ — matching exactly what you already know about the turning point of a quadratic sitting at $(-b,c)$.
+
+## MM8.5–8.7 Already covered elsewhere
+
+The remaining parts of this section aren't new content so much as graphical applications of ideas from other topics:
+
+- **Using differentiation to sketch a graph** — finding stationary points and determining where a function increases or decreases — is covered in the differentiation guide.
+- **Where a graph crosses the axes, and how many real roots a polynomial can have** is an application of the algebra and functions guide (factorising, the factor theorem, and the discriminant).
+- **Reading simultaneous equations off intersecting graphs**: wherever two graphs cross, the coordinates of that point satisfy both equations simultaneously — solving a system algebraically and finding where two curves meet are exactly the same question asked two different ways.
+
+## Formula and shortcut summary
+
+- Leading coefficient of a polynomial controls end behaviour: positive means "up" on the right (and up on the left for even degree, down for odd); negative flips it.
+- $y=|f(x)|$: sketch $y=f(x)$, then reflect anything below the $x$-axis upward, leaving the rest unchanged.
+- $y=af(x)$: vertical stretch by $a$ (flips in the $x$-axis if $a<0$).
+- $y=f(x)+a$: translation $\begin{pmatrix}0\\a\end{pmatrix}$.
+- $y=f(x+a)$: translation $\begin{pmatrix}-a\\0\end{pmatrix}$ — shifts **left** for positive $a$, opposite to first instinct.
+- $y=f(ax)$: horizontal squash by $a$ towards the $y$-axis (flips in the $y$-axis if $a<0$) — squashes, doesn't stretch.
+- When combining a shift and a squash, factor the expression as $f(a(x+b/a))$ first to get the order right; shift-then-squash and squash-then-shift generally give different results.
+- $f(g(x))$: substitute $g(x)$ for every $x$ in $f(x)$. Apply the inner function first; $f(g(x))\ne g(f(x))$ in general.
 
 <PracticeLink topic="MM8. Graphs of Functions">
 Find graphs of functions questions

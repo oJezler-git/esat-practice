@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactElement } from "react";
 import katex from "katex";
+import "katex/dist/katex.min.css";
 import type {
   Annotation,
   AnnPoint,

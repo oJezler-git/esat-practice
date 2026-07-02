@@ -2,18 +2,122 @@ export const meta = {
   slug: "differentiation",
   module: "m2",
   title: "Differentiation",
-  subtitle: "Placeholder overview for MM6. Differentiation — full guide coming soon.",
+  subtitle: "The derivative as a gradient and rate of change, differentiating powers of x, tangents and normals, stationary points, and increasing/decreasing functions.",
   topicCode: "MM6",
-  estimatedMinutes: 5,
+  estimatedMinutes: 18,
   order: 60,
   relatedQuestionFilters: {
     topics: ["MM6. Differentiation"],
   },
 };
 
-## What you need to know
+## MM6.1 The derivative as a gradient and a rate of change
 
-This guide is a placeholder. The full breakdown of MM6. Differentiation — core facts, fast methods, worked examples, and common traps — is coming soon.
+The **derivative** of $f(x)$ at a point is the gradient of the tangent to $y=f(x)$ there — how much $y$ changes per unit change in $x$. Gradient is just a rate of change: the gradient of a distance–time graph is speed, and the gradient of a speed–time graph is acceleration.
+
+<FormulaCard title="Notation">
+$$
+\frac{dy}{dx}, \qquad \frac{d^2y}{dx^2}, \qquad f'(x), \qquad f''(x)
+$$
+
+$\dfrac{dy}{dx}$ (or $f'(x)$) is the **first derivative** — gradient of the tangent. $\dfrac{d^2y}{dx^2}$ (or $f''(x)$) is the **second derivative** — the derivative of the derivative, i.e. how the gradient itself is changing.
+</FormulaCard>
+
+<Tip title="Two different jobs, same expression">
+$y=\ldots$ gives you a $y$-value for a given $x$-value. $\dfrac{dy}{dx}=\ldots$ gives you the *gradient* at that $x$-value. Keep straight which question you're actually being asked — "find the value" versus "find the gradient" call for different expressions.
+</Tip>
+
+## MM6.2 Differentiating powers of x
+
+<FormulaCard title="Power rule">
+$$
+\frac{d}{dx}\bigl(x^n\bigr) = nx^{n-1} \qquad \text{for any rational } n
+$$
+
+Differentiate term by term: the derivative of a sum is the sum of the derivatives, and constants differentiate to $0$.
+</FormulaCard>
+
+The TMUA/ESAT tests only sums of powers of $x$ (including fractional and negative powers) — no chain rule, product rule, or trig differentiation. If an expression isn't already in that form, **simplify first**.
+
+<WorkedExample title="Simplify before differentiating">
+Differentiate $y=\dfrac{(3x+2)^2}{\sqrt x}$.
+
+Expand the numerator and split the fraction into separate powers of $x$:
+
+$$
+y = \frac{9x^2+12x+4}{x^{1/2}} = 9x^{3/2}+12x^{1/2}+4x^{-1/2}
+$$
+
+$$
+\frac{dy}{dx} = \frac{27}{2}x^{1/2} + 6x^{-1/2} - 2x^{-3/2}
+$$
+</WorkedExample>
+
+<Shortcut title="Term-by-term differentiation">
+$\dfrac{d}{dx}(x^3+7x^2-3x+11) = 3x^2+14x-3$ — differentiate each term independently ($n x^{n-1}$) and drop any constant term entirely; there's no need to think of the expression as a single object.
+</Shortcut>
+
+## MM6.3 Tangents, normals, stationary points, and monotonicity
+
+<FormulaCard title="Tangent and normal at a point">
+At $x=a$, the tangent has gradient $f'(a)$ and the normal (perpendicular to the tangent) has gradient $-\dfrac{1}{f'(a)}$. Both pass through $(a,f(a))$, so:
+
+$$
+y - f(a) = f'(a)(x-a) \qquad \text{(tangent)}, \qquad y - f(a) = -\frac{1}{f'(a)}(x-a) \qquad \text{(normal)}
+$$
+</FormulaCard>
+
+**Stationary points** occur where $\dfrac{dy}{dx}=0$ — the tangent is horizontal. To classify a stationary point at $x=a$, use the second derivative:
+
+<FormulaCard title="Classifying stationary points">
+$$
+\frac{dy}{dx}=0 \text{ and } \frac{d^2y}{dx^2}>0 \ \Rightarrow\ \text{minimum}, \qquad \frac{dy}{dx}=0 \text{ and } \frac{d^2y}{dx^2}<0 \ \Rightarrow\ \text{maximum}
+$$
+</FormulaCard>
+
+<WorkedExample title="Finding and classifying stationary points">
+Find and classify the stationary points of $y=2x^3-3x^2-12x+6$.
+
+$$
+\frac{dy}{dx}=6x^2-6x-12=6(x-2)(x+1)=0 \ \Rightarrow\ x=2 \text{ or } x=-1
+$$
+
+$$
+\frac{d^2y}{dx^2}=12x-6
+$$
+
+At $x=-1$: $\frac{d^2y}{dx^2}=-18<0$, so a **maximum**. At $x=2$: $\frac{d^2y}{dx^2}=18>0$, so a **minimum**. This also matches the shape of a positive cubic — maximum before minimum.
+</WorkedExample>
+
+<Trap title="dy/dx = 0 and d²y/dx² = 0 is inconclusive">
+The second-derivative test is **sufficient but not necessary**. At a stationary point, $\frac{d^2y}{dx^2}>0$ guarantees a minimum and $\frac{d^2y}{dx^2}<0$ guarantees a maximum — but $\frac{d^2y}{dx^2}=0$ tells you nothing on its own. $y=x^4$ has a minimum at $x=0$ with $\frac{d^2y}{dx^2}=0$ there; $y=-x^4$ has a maximum at $x=0$ with $\frac{d^2y}{dx^2}=0$ there too. If the second derivative vanishes, check the sign of $\frac{dy}{dx}$ either side of the point instead.
+</Trap>
+
+<FormulaCard title="Strictly increasing and strictly decreasing">
+$$
+f'(x)>0 \text{ on } a<x<b \ \Rightarrow\ f \text{ strictly increasing on } a<x<b
+$$
+
+$$
+f'(x)<0 \text{ on } a<x<b \ \Rightarrow\ f \text{ strictly decreasing on } a<x<b
+$$
+</FormulaCard>
+
+<Trap title="These conditions are sufficient, not necessary">
+$f'(x)>0$ everywhere guarantees $f$ is strictly increasing — but a function can be strictly increasing without $f'(x)>0$ at *every* point (e.g. $y=x^3$ is strictly increasing through $x=0$, yet $f'(0)=0$). Don't try to run the implication backwards.
+</Trap>
+
+<Tip title="Points of inflexion: qualitative only">
+Points of inflexion (e.g. the flat-through point of $y=x^3$ at the origin) are not formally examined, but you should recognise where they can appear when sketching simple polynomials — typically where a stationary point "flattens through" rather than turning into a clean max or min.
+</Tip>
+
+## Formula and shortcut summary
+
+- $\dfrac{d}{dx}(x^n)=nx^{n-1}$ for any rational $n$; differentiate sums term by term, constants vanish.
+- Simplify an expression into a sum of powers of $x$ *before* differentiating — no chain or product rule is tested.
+- Tangent at $x=a$: gradient $f'(a)$. Normal at $x=a$: gradient $-\dfrac{1}{f'(a)}$.
+- Stationary points: solve $\dfrac{dy}{dx}=0$. Classify with $\dfrac{d^2y}{dx^2}$: positive $\Rightarrow$ min, negative $\Rightarrow$ max, zero $\Rightarrow$ inconclusive (check either side instead).
+- $f'(x)>0$ on an interval $\Rightarrow$ strictly increasing there; $f'(x)<0$ $\Rightarrow$ strictly decreasing — sufficient conditions, not necessary ones.
 
 <PracticeLink topic="MM6. Differentiation">
 Find differentiation questions

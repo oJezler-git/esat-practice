@@ -1,18 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
 import {
   askRevisionQuestion,
   type RevisionAskTurn,
 } from "../../lib/revisionAsk";
 
-const MARKDOWN_PLUGINS = {
-  remarkPlugins: [remarkGfm, remarkMath],
-  rehypePlugins: [rehypeKatex],
-};
+// Defer the markdown + KaTeX rendering stack until an answer is shown.
+const RevisionMarkdown = lazy(() => import("./RevisionMarkdown"));
 
 const MAX_QUESTION_LENGTH = 400;
 
@@ -55,7 +49,9 @@ function TypewriterText({ text, animate }: { text: string; animate: boolean }) {
 
   return (
     <div className="rev-ask-markdown">
-      <ReactMarkdown {...MARKDOWN_PLUGINS}>{displayed}</ReactMarkdown>
+      <Suspense fallback={<p>{displayed}</p>}>
+        <RevisionMarkdown>{displayed}</RevisionMarkdown>
+      </Suspense>
       {shouldAnimate && displayed.length < text.length && (
         <span className="rev-ask-indicator" aria-hidden="true" />
       )}

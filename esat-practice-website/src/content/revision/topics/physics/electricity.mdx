@@ -2,18 +2,287 @@ export const meta = {
   slug: "electricity",
   module: "physics",
   title: "Electricity",
-  subtitle: "Placeholder overview for P1. Electricity — full guide coming soon.",
+  subtitle: "Charging by friction and induction, circuit symbols, current, voltage, resistance, V–I graphs, and series/parallel rules.",
   topicCode: "P1",
-  estimatedMinutes: 5,
+  estimatedMinutes: 20,
   order: 10,
   relatedQuestionFilters: {
     topics: ["P1. Electricity"],
   },
 };
 
-## What you need to know
+## P1.1 Charging by friction and by induction
 
-This guide is a placeholder. The full breakdown of P1. Electricity — core facts, fast methods, worked examples, and common traps — is coming soon.
+Rubbing two insulators together (a duster on plastic, fuel through a pipe, a plane through the air) can leave both objects electrically charged. This works for insulators because any charge that builds up stays put. Conductors can charge too, but only if they're insulated from their surroundings — otherwise the charge just leaks away.
+
+<Tip title="It's always electrons that move">
+Charging by friction transfers **electrons**, never protons — protons sit deep in the nucleus and are far too tightly bound to hop between objects. An object that loses electrons ends up positive (more protons than electrons left over); one that gains electrons ends up negative. Total charge is conserved, so one object charges positive exactly as much as the other charges negative.
+</Tip>
+
+Which way the electrons move depends on which material grips its electrons more strongly — the atoms that hold on tighter end up with the spare electrons (negative), and the other material ends up positive.
+
+Objects can also become charged **by induction**, without ever touching a charged object. Bring a charged object close to a neutral one and the free charges in the neutral object rearrange: opposite charge is pulled towards the near side, like charge is pushed to the far side. If the far side is momentarily earthed while the charged object stays nearby, that repelled charge drains away to Earth — and when the connection to Earth is broken, the object is left with a permanent, opposite charge. This is exactly why a neutral scrap of paper gets pulled towards a charged balloon: induction gives the paper an opposite charge on its near side, and opposite charges attract.
+
+<WorkedExample title="Charging a balloon by friction">
+An uncharged rubber balloon is rubbed with a cloth. It becomes negatively charged and stays charged.
+
+Rubbing transfers electrons from the cloth to the balloon, so the balloon ends up with more electrons than protons — an overall negative charge. It *stays* charged because rubber is an insulator: even if part of the balloon touches your (earthed) hand, the charge has no conducting path to escape along.
+</WorkedExample>
+
+## P1.2 Forces between charges
+
+<FormulaCard title="Like and unlike charges">
+Like charges (+ with +, or − with −) **repel**. Unlike charges (+ with −) **attract**. The force gets bigger with bigger charges and smaller with bigger separation.
+</FormulaCard>
+
+This single rule explains a surprising range of everyday electrostatic hazards and party tricks. Touch a positively-charged Van de Graaff dome while standing on an insulating stool, and electrons drain from you into the dome — leaving you (and every strand of your hair) positively charged. Every hair now repels every other hair, so they stand on end. Stand on the ground instead of an insulating stool, and electrons would keep flowing up from Earth to replace the ones you lost, so no charge (and no hair-raising) would build up.
+
+<Trap title="Conductors can't really charge each other by friction">
+Two insulators rubbed together stay charged because the charge has nowhere to go. Two conductors in principle could transfer charge the same way, but as soon as they separate, any imbalance instantly equalises through their free electrons (and while they're still touching, they're effectively one object). In practice, meaningful friction charging needs at least one insulator.
+</Trap>
+
+## P1.3 Sparking, hazards, and earthing
+
+Sparking happens when the voltage between two charged objects gets big enough (or the gap small enough) to ionise the air between them, letting a sudden discharge jump across. Small sparks are just a nuisance — static shocks from a car door or a nylon carpet. Large sparks, though, are a genuine fire and explosion risk wherever there's flammable vapour around, which is exactly the situation during aircraft refuelling: fuel rushing through a pipe generates friction, friction charges the fuel and the pipe, and a spark near the fuel tank could ignite the vapour.
+
+<Shortcut title="Earthing prevents charge building up in the first place">
+Connecting two objects together (or connecting one to Earth) with a wire gives any charge a path to drain away as fast as it's generated, so no charge imbalance — and no spark risk — ever builds up. This is why fuel tanks and refuelling pipes are always earthed before fuel starts flowing, and it's the standard fix whenever a question asks how to eliminate a described sparking hazard.
+</Shortcut>
+
+<WorkedExample title="Electrostatic paint spraying">
+Paint droplets leave a spray gun positively charged; the car body is earthed. Which of these are true: (1) droplets attract each other, (2) droplets attract the panel, (3) droplets can reach parts not directly in the line of the spray, (4) the panel gradually becomes positively charged?
+
+All the droplets carry the *same* sign of charge, so they **repel** each other — statement 1 is false, but this repulsion is actually the useful part, since it keeps the spray spread out into an even coat instead of clumping.
+
+As a droplet approaches the earthed panel, it induces an opposite (negative) charge on the metal surface near it, so the droplet is attracted in — statement 2 is true. That same induced attraction can pull droplets around the edge of a panel onto surfaces not in a direct line from the gun — statement 3 is true.
+
+Because the panel is earthed, any positive charge deposited by droplets is immediately neutralised by electrons flowing in from Earth, so the panel itself never builds up a net charge — statement 4 is false.
+</WorkedExample>
+
+## P1.4 Circuit symbols, and ac vs dc
+
+You should be able to recognise and draw the standard symbols for a cell, battery, lamp, resistor, variable resistor, ammeter, voltmeter, switch, and diode, and know that an ammeter goes **in series** with the component it measures while a voltmeter goes **in parallel** across it.
+
+<FormulaCard title="Direct vs alternating current">
+**Direct current (dc)** always flows the same way — the output of a cell or battery. **Alternating current (ac)** repeatedly reverses direction, typically in a smooth sine-wave pattern — the output of a generator, and of UK mains at 50 Hz (50 complete cycles per second).
+</FormulaCard>
+
+<Trap title="A changing current isn't automatically alternating">
+Alternating current must actually reverse direction — its waveform has to dip below the axis as well as rise above it, not just wobble in size while staying positive. A current that varies in magnitude but never changes sign is still dc.
+</Trap>
+
+<Tip title="Diodes turn ac into dc">
+A diode only lets current through in one direction (the way its arrow points), so a diode — or a set of them wired as a "rectifier" — can convert the ac from a mains supply into dc.
+</Tip>
+
+## P1.5 Conductors and insulators
+
+Metals, graphite, and ionic solutions conduct well because they contain charge carriers (free electrons in metals, ions in solution) that can move through the material. Most non-metals — plastics, rubber, dry wood, air — are good insulators, because their electrons are all bound up and can't drift through the bulk material.
+
+<Trap title="Water is a conductor, not an insulator">
+Pure water is actually a fairly poor conductor, but any water with dissolved ions in it (which is essentially all water you'll meet outside a lab) conducts well. So "wet" or "damp" materials shouldn't be treated as insulators, even if the dry material normally would be — this is exactly why a bathroom light switch is operated by a nylon pull-cord rather than a switch you touch directly: condensation on a normal switch could conduct a shock straight to you, while the insulating, water-resistant nylon cord keeps you safe.
+</Trap>
+
+## P1.6 Current, charge, and time
+
+<FormulaCard title="Current">
+$$
+I = \frac{Q}{t}
+$$
+
+Current $I$ (amps, A) is the rate of flow of charge $Q$ (coulombs, C) past a point, over time $t$ (seconds, s). $1\,\text{mA}=10^{-3}\,\text{A}$, $1\,\mu\text{A}=10^{-6}\,\text{A}$.
+</FormulaCard>
+
+In a metal, current is carried by free electrons drifting towards the positive terminal — but by (historical) convention, current itself is always described as flowing from positive to negative, i.e. in the *opposite* direction to the electrons actually moving.
+
+<WorkedExample title="Charge from current and time">
+A resistor carries a current of 30 mA for 20 s. How much charge passes through it?
+
+$$
+Q = It = (30\times10^{-3})\times20 = 0.60\ \text{C}
+$$
+</WorkedExample>
+
+<WorkedExample title="Current from charge and time">
+A charge of 6000 μC passes through a component in 50 minutes. What is the average current?
+
+Convert to base units first: $Q = 6000\times10^{-6}\ \text{C} = 6\times10^{-3}\ \text{C}$, $t = 50\times60 = 3000\ \text{s}$.
+
+$$
+I = \frac{Q}{t} = \frac{6\times10^{-3}}{3000} = 2.0\times10^{-6}\ \text{A} = 2.0\ \mu\text{A}
+$$
+</WorkedExample>
+
+## P1.7 Resistance, and V–I graphs
+
+<FormulaCard title="Resistance">
+$$
+R = \frac{V}{I}
+$$
+
+Resistance $R$ (ohms, $\Omega$) relates voltage $V$ (volts) and current $I$ (amps). For a component that obeys **Ohm's law** (e.g. a metal wire at constant temperature), $I$ is directly proportional to $V$, so $R$ stays constant regardless of $V$ or $I$.
+</FormulaCard>
+
+<WorkedExample title="Rearranging R = V/I">
+A resistor carries 60 mA when connected to a 12 V battery. Find its resistance, and then find the current in a 72 MΩ resistor connected across a 1.8 kV supply.
+
+$$
+R = \frac{V}{I} = \frac{12}{60\times10^{-3}} = 200\ \Omega
+$$
+
+$$
+I = \frac{V}{R} = \frac{1.8\times10^3}{72\times10^6} = 25\times10^{-6}\ \text{A} = 25\ \mu\text{A}
+$$
+</WorkedExample>
+
+<Shortcut title="Reading V–I graphs">
+For an **ohmic** component (fixed resistor at constant temperature), a $V$–$I$ graph is a straight line through the origin, and $R = \dfrac{\Delta V}{\Delta I}$ is just its gradient. For a **filament lamp**, resistance rises as it heats up, so the graph curves — steepening as $I$ increases — and you can no longer read $R$ off as a single gradient; instead pick a point and compute $R=V/I$ at *that* point specifically.
+</Shortcut>
+
+<Trap title="A curved V–I graph still means R = V/I, just not the gradient">
+On a curved graph, the temptation is to differentiate or eyeball a tangent to get "the resistance." Don't — resistance at a point is always the ratio of that point's $V$ to its $I$, found by drawing a straight line from the origin to the point, not by the local slope of the curve.
+</Trap>
+
+## P1.8 Thermistors, LDRs, and diodes
+
+<FormulaCard title="Three non-ohmic components">
+**NTC thermistor** — resistance *decreases* as temperature *increases*. **LDR (light-dependent resistor)** — resistance *decreases* as light intensity *increases*. **Ideal diode** — (near) zero resistance in the direction its arrow points, (near) infinite resistance the other way.
+</FormulaCard>
+
+<WorkedExample title="Thermistor cooling in a circuit">
+A circuit has a thermistor (NTC) in series with a fixed resistor and a battery. Ammeter 1 reads the circuit current; voltmeter 2 reads across the thermistor. The thermistor cools down. What happens to each reading?
+
+Cooling makes the thermistor's resistance rise, which raises the total resistance of the (series) circuit, which drops the current — so ammeter 1's reading **falls**. With less current, the fixed resistor claims a smaller share of the battery's fixed total voltage (from $V=IR$ with $R$ constant), so the thermistor's share — and voltmeter 2's reading — **rises**. Notice the resistance increase "wins" against the current decrease here.
+</WorkedExample>
+
+<Trap title="Trace which way each diode's arrow points before deciding what lights up">
+In a circuit with several diodes and lamps, a lamp only lights if there's an unbroken path of *forward-biased* diodes (arrows pointing from + to − around the loop) in series with it. A single reverse-biased diode anywhere in a branch blocks current for the whole branch, however many correctly-oriented components sit alongside it.
+</Trap>
+
+## P1.9 Series and parallel rules
+
+<FormulaCard title="Series circuits">
+Same **current** through every component (only one path for charge to take). **Voltages add up** to the supply voltage (each unit of charge shares its energy out across every component it passes through).
+</FormulaCard>
+
+<FormulaCard title="Parallel circuits">
+Same **voltage** across every branch (every unit of charge that goes through, say, branch 1 experiences the full supply voltage). **Currents add up**: total current into a junction equals total current out.
+</FormulaCard>
+
+<Tip title="Voltmeter or ammeter? Look at what it's wired across">
+A meter with no other component in series with it, sitting across a component, is a voltmeter. A meter directly in the main path of the current, in series with a component, is an ammeter — even if at a glance it looks like it's "parallel" to something else nearby. Trace the wires carefully around parallel branches before deciding.
+</Tip>
+
+## P1.10 Combining resistors
+
+<FormulaCard title="Resistors in series">
+$$
+R_T = R_1 + R_2 + \cdots
+$$
+
+Always **bigger** than any individual resistance — every resistor in series adds more opposition to the same current.
+</FormulaCard>
+
+<FormulaCard title="Resistors in parallel">
+$$
+\frac{1}{R_T} = \frac{1}{R_1} + \frac{1}{R_2} + \cdots
+$$
+
+Always **smaller** than the smallest individual resistance — extra parallel branches just give the current extra routes, so the supply can push out more total current for the same voltage.
+</FormulaCard>
+
+<WorkedExample title="Series combination">
+Two resistors, 2 Ω and 3 Ω, in series, connected to a 10 V supply.
+
+$$
+R_T = 2+3 = 5\ \Omega \qquad I = \frac{10}{5} = 2\ \text{A}
+$$
+
+Voltage across each: $2\times2=4\ \text{V}$ and $2\times3=6\ \text{V}$ — and indeed $4+6=10\ \text{V}$, the full supply voltage.
+</WorkedExample>
+
+<WorkedExample title="Parallel combination">
+Two resistors, 2 Ω and 3 Ω, in parallel, connected to a 6 V supply.
+
+Each resistor feels the full 6 V, so:
+
+$$
+I_2 = \frac{6}{2}=3\ \text{A}, \qquad I_3 = \frac{6}{3}=2\ \text{A}, \qquad I_{\text{total}} = 3+2 = 5\ \text{A}
+$$
+
+$$
+R_T = \frac{V}{I_{\text{total}}} = \frac{6}{5} = 1.2\ \Omega
+$$
+
+Comfortably less than either 2 Ω or 3 Ω, as expected.
+</WorkedExample>
+
+<Shortcut title="Splitting current at a junction, without solving the full circuit">
+In a parallel pair, current splits **inversely** to resistance — the branch with less resistance carries proportionally more current. If one branch has twice the resistance of the other, it carries half the current. This lets you find individual branch currents quickly once you know the total, without recomputing $I=V/R$ for each branch from scratch.
+</Shortcut>
+
+## P1.11 Voltage as energy per charge
+
+<FormulaCard title="Voltage">
+$$
+V = \frac{E}{Q}
+$$
+
+Voltage (volts, $1\,\text{V}=1\,\text{J}\,\text{C}^{-1}$) is the energy $E$ transferred per unit charge $Q$ passing through a component.
+</FormulaCard>
+
+<Tip title="Current is about rate, voltage is about energy per charge — don't mix them up">
+Current tells you how fast charge is moving round the circuit. Voltage tells you how much energy each unit of that charge hands over (or picks up) at a particular component. That distinction is exactly why current is shared equally in series but voltage is shared out, while voltage is shared equally in parallel but current is shared out.
+</Tip>
+
+## P1.12 Power and energy
+
+<FormulaCard title="Electrical power">
+$$
+P = VI = I^2R = \frac{V^2}{R}
+$$
+
+All three forms follow from $P=VI$ combined with $V=IR$ — pick whichever form uses the two quantities you already know.
+</FormulaCard>
+
+<FormulaCard title="Energy transferred">
+$$
+E = Pt = VIt
+$$
+
+Energy (joules) is power (watts) times time (seconds) — make sure $V$, $I$, and $t$ are all in base SI units (volts, amps, seconds) before multiplying.
+</FormulaCard>
+
+<WorkedExample title="Combining series/parallel with power and energy">
+A 3 Ω and a 6 Ω resistor are in parallel; that combination is in series with a 4 Ω resistor, all connected to an 18 V supply. The 4 Ω resistor dissipates 36 W. Find the energy dissipated in the 6 Ω resistor in 1 minute.
+
+Current through the 4 Ω resistor (which carries the *total* current, since it's before the split):
+
+$$
+I = \sqrt{\frac{P}{R}} = \sqrt{\frac{36}{4}} = 3\ \text{A}
+$$
+
+The 3 Ω branch has half the resistance of the 6 Ω branch, so it carries twice the current: splitting 3 A in that ratio gives 2 A through the 3 Ω resistor and 1 A through the 6 Ω resistor.
+
+$$
+V_{6\Omega} = IR = 1\times6 = 6\ \text{V}
+$$
+
+$$
+E = VIt = 6\times1\times60 = 360\ \text{J}
+$$
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- Friction and induction charging both work by moving **electrons** only; charge is always conserved overall.
+- Like charges repel, unlike charges attract; earthing drains charge away as it forms, preventing sparking hazards.
+- dc flows one way; ac reverses direction — UK mains is ac at 50 Hz.
+- $I=\dfrac{Q}{t}$; $R=\dfrac{V}{I}$ (constant for ohmic components, not constant for filament lamps, thermistors, LDRs).
+- NTC thermistor: resistance ↓ as temperature ↑. LDR: resistance ↓ as light ↑. Diode: conducts one way only.
+- Series: same current, voltages add. Parallel: same voltage, currents add.
+- $R_T=R_1+R_2+\cdots$ in series (always bigger); $\dfrac{1}{R_T}=\dfrac1{R_1}+\dfrac1{R_2}+\cdots$ in parallel (always smaller).
+- $V=\dfrac{E}{Q}$; $P=VI=I^2R=\dfrac{V^2}{R}$; $E=Pt=VIt$.
 
 <PracticeLink topic="P1. Electricity">
 Find electricity questions

@@ -2,18 +2,402 @@ export const meta = {
   slug: "mechanics",
   module: "physics",
   title: "Mechanics",
-  subtitle: "Placeholder overview for P3. Mechanics — full guide coming soon.",
+  subtitle: "Scalars and vectors, motion graphs, forces, Hooke's law, Newton's laws, mass and weight, momentum, and work/energy/power.",
   topicCode: "P3",
-  estimatedMinutes: 5,
+  estimatedMinutes: 35,
   order: 30,
   relatedQuestionFilters: {
     topics: ["P3. Mechanics"],
   },
 };
 
-## What you need to know
+## P3.1 Scalars and vectors
 
-This guide is a placeholder. The full breakdown of P3. Mechanics — core facts, fast methods, worked examples, and common traps — is coming soon.
+<FormulaCard title="Scalar vs vector">
+A **scalar** has magnitude only (mass, time, energy, temperature, speed, distance). A **vector** has magnitude *and* direction (force, velocity, acceleration, displacement, momentum).
+</FormulaCard>
+
+A scalar can still be negative (a temperature, a change in mass) — "scalar" just means direction plays no role in how the quantity is defined. A vector's sign only makes sense once you've fixed which direction counts as positive; that choice is always arbitrary, but must stay consistent throughout a calculation.
+
+<Tip title="Distance vs displacement, speed vs velocity">
+Distance and speed are the scalar versions — magnitude only, no direction. Displacement and velocity are the vector versions — distance/speed *in a particular direction*. So distance is the magnitude of displacement, and speed is the magnitude of velocity, but only when the motion doesn't change direction along the way (otherwise distance keeps accumulating while displacement can shrink, cancel, or reverse sign).
+</Tip>
+
+<WorkedExample title="Picking out distance vs displacement">
+A car laps a circular track (circumference 630 m, radius 100 m) starting at S. Halfway round, at point H, it has covered 315 m — but its displacement from S is only +200 m (the straight-line gap). Back at S, distance travelled is 630 m, but displacement from S is zero.
+
+The lesson: **distance never decreases** — it just keeps adding up. **Displacement** only cares about the straight-line gap between start and current position, so it can shrink, hit zero, or go negative even while distance climbs steadily.
+</WorkedExample>
+
+<Trap title="Only components in the direction asked matter">
+"A person walks 5 m north, 6 m east, 7 m south, 8 m west — what's the displacement north of the start?" Ignore the east/west legs entirely; they don't affect north–south displacement. Net north–south movement is $5-7=-2\,\text{m}$, i.e. 2 m *south* of the start. Always resolve a multi-leg journey into the one axis the question actually asks about before doing anything else.
+</Trap>
+
+## P3.2 Speed, velocity, and acceleration
+
+<FormulaCard title="Speed, velocity, acceleration">
+$$
+\text{speed} = \frac{\text{distance}}{\text{time}}, \qquad \text{velocity} = \frac{\text{change in displacement}}{\text{time}}, \qquad \text{acceleration} = \frac{\text{change in velocity}}{\text{time}}
+$$
+
+These only apply directly when the relevant quantity (speed/velocity, or acceleration) is **constant** over the interval considered.
+</FormulaCard>
+
+<Trap title="Constant speed doesn't mean zero acceleration">
+An object moving at constant *speed* around a curve is still accelerating, because its *velocity* (direction included) is changing. Acceleration is about velocity, not speed — and an object can accelerate from an instant of zero velocity too (a ball at the top of a bounce has zero velocity but nonzero acceleration).
+</Trap>
+
+<WorkedExample title="Change in velocity when direction reverses">
+A ball hits a bat at 25 m/s and rebounds at 20 m/s in the opposite direction, over 0.30 s. Taking the incoming direction as positive, find the acceleration.
+
+$$
+u = +25, \quad v = -20 \quad\Rightarrow\quad \Delta v = -20-25 = -45\ \text{m s}^{-1}
+$$
+
+$$
+a = \frac{\Delta v}{t} = \frac{-45}{0.30} = -150\ \text{m s}^{-2}
+$$
+
+The minus sign just means the acceleration points opposite to the ball's original direction — entirely expected, since the bat reverses its motion.
+</WorkedExample>
+
+<Shortcut title="Set up a sign convention once, then stick to it">
+Before touching any numbers, pick which direction is positive and write down $u$, $v$, $s$, $a$ with the correct sign for *that* choice. Almost every kinematics slip comes from switching sign convention halfway through, not from the arithmetic itself.
+</Shortcut>
+
+## P3.3 Motion graphs: gradients and areas
+
+<FormulaCard title="What the gradient means">
+Gradient of **distance–time** = speed. Gradient of **displacement–time** = velocity. Gradient of **velocity–time** = acceleration.
+</FormulaCard>
+
+<FormulaCard title="What the area means">
+Area under **speed–time** graph = distance moved. Area under **velocity–time** graph = change in displacement (area *below* the axis counts as negative displacement).
+</FormulaCard>
+
+<Trap title="Distance–time graphs can never slope downwards">
+Distance is a scalar that only ever accumulates, so a genuine distance–time graph never has a negative gradient. A graph that dips downward as an object returns to its start is a **displacement**–time graph, mislabelled — watch for this exact mislabelling trap in questions.
+</Trap>
+
+<WorkedExample title="Reading a velocity–time graph for a bouncing ball">
+A ball is released, falls, and bounces repeatedly; the graph takes the downward direction as positive. Between bounces the velocity rises from a large positive (downward) value at impact to a large negative (upward) value just after, then decreases in magnitude (upward, decelerating) until it hits zero at the top of the bounce, then increases again (downward, accelerating) into the next bounce.
+
+The ball is at the **top of a bounce** exactly when velocity crosses zero while changing from negative (upward) to positive (downward) — that's the only moment its direction of motion actually reverses.
+</WorkedExample>
+
+<Shortcut title="Split areas into signed triangles/rectangles">
+For a velocity–time graph made of straight segments, compute the area of each triangle or trapezium separately, keeping the sign (positive above the axis, negative below), then add them. This handles "net displacement" questions cleanly even when the object changes direction several times.
+</Shortcut>
+
+## P3.4 Average speed, velocity, and acceleration
+
+<FormulaCard title="Averages over a whole journey">
+$$
+\text{average speed} = \frac{\text{total distance}}{\text{total time}}, \qquad \text{average velocity} = \frac{\text{net change in displacement}}{\text{total time}}, \qquad \text{average acceleration} = \frac{\text{net change in velocity}}{\text{total time}}
+$$
+</FormulaCard>
+
+<Trap title="Don't average the speeds — average the journey">
+If an object covers 30 m in 30 s then 70 m in the next 20 s, the average speed is **not** the mean of $1.0$ and $3.5\ \text{m s}^{-1}$ (which would ignore how long each speed lasted). It's total distance over total time: $\dfrac{100}{50}=2.0\ \text{m s}^{-1}$.
+</Trap>
+
+<WorkedExample title="Average acceleration can be zero even with plenty of acceleration in between">
+An object starts and finishes at rest (velocity zero at $t=0$ and at $t=60\,\text{s}$), speeding up and slowing down repeatedly in between. Net change in velocity $=0-0=0$, so average acceleration $=0/60=0$ — even though the object was clearly accelerating (positively and negatively) throughout the 60 s.
+</WorkedExample>
+
+## P3.5 Equations of uniform motion
+
+<FormulaCard title="The three suvat-style equations (constant acceleration)">
+$$
+v = u+at, \qquad s = \tfrac12(u+v)t, \qquad v^2-u^2 = 2as
+$$
+
+$u$ = initial velocity, $v$ = final velocity, $a$ = (constant) acceleration, $t$ = time, $s$ = displacement.
+</FormulaCard>
+
+<Shortcut title="Pick the equation that skips the unknown you don't have">
+$v^2-u^2=2as$ is the one that avoids $t$ entirely — reach for it whenever a question gives you $u$, $a$, and $s$ (or asks for one of them) but says nothing about time.
+</Shortcut>
+
+<WorkedExample title="Using v² − u² = 2as when time isn't given">
+A stone is thrown upward at 5.0 m/s from a 30 m cliff, with downward acceleration 10 m/s² throughout. Find its speed hitting the sea (taking downwards as positive).
+
+$$
+u=-5.0,\quad s=+30,\quad a=+10
+$$
+
+$$
+v^2 = u^2+2as = (-5.0)^2+2(10)(30) = 25+600=625 \quad\Rightarrow\quad v=25\ \text{m s}^{-1}
+$$
+</WorkedExample>
+
+<Trap title="Squaring erases the sign of u — but check it makes physical sense">
+$u^2$ is the same whether $u$ is $+5$ or $-5$, which is exactly why $v^2-u^2=2as$ works regardless of which way the object was initially moving. But when you take the square root to find $v$, only the positive root usually makes physical sense (speed is never negative) — think about the actual direction of travel before quoting a signed velocity from this equation.
+</Trap>
+
+## P3.6 Types of force
+
+<FormulaCard title="Contact and non-contact forces">
+**Non-contact** (act through a field, no touching needed): weight (gravitational), magnetic, electrostatic. **Contact** (need the objects touching): normal contact, drag (incl. air resistance), friction, upthrust, thrust, lift, tension.
+</FormulaCard>
+
+<Trap title="Never call the normal contact force 'reaction'">
+Calling normal contact force "reaction" invites the classic error of pairing it with weight as a "Newton's third law pair" — they are not (see P3.9). Always name it the **normal contact force**.
+</Trap>
+
+<Tip title="Drag and friction are both resistive, but from different causes">
+Drag (most commonly air resistance) opposes motion through a *fluid* (liquid or gas); friction opposes *sliding between two solids* in contact. Both act opposite to the relevant relative motion, and are sometimes lumped together as "total resistive forces."
+</Tip>
+
+## P3.7 Force diagrams and resultant force
+
+Every force arrow starts on the object it acts on, points in the force's direction, and is labelled with its type, its size, and what's exerting it. **Resultant force is never drawn as its own arrow** — it's the combined effect of all the real forces already on the diagram, not an extra force in its own right.
+
+<FormulaCard title="Resultant force in one dimension">
+Resultant force = (total force one way) − (total force the opposite way), acting in the direction of whichever total is larger. If the two totals are equal, the resultant is zero and the forces are **balanced**.
+</FormulaCard>
+
+<WorkedExample title="Resolving into perpendicular directions separately">
+A plane in flight: thrust 200 kN forward, drag 140 kN backward, weight 160 kN down, lift 160 kN up.
+
+Horizontally: $200-140=60\,\text{kN}$ forward. Vertically: $160-160=0$ — balanced. The overall resultant here is just the horizontal 60 kN forward, because the vertical forces happen to cancel exactly.
+</WorkedExample>
+
+<Shortcut title="Work out an unknown force from 'resultant = zero'">
+If a question states (or implies via constant velocity) that the resultant force is zero, every unknown force is just found by making the two opposing totals equal — no need to solve simultaneous equations. E.g. a submerged rock with resultant force zero, weight 4000 N down, upthrust 1500 N up: the normal contact force must supply the remaining $4000-1500=2500\,\text{N}$ up.
+</Shortcut>
+
+## P3.8 Force and extension (Hooke's law)
+
+<FormulaCard title="Hooke's law">
+$$
+F = kx
+$$
+
+Within the limit of proportionality, extension $x$ is proportional to tension force $F$; the constant $k$ is the **spring constant** (units $\text{N m}^{-1}$) — force needed per unit extension. The gradient of a force–extension graph *is* $k$.
+</FormulaCard>
+
+<Tip title="Elastic limit vs limit of proportionality — related, not identical">
+Beyond the **limit of proportionality**, $F=kx$ stops holding (the graph curves). Beyond the **elastic limit**, the material no longer returns to its original length once unloaded (permanent, "plastic" deformation). These two points often coincide, but the question is testing whether you know they're conceptually distinct facts about the graph, not the same fact stated twice.
+</Tip>
+
+<FormulaCard title="Elastic potential energy">
+$$
+E = \tfrac12 Fx = \tfrac12 kx^2
+$$
+
+This is the area under the force–extension graph — valid as *recoverable* stored energy only while the elastic limit hasn't been exceeded.
+</FormulaCard>
+
+<Trap title="Stretch beyond the elastic limit, and not all the work done is recoverable">
+If a wire is stretched past its elastic limit, the *total* work done (full area under the loading curve) is more than the energy you get back on unloading. Only the recoverable part (area of the triangle traced out during unloading) counts as stored elastic potential energy; the rest is dissipated as heat during the permanent extension.
+</Trap>
+
+<WorkedExample title="Extension and stored energy for a loaded spring">
+A spring, $k=25\ \text{N m}^{-1}$, supports a 0.30 kg mass. Find its extension and the energy stored.
+
+$$
+x = \frac{F}{k} = \frac{mg}{k} = \frac{0.30\times10}{25} = 0.12\ \text{m}
+$$
+
+$$
+E = \tfrac12 kx^2 = \tfrac12(25)(0.12)^2 = 0.18\ \text{J}
+$$
+</WorkedExample>
+
+<Shortcut title="Combining identical springs">
+$n$ identical springs (constant $k$) **in series**: same force stretches the combination $n$ times as far, so combined constant is $k/n$. **In parallel**: $n$ times the force is needed for the same extension, so combined constant is $nk$ — the opposite pattern to resistors in series/parallel.
+</Shortcut>
+
+## P3.9 Newton's three laws
+
+<FormulaCard title="Newton's first law">
+A body stays at rest, or moves at constant velocity in a straight line, unless a **resultant** external force acts on it. Constant velocity ⇔ zero resultant force — not "a force is needed to keep something moving."
+</FormulaCard>
+
+<Trap title="A force being present doesn't mean it's the resultant">
+A cruising aircraft needs thrust to balance drag, but thrust is not *the* resultant force — the resultant is zero, because thrust and drag cancel. Don't confuse "a force acts to maintain motion against resistance" with "there is a nonzero resultant force causing that motion" — the two statements are opposites.
+</Trap>
+
+<FormulaCard title="Newton's second law">
+$$
+F = ma
+$$
+
+Here $F$ **must** be the resultant force. The resulting acceleration is in the same direction as the resultant. (More generally, $F$ = rate of change of momentum; $F=ma$ is the special case where mass stays constant.)
+</FormulaCard>
+
+<WorkedExample title="Finding acceleration from a force diagram">
+A 1200 kg car has a 3200 N driving force and an 800 N resistive force, both horizontal. Find its acceleration.
+
+$$
+F_{\text{resultant}} = 3200-800 = 2400\ \text{N} \qquad a = \frac{F}{m} = \frac{2400}{1200} = 2.0\ \text{m s}^{-2}
+$$
+
+This doesn't tell you whether the car is speeding up moving forward or slowing down moving backward — only the magnitude and direction of the *acceleration*, not the velocity.
+</WorkedExample>
+
+<FormulaCard title="Newton's third law">
+If body A exerts a force on body B, then B exerts an equal, opposite force **of the same type** on A. The pair always acts on **two different objects**.
+</FormulaCard>
+
+<Trap title="Weight and normal contact force are never a Newton's third law pair">
+They're equal and opposite *when an object isn't accelerating* — but that equality is a consequence of Newton's **first** law (zero resultant force), not the third. A genuine Newton-third pair must be the *same type* of force (both normal contact, or both gravitational, etc.) and must act on *two different bodies* — e.g. the normal contact force the floor exerts on you, and the normal contact force you exert on the floor. Weight (gravitational, exerted by the Earth) and normal contact force (exerted by the floor) are different types acting on the *same* body, so they fail on both counts. Avoid the words "action" and "reaction" entirely — they invite exactly this mix-up.
+</Trap>
+
+## P3.10 Mass, weight, and gravitational field strength
+
+<FormulaCard title="Mass vs weight">
+**Mass** is the amount of matter (inertia) — a scalar, unchanged wherever the object is. **Weight** is the gravitational *force* on that mass — a vector, and it changes with location.
+</FormulaCard>
+
+<FormulaCard title="Weight from mass and field strength">
+$$
+W = mg
+$$
+
+$g$ is gravitational field strength (force per unit mass), $\approx 10\ \text{N kg}^{-1}$ on Earth. On the Moon $g\approx1.6\,\text{N kg}^{-1}$; on Jupiter $\approx26\,\text{N kg}^{-1}$.
+</FormulaCard>
+
+<Trap title="A 1 kg mass does not 'equal' 10 N">
+$W=mg$ relates two *different* quantities via a constant — it's exactly like saying a car at 10 m/s covers 10 m in 1 s: that doesn't mean "1 s equals 10 m." A 1 kg mass weighs 10 N on Earth, but the same 1 kg mass weighs only 1.6 N on the Moon — the mass hasn't changed, only the weight has, because $g$ is different.
+</Trap>
+
+<FormulaCard title="Free-fall acceleration">
+With only weight acting, $F_{\text{resultant}}=mg$, so $a=F/m=g$. A freely-falling object accelerates at exactly $g$, regardless of its mass — heavier and lighter objects (in the absence of air resistance) fall together.
+</FormulaCard>
+
+<Trap title="'Weightless' astronauts still have weight">
+Orbiting astronauts feel weightless because they and their spacecraft are both in free fall, accelerating at $g$ together — so there's no normal contact force between them to feel. This is **apparent** weightlessness, not true weightlessness: their weight is still what's causing the fall. True weightlessness only occurs with zero gravitational field, i.e. deep space.
+</Trap>
+
+<FormulaCard title="Terminal velocity">
+Falling through air, weight (constant) acts down and air resistance (increasing with speed) acts up. Acceleration starts at $g$ and shrinks as speed builds, until air resistance equals weight — resultant force and acceleration both hit zero, and the object has reached **terminal velocity**.
+</FormulaCard>
+
+<Shortcut title="A shape change resets the terminal velocity">
+Increasing effective cross-sectional area (e.g. opening a parachute) increases air resistance at a given speed, so a *lower* speed is now enough to balance the weight — the object decelerates from its old (higher) terminal velocity down to a new, lower one. While decelerating, air resistance briefly exceeds weight, giving a resultant force opposing motion (i.e. upward, for something falling).
+</Shortcut>
+
+## P3.11 Momentum
+
+<FormulaCard title="Momentum">
+$$
+p = mv
+$$
+
+Vector, in the same direction as velocity. Units: $\text{kg m s}^{-1}$, equivalently N s.
+</FormulaCard>
+
+<Trap title="Combine momenta as vectors, not magnitudes">
+Two objects with momenta $0.50\ \text{kg m s}^{-1}$ right and $0.80\ \text{kg m s}^{-1}$ left don't add to $1.3$; taking left as negative, the total is $0.50-0.80=-0.30\ \text{kg m s}^{-1}$, i.e. $0.30\ \text{kg m s}^{-1}$ **left**. Always fix a sign convention before adding momenta.
+</Trap>
+
+<FormulaCard title="Conservation of momentum">
+In a closed system (no external forces), total momentum before an interaction = total momentum after. Momentum is conserved separately in **every** direction.
+</FormulaCard>
+
+<WorkedExample title="Conservation of momentum on an ice rink">
+A 70 kg adult and 35 kg child, both stationary, push apart; the child slides off at 0.80 m/s. Find the adult's speed.
+
+Total momentum starts and stays at zero, so the two final momenta are equal and opposite:
+
+$$
+70v = 35\times0.80 = 28\ \text{kg m s}^{-1} \quad\Rightarrow\quad v = 0.40\ \text{m s}^{-1}
+$$
+
+directed opposite to the child's motion.
+</WorkedExample>
+
+<FormulaCard title="Force as rate of change of momentum">
+$$
+F = \frac{\Delta p}{\Delta t}
+$$
+
+Equivalent to $F=ma$ when mass is constant; this is the more fundamental statement of Newton's second law.
+</FormulaCard>
+
+<Shortcut title="Bending your knees on landing — spread the same Δp over more time">
+The change in momentum on landing is fixed by how far you fell (it doesn't depend on landing technique). Bending your knees increases the *time* over which that momentum change happens, which — since $F=\Delta p/\Delta t$ — directly reduces the force (and hence the acceleration) your body experiences. Same logic covers airbags, crumple zones, and catching a ball with a "give" in your arm.
+</Shortcut>
+
+## P3.12 Work, energy, and power
+
+<FormulaCard title="Work done by a force">
+$$
+W = Fs
+$$
+
+$s$ is the distance moved **in the direction of the force**. If the force acts at angle $\theta$ to the direction of motion, use $W=Fs\cos\theta$.
+</FormulaCard>
+
+<Tip title="Work is energy transfer, and it's a two-way street">
+When a force does positive work on an object, the object's energy increases by that amount; when the object does work against a force (moves against it), its energy decreases by that amount. By Newton's third law, if A does work $W$ on B, B's reaction does work $-W$ on A — energy is transferred, not created, exactly as conservation of energy requires.
+</Tip>
+
+<FormulaCard title="Gravitational potential energy and kinetic energy">
+$$
+\Delta E_p = mgh, \qquad E_k = \tfrac12 mv^2
+$$
+
+$h$ is a *difference* in height — potential energy has no absolute zero; only differences matter, and you're free to choose the reference height that's most convenient for a given problem.
+</FormulaCard>
+
+<WorkedExample title="Splitting work done against friction from work done against gravity">
+A 500 kg trunk is pulled 4.0 m up a ramp by a 2000 N force, rising 1.2 m vertically. Find the work done against friction.
+
+$$
+W_{\text{applied}} = Fs = 2000\times4.0 = 8000\ \text{J}, \qquad \Delta E_p = mgh = 500\times10\times1.2 = 6000\ \text{J}
+$$
+
+$$
+W_{\text{friction}} = 8000-6000 = 2000\ \text{J}
+$$
+
+The applied force's work either raises the trunk (gravitational PE) or is lost to friction — nothing else is happening, so the two must add up to the total.
+</WorkedExample>
+
+<FormulaCard title="Power">
+$$
+P = \frac{W}{t} = \frac{E}{t}
+$$
+
+Rate of doing work / transferring energy, in watts ($1\,\text{W}=1\,\text{J s}^{-1}$).
+</FormulaCard>
+
+<WorkedExample title="Power from a change in kinetic energy">
+A 1200 kg car accelerates from rest to 20 m/s in 8.0 s. Find the useful output power.
+
+$$
+\Delta E_k = \tfrac12(1200)(20)^2 = 240\,000\ \text{J} \qquad P = \frac{E}{t} = \frac{240\,000}{8.0} = 30\,000\ \text{W}
+$$
+
+The engine's actual power output is higher than this, since it's never 100% efficient.
+</WorkedExample>
+
+<FormulaCard title="Efficiency">
+$$
+\%\ \text{efficiency} = \frac{\text{useful output (energy or power)}}{\text{total input (energy or power)}}\times100
+$$
+
+Never reaches 100% in practice; "useful" and "wasted" are defined relative to the *purpose* of the device, not by any absolute judgement about the form of energy.
+</FormulaCard>
+
+<Tip title="The same energy form can be useful in one device and wasted in another">
+Light is useful output from a lamp but wasted output from a heater; heat is useful output from a heater but wasted output from a lamp. Always check what the device is *for* before labelling an energy output as useful or wasted.
+</Tip>
+
+## Formula and shortcut summary
+
+- Distance/speed are scalars (magnitude only); displacement/velocity/acceleration/force/momentum are vectors (need a sign convention, fixed once and kept consistent).
+- Gradient: distance–time → speed; displacement–time → velocity; velocity–time → acceleration. Area under velocity–time → change in displacement (signed).
+- $v=u+at$, $s=\tfrac12(u+v)t$, $v^2-u^2=2as$ — pick whichever skips the variable you don't have.
+- Resultant force = vector sum of all real forces; never draw it as an extra force. $F=ma$ uses the resultant only.
+- Newton 1: zero resultant ⇔ constant velocity. Newton 3: equal, opposite, same type, different objects — never weight-vs-normal-contact.
+- $F=kx$ and $E=\tfrac12kx^2=\tfrac12Fx$ up to the elastic limit; series springs soften ($k/n$), parallel springs stiffen ($nk$).
+- $W=mg$; free fall acceleration $=g$ regardless of mass; terminal velocity is where air resistance balances weight.
+- $p=mv$ (vector); momentum conserved in a closed system, direction by direction; $F=\Delta p/\Delta t$.
+- $W=Fs$ (or $Fs\cos\theta$); $\Delta E_p=mgh$; $E_k=\tfrac12mv^2$; $P=E/t$; efficiency $=\dfrac{\text{useful}}{\text{total input}}\times100\%$.
 
 <PracticeLink topic="P3. Mechanics">
 Find mechanics questions

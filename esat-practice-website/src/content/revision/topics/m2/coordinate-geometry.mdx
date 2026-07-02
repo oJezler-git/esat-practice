@@ -2,18 +2,215 @@ export const meta = {
   slug: "coordinate-geometry",
   module: "m2",
   title: "Coordinate Geometry",
-  subtitle: "Placeholder overview for MM3. Coordinate Geometry — full guide coming soon.",
+  subtitle: "Equations of straight lines, parallel and perpendicular conditions, the equation of a circle, and the circle theorems.",
   topicCode: "MM3",
-  estimatedMinutes: 5,
+  estimatedMinutes: 22,
   order: 30,
   relatedQuestionFilters: {
     topics: ["MM3. Coordinate Geometry"],
   },
 };
 
-## What you need to know
+## MM3.1 Equations of straight lines
 
-This guide is a placeholder. The full breakdown of MM3. Coordinate Geometry — core facts, fast methods, worked examples, and common traps — is coming soon.
+Start with the familiar $y=mx+c$ and get comfortable with what $m$ and $c$ actually mean, since almost everything else in this section builds on it.
+
+$m$ is the **gradient**, and it's worth having several ways of thinking about it in your head at once, because different questions reward different pictures:
+
+- **Steepness**: the bigger $|m|$, the steeper the line. Positive $m$ climbs left-to-right; negative $m$ falls left-to-right.
+- **Rate of change**: $y$ changes $m$ times as fast as $x$ does. A gradient of $2$ means "every time $x$ goes up by $1$, $y$ goes up by $2$" — and this is the picture that carries over directly to tangents and differentiation later.
+- **Angle**: $m=\tan\theta$, where $\theta$ is the angle the line makes with the positive $x$-axis (assuming equal scales on both axes). A $45°$ line has gradient $\tan45°=1$, matching $y=x$; a $135°$ line has gradient $\tan135°=-1$, matching $y=-x$.
+
+<FormulaCard title="Gradient between two points">
+$$
+m = \frac{y_1-y_2}{x_1-x_2}
+$$
+
+Keep the $x$'s and $y$'s in the same order top and bottom — swap one but not the other and you flip the sign of the gradient.
+</FormulaCard>
+
+Horizontal and vertical lines are the two special cases worth memorising outright rather than trying to force into $y=mx+c$: a horizontal line has gradient $0$ and equation $y=\text{some number}$; a vertical line has no gradient (people sometimes say "infinite gradient", which is a bit of a fudge) and equation $x=\text{some number}$. The $x$-axis itself is $y=0$ and the $y$-axis is $x=0$.
+
+<Trap title="Vertical lines don't fit y = mx + c">
+If a question's answer would require $x=\text{constant}$, don't try to shoehorn it into $y=mx+c$ — there's no finite $m$ that works. Spot vertical (and horizontal) lines as special cases before you start substituting.
+</Trap>
+
+### Parallel and perpendicular lines
+
+<FormulaCard title="Parallel and perpendicular conditions">
+Lines $y=m_1x+c_1$ and $y=m_2x+c_2$ are:
+
+$$
+\text{parallel} \iff m_1=m_2
+$$
+
+$$
+\text{perpendicular} \iff m_1m_2=-1
+$$
+</FormulaCard>
+
+Parallel lines have the same steepness, so it makes sense they share a gradient. The perpendicular condition is less obvious on sight, but you can convince yourself of it by rotating a line $90°$ and tracking what happens to its "along" and "up" steps — they swap and one flips sign. It's a genuinely useful exercise to sit down with a diagram of two perpendicular lines, drop the right-angled triangles under each, and show the similar-triangles argument for why $m_1m_2=-1$ yourself, rather than just banking the fact.
+
+### Finding the equation of a line
+
+You need exactly two pieces of information to pin down a line, and they come in two flavours.
+
+**Case 1 — a point and a gradient.** If $(x_1,y_1)$ lies on a line of gradient $m$, then any other point $(x,y)$ on the line must give the same gradient when joined to $(x_1,y_1)$:
+
+<FormulaCard title="Point-gradient form">
+$$
+\frac{y-y_1}{x-x_1}=m \quad\Longrightarrow\quad y-y_1=m(x-x_1)
+$$
+</FormulaCard>
+
+Equally you can substitute $(x_1,y_1)$ straight into $y=mx+c$ and solve for $c$ — both routes get you to the same place, so use whichever feels quicker for the numbers in front of you.
+
+<WorkedExample title="Point and gradient">
+Find the equation of the line through $(3,2)$ with gradient $4$.
+
+$$
+y-2=4(x-3) \ \Longrightarrow\ y=4x-10
+$$
+</WorkedExample>
+
+**Case 2 — two points.** Given $(x_1,y_1)$ and $(x_2,y_2)$, work out the gradient first using the formula above, then drop it into the point-gradient form with either point.
+
+<WorkedExample title="Two points">
+Find the equation of the line through $(-2,5)$ and $(-4,-7)$.
+
+$$
+m=\frac{5-(-7)}{-2-(-4)}=\frac{12}{2}=6
+$$
+
+Using $(-2,5)$: $y-5=6(x+2) \Rightarrow y=6x+17$.
+</WorkedExample>
+
+<Shortcut title="Spot a shortcut when one point is the origin">
+If one of your two points is $(0,0)$, the gradient is just $\dfrac{y}{x}$ of the other point, and the line is simply $y=mx$ — no need to set up simultaneous equations to find $c$, since it's obviously $0$.
+</Shortcut>
+
+<Trap title="Sign errors are the biggest risk in line questions">
+Every step here involves subtracting coordinates, and it is very easy to lose a minus sign along the way — especially with negative coordinates. Slow down when substituting and double-check your answer by plugging both original points back into your final equation.
+</Trap>
+
+Finally, you'll see lines written either as $y=mx+c$ or as $ax+by+c=0$. Both are common and you should be able to move between them freely — just don't assume the $c$ in $ax+by+c=0$ is the $y$-intercept, because it isn't (it's an unfortunate clash of notation, not a deep fact).
+
+## MM3.2 The equation of a circle
+
+Picture a circle of radius $1$ centred at the origin. Every point $(x,y)$ on it is a distance $1$ from the origin, and Pythagoras turns that sentence directly into algebra:
+
+$$
+x^2+y^2=1
+$$
+
+Scaling the radius to $r$ and shifting the centre to $(a,b)$ (either by redoing Pythagoras or by treating it as a graph transformation) gives the general equation you should know cold:
+
+<FormulaCard title="Equation of a circle, centre-radius form">
+$$
+(x-a)^2+(y-b)^2=r^2
+$$
+
+Centre $(a,b)$, radius $r$. Points inside satisfy $<$, points outside satisfy $>$.
+</FormulaCard>
+
+You should be able to read off the centre and radius of a circle on sight: $(x-2)^2+(y-3)^2=25$ has centre $(2,3)$ and radius $5$ — **not** $25$, since it's $r^2$ that equals $25$.
+
+### The expanded form
+
+Circles are also written as $x^2+y^2+ax+by+c=0$. To get back to centre-radius form, collect the $x$'s and $y$'s separately and complete the square on each.
+
+<WorkedExample title="Completing the square to find centre and radius">
+Find the centre and radius of $x^2+y^2+4x+2y-12=0$.
+
+$$
+(x^2+4x)+(y^2+2y)-12=0
+$$
+
+$$
+(x+2)^2-4+(y+1)^2-1-12=0
+$$
+
+$$
+(x+2)^2+(y+1)^2=17
+$$
+
+Centre $(-2,-1)$, radius $\sqrt{17}$.
+</WorkedExample>
+
+<Trap title="Not every equation of this shape is a circle">
+Try the same process on $x^2+y^2-4x-6y+20=0$ and you'll land on $(x-2)^2+(y-3)^2=-7$. A sum of squares can never be negative, so this equation has no real solutions at all — it isn't a circle. Whenever you complete the square, check the right-hand side comes out positive before declaring victory.
+</Trap>
+
+<Tip title="Divide through first if the coefficients of x² and y² aren't 1">
+$2x^2+2y^2-4x-8y-19=0$ doesn't look like the standard form, but dividing everything by $2$ fixes that immediately: $x^2+y^2-2x-4y-\frac{19}{2}=0$. Then complete the square as usual.
+</Tip>
+
+### Lines meeting circles
+
+A line can cross a circle twice, touch it once (tangent), or miss it completely. Substituting the line's equation into the circle's always produces a quadratic, so the number of intersections is controlled by the discriminant — this is the single idea underneath almost every "line meets circle" question.
+
+<WorkedExample title="Finding a tangent condition">
+Find the values of $c$ for which $y=2x+c$ is tangent to $(x-3)^2+(y-2)^2=9$.
+
+Substitute and expand:
+
+$$
+(x-3)^2+(2x+c-2)^2=9 \ \Longrightarrow\ 5x^2+2(c-7)x+(c-2)^2=0
+$$
+
+Tangency means one repeated root, so the discriminant is zero:
+
+$$
+4(c-7)^2-20(c-2)^2=0 \ \Longrightarrow\ c-7=\pm\sqrt5\,(c-2)
+$$
+
+Solving each sign gives the two values of $c$ — there are two tangent lines with this gradient, one on each side of the circle, which is exactly what a quick sketch would lead you to expect.
+</WorkedExample>
+
+For "shortest distance between a line and a circle" questions, it's often cleanest to translate everything so the circle sits at the origin first (subtracting off the centre from every $x$ and $y$), since that strips out a lot of the arithmetic clutter and leaves a much simpler picture to reason about geometrically.
+
+<Shortcut title="Distance from a line, then subtract the radius">
+The shortest distance from a line to a circle is (distance from the centre to the line) minus the radius. You aren't expected to know the point-to-line distance formula for the TMUA/ESAT, but if you do use it, make sure you can derive it — don't just plug numbers into a memorised formula you don't understand.
+</Shortcut>
+
+## MM3.3 Circle theorems
+
+These come up regularly, and because they're often taught early and then not revisited, they're an easy set of marks to lose to rustiness rather than difficulty. Make sure every one of the following is instantly available, not something you have to reconstruct in the exam:
+
+<FormulaCard title="The circle theorems">
+
+- The perpendicular from the centre to a chord bisects the chord.
+- The tangent at any point on a circle is perpendicular to the radius at that point.
+- The angle subtended by an arc at the centre is twice the angle it subtends at the circumference.
+- The angle in a semicircle is a right angle.
+- Angles in the same segment are equal.
+- Opposite angles in a cyclic quadrilateral sum to $180°$.
+- The angle between a tangent and a chord at the point of contact equals the angle in the alternate segment.
+
+</FormulaCard>
+
+You don't need to be able to reproduce formal proofs of these from memory, but you should genuinely understand *why* each one is true — what's being assumed, which triangles or angles are doing the work — rather than treating them as facts to recall. It's also worth thinking about the converse of each theorem (e.g. "if the angle in a triangle inscribed in a circle is $90°$, the hypotenuse is a diameter"), since converses show up in proof-style questions.
+
+A few habits make circle-theorem questions much more manageable:
+
+1. **Angle chasing** — fill in every angle you can, hunting especially for isosceles triangles (two sides are radii) and right angles (anything in a semicircle).
+2. **Rotating your mental picture of the diagram** — sometimes a relationship is only obvious once you stop looking at the diagram in the orientation it was drawn in.
+3. **Adding your own lines** — a well-chosen extra radius, chord, or diameter often turns an opaque diagram into an obvious one.
+4. **Thinking dynamically** — imagine sliding a point around the circle and ask which angles stay fixed and which change; this builds intuition for why theorems like "angles in the same segment are equal" have to be true.
+
+<Tip title="Play with an interactive circle-theorem tool">
+If circle theorems feel rusty, spend ten minutes with any interactive geometry site that lets you drag points around a circle and watch the angles update live — seeing the invariants hold as you move things is far more convincing (and memorable) than reading a static diagram.
+</Tip>
+
+## Formula and shortcut summary
+
+- Gradient between two points: $m=\dfrac{y_1-y_2}{x_1-x_2}$. Gradient also equals $\tan\theta$ with the positive $x$-axis (equal scales).
+- Point-gradient form: $y-y_1=m(x-x_1)$. Vertical lines are $x=\text{constant}$; horizontal lines are $y=\text{constant}$.
+- Parallel: $m_1=m_2$. Perpendicular: $m_1m_2=-1$.
+- Circle, centre-radius form: $(x-a)^2+(y-b)^2=r^2$, centre $(a,b)$, radius $r$.
+- To find centre/radius from $x^2+y^2+ax+by+c=0$: complete the square on the $x$'s and $y$'s separately. Check the right-hand side is positive.
+- Line meets circle: substitute to get a quadratic, then use the discriminant — two real roots (crosses twice), zero (tangent), negative (misses).
+- Circle theorems: perpendicular bisector of a chord passes through the centre; tangent ⟂ radius; angle at centre = twice angle at circumference; angle in a semicircle = $90°$; angles in the same segment are equal; opposite angles in a cyclic quadrilateral sum to $180°$; tangent-chord angle = angle in the alternate segment.
 
 <PracticeLink topic="MM3. Coordinate Geometry">
 Find coordinate geometry questions

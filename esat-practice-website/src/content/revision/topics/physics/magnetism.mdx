@@ -2,18 +2,369 @@ export const meta = {
   slug: "magnetism",
   module: "physics",
   title: "Magnetism",
-  subtitle: "Placeholder overview for P2. Magnetism — full guide coming soon.",
+  subtitle: "Poles and field patterns, soft and hard magnetic materials, the field around currents and coils, the motor effect and F = BIL, dc motors, electromagnetic induction, ac generators, and transformers.",
   topicCode: "P2",
-  estimatedMinutes: 5,
+  estimatedMinutes: 28,
   order: 20,
   relatedQuestionFilters: {
     topics: ["P2. Magnetism"],
   },
 };
 
-## What you need to know
+## P2.1 Poles, attraction and repulsion
 
-This guide is a placeholder. The full breakdown of P2. Magnetism — core facts, fast methods, worked examples, and common traps — is coming soon.
+Every permanent magnet has two poles, north (N) and south (S) — you can't get a magnet with just one pole, however small you cut it up. The rule for how poles interact is simple:
+
+<FormulaCard title="Like and unlike poles">
+**Like poles repel** (N–N or S–S). **Unlike poles attract** (N–S). The force gets stronger the closer the poles are, and weaker as they move apart — exactly the same shape of behaviour as the force between electric charges.
+</FormulaCard>
+
+A magnet will also attract unmagnetised pieces of magnetic material (iron, cobalt, nickel), regardless of which pole you use — this is because bringing either pole close *induces* an opposite pole in the material (more on that below).
+
+<Trap title="Attraction alone doesn't prove something is a magnet">
+If object A pulls object B towards it, that's consistent with A being a magnet and B being unmagnetised iron — or with both being magnets. To *prove* A is a genuinely magnetised object (not just magnetic material), you need to show it **repels** a known pole of another magnet. Repulsion can only ever happen between two magnets; attraction happens either way.
+</Trap>
+
+<Tip title="Compass needles seek Earth's poles">
+The "north" end of a compass needle is really its north-*seeking* pole — it points towards the Earth's north geographic pole. Confusingly, that means the Earth's north geographic pole is actually a magnetic *south* pole (since unlike poles attract), and vice versa at the south.
+</Tip>
+
+## P2.2 The magnetic field around a bar magnet
+
+A magnetic field is the region of space around a magnet in which it can exert a force on other magnets or magnetic materials. We draw it as field lines.
+
+<FormulaCard title="Rules for drawing magnetic field lines">
+- Lines run from **north to south** outside the magnet (they never start or end in mid-air — they either run pole-to-pole or form closed loops).
+- Lines never cross each other.
+- The **direction** of a line at any point is the direction a free north pole would be pushed if placed there.
+- Lines drawn **closer together** mean a **stronger** field; that's why the field is always strongest right next to the poles.
+</FormulaCard>
+
+Two everyday ways to actually see this pattern: sprinkle iron filings on a card laid over the magnet (each filing becomes a tiny induced magnet and lines up along the field, tracing out the shape but *not* telling you which end is north), or walk a small plotting compass around the magnet step by step, drawing an arrow each time it settles (this gives you direction too, but not field strength).
+
+<WorkedExample title="Reading a field pattern between two magnets">
+Iron filings scattered near two bar magnets form a pattern with a region of almost no filings at point A (between the two facing poles) and a region of dense, reinforcing lines at point B. Is the force between the magnets attraction or repulsion?
+
+At A the field is very weak — that only happens if the two poles' field lines point in *opposite* directions there and cancel out, which means the two facing poles are the **same** (both N or both S). At B, the lines from each pole add up rather than cancel, confirming they're pointing the same way — consistent with two like poles facing each other. Like poles repel, so this is a **repulsion**.
+</WorkedExample>
+
+## P2.3 Soft and hard magnetic materials
+
+<FormulaCard title="Soft vs hard magnetic materials">
+**Soft** magnetic materials (e.g. iron) magnetise **and** demagnetise easily — good for anything that needs to switch its magnetism on and off quickly. **Hard** magnetic materials (e.g. steel) are difficult to magnetise, but once magnetised they hold onto it — good for permanent magnets.
+</FormulaCard>
+
+<Trap title="'Soft' and 'hard' here have nothing to do with mechanical hardness">
+Steel is mechanically harder than iron in the everyday sense, but magnetically it's the "hard" material precisely because it *resists* changing its magnetic state — hard to magnetise, hard to demagnetise. Don't let the everyday meaning of the words pull you towards the wrong material when a question asks which is "harder" to work with.
+</Trap>
+
+This split explains a lot of design choices you'll be asked to justify. A compass needle needs to hold its magnetism for years without a reset, so it's made from a **hard** material. The core inside an electromagnet needs to magnetise the instant current flows and lose it the instant current stops — so it's made from a **soft** material (iron), letting the whole electromagnet be switched on and off cleanly.
+
+## P2.4 Induced magnetism
+
+<Tip title="Induced magnetism is always attractive, never repulsive">
+Bring either pole of a magnet near an unmagnetised piece of magnetic material and it induces the *opposite* pole on the near surface — a north pole induces a south pole facing it, and vice versa. Since opposite poles attract, there's *never* a repulsive force here, whichever pole you use. If two objects repel each other, at least one of them must already be a permanent magnet.
+</Tip>
+
+<WorkedExample title="Working out what two attracting cylinders could be">
+Cylinders X and Y attract each other whichever pair of ends you bring together. Which is possible: (1) both are magnets, (2) X is a magnet and Y is unmagnetised iron, (3) Y is a magnet and X is unmagnetised iron, (4) both are unmagnetised iron?
+
+If both X and Y were magnets, then *some* orientation would bring two like poles together and they'd repel — but they attract in every orientation, so (1) is ruled out. If both were unmagnetised iron, neither could exert any magnetic force at all, so (4) is ruled out too. But one magnet plus one piece of unmagnetised iron always attracts, regardless of which end faces which (the iron's near pole is always induced to be opposite to whatever pole approaches it) — so both (2) and (3) remain genuinely possible; there's no way to tell which object is the real magnet from this test alone.
+</WorkedExample>
+
+This same effect — inducing poles with an external field — is how permanent magnets get made in the first place: a hard magnetic material is placed inside a strong field (typically from a solenoid) until it becomes permanently magnetised itself.
+
+## P2.5 The magnetic effect of a current
+
+Electric currents create their own magnetic fields, entirely separate from any permanent magnet. You can demonstrate this with nothing more than a wire and a compass: run a wire north-south, place a compass directly underneath, and switch the current on — the needle deflects away from north. Switch it off, and it swings back.
+
+<FormulaCard title="What affects the current's magnetic field">
+**Reversing the current's direction** reverses the direction of the field (the compass deflects the other way). **Increasing the current** increases the field strength (bigger deflection). Note it's the *moving charge itself* that creates the field, not the wire material — a beam of electrons in a vacuum creates exactly the same kind of field.
+</FormulaCard>
+
+## P2.6 Field patterns: straight wires, coils, and solenoids
+
+<FormulaCard title="Straight wire">
+Concentric circles centred on the wire, getting further apart (weaker field) the further from the wire. Direction given by the **right-hand grip rule**: point your right thumb along the direction of conventional current, and your curled fingers show the direction of the field circles.
+</FormulaCard>
+
+<WorkedExample title="Iron filings around a current-carrying wire">
+A card is threaded onto a long straight wire, perpendicular to it, and iron filings are sprinkled on top while a current flows. What pattern forms?
+
+The filings settle into **concentric circles** centred on the wire, exactly matching the field-line pattern — packed closely together right next to the wire (strong field) and spreading out further from it (weaker field).
+</WorkedExample>
+
+<FormulaCard title="Coils and solenoids">
+Winding the wire into a coil makes the field from every turn add together through the middle, producing one strong, fairly uniform field down the axis — very similar in shape to a bar magnet's field, with one end acting as a north pole and the other as south. The direction is still found with the right-hand grip rule, curling your fingers the way the current flows round each turn; your thumb then points out of the north end.
+</FormulaCard>
+
+<Shortcut title="Clockwise-anticlockwise trick for solenoid ends">
+Look end-on at a coil, in the direction the current is circulating. **Clockwise** current (as you view it) means that end is a **south** pole; **anticlockwise** means **north**. A handy mnemonic: anticlockwise loosely traces the shape of an "N", clockwise loosely traces an "S".
+</Shortcut>
+
+<WorkedExample title="Finding the north end of a coil">
+A coil is connected to a dc supply with terminal A on the positive side and B on the negative side. Which end acts as the north pole?
+
+Current flows from positive to negative, so around the coil it flows from A towards B. Applying the right-hand grip rule (or checking whether the current circulates clockwise or anticlockwise when viewed from each end) shows the field lines emerge from the end nearest **A** — so that's the north pole.
+</WorkedExample>
+
+## P2.7 Factors affecting field strength around a wire or coil
+
+<FormulaCard title="What makes the field stronger">
+- **Bigger current** → stronger field, at a wire, a coil, or a solenoid.
+- **Closer to the wire** → stronger field; further away → weaker.
+- **A ferromagnetic core** (e.g. soft iron) inside a coil → much stronger field, because the atoms in the core act like tiny magnets that line up with the field and add to it.
+- **More turns per unit length** on a solenoid → stronger field.
+</FormulaCard>
+
+<Trap title="An alternating current still obeys all the same rules — moment by moment">
+If the current in a wire is ac rather than dc, the field it produces still depends on the current's magnitude and direction at that instant — it's just that both are now continuously changing. So the field around a mains cable is weaker further away (like any current-carrying wire), constantly reversing direction (because the current does), and varying in strength (because the current's magnitude varies too). Don't assume ac "breaks" the normal rules; it just makes every one of them time-dependent.
+</Trap>
+
+## P2.8 Permanent magnets vs electromagnets
+
+An electromagnet is just a solenoid wound around a soft iron core — same field shape as a bar magnet, but built from a coil and a current rather than fixed-in magnetic material.
+
+<FormulaCard title="Electromagnet vs permanent magnet">
+| | Electromagnet | Permanent magnet |
+|---|---|---|
+| Can be switched off | Yes (stop the current) | No |
+| Strength | Adjustable (via current) | Roughly fixed |
+| Polarity | Reversible (reverse the current) | Fixed |
+| Core/material | Soft magnetic material | Hard magnetic material |
+</FormulaCard>
+
+<WorkedExample title="Why the core must be soft, not hard">
+Explain why the core of an electromagnet is made from a soft, not a hard, magnetic material.
+
+A hard material is difficult to magnetise, so the electromagnet would build up its field only slowly and weakly when switched on. Worse, once magnetised it would *stay* magnetised even after the current is switched off — defeating the entire point of an electromagnet, which is that it needs to switch off completely.
+</WorkedExample>
+
+Because they can be switched on and off, varied in strength, and even reversed in polarity, electromagnets are far more flexible than permanent magnets — used everywhere from lifting magnets in scrapyards (soft iron core, thick coil, huge current — released by simply cutting the power) to loudspeakers and relay switches.
+
+## P2.9 The motor effect and Fleming's left-hand rule
+
+<FormulaCard title="The motor effect">
+A current-carrying wire placed in a magnetic field experiences a force — **provided** the current isn't parallel to the field. The force is a maximum when current and field are at right angles, and zero when they're parallel. It acts **perpendicular to both** the current and the field — never directly towards or away from either pole.
+</FormulaCard>
+
+Physically, this happens because the current's own field (circular loops around the wire) interacts with the external field: on one side of the wire the two fields reinforce, on the other they partly cancel, and the wire gets pushed from the strong side towards the weak side — a bit like squeezing something out from between stretched elastic bands.
+
+<FormulaCard title="Fleming's left-hand rule">
+Hold the thumb and first two fingers of your **left** hand mutually at right angles: **F**irst finger = **F**ield (N to S), se**C**ond finger = **C**urrent (+ to −), th**uM**b = **M**otor effect force. Reversing *either* current or field alone reverses the force; reversing *both* leaves the force direction unchanged.
+</FormulaCard>
+
+<WorkedExample title="Identifying which parts of a circuit feel a force">
+A rectangular loop of wire sits partly inside a uniform magnetic field between the poles of a magnet, with the top and bottom sides of the loop running perpendicular to the field and the right-hand side running parallel to it. Which sides feel a motor effect force, and in what directions?
+
+The motor effect needs current that isn't parallel to the field. The top and bottom sides are perpendicular to the field, so both feel a force — applying the left-hand rule to each (same field direction, opposite current directions on the two sides, since current flows round the loop) gives forces in opposite directions on the two sides. The right-hand side runs parallel to the field, so it feels no motor effect force at all.
+</WorkedExample>
+
+## P2.10 Factors affecting the force, and F = BIL
+
+<FormulaCard title="What the force depends on">
+- Bigger current → bigger force.
+- Stronger field → bigger force.
+- More wire length inside the field → bigger force.
+- Angle between current and field → force is maximum at 90°, zero at 0°.
+</FormulaCard>
+
+<FormulaCard title="F = BIL">
+$$
+F = BIL
+$$
+
+$F$ = force (N), $B$ = magnetic field strength / flux density (T, tesla), $I$ = current (A), $L$ = length of wire *at right angles to the field* (m). Only valid when the wire is perpendicular to the field — for any other angle you'd only use the perpendicular component of $L$ or $B$.
+</FormulaCard>
+
+<Tip title="1 tesla, defined">
+Rearranging gives $B=\dfrac{F}{IL}$: a field of strength 1 T exerts a force of exactly 1 N on 1 m of wire carrying 1 A, perpendicular to the field. Units-wise, $1\,\text{T} = 1\,\text{N}\,\text{A}^{-1}\,\text{m}^{-1}$.
+</Tip>
+
+<WorkedExample title="Rearranging F = BIL">
+A wire carries 4.0 A perpendicular to a 0.20 T field, with 0.050 m of its length inside the field. Find the force. Then find the current needed to produce a 0.10 N force on a 0.20 m length of wire in a 0.40 T field.
+
+$$
+F = BIL = 0.20\times4.0\times0.050 = 0.040\ \text{N}
+$$
+
+$$
+I = \frac{F}{BL} = \frac{0.10}{0.40\times0.20} = 1.25\ \text{A}
+$$
+</WorkedExample>
+
+Put a current-carrying loop in a uniform field and each straight side perpendicular to the field feels a force in an opposite direction to the side facing it — a pair of forces separated by the width of the coil, which is exactly what produces a turning effect (moment). That turning effect is the whole basis of the dc motor.
+
+## P2.11 The dc motor
+
+As the coil rotates, the separation between the two motor-effect forces changes: it's biggest when the coil lies *in* the plane of the field (forces furthest apart, maximum turning effect) and shrinks to zero when the coil is perpendicular to the field (forces in line, zero turning effect) — and just past that point, the turning effect would reverse and push the coil back the way it came, unless something intervenes.
+
+<FormulaCard title="The split-ring commutator">
+The **commutator** is a rotating switch, connected to the coil and contacted by fixed carbon **brushes**. Every half-turn, right around the point where the turning effect would otherwise reverse, it swaps which side of the coil is connected to the positive terminal — flipping the current direction in the coil at exactly the right moment so the motor effect force keeps pushing the coil the **same** way round, turn after turn.
+</FormulaCard>
+
+<Trap title="The current in the coil reverses twice per rotation, not once">
+It's tempting to think "commutator flips the current once per rotation" because a full rotation feels like one cycle — but the flip happens at *each* of the two vertical crossing points, so the current direction in the coil actually reverses **twice** every full turn.
+</Trap>
+
+<FormulaCard title="What makes a dc motor turn faster / harder">
+Bigger current, larger coil area, stronger field, more turns on the coil, or winding the coil onto a soft iron core (boosts the field) — all increase the turning effect. The turning effect itself still depends on the coil's angle in the field, maximum in-plane and zero perpendicular, exactly as for a single straight wire.
+</FormulaCard>
+
+## P2.12 Applications of electromagnets
+
+The same on/off, adjustable-strength, reversible-polarity toolkit from earlier shows up everywhere:
+
+- **Loudspeakers**: a voice coil sits in a permanent magnet's radial field; feeding it a varying (audio) current makes the motor effect push the coil — and the attached cone — back and forth, producing sound.
+- **Lifting magnets**: a thick coil around a soft iron core, switched on to pick up scrap metal by induced attraction, then switched off to drop it — something a permanent magnet simply couldn't do.
+
+<WorkedExample title="Electromagnet vs permanent magnet for lifting scrap">
+Give two advantages of using an electromagnet, rather than a permanent magnet, to lift and move heavy steel objects.
+
+First, it can be **switched off** to release the object exactly where you want it — a permanent magnet would need to be physically prised away. Second, its strength can be **varied** by varying the current, letting the same crane handle loads of very different sizes.
+</WorkedExample>
+
+## P2.13 Electromagnetic induction: cutting field lines and changing fields
+
+<FormulaCard title="Two ways to induce a voltage">
+A voltage is induced in a conductor whenever (1) it **cuts across** magnetic field lines (relative motion between conductor and field), or (2) the magnetic field **passing through it changes** in strength. These aren't really two separate rules — moving a magnet past a coil changes the field through the coil at the same time as the wires cut its field lines, so both descriptions are just two ways of talking about the same physical event.
+</FormulaCard>
+
+<Trap title="No relative motion (or no changing field) means no induced voltage — however strong the field is">
+A magnet resting motionless right inside a coil induces nothing at all, no matter how strong it is — induction needs *change*. Two objects moving together at the same velocity (so there's no relative motion between them) also induce nothing, even if both are moving fast relative to the ground.
+</Trap>
+
+<WorkedExample title="Spotting which situations induce a voltage">
+A bar magnet sits near a coil. In which of these is a voltage induced: (1) magnet moved towards the coil, (2) magnet moved away, (3) coil moved towards the magnet, (4) coil and magnet both moved the same way at the same speed, (5) magnet held stationary inside the coil?
+
+Induction needs the field *through* the coil to change, which needs relative motion between magnet and coil — it doesn't matter which one is "actually" moving. That happens in (1), (2), and (3): a voltage is induced in each. In (4) they move together with no relative motion, and in (5) nothing moves at all — no induced voltage in either case.
+</WorkedExample>
+
+A closed circuit is also needed before any of this produces a *current* — with the circuit open, there's still an induced voltage sitting across the terminals, just nothing flowing.
+
+## P2.14 Factors affecting induced voltage: magnitude and direction
+
+<FormulaCard title="Magnitude of the induced voltage">
+Directly proportional to the **rate** of cutting field lines, or equivalently the **rate of change** of field through the conductor. Practically: move faster, use a stronger magnet, or add more turns to the coil — any of these increases the induced voltage.
+</FormulaCard>
+
+<FormulaCard title="Direction: Lenz's law">
+The induced voltage (and any resulting current) always acts in the direction that **opposes** the change that produced it. Push a magnet's north pole towards a coil, and the coil's near end becomes a north pole too — repelling the approaching magnet and resisting your push. Pull it away, and the near end flips to a south pole, now attracting it back — again resisting the change.
+</FormulaCard>
+
+<Tip title="Lenz's law is really just conservation of energy">
+If the induced current *helped* the change instead of opposing it, you'd get electrical energy out of the circuit for free, with no work being done anywhere — energy from nothing. Opposing the change means you have to do work (against the repulsion, or against the attraction) to keep the magnet moving, and that mechanical work is exactly what "pays" for the electrical energy generated.
+</Tip>
+
+<WorkedExample title="Comparing induced voltage on an aircraft's outward and return flights">
+An aircraft's metal wings cut through the vertical part of Earth's magnetic field as it flies. Flying north it induces some voltage across its wingtips; flying south on the return leg it travels faster. How does the return voltage compare, and why?
+
+The induced voltage is proportional to the rate of cutting field lines, and a higher speed means a higher rate of cutting — so the return voltage is **larger** in magnitude. Flying in the opposite direction also reverses which wingtip cuts the field lines "into" versus "out of," so the **polarity reverses** as well.
+</WorkedExample>
+
+## P2.15 The ac generator
+
+Spin a coil inside a uniform magnetic field and the field through it is constantly changing direction and rate — inducing a continuously alternating voltage, i.e. an ac generator.
+
+<FormulaCard title="What increases the generator's output">
+- **Faster rotation** → higher rate of change of field → bigger peak voltage, and also a **higher frequency** of the output (frequency = rotation frequency).
+- **Stronger field**, **larger coil area**, or **more turns** → each increases the rate of change of field (or of cutting field lines) → bigger peak voltage. More turns also just adds several equal induced voltages in series.
+</FormulaCard>
+
+<Tip title="Peak voltage occurs when the coil sides move fastest across the field, not when the coil is 'most aligned'">
+Picture the coil sides sweeping through the field: voltage is largest when the wires move **perpendicular** to the field lines (cutting them at the fastest possible rate — this happens as the coil passes through the plane of the field) and drops to **zero** when the wires move **parallel** to the field (no cutting at all — this happens as the coil passes through the perpendicular position). It's easy to guess these the wrong way round, so check by picturing the wire's actual velocity relative to the field lines at that instant.
+</Tip>
+
+<WorkedExample title="Checking statements about a simple ac generator">
+Which of these are correct: (1) reversing the rotation direction still gives an ac output, (2) slip rings and brushes must be conductors, (3) doubling the rotation period doubles the peak voltage and halves the frequency, (4) one slip ring is always positive?
+
+(1) is correct — either direction of rotation, each side of the coil still alternates between moving up and down through the field every half turn, so the output is ac regardless of which way it spins. (2) is correct — current has to actually flow through the brushes and slip rings to reach the external circuit, so both must conduct. (3) is wrong on the voltage: doubling the period means rotating *more slowly*, cutting field lines at a lower rate, so the peak voltage **falls**, not doubles (the frequency *does* halve, since $f=1/T$, but that alone doesn't make the whole statement correct). (4) is wrong: each slip ring's polarity swaps every half rotation, exactly like the coil's induced voltage does.
+</WorkedExample>
+
+## P2.16 Applications of electromagnetic induction
+
+Two big ones dominate the specification: **generators** (mechanical energy in, ac electrical energy out — the mechanical energy itself coming from burning fuel to drive steam turbines, or directly from wind/water turbines) and **transformers** (stepping ac voltages up or down for efficient transmission, covered next).
+
+<WorkedExample title="Identifying the energy transfer done by a generator">
+A nuclear power station uses a generator to supply the grid. Which energy transfer does the *generator itself* perform: nuclear → electrical, chemical → electrical, kinetic → electrical, or thermal → electrical?
+
+The nuclear reaction heats water to raise steam, and that steam's kinetic energy spins a turbine connected to the generator. The generator's own job — electromagnetic induction turning a spinning coil (or magnet) into an induced voltage — is specifically the **kinetic → electrical** step; everything upstream of the turbine is a separate stage in the chain.
+</WorkedExample>
+
+Smaller-scale examples worth knowing: a car alternator recharging the battery while the engine runs, a shake-to-charge torch (shaking a magnet through a coil lights an LED), and induction hobs (an alternating current in a coil under the glass creates a changing field that induces current — and heating — directly in a metal pan placed above it).
+
+## P2.17 Transformers and the turns ratio
+
+A transformer is two coils — **primary** (input side) and **secondary** (output side) — wound onto a shared soft iron core, using electromagnetic induction to step an ac voltage up or down.
+
+<FormulaCard title="Step-up vs step-down">
+**Step-up**: more turns on secondary than primary ($n_s>n_p$), so $V_s>V_p$. **Step-down**: fewer turns on secondary ($n_s<n_p$), so $V_s<V_p$.
+</FormulaCard>
+
+<FormulaCard title="Turns ratio = voltage ratio">
+$$
+\frac{V_p}{V_s} = \frac{n_p}{n_s}
+$$
+
+Valid for an **ideal** (100% efficient) transformer — a good approximation for most real transformers used in practice.
+</FormulaCard>
+
+<Trap title="A transformer needs ac — a constant dc current does nothing">
+The primary coil's field only induces a voltage in the secondary while it's *changing*. A steady dc current in the primary still creates a magnetic field through the core, but a constant one, so nothing is induced in the secondary at all. This is exactly why every transformer application (mains stepping, long-distance transmission) relies on ac, never dc.
+</Trap>
+
+<WorkedExample title="Finding the turns ratio for a step-down transformer">
+A transformer steps 240 V ac down to 20 V ac. Which of these turns counts (primary, secondary) is possible: (4800, 400), (400, 4800), (48000, 400), (400, 48000)?
+
+Step-down means fewer turns on the secondary, ruling out any option with more turns on the secondary side. The voltage ratio is $20/240 = 1/12$, so the turns ratio must also be $1:12$ — checking (4800, 400): $4800/400=12$. That's the only option satisfying both the direction (step-down) and the correct ratio.
+</WorkedExample>
+
+## P2.18 Transformer power, and power transmission
+
+<FormulaCard title="Power in an ideal transformer">
+$$
+V_pI_p = V_sI_s
+$$
+
+100% efficiency means power in equals power out ($P=VI$ on each side). Rearranging shows the **current** ratio is the *inverse* of the voltage (and turns) ratio: $\dfrac{V_p}{V_s}=\dfrac{I_s}{I_p}=\dfrac{n_p}{n_s}$ — so whatever a transformer does to voltage, it does the opposite to current.
+</FormulaCard>
+
+<WorkedExample title="Finding output current from the power relationship">
+A transformer steps up from 25 000 V to 250 000 V, with a 4.0 A input current. Find the output current.
+
+$$
+V_pI_p = V_sI_s \ \Rightarrow\ 25\,000\times4.0 = 250\,000\times I_s \ \Rightarrow\ I_s = 0.40\ \text{A}
+$$
+
+Voltage stepped up by a factor of 10, so current stepped down by the same factor of 10 — a quick sanity check that doesn't even need the full calculation.
+</WorkedExample>
+
+<FormulaCard title="Why transmission uses high voltage">
+Transmission cables have resistance $R$, so any current in them wastes power as heat: $P_{\text{wasted}}=I^2R$. Transmitting the *same* power ($P=IV$) at a much **higher voltage** means a much **lower current**, and because the loss depends on $I^2$, even a modest reduction in current gives a much bigger cut in wasted power.
+</FormulaCard>
+
+<Tip title="Don't confuse the transmission voltage with the voltage drop along the cable">
+The high voltage that's stepped up and down by transformers is the voltage *between* the two transmission cables (used in $P=IV$ for the power actually delivered). The voltage *drop along* a cable, $V_{\text{drop}}=IR$, is a separate, much smaller quantity caused by the cable's own resistance — it's this drop (and the associated $I^2R$ heating) that high-voltage transmission is specifically designed to minimise.
+</Tip>
+
+<WorkedExample title="Checking statements about high-voltage ac transmission">
+Which are correct: (1) higher transmission voltage means lower current in the cables, (2) it increases efficiency, (3) it reduces heat losses, (4) it makes the cables easier to insulate, (5) more of the generated power reaches the consumer?
+
+Power can't be created, so for the same power, a higher voltage forces a lower current — (1) is correct. Lower current means less $I^2R$ heating, so less wasted energy and higher efficiency — (2) and (3) are both correct, and consequently more power actually reaches the consumer rather than being lost as heat — (5) is correct too. Higher voltage is actually **harder**, not easier, to insulate safely, so (4) is the one incorrect statement.
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- Like poles repel, unlike poles attract; attraction alone never proves something is a magnet, only repulsion does.
+- Field lines run N to S outside a magnet, never cross, and are closer together where the field is stronger.
+- Soft materials (iron) magnetise/demagnetise easily; hard materials (steel) resist both — used for electromagnet cores and permanent magnets respectively.
+- Induced magnetism is always attractive. Right-hand grip rule gives field direction around a current-carrying wire, coil, or solenoid.
+- Motor effect: $F=BIL$ for a wire at right angles to a field; Fleming's left-hand rule (Field, Current, Motor effect) gives the direction.
+- A dc motor's split-ring commutator reverses the coil current every half-turn, keeping the turning effect one-way.
+- Electromagnetic induction: voltage induced when a conductor cuts field lines, or when the field through it changes. Lenz's law: the induced effect always opposes the change that caused it.
+- ac generator: peak voltage ↑ with faster rotation, stronger field, larger coil, more turns; frequency = rotation frequency.
+- Transformers: $\dfrac{V_p}{V_s}=\dfrac{n_p}{n_s}$; $V_pI_p=V_sI_s$. Need ac — dc induces nothing in the secondary.
+- High-voltage transmission minimises $I^2R$ cable losses by keeping current low for the same transmitted power.
 
 <PracticeLink topic="P2. Magnetism">
 Find magnetism questions
