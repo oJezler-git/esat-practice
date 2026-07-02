@@ -144,7 +144,9 @@ export function RevisionDocPage() {
 
         <div className="rev-mdx">
           {ready ? (
-            <ready.Content components={revisionMdxComponents} />
+            <div key={docId} className="rev-mdx-enter">
+              <ready.Content components={revisionMdxComponents} />
+            </div>
           ) : (
             <div className="rev-mdx-skeleton" aria-hidden="true">
               <span className="rev-skel-line rev-skel-line--head" />
