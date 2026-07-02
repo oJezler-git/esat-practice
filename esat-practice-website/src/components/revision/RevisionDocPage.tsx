@@ -51,10 +51,13 @@ export function RevisionDocPage() {
   const docId = doc?.id;
 
   // The loaded guide is tagged with the doc id it belongs to. We only render it
-  // when that id matches the current route, so navigating to another topic drops
-  // to the skeleton on the very next paint — no stale content, and the heavy new
-  // guide is never rendered in the same commit as the click.
+  // when that id matches the current route, so navigating to another topic never
+  // shows stale content, and the heavy new guide is not rendered in the click's
+  // commit.
   const [loaded, setLoaded] = useState<{ id: string; Content: ComponentType<any> } | null>(null);
+  // The skeleton only appears once a load is genuinely slow, so near-instant
+  // (warm) topics slide straight in without a flash of skeleton.
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const ready = loaded && loaded.id === docId ? loaded : null;
 
   // Warm the KaTeX fonts as soon as a guide is opened so math never pops in.
@@ -70,17 +73,26 @@ export function RevisionDocPage() {
 
     let cancelled = false;
     setHeadings([]);
+    setShowSkeleton(false);
+    // Reveal the skeleton only if the guide hasn't rendered within this window.
+    const skeletonTimer = window.setTimeout(() => {
+      if (!cancelled) {
+        setShowSkeleton(true);
+      }
+    }, 150);
 
     loadRevisionContent(docPath)
       .then((Content) => {
         if (cancelled) {
           return;
         }
-        // Defer the heavy MDX render to the next frame so the skeleton paints
-        // first and the click feels instant, even when the chunk is warm.
+        // Defer the heavy MDX render to the next frame so the click feels
+        // instant, even when the chunk is warm.
         requestAnimationFrame(() => {
           if (!cancelled) {
+            window.clearTimeout(skeletonTimer);
             setLoaded({ id: docId, Content });
+            setShowSkeleton(false);
           }
         });
       })
@@ -90,6 +102,7 @@ export function RevisionDocPage() {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(skeletonTimer);
     };
   }, [docPath, docId]);
 
@@ -147,7 +160,7 @@ export function RevisionDocPage() {
             <div key={docId} className="rev-mdx-enter">
               <ready.Content components={revisionMdxComponents} />
             </div>
-          ) : (
+          ) : showSkeleton ? (
             <div className="rev-mdx-skeleton" aria-hidden="true">
               <span className="rev-skel-line rev-skel-line--head" />
               <span className="rev-skel-line" />
@@ -157,7 +170,7 @@ export function RevisionDocPage() {
               <span className="rev-skel-line" />
               <span className="rev-skel-line rev-skel-line--short" />
             </div>
-          )}
+          ) : null}
         </div>
       </article>
     </RevisionLayout>
