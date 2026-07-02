@@ -2,18 +2,202 @@ export const meta = {
   slug: "thermal-physics",
   module: "physics",
   title: "Thermal Physics",
-  subtitle: "Placeholder overview for P4. Thermal Physics — full guide coming soon.",
+  subtitle: "Conduction, convection, thermal (infrared) radiation, and specific heat capacity.",
   topicCode: "P4",
-  estimatedMinutes: 5,
+  estimatedMinutes: 22,
   order: 40,
   relatedQuestionFilters: {
     topics: ["P4. Thermal Physics"],
   },
 };
 
-## What you need to know
+## P4.1 Thermal energy and conduction
 
-This guide is a placeholder. The full breakdown of P4. Thermal Physics — core facts, fast methods, worked examples, and common traps — is coming soon.
+Every substance is made of particles in constant motion — vibrating in place in a solid, moving freely in a liquid or gas. **Thermal energy** is the energy tied up in that motion. It's related to, but not the same thing as, **temperature**: temperature is a measure of how hot something is (roughly, the average speed of its particles), while thermal energy also depends on how much substance you've got.
+
+<Tip title="Heat always flows from hot to cold">
+"Heat" is just the name for thermal energy while it's being transferred from one place to another. It always flows from a region at higher temperature to a region at lower temperature — never the other way, unless something else (like a fridge) is doing work to force it.
+</Tip>
+
+<FormulaCard title="Conduction">
+**Conduction** transfers heat through a substance by particles passing kinetic energy to their immediate neighbours, without the particles themselves travelling anywhere. In a solid, hotter particles vibrate more and jostle the next particles along; in a liquid, it happens through collisions between particles that are also free to drift.
+</FormulaCard>
+
+<Trap title="No particles, no conduction">
+Conduction absolutely requires particles to pass energy between — so it **cannot** happen through a vacuum. If a question describes heat crossing empty space (e.g. from the Sun to the Earth), conduction is never the mechanism, however tempting it looks.
+</Trap>
+
+## P4.2 Conductors, insulators, and conduction in metals
+
+<FormulaCard title="Good vs poor conductors">
+A **good conductor** transfers heat quickly by conduction — metals (solid or molten), especially copper, silver, and gold. A **poor conductor** (an **insulator**) transfers heat slowly — plastics, wood, and gases, including air.
+</FormulaCard>
+
+The general trend across states of matter: solids conduct better than liquids, which conduct better than gases — in each step the particles get further apart on average, so collisions (and the energy transfer they carry) become less frequent.
+
+<Tip title="Metals conduct so well because of free electrons">
+In a metal, it isn't just the vibrating lattice ions passing energy along slowly, neighbour to neighbour — there's also a sea of **free electrons**, which gain kinetic energy when part of the metal heats up and then carry it rapidly through the whole structure via collisions. Non-metals have no free electrons to do this, which is exactly why they conduct so much more slowly.
+</Tip>
+
+<WorkedExample title="Ranking substances by conductivity">
+Order liquid water, water vapour, solid aluminium, and ice from best insulator to best conductor.
+
+Aluminium is a metal, so it's easily the best conductor of the four (free electrons). Comparing the remaining three by state: solids conduct better than liquids, which conduct better than gases — so among water in its three forms, ice (solid) beats liquid water, which beats water vapour (gas). Putting it together: water vapour, liquid water, ice, solid aluminium.
+</WorkedExample>
+
+Good conductors are used wherever you want heat to pass through quickly — saucepan bases, the plate of an iron. Good insulators are used wherever you want to slow heat down — saucepan and iron handles, blankets, home insulation, and the trapped air layer in double glazing.
+
+## P4.3 Factors affecting rate of conduction
+
+<FormulaCard title="What speeds up conduction">
+Rate of conduction is higher for: a **bigger temperature difference** between the two ends, a **better conductor** as the connecting material, a **shorter distance** for heat to travel, and a **larger contact area** between the objects and the connecting material.
+</FormulaCard>
+
+<Tip title="'Contact area' means the whole exposed surface, if the object is fully surrounded">
+For heat conducting between two objects joined at a single face, the relevant area is that shared face. But when an object sits inside a surrounding fluid at a different temperature, the relevant contact area is its **entire outer surface** — a larger-surface-area object loses (or gains) heat to its surroundings faster, purely because there's more surface for particle collisions to happen across.
+</Tip>
+
+<WorkedExample title="Combining several changes to a double-glazed window">
+For each pair of changes below, could the rate of conduction through the window stay unchanged? (1) Thicker glass panes + smaller window area. (2) Air between panes replaced by a better insulating gas + larger window area. (3) Thinner glass panes + air between panes replaced by a vacuum.
+
+(1) Thicker glass (longer conduction distance) *reduces* the rate; a smaller area also *reduces* the rate. Both changes push the same way, so the rate must decrease — **no**, it can't stay unchanged.
+
+(2) A better insulating gas *reduces* the rate, but a larger area *increases* it — these two pull in opposite directions, so it's entirely possible for them to cancel out and leave the rate unchanged — **yes**, this one's plausible.
+
+(3) Thinner glass alone would *increase* the rate — but replacing the gap with a **vacuum** removes conduction between the panes entirely, dropping that part of the rate to zero regardless of anything else. Overall the rate must fall — **no**, it can't stay unchanged.
+</WorkedExample>
+
+## P4.4 Density changes with temperature
+
+<FormulaCard title="Heating a fluid lowers its density">
+Heating a fluid makes its particles move faster and (if not confined) spread further apart on average — the particles themselves don't get bigger, there's just more empty space between them. Since density is mass per unit volume, spreading the same particles over more volume **lowers the density**.
+</FormulaCard>
+
+<WorkedExample title="Why a hot air balloon rises">
+Explain why a hot air balloon floats upward when the burner heats the air inside it.
+
+Heating the air inside the balloon lowers its density (same mass of air particles, spread over more volume). Even including the mass of the fabric and basket, the balloon's overall density ends up lower than the density of the cooler air surrounding it — and a less-dense object surrounded by a denser fluid experiences a net upward force, so it rises. Switching off the burner lets the trapped air cool, its density rises back up, and the balloon descends.
+</WorkedExample>
+
+## P4.5 Convection currents
+
+<FormulaCard title="Convection, in one line">
+Warmer fluid is less dense, so it **rises**; cooler, denser fluid moves in to take its place. Repeated continuously near a heat source, this cycle is a **convection current**.
+</FormulaCard>
+
+Notice conduction is actually the *first* step in most convection stories — heat conducts from the source (a radiator, a Bunsen flame) into the fluid immediately touching it. That locally-warmed fluid then rises because it's now less dense, dragging the bulk fluid motion (convection proper) that carries the heat onward far faster than conduction alone ever could.
+
+<Trap title="Heating fluid at the top of a container doesn't set up a convection current">
+Convection relies on warmed fluid rising past cooler fluid above it. If the heat source is already at the *top*, the warmed (less dense) fluid has nowhere higher to rise to — it just stays put, and no circulating current develops. This is exactly why an immersion heater or radiator needs to sit low in a room, and a fridge's cooling element needs to sit high, to actually drive circulation.
+</Trap>
+
+<FormulaCard title="Conduction vs convection">
+Both require particles, and both can happen in fluids — but only **conduction** can happen in a solid (a solid's particles can't flow around in bulk). Conduction passes energy particle-to-particle without the particles relocating; convection moves energy by physically carrying the particles themselves from one place to another.
+</FormulaCard>
+
+<WorkedExample title="Where to put the freezer compartment in a fridge">
+A fridge has a small freezer compartment with cooling coils inside. Should it go at the top, middle, or bottom of the fridge, and why?
+
+Air cooled by the coils becomes denser and sinks. If the compartment is at the **top**, this cooled air sinks down through the fridge, pushing warmer air (warmed by food or by conduction through the walls) up to the coils to be cooled in turn — setting up a convection current that circulates cold air around the whole interior. Putting the compartment at the bottom would trap the coldest air there with no route to circulate upward, leaving the rest of the fridge poorly cooled.
+</WorkedExample>
+
+<WorkedExample title="A sea breeze on a sunny day">
+On a sunny day, land reaches a higher temperature than the sea. Explain the direction of the breeze at ground level, and why there's a breeze in the opposite direction higher up.
+
+Air above the land is warmed (by conduction from the hot ground) more than air above the sea, so it becomes less dense and **rises**. Cooler air from over the sea flows in along the ground to replace it — so at ground level, the breeze blows **from sea to land**. That rising warm air has to go somewhere once it's up high: it spreads out and flows back **from land to sea** at altitude, completing the convection loop.
+</WorkedExample>
+
+Cavity wall insulation exploits this same physics in reverse: an empty cavity between two walls lets convection currents form and actively speed up heat loss, but filling it with foam (full of tiny, separate trapped-air pockets) confines any convection to a scale far too small to matter, leaving only slow conduction through the trapped air.
+
+## P4.6 Thermal (infrared) radiation
+
+<FormulaCard title="Thermal radiation">
+Thermal radiation, or **infrared (IR) radiation**, is an electromagnetic wave — it travels at the speed of light and, unlike conduction or convection, needs **no medium** at all. This is how energy reaches the Earth from the Sun across empty space.
+</FormulaCard>
+
+<Trap title="Thermal radiation is not ionising radiation">
+It's easy to lump "radiation" of every kind together, but infrared is a low-energy part of the electromagnetic spectrum, not a product of unstable nuclei decaying. It isn't ionising, and it doesn't damage cells or DNA the way nuclear radiation can — it's simply electromagnetic waves carrying energy that we sense as warmth.
+</Trap>
+
+## P4.7 Absorption and emission
+
+<FormulaCard title="Every object emits and absorbs, all the time">
+Any object above absolute zero **emits** thermal radiation — hotter objects emit at a higher rate. Any object that thermal radiation hits either **absorbs**, **reflects**, or **transmits** it; whatever is absorbed increases the object's thermal energy.
+</FormulaCard>
+
+Put emission and absorption together and you get the net effect on temperature: an object **hotter** than its surroundings emits faster than it absorbs, so it loses energy net and cools; an object **cooler** than its surroundings absorbs faster than it emits, so it gains energy net and warms — in both cases, tending back towards the surrounding temperature.
+
+<WorkedExample title="Net rate of energy change for a window">
+1000 W of thermal radiation hits a window. It reflects 100 W and transmits 750 W, while also emitting 200 W of its own thermal radiation. Find the net rate of change of the window's thermal energy, and say whether it's a gain or a loss.
+
+Of the 1000 W arriving, whatever isn't reflected or transmitted must be **absorbed**: $1000-100-750=150\ \text{W}$ absorbed. The window is also losing energy by emitting its own radiation at 200 W. Net change $=150-200=-50\ \text{W}$ — a **loss** of 50 W.
+</WorkedExample>
+
+## P4.8 Factors affecting radiation rates, and applications
+
+<FormulaCard title="Surface texture and area">
+For a given temperature, **matt/dull surfaces** absorb and emit thermal radiation at a **higher** rate than **shiny surfaces**, which are poor absorbers and poor emitters (but good reflectors). A **larger surface area** raises both the absorption and emission rate.
+</FormulaCard>
+
+<Tip title="A good absorber is automatically a good emitter">
+This pairing (good absorbers = good emitters; poor absorbers = poor emitters = good reflectors) always holds for the *same* surface, which is exactly why choosing a surface finish involves a trade-off — you can't independently pick "great absorber, terrible emitter."
+</Tip>
+
+<WorkedExample title="Survival blankets and solar water heaters">
+Explain why a survival blanket is shiny, and why a solar water heater's pipes are painted matt black.
+
+A survival blanket needs to keep a cold person warm: being **shiny**, it's a poor emitter (so it loses very little of the person's own radiated heat to the surroundings) and a good reflector (so it bounces the person's radiated heat straight back towards them). A solar heater's pipes need to *gain* heat fast: being **matt black**, they're good absorbers of the Sun's incoming radiation — and although a good absorber is also a good emitter, the pipes still heat up net because radiation is arriving from the Sun far faster than the comparatively cool pipes can emit it away.
+</WorkedExample>
+
+The same absorption/emission balance, scaled up to the whole planet, explains the greenhouse effect: if the Earth and its atmosphere absorb thermal radiation faster than they emit it back out to space, there's a net gain of thermal energy and the planet warms.
+
+## P4.9 Heat capacity and specific heat capacity
+
+<Tip title="Net heat transfer is what decides temperature change">
+An object can be gaining heat by one process and losing it by another at the same time — what matters for its temperature is the **net** transfer. More heat in than out, and it warms up (particles speed up on average); more heat out than in, and it cools (unless it happens to be changing state, in which case temperature can stay fixed despite the energy transfer — that's covered separately under changes of state).
+</Tip>
+
+<FormulaCard title="Specific heat capacity">
+$$
+c = \frac{\text{thermal energy}}{\text{mass}\times\text{temperature change}}
+$$
+
+Specific heat capacity $c$ (units $\text{J}\,\text{kg}^{-1}\,{}^\circ\text{C}^{-1}$) is the energy needed to raise **1 kg** of a substance by **1 °C**. It's a property of the *substance* — heat capacity (without "specific"), by contrast, is a property of one particular object and already factors in its mass.
+</FormulaCard>
+
+<Trap title="Heat capacity and specific heat capacity are not interchangeable">
+Heat capacity (units $\text{J}\,{}^\circ\text{C}^{-1}$) describes a specific object of fixed mass; specific heat capacity (units $\text{J}\,\text{kg}^{-1}\,{}^\circ\text{C}^{-1}$) describes the substance itself, independent of how much of it you have. Two blocks of the same metal but different sizes share the same specific heat capacity but have different heat capacities.
+</Trap>
+
+<WorkedExample title="Calculating specific heat capacity from an experiment">
+A 3.0 kg sample of an unknown metal rises in temperature by 15 °C when 45 000 J of thermal energy is transferred to it. Find its specific heat capacity.
+
+$$
+c = \frac{\text{thermal energy}}{\text{mass}\times\text{temperature change}} = \frac{45\,000}{3.0\times15} = 1000\ \text{J}\,\text{kg}^{-1}\,{}^\circ\text{C}^{-1}
+$$
+</WorkedExample>
+
+<WorkedExample title="Finding energy transferred from a temperature drop">
+A 2.0 kg aluminium block ($c=900\ \text{J}\,\text{kg}^{-1}\,{}^\circ\text{C}^{-1}$) cools from 25.0 °C to 20.0 °C. Find the energy transferred to the surroundings.
+
+Temperature change: $25.0-20.0=5.0\ {}^\circ\text{C}$.
+
+$$
+\text{thermal energy} = c\times\text{mass}\times\text{temperature change} = 900\times2.0\times5.0 = 9000\ \text{J}
+$$
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- Thermal energy relates to particle motion; heat always flows from hot to cold. Conduction needs particles — impossible through a vacuum.
+- Metals conduct well because free electrons carry energy fast; solids > liquids > gases in general.
+- Conduction rate ↑ with bigger temperature difference, better conductor, shorter distance, larger contact area.
+- Heating a fluid lowers its density (particles spread out); less-dense fluid rises, denser fluid sinks — this drives convection currents.
+- Convection needs a fluid (not solids); heating from the top prevents a current forming.
+- Thermal (infrared) radiation is electromagnetic — travels at light speed, no medium needed, not ionising.
+- Hotter objects emit radiation faster; net absorption/emission decides whether an object warms or cools relative to its surroundings.
+- Matt/dark surfaces: good absorbers and emitters. Shiny surfaces: poor absorbers and emitters, good reflectors.
+- $c=\dfrac{\text{thermal energy}}{\text{mass}\times\text{temperature change}}$, units $\text{J}\,\text{kg}^{-1}\,{}^\circ\text{C}^{-1}$ — a property of the substance, not a specific object.
 
 <PracticeLink topic="P4. Thermal Physics">
 Find thermal physics questions

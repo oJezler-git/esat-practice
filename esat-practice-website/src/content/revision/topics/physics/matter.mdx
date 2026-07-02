@@ -2,18 +2,263 @@ export const meta = {
   slug: "matter",
   module: "physics",
   title: "Matter",
-  subtitle: "Placeholder overview for P5. Matter — full guide coming soon.",
+  subtitle: "States of matter and the particle model, ideal gases and PV = constant, melting/boiling and latent heat, density, and pressure including hydrostatic pressure.",
   topicCode: "P5",
-  estimatedMinutes: 5,
+  estimatedMinutes: 25,
   order: 50,
   relatedQuestionFilters: {
     topics: ["P5. Matter"],
   },
 };
 
-## What you need to know
+## P5.1 States of matter and the particle model
 
-This guide is a placeholder. The full breakdown of P5. Matter — core facts, fast methods, worked examples, and common traps — is coming soon.
+Solids, liquids and gases are distinguished by three everyday properties: **fluidity** (can it flow?), **compressibility** (can you squash it into less volume?), and **typical density**.
+
+<FormulaCard title="Macroscopic properties of the three states">
+- **Solid** — rigid, effectively incompressible, high density ($10^3$–$10^4\ \text{kg m}^{-3}$).
+- **Liquid** — fluid (takes the shape of the bottom of its container), effectively incompressible, high density ($\sim 10^3\ \text{kg m}^{-3}$).
+- **Gas** — fluid (fills the whole container), highly compressible, low density ($\sim 1\ \text{kg m}^{-3}$ at room temperature and atmospheric pressure).
+
+Liquids and gases are together called **fluids**, since both can flow.
+</FormulaCard>
+
+<Trap title="A sponge isn't secretly compressible">
+A sponge *looks* compressible, but the solid material it's made from isn't — it's mostly trapped air. Squeezing it pushes air out of the pockets; the solid "skeleton" itself barely changes volume. Don't let a compressible-looking object talk you out of "solids are incompressible."
+</Trap>
+
+The **particle model** explains all of this at the microscopic level: matter is made of particles in constant motion, and the *forces between them*, their *arrangement*, and their *motion* differ between the three states.
+
+<FormulaCard title="Particle model of the three states">
+| | Solid | Liquid | Gas |
+|---|---|---|---|
+| Forces between particles | strongly bonded to neighbours | attracted, but more weakly than in a solid | none, except during collisions |
+| Arrangement | very close, fixed, often a regular lattice | very close, no regular pattern | far apart (on average), no regular pattern |
+| Motion | vibrate about a fixed position | move randomly from place to place | move randomly, at high speed, in straight lines between collisions |
+</FormulaCard>
+
+A "particle" here just means the smallest unit of the substance — atom, molecule, or ion — the model doesn't care which. It predicts the same three-state behaviour regardless of what the substance actually is.
+
+<WorkedExample title="Reading macroscopic behaviour off the particle model">
+Use the particle model to explain why convection cannot occur in a solid.
+
+Convection is the bulk movement of warmer, less dense material upwards past cooler, denser material moving down to replace it. In a solid, particles vibrate about *fixed* positions and cannot change places with each other, so there's no way for bulk regions of the material to swap positions — convection needs a fluid.
+</WorkedExample>
+
+<Trap title="Don't project macroscopic properties onto particles">
+A gas being compressible doesn't mean its particles are compressible — they're just pushed closer together. Water vapour being less dense than liquid water doesn't mean water particles are "lighter" as a gas — there are simply fewer of them per unit volume. Keep the macroscopic property (of the bulk substance) and the microscopic explanation (in terms of particles) separate.
+</Trap>
+
+## P5.2 Ideal gases and $PV = \text{constant}$
+
+An **ideal gas** is a simplified model: identical particles in random motion, exerting no forces on each other except during collisions, taking up negligible volume, and obeying Newton's laws. Real gases near room temperature and atmospheric pressure behave close to this.
+
+**Temperature** and **pressure** are both macroscopic properties — it's meaningless to say an individual particle "has a temperature" or "has a pressure." Instead:
+
+<FormulaCard title="Temperature and pressure in terms of particles">
+- **Temperature** reflects the *average speed* of the gas particles — higher temperature means faster particles on average.
+- **Pressure** arises from particles colliding with a surface: each collision exerts a tiny force, and these average out to a force per unit area.
+</FormulaCard>
+
+<WorkedExample title="Heating a sealed gas">
+A sealed container of gas is heated. Explain what happens to the pressure.
+
+Pressure increases, for two combined reasons: the particles move faster on average, so (1) collisions with the walls happen more often, and (2) each collision is more forceful on average. Both effects increase the average force per unit area on the walls.
+</WorkedExample>
+
+Now hold **temperature constant** and instead shrink the container. The average particle speed doesn't change (temperature is unchanged) — but each particle now has less distance to travel between wall collisions, so collisions happen more often. Force per collision is unchanged, frequency goes up, so pressure rises.
+
+<FormulaCard title="Boyle's law">
+$$
+PV = \text{constant} \qquad \text{(fixed mass of ideal gas, constant temperature)}
+$$
+
+Equivalently $P \propto \dfrac{1}{V}$ — pressure is inversely proportional to volume. For two states of the same sealed sample at the same temperature:
+
+$$
+P_1V_1 = P_2V_2
+$$
+</FormulaCard>
+
+<Shortcut title="Skip the constant">
+Don't bother computing the constant explicitly — just write $P_1V_1=P_2V_2$ and rearrange for whichever unknown you need, e.g. $P_1 = \dfrac{P_2V_2}{V_1}$.
+</Shortcut>
+
+<WorkedExample title="Applying P₁V₁ = P₂V₂">
+A sealed gas sample has pressure $1.0\times10^5\ \text{Pa}$ and volume $60\ \text{cm}^3$. The container is compressed (no gas escapes) to $40\ \text{cm}^3$. Find the new pressure.
+
+$$
+P_2 = \frac{P_1V_1}{V_2} = \frac{(1.0\times10^5)(60)}{40} = 1.5\times10^5\ \text{Pa}
+$$
+
+Note the volumes don't need converting to $\text{m}^3$ here — as long as the *same* units are used on both sides, they cancel.
+</WorkedExample>
+
+## P5.3 State changes, latent heat, and specific latent heat
+
+Nearly every pure substance has a fixed **melting point** (solid $\leftrightarrow$ liquid) and **boiling point** (liquid $\leftrightarrow$ gas), each at a *specific* temperature. (A few substances, like CO₂, sublime — jumping straight between solid and gas.)
+
+<FormulaCard title="State as a function of temperature">
+| Temperature | State |
+|---|---|
+| below melting point | solid |
+| at melting point | solid/liquid |
+| between melting and boiling point | liquid |
+| at boiling point | liquid/gas |
+| above boiling point | gas |
+</FormulaCard>
+
+<Trap title="Impure substances don't have a sharp melting/boiling point">
+An impure substance melts and boils over a *range* of temperatures, not at a single fixed value — so you can't quote "the" melting point or boiling point for it.
+</Trap>
+
+While a substance is *changing state*, thermal energy is transferred to or from it without any change in temperature — the energy goes into pulling particles apart (melting/boiling) or is released as particles come together (freezing/condensing). Only once the whole sample has finished changing state does the temperature start moving again. This absorbed/released energy is **latent heat**: *latent heat of fusion* for melting/freezing, *latent heat of vaporisation* for boiling/condensing.
+
+<Tip title="Temperature–energy graph shape">
+Heating a solid steadily into a gas gives a graph of temperature against thermal energy transferred that rises while a single state is heating, then flattens into a plateau during each state change (melting, then boiling), before rising again.
+</Tip>
+
+<FormulaCard title="Specific latent heat">
+$$
+E = mL
+$$
+
+$L$ is the **specific latent heat** (J kg⁻¹) — the energy transferred per unit mass during a *complete* change of state, at constant temperature (the melting point, for fusion; the boiling point, for vaporisation).
+</FormulaCard>
+
+<WorkedExample title="Latent heat of fusion">
+Calculate the energy needed to change 3.0 kg of ice at 0 °C into liquid water at 0 °C. ($L_{\text{fusion, water}} = 330\ \text{kJ kg}^{-1}$.)
+
+$$
+E = mL = 3.0 \times 330\,000 = 990\,000\ \text{J} = 990\ \text{kJ}
+$$
+</WorkedExample>
+
+<WorkedExample title="Finding L from an experiment">
+6900 kJ of thermal energy is released to the surroundings when 3.0 kg of water vapour at 100 °C condenses to liquid water at 100 °C. Find the specific latent heat of vaporisation.
+
+$$
+L = \frac{E}{m} = \frac{6\,900\,000}{3.0} = 2\,300\,000\ \text{J kg}^{-1} = 2300\ \text{kJ kg}^{-1}
+$$
+</WorkedExample>
+
+<Trap title="Two components when temperature rises AND state changes">
+If a sample is heated through a temperature rise *and* a state change, the total energy transferred is the **sum** of two separate calculations: $E=mc\Delta T$ for each temperature-rise stage (specific heat capacity $c$), plus $E=mL$ for each state-change stage. Don't try to combine them into a single formula — work out each stage on the graph separately and add the energies.
+</Trap>
+
+## P5.4 Density
+
+<FormulaCard title="Density">
+$$
+\rho = \frac{m}{V}
+$$
+
+Units: $\text{kg m}^{-3}$ or $\text{g cm}^{-3}$ (equivalently g mL⁻¹ for liquids). All samples of a given substance share the same density regardless of size, so density is a way of identifying a material. An object made of several substances has an *average* density: total mass over total volume.
+</FormulaCard>
+
+<Shortcut title="Converting g cm⁻³ to kg m⁻³">
+Multiply by 1000: $1\ \text{g cm}^{-3} = 1000\ \text{kg m}^{-3}$, since $1\ \text{kg}=10^3\ \text{g}$ and $1\ \text{m}^3=10^6\ \text{cm}^3$, and $10^6/10^3=10^3$.
+</Shortcut>
+
+<WorkedExample title="Density conversion and rearranging">
+Aluminium has density $2.700\ \text{g cm}^{-3}$.
+
+(a) Convert to $\text{kg m}^{-3}$: $2.700 \times 1000 = 2700\ \text{kg m}^{-3}$.
+
+(b) Find the volume of a 0.500 kg (= 500 g) sample:
+$$
+V = \frac{m}{\rho} = \frac{500}{2.700} = 185\ \text{cm}^3 \ \text{(3 s.f.)}
+$$
+</WorkedExample>
+
+**Measuring density** always comes down to measuring mass (balance) and volume, but the *method* for volume depends on the sample:
+
+<FormulaCard title="Measuring volume">
+- **Regular solid** — measure dimensions with a ruler, calculate volume from the shape.
+- **Irregular solid** — submerge in a partially filled measuring cylinder (or use a displacement can) and find the volume of water displaced.
+- **Liquid** — pour into a measuring cylinder and read the volume scale directly; find mass by weighing the cylinder empty and then full, and subtracting.
+</FormulaCard>
+
+<Trap title="Floating samples need a sinker">
+The displacement method only works directly if the sample sinks. If it floats, tie it to a denser object of known volume (a "sinker") so the combination sinks, measure the total displaced volume, then **subtract** the sinker's own volume to isolate the sample's volume.
+</Trap>
+
+<WorkedExample title="Density of a floating object, using a sinker">
+An irregular object has mass 35.2 g and floats, so it's tied to a 447 g block of density $8.94\ \text{g cm}^{-3}$. Together they displace $105.0\ \text{cm}^3$ of water. Find the object's density.
+
+Volume of the block: $V=\dfrac{m}{\rho}=\dfrac{447}{8.94}=50.0\ \text{cm}^3$.
+
+Volume of the object: $105.0-50.0=55.0\ \text{cm}^3$.
+
+Density of the object: $\rho=\dfrac{35.2}{55.0}=0.640\ \text{g cm}^{-3}$.
+</WorkedExample>
+
+<Tip title="Comparing densities across the three states">
+Solids and liquids usually have *similar* densities (particles are close together in both — solids are typically only around 1.1× denser than the corresponding liquid), while gases are typically around **1000× less dense** than the liquid form, because gas particles are far apart with far fewer particles per unit volume. Water is a well-known exception where the solid (ice) is *less* dense than the liquid.
+</Tip>
+
+## P5.5 Pressure, including hydrostatic pressure
+
+<FormulaCard title="Pressure">
+$$
+\text{pressure} = \frac{\text{force}}{\text{area}}, \qquad 1\ \text{N m}^{-2} = 1\ \text{Pa}
+$$
+
+Area means the area of contact over which the force acts. Increase pressure by increasing the force or shrinking the contact area; decrease it by doing the opposite.
+</FormulaCard>
+
+<Tip title="Sharp vs wide contact areas">
+Needles and knives concentrate a modest force onto a tiny area to get very high pressure (enough to cut). Snowshoes and skis spread a person's weight over a large area to get low pressure (so they don't sink). A drawing pin uses both ends of the same principle at once: same force throughout the pin, but far higher pressure at the sharp end than under your thumb.
+</Tip>
+
+<WorkedExample title="Pressure from a distributed weight">
+A table with four legs, each with a square cross-section of side 5.0 cm, has total weight 250 N. Find the pressure on the ground.
+
+Total contact area: $4 \times (0.050)^2 = 0.010\ \text{m}^2$.
+
+$$
+\text{pressure} = \frac{250}{0.010} = 25\,000\ \text{Pa}
+$$
+</WorkedExample>
+
+<FormulaCard title="Hydrostatic pressure">
+$$
+P = h\rho g
+$$
+
+where $h$ is depth below the surface, $\rho$ is the fluid's density, and $g$ is gravitational field strength. This depends only on depth, density, and $g$ — **not** on the shape of the container, so two points at equal depth in the same connected liquid are at equal pressure.
+</FormulaCard>
+
+<Tip title="Where the formula comes from">
+Picture a cuboid of liquid of cross-sectional area $A$ and height $h$, with its top at the liquid surface. Its volume is $Ah$, so its mass is $Ah\rho$ and its weight is $Ah\rho g$. That weight is supported by the pressure acting over the base area $A$, so pressure at depth $h$ is $\dfrac{Ah\rho g}{A}=h\rho g$.
+</Tip>
+
+<Trap title="Total pressure vs pressure due to the fluid alone">
+The pressure measured at a depth in a liquid (or under an object) is the **sum** of the hydrostatic pressure from the fluid/object and any pressure already present above it (typically atmospheric pressure). "The pressure due to the water" specifically excludes the atmospheric contribution — subtract it off before applying $P=h\rho g$.
+</Trap>
+
+<WorkedExample title="Finding depth from total pressure">
+At a point on the sea floor, total pressure is $3.16\times10^6\ \text{Pa}$. Seawater density is $1020\ \text{kg m}^{-3}$, atmospheric pressure is $1.0\times10^5\ \text{Pa}$, and $g=10\ \text{N kg}^{-1}$. Find the depth.
+
+Pressure due to the water alone:
+$$
+3.16\times10^6 - 1.0\times10^5 = 3.06\times10^6\ \text{Pa}
+$$
+
+Rearranging $P=h\rho g$:
+$$
+h = \frac{P}{\rho g} = \frac{3.06\times10^6}{1020\times10} = 300\ \text{m}
+$$
+</WorkedExample>
+
+## Formula and shortcut summary
+
+- Solids: rigid, incompressible, dense. Liquids: fluid, incompressible, dense. Gases: fluid, compressible, low density. Explain all of it via particle forces/arrangement/motion.
+- Ideal gas at constant temperature: $PV=\text{constant}$, so $P_1V_1=P_2V_2$ — skip computing the constant explicitly.
+- Temperature $\leftrightarrow$ average particle speed; pressure $\leftrightarrow$ frequency and force of particle collisions with a surface.
+- State changes happen at constant temperature (melting/boiling point); latent heat $E=mL$. If temperature also changes, add the $mc\Delta T$ stages separately.
+- Density $\rho = \dfrac{m}{V}$; $1\ \text{g cm}^{-3}=1000\ \text{kg m}^{-3}$. For irregular or floating solids, use displacement (with a sinker if it floats).
+- Pressure $=\dfrac{\text{force}}{\text{area}}$. Hydrostatic pressure $P=h\rho g$, independent of container shape; add atmospheric pressure for the total, or subtract it to isolate "pressure due to the fluid."
 
 <PracticeLink topic="P5. Matter">
 Find matter questions
