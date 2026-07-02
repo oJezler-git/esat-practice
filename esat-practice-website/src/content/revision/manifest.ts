@@ -17,19 +17,16 @@ const moduleInfo: Record<RevisionModuleSlug, Omit<RevisionModule, "docs">> = {
     slug: "m1",
     title: "Mathematics 1",
     shortTitle: "M1",
-    description: "Core number, algebra, geometry, graphs, and standard problem-solving fluency.",
   },
   m2: {
     slug: "m2",
     title: "Mathematics 2",
     shortTitle: "M2",
-    description: "Advanced algebra, calculus, complex numbers, differential equations, and harder modelling.",
   },
   physics: {
     slug: "physics",
     title: "Physics",
     shortTitle: "Physics",
-    description: "Mechanics, waves, electricity, thermal physics, and practical reasoning under time pressure.",
   },
 };
 

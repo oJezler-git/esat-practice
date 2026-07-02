@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 import { prefetchRevisionContent, revisionModules } from "../../content/revision/manifest";
+import { ampersandize } from "../../content/revision/textFormat";
 import { RevisionLayout } from "./RevisionLayout";
+
+// Built from the actual doc list rather than hand-written, so it can't drift
+// out of sync with which topics a module really covers.
+function summarizeTopics(titles: string[]): string {
+  if (titles.length === 0) return "Guides coming soon.";
+  return `${titles.map(ampersandize).join(", ")}.`;
+}
 
 export function RevisionHome() {
   return (
@@ -10,19 +18,20 @@ export function RevisionHome() {
         <h1>Topic guides for fast, clean problem solving.</h1>
         <p className="rev-subtitle">
           A docs-style home for transformed ESAT guide content, shortcut methods, formula fluency,
-          worked examples, and practice links.
+          worked examples, & practice links.
         </p>
-
-        <p className="rev-home-prompt">Choose a subject, then open a topic guide.</p>
 
         <div className="rev-subject-toc">
           {revisionModules.map((module) => (
             <section key={module.slug} className="rev-subject-column">
               <div className="rev-subject-column-head">
-                <h2>{module.title}</h2>
+                <h2>
+                  <span className={`rev-module-dot rev-module-dot--${module.slug}`} aria-hidden="true" />
+                  {module.title}
+                </h2>
                 <span>{module.docs.length} topic{module.docs.length === 1 ? "" : "s"}</span>
               </div>
-              <p>{module.description}</p>
+              <p>{summarizeTopics(module.docs.map((doc) => doc.meta.title))}</p>
               <nav className="rev-subject-tree" aria-label={`${module.title} topics`}>
                 {module.docs.length === 0 ? (
                   <span className="rev-subject-empty">Coming soon</span>
@@ -35,11 +44,11 @@ export function RevisionHome() {
                       onFocus={() => prefetchRevisionContent(doc.path)}
                       onPointerDown={() => prefetchRevisionContent(doc.path)}
                     >
-                      <span className="rev-subject-topic-main">
-                        <span>{doc.meta.title}</span>
-                        <span>{doc.meta.topicCode}</span>
+                      <span className="rev-subject-topic-title">{ampersandize(doc.meta.title)}</span>
+                      <span className="rev-subject-topic-meta">
+                        <span className="rev-subject-topic-code">{doc.meta.topicCode}</span>
+                        <span className="rev-subject-topic-arrow" aria-hidden="true">→</span>
                       </span>
-                      <span className="rev-subject-topic-action">Open guide</span>
                     </Link>
                   ))
                 )}

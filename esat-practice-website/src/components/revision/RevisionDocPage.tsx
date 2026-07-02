@@ -11,6 +11,7 @@ import {
 } from "../../content/revision/manifest";
 import { stripMdxExports } from "../../content/revision/mdxSource";
 import { buildUniqueHeadingId } from "../../content/revision/slug";
+import { ampersandize } from "../../content/revision/textFormat";
 import type { RevisionHeading } from "../../content/revision/types";
 import { preloadKatexFonts } from "./katexFontPreload";
 import { revisionMdxComponents } from "./RevisionMdxComponents";
@@ -144,7 +145,7 @@ export function RevisionDocPage() {
         <div className="rev-title-row">
           <div>
             <p className="rev-kicker">{doc.meta.topicCode} · {module.title}</p>
-            <h1>{doc.meta.title}</h1>
+            <h1>{ampersandize(doc.meta.title)}</h1>
           </div>
           <button type="button" className="rev-copy-btn" onClick={copy}>
             {copied ? "Copied" : "Copy page"}

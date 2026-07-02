@@ -34,7 +34,6 @@ export type RevisionModule = {
   slug: RevisionModuleSlug;
   title: string;
   shortTitle: string;
-  description: string;
   docs: RevisionDocEntry[];
 };
 
