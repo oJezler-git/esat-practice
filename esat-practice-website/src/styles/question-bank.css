@@ -215,8 +215,7 @@
 }
 
 .question-bank-row-tag,
-.question-bank-row-warning,
-.question-bank-row-open {
+.question-bank-row-warning {
   display: inline-flex;
   align-items: center;
   min-height: 2rem;
@@ -235,11 +234,6 @@
   border: 1px solid rgb(217 159 72 / 0.28);
   background: rgb(217 159 72 / 0.1);
   color: #f2d29f;
-}
-
-.question-bank-row-open {
-  padding-inline: 0.35rem 0;
-  color: var(--accent-strong);
 }
 
 @media (max-width: 768px) {
@@ -280,5 +274,26 @@
     min-width: 0;
     flex-wrap: nowrap;
     overflow: hidden;
+    gap: 0.4rem;
+  }
+
+  /* Keep the meta on one line: the topic pill shrinks + ellipsizes, the badge
+     stays its natural size. */
+  .question-bank-row-meta > * {
+    flex: none;
+  }
+
+  .question-bank-row-tag {
+    flex: 0 1 auto;
+    min-width: 0;
+    display: block;
+    line-height: 1.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .question-bank-row-warning {
+    white-space: nowrap;
   }
 }

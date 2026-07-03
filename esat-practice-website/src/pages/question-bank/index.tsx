@@ -917,19 +917,11 @@ function QuestionRow({
           <span className="question-bank-row-tag">
             {question.taxonomy.primary_topic}
           </span>
-          {!question.answer.verified && (
-            <span className="question-bank-row-warning">
-              default model
-            </span>
-          )}
           {isExcluded && (
             <span className="question-bank-row-warning">
               Excluded
             </span>
           )}
-          <span className="question-bank-row-open">
-            {selected ? "Selected" : "Open"}
-          </span>
         </span>
       </button>
     </div>
