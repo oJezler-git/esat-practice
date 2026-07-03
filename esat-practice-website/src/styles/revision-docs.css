@@ -62,6 +62,75 @@
   animation: rev-sidebar-in 340ms var(--motion-smooth) both;
 }
 
+/* The TOC nav is re-keyed by activeDocId (RevisionLayout.tsx) so it mounts
+   fresh — and cascades in from the right, in sync with the body waterfall —
+   every time the headings for a new topic are collected. */
+.rev-toc nav {
+  animation: rev-toc-nav-in 300ms var(--motion-smooth) both;
+}
+
+.rev-toc nav > a {
+  opacity: 0;
+  animation: rev-toc-link-in 260ms var(--motion-smooth) both;
+}
+
+.rev-toc nav > a:nth-child(1) { animation-delay: 60ms; }
+.rev-toc nav > a:nth-child(2) { animation-delay: 85ms; }
+.rev-toc nav > a:nth-child(3) { animation-delay: 110ms; }
+.rev-toc nav > a:nth-child(4) { animation-delay: 135ms; }
+.rev-toc nav > a:nth-child(5) { animation-delay: 160ms; }
+.rev-toc nav > a:nth-child(6) { animation-delay: 185ms; }
+.rev-toc nav > a:nth-child(7) { animation-delay: 210ms; }
+.rev-toc nav > a:nth-child(8) { animation-delay: 235ms; }
+.rev-toc nav > a:nth-child(n+9) { animation-delay: 260ms; }
+
+@keyframes rev-toc-nav-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rev-toc-link-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-toc nav,
+  .rev-toc nav > a {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Plays while the previous topic's section links are still on screen and a
+   new topic has been requested — fades the whole list out as one unit
+   instead of it snapping straight to "Loading sections...". */
+.rev-toc nav.rev-toc-exit {
+  animation: rev-toc-nav-exit 150ms ease-in both;
+}
+
+@keyframes rev-toc-nav-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-toc nav.rev-toc-exit {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .rev-sidebar-home,
 .rev-sidebar-link {
   display: flex;
@@ -315,6 +384,66 @@
   animation: page-enter 420ms var(--motion-smooth) both;
 }
 
+/* Re-keyed by docId on every topic switch (RevisionDocPage.tsx) so the header
+   cluster cascades in again each time, not just on the very first mount. */
+.rev-header-enter > .rev-breadcrumb {
+  animation: fade-up 260ms var(--motion-smooth) both;
+  animation-delay: 0ms;
+}
+
+.rev-header-enter > .rev-title-row {
+  animation: fade-up 320ms var(--motion-smooth) both;
+  animation-delay: 60ms;
+}
+
+.rev-header-enter > .rev-subtitle {
+  animation: fade-up 300ms var(--motion-smooth) both;
+  animation-delay: 120ms;
+}
+
+.rev-header-enter > .rev-meta-row {
+  animation: fade-up 300ms var(--motion-smooth) both;
+  animation-delay: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-header-enter > .rev-breadcrumb,
+  .rev-header-enter > .rev-title-row,
+  .rev-header-enter > .rev-subtitle,
+  .rev-header-enter > .rev-meta-row {
+    animation: none;
+  }
+}
+
+/* Plays while the previous topic's header is still on screen and a new one
+   has been requested — fades the whole cluster out as one unit instead of
+   it snapping straight to the new topic's title. */
+.rev-header-enter.rev-header-exit {
+  animation: rev-header-exit-out 150ms ease-in both;
+}
+
+.rev-header-enter.rev-header-exit > * {
+  animation: none;
+}
+
+@keyframes rev-header-exit-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-header-enter.rev-header-exit {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .rev-breadcrumb {
   display: flex;
   gap: 0.4rem;
@@ -486,6 +615,42 @@
 @media (max-width: 780px) {
   .rev-mdx-enter > ul:last-of-type {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Formula cards pop in individually once the body waterfall (below, in
+   styles.css) has caught up to this list — base delay picks up after the
+   waterfall's own 400ms cap so cards never start before their container. */
+.rev-mdx-enter > ul:last-of-type li {
+  opacity: 0;
+  animation: rev-mdx-card-in 260ms var(--motion-smooth) both;
+}
+
+.rev-mdx-enter > ul:last-of-type li:nth-child(1) { animation-delay: 420ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(2) { animation-delay: 440ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(3) { animation-delay: 460ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(4) { animation-delay: 480ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(5) { animation-delay: 500ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(6) { animation-delay: 520ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(7) { animation-delay: 540ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(8) { animation-delay: 560ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(n+9) { animation-delay: 560ms; }
+
+@keyframes rev-mdx-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-mdx-enter > ul:last-of-type li {
+    animation: none;
+    opacity: 1;
   }
 }
 

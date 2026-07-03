@@ -735,26 +735,72 @@ p {
   }
 }
 
-/* A light opacity fade rather than snapping from the skeleton. Opacity-only so
-   there's no positional repaint of the (large) guide subtree. */
 .rev-mdx-enter {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  animation: rev-mdx-fade-in 200ms ease-out both;
 }
 
-@keyframes rev-mdx-fade-in {
+/* Each direct child of the guide cascades in on its own, staggered by
+   position, rather than the whole subtree fading in as one flat block.
+   Capped at 10 steps so very long guides don't accumulate an absurd total
+   delay — everything past that fires together at the max delay. */
+.rev-mdx-enter > * {
+  opacity: 0;
+  animation: rev-mdx-block-in 380ms var(--motion-smooth) both;
+}
+
+.rev-mdx-enter > *:nth-child(1) { animation-delay: 40ms; }
+.rev-mdx-enter > *:nth-child(2) { animation-delay: 80ms; }
+.rev-mdx-enter > *:nth-child(3) { animation-delay: 120ms; }
+.rev-mdx-enter > *:nth-child(4) { animation-delay: 160ms; }
+.rev-mdx-enter > *:nth-child(5) { animation-delay: 200ms; }
+.rev-mdx-enter > *:nth-child(6) { animation-delay: 240ms; }
+.rev-mdx-enter > *:nth-child(7) { animation-delay: 280ms; }
+.rev-mdx-enter > *:nth-child(8) { animation-delay: 320ms; }
+.rev-mdx-enter > *:nth-child(9) { animation-delay: 360ms; }
+.rev-mdx-enter > *:nth-child(10) { animation-delay: 400ms; }
+.rev-mdx-enter > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes rev-mdx-block-in {
   from {
     opacity: 0;
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rev-mdx-enter {
+  .rev-mdx-enter > * {
     animation: none;
+    opacity: 1;
+  }
+}
+
+/* Plays while the previous topic's guide is still on screen and a new one
+   has been requested — fades the whole (already-settled) block out as one
+   unit instead of it vanishing the instant the route changes. */
+.rev-mdx-enter.rev-mdx-exit {
+  animation: rev-mdx-exit-out 150ms ease-in both;
+}
+
+@keyframes rev-mdx-exit-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-mdx-enter.rev-mdx-exit {
+    animation: none;
+    opacity: 0;
   }
 }
