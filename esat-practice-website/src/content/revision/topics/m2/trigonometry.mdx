@@ -42,6 +42,10 @@ The area formula $\frac12ab\sin C$ comes from base $a$ and vertical height $b\si
 In triangle $ABC$, $A=30°$, $b=6$, $a=4$. The sine rule gives $\sin\theta=\dfrac{6\sin30°}{4}=\dfrac34$, so $\theta=48.6°$ **or** $\theta=180°-48.6°=131.4°$. Both are valid here since either, added to the known $30°$, stays under $180°$. Always check whether the obtuse solution is geometrically possible before discarding it — don't assume the calculator's answer is the only one.
 </Trap>
 
+<Shortcut title="Predict the ambiguous case before solving">
+For two sides and a non-included angle, ambiguity (two possible triangles) can only happen when the given angle is acute *and* the side opposite it is shorter than the other given side. If the angle is obtuse or right, or the side opposite it is the longer one, there's only ever one valid triangle — check this before bothering to test the obtuse solution.
+</Shortcut>
+
 <WorkedExample title="Cosine rule for an angle from three sides">
 A triangle has $a=7,\ b=8,\ c=5$. Find angle $A$.
 
@@ -166,6 +170,10 @@ $$
 
 (Note $x=0°$ and $x=360°$ are excluded by the strict inequality — always check the boundary against the given interval.)
 </WorkedExample>
+
+<Shortcut title="Estimate how many solutions to expect before you finish">
+Roughly (range width) ÷ (period of the argument, converted back to $x$) tells you how many solutions to expect for each sign — for $\sin(2x+60°)=\pm\frac12$ over a $720°$ range in $x$, each half has a period of $180°$ in $x$, so expect around $4$ solutions per sign. If you end up with far fewer, you've likely dropped some at the boundary.
+</Shortcut>
 
 <Shortcut title="Spot which identity to substitute by looking for a lone sin or cos">
 If an equation has $\cos^2x$ alongside a lone $\sin x$ term (or vice versa), substitute $\sin^2\theta+\cos^2\theta=1$ to eliminate whichever function appears only squared, leaving a normal quadratic in the other.

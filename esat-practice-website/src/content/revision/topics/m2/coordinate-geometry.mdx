@@ -51,6 +51,10 @@ $$
 
 Parallel lines have the same steepness, so it makes sense they share a gradient. The perpendicular condition is less obvious on sight, but you can convince yourself of it by rotating a line $90°$ and tracking what happens to its "along" and "up" steps — they swap and one flips sign. It's a genuinely useful exercise to sit down with a diagram of two perpendicular lines, drop the right-angled triangles under each, and show the similar-triangles argument for why $m_1m_2=-1$ yourself, rather than just banking the fact.
 
+<Shortcut title="Flip and negate to get a perpendicular gradient">
+Given any gradient, turn it upside down and change its sign: $\frac23\to-\frac32$, $4\to-\frac14$, $-\frac15\to5$. This is exactly what $m_1m_2=-1$ means in practice, and it's faster than rearranging the equation each time.
+</Shortcut>
+
 ### Finding the equation of a line
 
 You need exactly two pieces of information to pin down a line, and they come in two flavours.
@@ -140,6 +144,10 @@ Centre $(-2,-1)$, radius $\sqrt{17}$.
 <Trap title="Not every equation of this shape is a circle">
 Try the same process on $x^2+y^2-4x-6y+20=0$ and you'll land on $(x-2)^2+(y-3)^2=-7$. A sum of squares can never be negative, so this equation has no real solutions at all — it isn't a circle. Whenever you complete the square, check the right-hand side comes out positive before declaring victory.
 </Trap>
+
+<Shortcut title="Endpoints of a diameter give the circle instantly">
+If $A$ and $B$ are the two ends of a diameter, the centre is the midpoint of $AB$ and the radius is half of $AB$ — no need to complete the square or set up simultaneous equations, just the midpoint formula and a distance calculation.
+</Shortcut>
 
 <Tip title="Divide through first if the coefficients of x² and y² aren't 1">
 $2x^2+2y^2-4x-8y-19=0$ doesn't look like the standard form, but dividing everything by $2$ fixes that immediately: $x^2+y^2-2x-4y-\frac{19}{2}=0$. Then complete the square as usual.
