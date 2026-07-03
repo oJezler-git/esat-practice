@@ -233,6 +233,18 @@ Frequency density gives you the *shape* only — to estimate statistics, first r
 
 **Comparing distributions.** The mean uses every value so is pulled around by outliers; the median ignores extreme values and needs orderable data; the mode works even for non-numerical categories but may sit at either end of the data. The range is easy but outlier-sensitive; the interquartile range (the middle $50\%$ of the data, $Q_3-Q_1$) is more robust but says nothing about the extremes.
 
+<WorkedExample title="When the mean is misleading">
+A factory has 6 cleaners paid $\pounds x$, 36 machinists paid $\pounds 2x$, 3 managers paid $\pounds 5x$ and 1 owner paid $\pounds 50x$. Comment on the mean, median and mode as summaries of the typical wage.
+
+$$
+\text{mean} = \frac{6x+36(2x)+3(5x)+50x}{46} = \frac{143x}{46} \approx 3.11x
+$$
+
+Ordering all $46$ wages, both the $23$rd and $24$th values fall among the $36$ machinists on $2x$, so the **median** $=2x$; the machinists are also the largest group, so the **mode** $=2x$ too.
+
+The mean is pulled well above $2x$ by the single extreme value ($50x$), so it doesn't represent the typical worker's pay. Here the median and mode both correctly reflect that most workers earn $2x$ — a case where the mean is the *worst* central measure to quote, despite being the most commonly used one.
+</WorkedExample>
+
 <WorkedExample title="Comparing two factories with summary statistics">
 Factories $A$ and $B$ (each open $48$ weeks/year) have weekly output stats: mean $14$ vs $15$, range $4$ vs $11$, lower quartile $13$ each, IQR $2$ vs $6$. Which factory can *guarantee* $11$ or more motorbikes every week?
 
