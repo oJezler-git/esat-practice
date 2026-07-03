@@ -22,6 +22,33 @@
   position: sticky;
   top: 5.25rem;
   align-self: start;
+  max-height: calc(100vh - 5.25rem - 1.5rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 35%, transparent) transparent;
+}
+
+.rev-sidebar::-webkit-scrollbar,
+.rev-toc::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rev-sidebar::-webkit-scrollbar-track,
+.rev-toc::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rev-sidebar::-webkit-scrollbar-thumb,
+.rev-toc::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-muted) 35%, transparent);
+  border-radius: 999px;
+}
+
+.rev-sidebar::-webkit-scrollbar-thumb:hover,
+.rev-toc::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
 }
 
 .rev-sidebar-inner,
