@@ -58,17 +58,25 @@ const MODES: { value: SessionMode; label: string; description: string }[] = [
     label: "Untimed",
     description: "No time pressure, focus on accuracy",
   },
-  {
-    value: "topic",
-    label: "Topic focus",
-    description: "Drill a specific subject area",
-  },
-  {
-    value: "mixed",
-    label: "Mixed",
-    description: "Random selection across all topics",
-  },
 ];
+
+const QUESTION_COUNT_MIN = 1;
+const QUESTION_COUNT_MAX = 81;
+const QUESTION_COUNT_MAJOR_MARKS = [27, 54, 81];
+const QUESTION_COUNT_MINOR_STEP = 3;
+const QUESTION_COUNT_MINOR_MARKS = Array.from(
+  { length: Math.floor(QUESTION_COUNT_MAX / QUESTION_COUNT_MINOR_STEP) + 1 },
+  (_, i) => i * QUESTION_COUNT_MINOR_STEP,
+).filter((mark) => mark > 0 && !QUESTION_COUNT_MAJOR_MARKS.includes(mark));
+const SLIDER_THUMB_PX = 18;
+
+// Position as calc(radius + fraction * (100% - diameter)) so the visual thumb, fill,
+// and tick marks all share one formula instead of trying to match the browser's
+// native (and inconsistent, cross-browser) inset of the real range-input thumb.
+function markPosition(mark: number): string {
+  const fraction = (mark - QUESTION_COUNT_MIN) / (QUESTION_COUNT_MAX - QUESTION_COUNT_MIN);
+  return `calc(${SLIDER_THUMB_PX / 2}px + ${fraction} * (100% - ${SLIDER_THUMB_PX}px))`;
+}
 
 export default function PracticeSetup() {
   const navigate = useNavigate();
@@ -134,7 +142,7 @@ export default function PracticeSetup() {
   return (
     <div className="page-shell max-w-3xl">
       <h1 className="page-title">New practice session</h1>
-      <p className="page-subtitle mb-8">
+      <p className="page-subtitle">
         {isQuestionBankLoading
           ? "Preparing question bank..."
           : excludedQuestionIds.size > 0
@@ -161,6 +169,77 @@ export default function PracticeSetup() {
               <div className="font-medium text-sm">{item.label}</div>
               <div className="text-xs text-muted mt-0.5">{item.description}</div>
             </button>
+          ))}
+        </div>
+      </section>
+
+      <button
+        type="button"
+        onClick={handleStart}
+        disabled={!isQuestionBankReady}
+        className="w-full mb-8 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow"
+      >
+        {isQuestionBankLoading ? "Loading question bank..." : "Start session"}
+      </button>
+      {setupError && (
+        <p className="mb-8 text-sm text-danger-text border border-danger bg-danger-soft rounded-lg px-3 py-2">
+          {setupError}
+        </p>
+      )}
+
+      <section className="mb-10 card p-4">
+        <h2 className="text-sm font-medium text-muted mb-3">
+          Questions - <span className="text-primary font-medium">{questionCount}</span>
+        </h2>
+        <div className="relative h-[18px] flex items-center">
+          <input
+            type="range"
+            min={QUESTION_COUNT_MIN}
+            max={QUESTION_COUNT_MAX}
+            step={1}
+            value={questionCount}
+            onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
+            className="range-slider-native"
+          />
+          <div className="w-full h-1.5 rounded-full bg-subtle overflow-hidden">
+            <div
+              className="h-full bg-accent"
+              style={{ width: markPosition(questionCount) }}
+            />
+          </div>
+          <div
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[18px] h-[18px] rounded-full bg-accent border-[3px] border-solid pointer-events-none"
+            style={{ left: markPosition(questionCount), borderColor: "var(--surface-1)", boxShadow: "0 1px 4px rgb(0 0 0 / 0.35)" }}
+          />
+        </div>
+        <div className="relative h-2.5 mt-1">
+          {QUESTION_COUNT_MINOR_MARKS.map((mark) => (
+            <span
+              key={mark}
+              className="absolute top-0.5 -translate-x-1/2 w-px h-1.5 bg-subtle opacity-60"
+              style={{ left: markPosition(mark) }}
+            />
+          ))}
+          {QUESTION_COUNT_MAJOR_MARKS.map((mark) => (
+            <span
+              key={mark}
+              className="absolute top-0 -translate-x-1/2 w-px h-2.5 bg-strong"
+              style={{ left: markPosition(mark) }}
+            />
+          ))}
+        </div>
+        <div className="relative h-4 mt-0.5 text-xs text-muted opacity-60">
+          <span className="absolute -translate-x-1/2" style={{ left: markPosition(QUESTION_COUNT_MIN) }}>
+            {QUESTION_COUNT_MIN}
+          </span>
+          {QUESTION_COUNT_MAJOR_MARKS.map((mark) => (
+            <span
+              key={mark}
+              className="absolute -translate-x-1/2 whitespace-nowrap"
+              style={{ left: markPosition(mark) }}
+            >
+              {mark}
+            </span>
           ))}
         </div>
       </section>
@@ -208,39 +287,6 @@ export default function PracticeSetup() {
           ))}
         </div>
       </section>
-
-      <section className="mb-10 card p-4">
-        <h2 className="text-sm font-medium text-muted mb-3">
-          Questions - <span className="text-primary font-medium">{questionCount}</span>
-        </h2>
-        <input
-          type="range"
-          min={5}
-          max={60}
-          step={5}
-          value={questionCount}
-          onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
-          className="w-full accent-accent"
-        />
-        <div className="flex justify-between text-xs text-muted mt-1">
-          <span>5</span>
-          <span>60</span>
-        </div>
-      </section>
-
-      <button
-        type="button"
-        onClick={handleStart}
-        disabled={!isQuestionBankReady}
-        className="w-full py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow"
-      >
-        {isQuestionBankLoading ? "Loading question bank..." : "Start session"}
-      </button>
-      {setupError && (
-        <p className="mt-3 text-sm text-danger-text border border-danger bg-danger-soft rounded-lg px-3 py-2">
-          {setupError}
-        </p>
-      )}
     </div>
   );
 }

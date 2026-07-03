@@ -302,7 +302,7 @@ p {
 }
 
 .page-subtitle {
-  margin: 0.35rem 0 0;
+  margin: 0.35rem 0 1.75rem;
   color: var(--text-muted);
   font-size: 0.9rem;
 }
@@ -335,6 +335,41 @@ p {
 
 .card-muted {
   background: var(--surface-2);
+}
+
+/*
+ * The visible track/fill/thumb for this slider are plain positioned divs (see
+ * practice-setup), not the native range-input chrome — browsers don't agree on
+ * where a styled ::-webkit-slider-thumb / ::-moz-range-thumb actually sits
+ * relative to the track (box-sizing, OS theme, DPI all shift it slightly),
+ * which made tick marks drift out of alignment with the real thumb. The native
+ * input here is fully transparent and only exists to capture pointer/keyboard
+ * interaction and remain a real, accessible form control.
+ */
+.range-slider-native {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.range-slider-native::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+}
+
+.range-slider-native::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: none;
 }
 
 .skip-link {
