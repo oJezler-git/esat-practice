@@ -738,6 +738,9 @@ p {
 /* A light opacity fade rather than snapping from the skeleton. Opacity-only so
    there's no positional repaint of the (large) guide subtree. */
 .rev-mdx-enter {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   animation: rev-mdx-fade-in 200ms ease-out both;
 }
 

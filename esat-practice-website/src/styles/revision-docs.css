@@ -407,14 +407,8 @@
   border-color: var(--border-strong);
 }
 
-.rev-mdx {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .rev-mdx h2 {
-  margin: 2.2rem 0 0.1rem;
+  margin: 0.85rem 0 0.1rem;
   padding-top: 1.2rem;
   border-top: 1px solid var(--border-subtle);
   scroll-margin-top: 5rem;
@@ -424,7 +418,7 @@
 }
 
 .rev-mdx h3 {
-  margin: 1.2rem 0 0;
+  margin: 0.15rem 0 0;
   scroll-margin-top: 5rem;
   font-size: 1rem;
   font-weight: 700;
