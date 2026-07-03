@@ -84,7 +84,11 @@ function virtualReducer(state: VirtualState, action: VirtualAction): VirtualStat
   }
 }
 type CountItem = { label: string; count: number };
-const VIRTUAL_ROW_HEIGHT = 92;
+// Each virtual slot is a fixed card plus a uniform gap. Keep VIRTUAL_CARD_HEIGHT
+// in sync with the `height` of `.question-bank-row-button` in question-bank.css.
+const VIRTUAL_CARD_HEIGHT = 90;
+const VIRTUAL_ROW_GAP = 14;
+const VIRTUAL_ROW_HEIGHT = VIRTUAL_CARD_HEIGHT + VIRTUAL_ROW_GAP;
 const VIRTUAL_OVERSCAN = 8;
 const VIRTUAL_BATCH_SIZE = 80;
 
@@ -317,15 +321,22 @@ export default function QuestionBank() {
     () => filtered.findIndex((question) => question.id === expandedId),
     [expandedId, filtered],
   );
-  const detailGap = 8;
   const detailBlockHeight =
-    selectedQuestion && selectedIndex >= 0 ? detailHeight + detailGap : 0;
+    selectedQuestion && selectedIndex >= 0 ? detailHeight + VIRTUAL_ROW_GAP : 0;
   const dynamicTotalHeight =
     Math.min(virtualCount, filtered.length) * VIRTUAL_ROW_HEIGHT +
     detailBlockHeight;
+  // Rows below an open detail panel are pushed down by detailBlockHeight, so the
+  // windowing math has to unwind that offset once we've scrolled past the panel —
+  // otherwise the visible-row window drifts and rows near the fold stop rendering.
+  const selectionThreshold = (selectedIndex + 1) * VIRTUAL_ROW_HEIGHT;
+  const effectiveScrollTop =
+    detailBlockHeight > 0 && scrollTop > selectionThreshold
+      ? Math.max(selectionThreshold, scrollTop - detailBlockHeight)
+      : scrollTop;
   const startIndex = Math.max(
     0,
-    Math.floor(scrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN,
+    Math.floor(effectiveScrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN,
   );
   const visibleCount =
     Math.ceil(viewportHeight / VIRTUAL_ROW_HEIGHT) + VIRTUAL_OVERSCAN * 2;
@@ -653,7 +664,10 @@ export default function QuestionBank() {
               <div
                 style={{
                   position: "absolute",
-                  top: selectedIndex * VIRTUAL_ROW_HEIGHT + VIRTUAL_ROW_HEIGHT + 8,
+                  top:
+                    selectedIndex * VIRTUAL_ROW_HEIGHT +
+                    VIRTUAL_CARD_HEIGHT +
+                    VIRTUAL_ROW_GAP,
                   left: 0,
                   right: 0,
                   zIndex: 20,
