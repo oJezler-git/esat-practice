@@ -22,6 +22,33 @@
   position: sticky;
   top: 5.25rem;
   align-self: start;
+  max-height: calc(100vh - 5.25rem - 1.5rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 35%, transparent) transparent;
+}
+
+.rev-sidebar::-webkit-scrollbar,
+.rev-toc::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rev-sidebar::-webkit-scrollbar-track,
+.rev-toc::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rev-sidebar::-webkit-scrollbar-thumb,
+.rev-toc::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-muted) 35%, transparent);
+  border-radius: 999px;
+}
+
+.rev-sidebar::-webkit-scrollbar-thumb:hover,
+.rev-toc::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
 }
 
 .rev-sidebar-inner,
@@ -33,6 +60,75 @@
 
 .rev-sidebar {
   animation: rev-sidebar-in 340ms var(--motion-smooth) both;
+}
+
+/* The TOC nav is re-keyed by activeDocId (RevisionLayout.tsx) so it mounts
+   fresh — and cascades in from the right, in sync with the body waterfall —
+   every time the headings for a new topic are collected. */
+.rev-toc nav {
+  animation: rev-toc-nav-in 300ms var(--motion-smooth) both;
+}
+
+.rev-toc nav > a {
+  opacity: 0;
+  animation: rev-toc-link-in 260ms var(--motion-smooth) both;
+}
+
+.rev-toc nav > a:nth-child(1) { animation-delay: 60ms; }
+.rev-toc nav > a:nth-child(2) { animation-delay: 85ms; }
+.rev-toc nav > a:nth-child(3) { animation-delay: 110ms; }
+.rev-toc nav > a:nth-child(4) { animation-delay: 135ms; }
+.rev-toc nav > a:nth-child(5) { animation-delay: 160ms; }
+.rev-toc nav > a:nth-child(6) { animation-delay: 185ms; }
+.rev-toc nav > a:nth-child(7) { animation-delay: 210ms; }
+.rev-toc nav > a:nth-child(8) { animation-delay: 235ms; }
+.rev-toc nav > a:nth-child(n+9) { animation-delay: 260ms; }
+
+@keyframes rev-toc-nav-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rev-toc-link-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-toc nav,
+  .rev-toc nav > a {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Plays while the previous topic's section links are still on screen and a
+   new topic has been requested — fades the whole list out as one unit
+   instead of it snapping straight to "Loading sections...". */
+.rev-toc nav.rev-toc-exit {
+  animation: rev-toc-nav-exit 150ms ease-in both;
+}
+
+@keyframes rev-toc-nav-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-toc nav.rev-toc-exit {
+    animation: none;
+    opacity: 0;
+  }
 }
 
 .rev-sidebar-home,
@@ -288,6 +384,66 @@
   animation: page-enter 420ms var(--motion-smooth) both;
 }
 
+/* Re-keyed by docId on every topic switch (RevisionDocPage.tsx) so the header
+   cluster cascades in again each time, not just on the very first mount. */
+.rev-header-enter > .rev-breadcrumb {
+  animation: fade-up 260ms var(--motion-smooth) both;
+  animation-delay: 0ms;
+}
+
+.rev-header-enter > .rev-title-row {
+  animation: fade-up 320ms var(--motion-smooth) both;
+  animation-delay: 60ms;
+}
+
+.rev-header-enter > .rev-subtitle {
+  animation: fade-up 300ms var(--motion-smooth) both;
+  animation-delay: 120ms;
+}
+
+.rev-header-enter > .rev-meta-row {
+  animation: fade-up 300ms var(--motion-smooth) both;
+  animation-delay: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-header-enter > .rev-breadcrumb,
+  .rev-header-enter > .rev-title-row,
+  .rev-header-enter > .rev-subtitle,
+  .rev-header-enter > .rev-meta-row {
+    animation: none;
+  }
+}
+
+/* Plays while the previous topic's header is still on screen and a new one
+   has been requested — fades the whole cluster out as one unit instead of
+   it snapping straight to the new topic's title. */
+.rev-header-enter.rev-header-exit {
+  animation: rev-header-exit-out 150ms ease-in both;
+}
+
+.rev-header-enter.rev-header-exit > * {
+  animation: none;
+}
+
+@keyframes rev-header-exit-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-header-enter.rev-header-exit {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .rev-breadcrumb {
   display: flex;
   gap: 0.4rem;
@@ -380,14 +536,8 @@
   border-color: var(--border-strong);
 }
 
-.rev-mdx {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .rev-mdx h2 {
-  margin: 2.2rem 0 0.1rem;
+  margin: 0.85rem 0 0.1rem;
   padding-top: 1.2rem;
   border-top: 1px solid var(--border-subtle);
   scroll-margin-top: 5rem;
@@ -397,7 +547,7 @@
 }
 
 .rev-mdx h3 {
-  margin: 1.2rem 0 0;
+  margin: 0.15rem 0 0;
   scroll-margin-top: 5rem;
   font-size: 1rem;
   font-weight: 700;
@@ -432,6 +582,76 @@
 
 .rev-mdx li .katex-display {
   margin: 0.3rem 0;
+}
+
+/* "Formula and shortcut summary" is always the last top-level list in a
+   guide, immediately before the practice-link footer — turn it into a grid
+   of reference cards instead of a long wall of bulleted prose. */
+.rev-mdx-enter > ul:last-of-type {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.rev-mdx-enter > ul:last-of-type li {
+  margin-bottom: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border-subtle);
+  border-left: 2px solid var(--border-strong);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--surface-1) 55%, transparent);
+  font-size: 0.83rem;
+  line-height: 1.6;
+}
+
+/* An odd item count leaves the last card alone in the left column — span it
+   across both instead of leaving a lopsided gap. */
+.rev-mdx-enter > ul:last-of-type li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 780px) {
+  .rev-mdx-enter > ul:last-of-type {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Formula cards pop in individually once the body waterfall (below, in
+   styles.css) has caught up to this list — base delay picks up after the
+   waterfall's own 400ms cap so cards never start before their container. */
+.rev-mdx-enter > ul:last-of-type li {
+  opacity: 0;
+  animation: rev-mdx-card-in 260ms var(--motion-smooth) both;
+}
+
+.rev-mdx-enter > ul:last-of-type li:nth-child(1) { animation-delay: 420ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(2) { animation-delay: 440ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(3) { animation-delay: 460ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(4) { animation-delay: 480ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(5) { animation-delay: 500ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(6) { animation-delay: 520ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(7) { animation-delay: 540ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(8) { animation-delay: 560ms; }
+.rev-mdx-enter > ul:last-of-type li:nth-child(n+9) { animation-delay: 560ms; }
+
+@keyframes rev-mdx-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-mdx-enter > ul:last-of-type li {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* KaTeX ships .katex-display with white-space: nowrap and no scroll
@@ -948,8 +1168,9 @@
 }
 
 .rev-toc-link {
+  position: relative;
   display: block;
-  padding: 0.25rem 0.5rem;
+  padding: 0.28rem 0.5rem;
   border-left: 2px solid transparent;
   border-radius: 0 0.3rem 0.3rem 0;
   color: var(--text-muted);
@@ -957,9 +1178,47 @@
   line-height: 1.4;
 }
 
+.rev-toc-link--h2 {
+  margin-top: 0.6rem;
+  color: var(--text-secondary);
+  font-weight: 650;
+}
+
+.rev-toc-link--h2:first-child {
+  margin-top: 0;
+}
+
 .rev-toc-link--h3 {
-  padding-left: 1rem;
+  margin-left: 0.9rem;
+  padding-left: 0.85rem;
   font-size: 0.73rem;
+}
+
+/* Tree connector: a vertical rail down the left edge of every h3, joined to
+   its siblings, with a short horizontal branch pointing at the label. The
+   last h3 in a run stops its rail at the branch instead of running past it. */
+.rev-toc-link--h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-subtle);
+}
+
+.rev-toc-link--h3:not(:has(+ .rev-toc-link--h3))::before {
+  bottom: 50%;
+}
+
+.rev-toc-link--h3::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--border-subtle);
 }
 
 .rev-toc-link:hover,
@@ -967,6 +1226,13 @@
   color: var(--color-accent-strong);
   background: color-mix(in srgb, var(--color-accent-soft) 54%, transparent);
   border-left-color: var(--color-accent-strong);
+}
+
+.rev-toc-link--h3:hover::before,
+.rev-toc-link--h3:hover::after,
+.rev-toc-link--h3.rev-toc-link--active::before,
+.rev-toc-link--h3.rev-toc-link--active::after {
+  background: var(--color-accent-strong);
 }
 
 .rev-toc-empty {
@@ -982,6 +1248,7 @@
 .rev-subject-toc {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: 1.1rem;
   margin-top: 0.9rem;
 }

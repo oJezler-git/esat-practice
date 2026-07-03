@@ -24,6 +24,7 @@ export const meta = {
 | Parallel lines | Always the same perpendicular distance apart (shown with arrows) |
 | Perpendicular lines | Meet at a right angle |
 | Subtended angle | The angle formed at a point by two rays through the ends of a line/arc |
+| Polygon | A closed plane shape with three or more straight sides |
 | Regular polygon | All sides equal *and* all angles equal |
 
 A shape's **line symmetry** counts the mirror lines that map it onto itself; its **order of rotational symmetry** counts how many times it fits its own outline in one full turn. Regular polygons generally have both equal to the number of sides.
@@ -45,6 +46,10 @@ $$
 
 $$
 \text{interior angle sum of an $n$-gon} = 180(n-2)°, \qquad \text{exterior angle sum of any polygon} = 360°
+$$
+
+$$
+\text{interior angle sum of a quadrilateral} = 360°
 $$
 </FormulaCard>
 
@@ -88,12 +93,16 @@ For a regular polygon, it's usually faster to find the exterior angle first ($36
 |---|---|
 | Square | All sides equal, all angles $90°$, 4 lines of symmetry, rotational order 4 |
 | Rectangle | 2 pairs parallel sides, all angles $90°$, 2 lines of symmetry, rotational order 2 |
-| Parallelogram | 2 pairs parallel sides, opposite sides equal, opposite angles equal, no line symmetry (usually), rotational order 2 |
+| Parallelogram | 2 pairs parallel sides, opposite sides equal, opposite angles equal, adjacent angles sum to $180°$, no line symmetry (usually), rotational order 2 |
 | Trapezium | Exactly one pair of parallel sides |
 | Kite | 2 pairs of adjacent equal sides, 1 line of symmetry, diagonals meet at right angles |
 | Rhombus | All sides equal, 2 pairs parallel sides, diagonals bisect each other at right angles, 2 lines of symmetry |
 
 Triangles are classified by angles (acute / right-angled / obtuse) and by sides: **scalene** (no equal sides), **isosceles** (2 equal sides, 1 line of symmetry), **equilateral** (3 equal sides, 3 lines of symmetry, rotational order 3).
+
+<Tip title="Side-angle labelling convention">
+In a triangle $ABC$, side $a$ is the side opposite vertex $A$ (i.e. $BC$), side $b$ is opposite $B$ (i.e. $AC$), and side $c$ is opposite $C$ (i.e. $AB$) — lower-case letters always name the side facing the upper-case vertex of the same letter.
+</Tip>
 
 <WorkedExample title="Identifying a quadrilateral from a construction">
 Two identical equilateral triangles are joined along one edge. Name the resulting quadrilateral.
@@ -179,6 +188,8 @@ $$
 
 A negative scale factor puts the image on the *opposite* side of the centre; a scale factor between $-1$ and $1$ shrinks the object.
 
+A point is **invariant** under a transformation if it maps to itself (image = object). Every point on a mirror line is invariant under that reflection; only the centre is invariant under a rotation or an enlargement; a translation (other than the zero vector) has no invariant points at all.
+
 <WorkedExample title="Rotating a point using coordinates">
 Rotate $A(1,0)$ through $90°$ anticlockwise about $(5,5)$.
 
@@ -186,6 +197,26 @@ $A$ is 4 left and 5 down from the centre: $(-4,-5)$ relative to $(5,5)$. Rotatin
 
 $$
 A' = (5,5) + (5,-4) = (10,1)
+$$
+</WorkedExample>
+
+<WorkedExample title="Reflecting a shape in a non-axis mirror line">
+Reflect the trapezium $A(0,0),B(3,0),C(2,2),D(0,2)$ in the line $x+y=5$.
+
+Each vertex reflects to the point the same perpendicular distance from the mirror line, on the opposite side:
+
+$$
+A'=(5,5), \qquad B'=(5,2), \qquad C'=(3,3), \qquad D'=(3,5)
+$$
+</WorkedExample>
+
+<WorkedExample title="Translating a shape and writing the vector">
+Translate the trapezium $A(1,6),B(4,6),C(3,8),D(1,8)$ by 6 squares right and 4 squares down.
+
+Add $6$ to every $x$-coordinate and subtract $4$ from every $y$-coordinate:
+
+$$
+A'=(7,2), \qquad B'=(10,2), \qquad C'=(9,4), \qquad D'=(7,4), \qquad \text{translation vector} = \binom{6}{-4}
 $$
 </WorkedExample>
 
@@ -200,6 +231,18 @@ $$
 <Trap title="Track the sign of every coordinate in A − P carefully">
 A single dropped minus sign in $A-P$ sends the image to entirely the wrong quadrant. Compute $A-P$ as one clean subtraction before multiplying by the scale factor, rather than trying to do it in your head.
 </Trap>
+
+<WorkedExample title="Finding a centre of rotation from object and image">
+Trapezium $T$ with $A(2,7),B(5,7),C(4,9),D(2,9)$ is translated by $\binom{5}{-1}$ to form $P$, then $P$ is rotated $90°$ clockwise about $(4,6)$ to form $Q$. Find the single transformation mapping $T$ to $Q$, and its invariant point.
+
+By inspection $Q$ is a $90°$ clockwise rotation of $T$, so there's a single centre of rotation to find. Join each vertex to its image (e.g. $A$ to $A'$, $D$ to $D'$) and construct the perpendicular bisector of each: where the two perpendicular bisectors meet is the centre of rotation.
+
+$$
+\text{perpendicular bisector of } AA' \ \cap \ \text{perpendicular bisector of } DD' = (1,4)
+$$
+
+The single transformation is a $90°$ clockwise rotation about $(1,4)$, and $(1,4)$ is the only invariant point.
+</WorkedExample>
 
 <Tip title="Two reflections in non-parallel lines make one rotation">
 Combining two reflections is equivalent to a single rotation (if the mirror lines cross) or a single translation (if they're parallel) — you never need to describe "reflect, then reflect" as the final answer if a single transformation is asked for.
@@ -229,6 +272,14 @@ PQ^2+QR^2 = 225+64 = 289 = 17^2 = PR^2
 $$
 
 Since Pythagoras' theorem holds with $PR$ as hypotenuse, the triangle **is** right-angled.
+</WorkedExample>
+
+<WorkedExample title="3D Pythagoras: the space diagonal of a cuboid">
+A cuboid has edges $3\text{ cm}, 4\text{ cm}, 12\text{ cm}$. Find the length $d$ of its space diagonal.
+
+$$
+d^2 = 3^2+4^2+12^2 = 9+16+144 = 169, \qquad d = 13 \text{ cm}
+$$
 </WorkedExample>
 
 <Shortcut title="Check Pythagoras against the longest side only">
@@ -286,12 +337,42 @@ $$
 $$
 </WorkedExample>
 
+<WorkedExample title="Angle between a tangent and a radius">
+$ABC$ and $ADE$ are tangents at $B$ and $D$ to a circle centre $O$. $\angle BAD=82°$. Find $\angle BOD$.
+
+$$
+\angle OBA = \angle ODA = 90° \ (\text{radius} \perp \text{tangent})
+$$
+
+$OBAD$ is a quadrilateral, so its angles sum to $360°$:
+
+$$
+\angle BOD = 360°-(90°+90°+82°) = 98°
+$$
+</WorkedExample>
+
+<WorkedExample title="Angles in a cyclic quadrilateral">
+$ABCD$ is a cyclic quadrilateral with $BC\parallel AD$, and $BAE$ is a straight line. $\angle BCD=74°$. Find $\angle CBA$.
+
+$$
+\angle DAE = \angle BCD = 74° \qquad (\text{exterior angle of a cyclic quadrilateral} = \text{interior opposite angle})
+$$
+
+$$
+\angle CBA = \angle DAE = 74° \qquad (\text{corresponding angles, since } BC\parallel AD)
+$$
+</WorkedExample>
+
 <Trap title="Angle at the centre must use the SAME arc as the circumference angle">
 Before doubling or halving, check carefully whether the given central angle is the one on the same side of the chord as the circumference angle, or its reflex partner — this is the single most common circle-theorem slip.
 </Trap>
 
 <Shortcut title="Tangent-and-radius questions usually hide a quadrilateral">
 When two tangents are drawn from an external point, the two radii-to-tangent-points and the two tangent segments form a quadrilateral (angle sum $360°$) with two known right angles — that's almost always the fastest route to the unknown angle at the centre.
+</Shortcut>
+
+<Shortcut title="Two tangents from the same external point are always equal">
+If two tangent lines are drawn to a circle from one external point, the distance from that point to each point of contact is identical — this gives you a free isosceles triangle (and a line of symmetry through the centre) any time a diagram shows two tangents meeting outside the circle.
 </Shortcut>
 
 ## M5.10 Geometry on coordinate axes
@@ -305,6 +386,22 @@ $A(2,-3)$, $B(-4,5)$. Find $AB$ and the midpoint of $AB$.
 
 $$
 AB^2 = 6^2+8^2 = 100, \qquad AB=10, \qquad \text{midpoint} = \left(\frac{2-4}{2},\frac{-3+5}{2}\right) = (-1,1)
+$$
+</WorkedExample>
+
+<WorkedExample title="Multi-step coordinate problem: a trapezium on the axes">
+$ABCD$ is a trapezium with $AB\parallel DC$. $A(-2,4)$, $B(5,4)$, $D(-2,-3)$, $\angle BCD$ is acute, and $BC=12$. Find $DC$.
+
+$D$ shares $A$'s $x$-coordinate and $B$ shares $A$'s $y$-coordinate, so $\angle ADC=90°$. Draw $BE\parallel AD$ with $E$ on $DC$, forming right-angled $\triangle BEC$:
+
+$$
+BE=AD=4-(-3)=7, \qquad EC^2 = BC^2-BE^2 = 12^2-7^2 = 95, \qquad EC=\sqrt{95}
+$$
+
+Since $\angle BCD$ is acute, $DC$ is longer than $AB$, so $DC=DE+EC$ with $DE=AB=7$:
+
+$$
+DC = 7+\sqrt{95} \text{ cm}
 $$
 </WorkedExample>
 
@@ -327,6 +424,12 @@ For the pyramid above: $5+5=10=8+2$. Any polyhedron answer you compute should sa
 ## M5.12 Plans and elevations
 
 The **plan** is the view from directly above; the **front elevation** and **side elevation** are the views looking straight at the front and side. A cone's plan is a circle with a central dot (the apex); its side elevation is a triangle. A cylinder's plan is a plain circle; its side elevation is a rectangle.
+
+<WorkedExample title="Drawing the plan and elevation of a cone and a cylinder">
+Sketch the plan and side elevation of (a) a cone and (b) a cylinder.
+
+For both solids the **plan** is a circle — for the cone, add a central dot to mark the apex. The **side elevation** of the cone is a triangle: base length $=$ the cone's base diameter, height $=$ the cone's vertical height. The side elevation of the cylinder is a rectangle: base length $=$ the cylinder's base diameter, height $=$ the cylinder's height. Neither elevation shows the curved base outline, and this holds whichever side you view each solid from, since both are circular in plan.
+</WorkedExample>
 
 <Shortcut title="Dashed lines in a plan mark hidden or internal edges">
 When sketching a plan or elevation yourself, only solid outlines are required for the answer — internal construction lines used just to work out the shape don't need to be included in the final drawing.
@@ -358,6 +461,26 @@ XY = XZ\sin60° = 10\times\frac{\sqrt3}{2} = 5\sqrt3 \text{ km}
 $$
 </WorkedExample>
 
+<WorkedExample title="Bearings combined with an isosceles triangle">
+Ship $S$ is 10 km from lighthouse $L$ on a bearing of $120°$. Yacht $Y$ is 10 km from $S$ on a bearing of $250°$. Find the bearing of $Y$ from $L$.
+
+Since $SL=SY=10$, $\triangle SLY$ is isosceles. At $S$, the angle between the north line and $SL$ (looking back) is $180°-120°=60°$, so the angle $LSY$ between $SL$ and $SY$ is:
+
+$$
+\angle LSY = 360°-250°-60° = 50°
+$$
+
+The base angles of the isosceles triangle are:
+
+$$
+\angle SLY = \angle SYL = \frac{180°-50°}{2} = 65°
+$$
+
+$$
+\text{bearing of } Y \text{ from } L = 120°+\angle SLY = 120°+65° = 185°
+$$
+</WorkedExample>
+
 ## M5.14 Area of triangles, parallelograms, trapezia; volume of prisms
 
 <FormulaCard title="Area and volume formulas">
@@ -383,6 +506,14 @@ $WZ=10$ isn't needed — it's only relevant if you needed the perimeter.
 <Tip title="Any face of a cuboid can be the cross-section">
 For a cuboid, it doesn't matter which pair of opposite faces you treat as the "ends" — the volume comes out the same either way, so pick whichever face makes the cross-sectional area easiest to compute.
 </Tip>
+
+<WorkedExample title="Volume of a triangular prism">
+A right triangular prism has a right-angled triangular cross-section with shorter sides $6$ cm and $7$ cm, and length $20$ cm. Find the volume.
+
+$$
+\text{area of cross-section} = \frac12\times6\times7 = 21 \text{ cm}^2, \qquad V = 21\times20 = 420 \text{ cm}^3
+$$
+</WorkedExample>
 
 ## M5.15 Circles, spheres, cones and pyramids
 
@@ -420,6 +551,18 @@ $$
 When a hemisphere is glued to another solid, its curved surface is $\tfrac12(4\pi r^2)=2\pi r^2$ — but its flat circular face is *not* part of the outer surface anymore, since it's glued to the cone's base. Only add the curved part.
 </Trap>
 
+<WorkedExample title="Compound area: a circle cut from a circle">
+A circle of radius 4 cm is cut from a circle of radius 8 cm. What fraction of the area of the radius-8 circle remains?
+
+$$
+\text{area removed} = \pi(4)^2 = 16\pi, \qquad \text{original area} = \pi(8)^2 = 64\pi
+$$
+
+$$
+\text{fraction remaining} = \frac{64\pi-16\pi}{64\pi} = \frac{48\pi}{64\pi} = \frac34
+$$
+</WorkedExample>
+
 ## M5.16 Arc length and sector area
 
 <FormulaCard title="Sector formulas">
@@ -429,6 +572,14 @@ $$
 
 where $x°$ is the angle between the two radii.
 </FormulaCard>
+
+<WorkedExample title="Sector area from an angle and radius">
+A sector of radius 12 cm has an angle of $70°$. Find the area of the sector.
+
+$$
+\text{area} = \frac{70}{360}\times\pi(12)^2 = \frac{70}{360}\times144\pi = 28\pi \text{ cm}^2
+$$
+</WorkedExample>
 
 <WorkedExample title="Finding an unknown sector angle from arc length">
 A sector of radius 18 cm has arc length $15\pi$ cm. Find the sector angle.
@@ -444,7 +595,19 @@ It's easy to accidentally add the whole circle's circumference — remember a se
 
 ## M5.17 Congruence, similarity, and length/area/volume scaling
 
+Two shapes are **congruent** if they are identical in size and shape (one can be mapped onto the other by rotation, reflection and/or translation alone). Two shapes are **similar** if they have the same shape but not necessarily the same size — one is an enlargement of the other, so corresponding angles are equal and corresponding sides are all in the same ratio.
+
 If shape $Y$ is a similar enlargement of shape $X$ with scale factor $n$: lengths $\times n$, areas $\times n^2$, volumes $\times n^3$.
+
+<WorkedExample title="Similar triangles: finding an unknown side">
+$B$ is on $AD$ and $C$ is on $AE$, with $BC\parallel DE$. $AB=5$ cm, $BD=10$ cm, $BC=7$ cm. Show $\triangle ABC \sim \triangle ADE$ and find $DE$.
+
+$\angle A$ is shared, and $\angle ABC=\angle ADE$, $\angle ACB=\angle AED$ (corresponding angles, $BC\parallel DE$), so $\triangle ABC \sim \triangle ADE$. Corresponding sides are then in the same ratio:
+
+$$
+AB:AD = 5:15 = 1:3, \qquad BC:DE = 1:3 \ \Rightarrow\ DE = 3\times7 = 21 \text{ cm}
+$$
+</WorkedExample>
 
 <WorkedExample title="Scaling mass via volume">
 A chocolate bar (mass 25 g, wrapper area 60 cm²) is enlarged by scale factor 2 in every dimension for the "family bar." Find the new wrapper area and mass.
@@ -459,6 +622,14 @@ Two right-angled triangles can share the same hypotenuse length yet have complet
 </Trap>
 
 ## M5.18 Trigonometric ratios and exact values
+
+<Trap title="The sine and cosine rules are not required">
+This topic only needs right-angled trigonometry ($\sin$, $\cos$, $\tan$ of a right-angled triangle) and Pythagoras. You are not expected to recall or use the sine rule or cosine rule for non-right-angled triangles.
+</Trap>
+
+<Shortcut title="SOHCAHTOA picks the right ratio instantly">
+$\sin\theta = \dfrac{\text{Opposite}}{\text{Hypotenuse}}$, $\cos\theta = \dfrac{\text{Adjacent}}{\text{Hypotenuse}}$, $\tan\theta = \dfrac{\text{Opposite}}{\text{Adjacent}}$. Label the two sides you know (or want) relative to the marked angle first, then read off which ratio uses exactly those two letters.
+</Shortcut>
 
 <FormulaCard title="Exact trig values to memorise">
 | $\theta$ | $0°$ | $30°$ | $45°$ | $60°$ | $90°$ |
@@ -506,6 +677,16 @@ $$
 Vectors $\mathbf{x}$ and $\mathbf{y}$ are parallel exactly when $\mathbf{x}=k\mathbf{y}$ for some constant $k$.
 </FormulaCard>
 
+In a diagram, vectors are often built from two starting vectors out of a shared point. If $O$ is the origin with $\overrightarrow{OA}=\mathbf{a}$ and $\overrightarrow{OB}=\mathbf{b}$, then in parallelogram $OACB$ (where $\overrightarrow{OA}=\overrightarrow{BC}$ and $\overrightarrow{OB}=\overrightarrow{AC}$):
+
+$$
+\overrightarrow{OC} = \mathbf{a}+\mathbf{b}, \qquad \overrightarrow{AB} = \mathbf{b}-\mathbf{a}, \qquad \overrightarrow{BA} = \mathbf{a}-\mathbf{b}
+$$
+
+<Tip title="Route from tail to head via any middle point">
+$\overrightarrow{XY} = \overrightarrow{XZ}+\overrightarrow{ZY}$ for any point $Z$ — this is how $\overrightarrow{AB}$ above becomes $\overrightarrow{AO}+\overrightarrow{OB} = -\mathbf{a}+\mathbf{b}$. Fractions and multiples of $\mathbf{a}$ and $\mathbf{b}$ (like $\tfrac12\mathbf{a}$ or $-3\mathbf{b}$) combine the same way when a diagram labels a point partway along a side.
+</Tip>
+
 <WorkedExample title="Checking which vectors are parallel">
 $\mathbf{x}=\binom{2}{-3}$, $\mathbf{y}=\binom{-6}{-1}$. Is $\binom{16}{-4}$ parallel to $\mathbf{x}-\mathbf{y}$?
 
@@ -531,6 +712,10 @@ Since $\overrightarrow{DE}$ is a scalar multiple of $\overrightarrow{BC}$, they'
 <Tip title="Route every vector proof through a shared vertex">
 Writing every vector in a proof as a combination of two starting vectors from the same vertex (like $\mathbf{x}=\overrightarrow{AB}$, $\mathbf{y}=\overrightarrow{AC}$ above) turns "show these are parallel" into pure algebra — the geometry does itself once the setup is right.
 </Tip>
+
+<Shortcut title="Parallel vectors sharing a point prove collinearity">
+If $\overrightarrow{XY}$ and $\overrightarrow{XZ}$ turn out to be scalar multiples of each other, then $X$, $Y$ and $Z$ don't just lie on parallel lines — since they share the point $X$, they must all lie on the *same* straight line. This is the standard way an ESAT question asks you to "show three points are collinear."
+</Shortcut>
 
 ## Formula and shortcut summary
 

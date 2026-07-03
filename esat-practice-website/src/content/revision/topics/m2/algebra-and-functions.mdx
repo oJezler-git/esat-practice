@@ -37,7 +37,7 @@ $$
 $$
 </WorkedExample>
 
-<Trap title="(aᵐ)ⁿ is not the same as aᵐⁿ written as a power tower">
+<Trap title="(a^m)^n is not the same as a^(m^n) written as a power tower">
 $(a^3)^2 = a^3\times a^3 = a^6$, using RULE $(a^m)^n=a^{mn}$. This is completely different from $a^{(3^2)}=a^9$. The two expressions look similar on paper but mean different things — always check whether a power is applied to an already-raised quantity or sits in the exponent itself.
 </Trap>
 
@@ -122,6 +122,10 @@ These fall straight out of completing the square: the turning point's $y$-value 
 If $ax^2+bx+c$ factorises with integers, it's almost always faster to spot the factors than to grind through the quadratic formula — reserve the formula (or completing the square) for equations that don't factorise nicely.
 </Tip>
 
+<Shortcut title="Sum and product of roots without solving the quadratic">
+For $ax^2+bx+c=0$ with roots $\alpha,\beta$: $\alpha+\beta=-\dfrac{b}{a}$ and $\alpha\beta=\dfrac{c}{a}$. If a question only asks for something built from the sum or product of the roots (not the roots themselves), read it straight off the coefficients instead of solving the equation at all.
+</Shortcut>
+
 ## MM1.4 Simultaneous equations
 
 Solving simultaneous equations means finding the $(x,y)$ pairs common to both equations — geometrically, where their graphs cross.
@@ -191,6 +195,10 @@ $$
 x<4
 $$
 </WorkedExample>
+
+<Shortcut title="Square both sides to remove a modulus inequality algebraically">
+Since both sides of $|x-3|<|x-5|$ are non-negative, squaring preserves the inequality direction: $(x-3)^2<(x-5)^2 \Rightarrow x^2-6x+9<x^2-10x+25 \Rightarrow 4x<16 \Rightarrow x<4$ — the same answer as the distance argument, but pure algebra with no sketch required.
+</Shortcut>
 
 ## MM1.6 Algebraic manipulation of polynomials
 

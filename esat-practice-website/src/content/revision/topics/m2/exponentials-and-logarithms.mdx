@@ -2,7 +2,7 @@ export const meta = {
   slug: "exponentials-and-logarithms",
   module: "m2",
   title: "Exponentials and Logarithms",
-  subtitle: "The graph of y = aˣ, the laws of logarithms, and solving exponential equations.",
+  subtitle: "The graph of y = a^x, the laws of logarithms, and solving exponential equations.",
   topicCode: "MM5",
   estimatedMinutes: 20,
   order: 50,
@@ -11,7 +11,7 @@ export const meta = {
   },
 };
 
-## MM5.1 The graph of y = aˣ
+## MM5.1 The graph of $y=a^x$
 
 $y=a^x$ (for $a>0$) is worth sketching mentally in three cases, and you should be able to explain the features of each rather than just recognise the shapes:
 
@@ -71,7 +71,7 @@ It's tempting to treat $\log_a c$ like an ordinary function that's defined every
 
 Since $\log_a x$ is the *inverse* of $a^x$, its graph is just $y=a^x$ reflected in the line $y=x$ — equivalently, swap the roles of the axes. Sketching $y=2^x$ and reading it "backwards" (start on the $y$-axis, trace across to the curve, then down to the $x$-axis) is exactly the process of taking a log base $2$.
 
-<WorkedExample title="Reading off features of y = logₐ x">
+<WorkedExample title="Reading off features of y = log_a x">
 The graph of $y=\log_2 x$ is only defined for $x>0$ (matching the "$c>0$" condition above), and it crosses the $x$-axis at $x=1$ — because $\log_2 1=0$, since $2^0=1$.
 </WorkedExample>
 
@@ -144,6 +144,14 @@ $$
 
 Both are correct — they're the same number written two different ways, which you can check using the change-of-base identity above.
 </WorkedExample>
+
+<Shortcut title="log_a(a^k) simplifies to k instantly">
+$\log_a(a^k)=k$ directly from the definition — no working needed. $\log_5(5^7)=7$, $\log_2\!\left(\frac{1}{8}\right)=\log_2(2^{-3})=-3$. Spotting the argument as $a$ raised to some power turns a "calculate this log" question into reading off an exponent.
+</Shortcut>
+
+<Shortcut title="Memorise small powers to spot a shared base fast">
+Knowing powers of 2 up to $2^{10}=1024$, powers of 3 up to $3^5=243$, and powers of 5 up to $5^4=625$ makes it far quicker to notice that, say, $128=2^7$ or $243=3^5$ — exactly the recognition the "shared base" trick below depends on.
+</Shortcut>
 
 <Tip title="Spot when the numbers on both sides share a common base">
 Before reaching for logs, check whether both sides can be written as powers of the same number — $27=3^3$, $32=2^5$, and so on. If they can, you can often equate exponents directly without logs at all. Logs are the general-purpose tool; spotting a shared base is the shortcut.

@@ -5,6 +5,9 @@ import { ampersandize } from "../../content/revision/textFormat";
 import type { RevisionDocEntry, RevisionHeading, RevisionModule } from "../../content/revision/types";
 import { RevisionAsk } from "./RevisionAsk";
 import { useActiveHeading } from "./useActiveHeading";
+import { useExitTransition } from "./useExitTransition";
+
+type DisplayedHeadings = { id: string; headings: RevisionHeading[] };
 
 function TopicNavLinks({
   module,
@@ -60,6 +63,15 @@ export function RevisionLayout({
   const activeHeading = useActiveHeading(headings);
   const currentModule = currentDoc ? getRevisionModule(currentDoc.meta.module) : undefined;
   const activeDocId = currentDoc?.id;
+  const headingsValue: DisplayedHeadings | null =
+    headings.length > 0 && activeDocId ? { id: activeDocId, headings } : null;
+  // The TOC fades out its old links instead of snapping to "Loading sections..."
+  // the instant the route settles on a new topic.
+  const { display: displayedHeadings, exiting: tocExiting } = useExitTransition(
+    headingsValue,
+    activeDocId,
+    150,
+  );
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileNavClosing, setMobileNavClosing] = useState(false);
 
@@ -148,11 +160,14 @@ export function RevisionLayout({
         <aside className="rev-toc" aria-label="On this page">
           <div className="rev-toc-inner">
             <div className="rev-toc-heading">On this page</div>
-            {headings.length === 0 ? (
+            {displayedHeadings === null ? (
               <p className="rev-toc-empty">Loading sections...</p>
             ) : (
-              <nav>
-                {headings.map((heading) => (
+              <nav
+                key={displayedHeadings.id}
+                className={tocExiting ? "rev-toc-exit" : undefined}
+              >
+                {displayedHeadings.headings.map((heading) => (
                   <a
                     key={heading.id}
                     href={`#${heading.id}`}

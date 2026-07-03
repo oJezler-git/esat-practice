@@ -17,6 +17,7 @@ import { preloadKatexFonts } from "./katexFontPreload";
 import { revisionMdxComponents } from "./RevisionMdxComponents";
 import { RevisionLayout } from "./RevisionLayout";
 import { useCopy } from "./useCopy";
+import { useExitTransition } from "./useExitTransition";
 
 function collectHeadings(root: HTMLElement | null): RevisionHeading[] {
   if (!root) {
@@ -60,6 +61,14 @@ export function RevisionDocPage() {
   // (warm) topics slide straight in without a flash of skeleton.
   const [showSkeleton, setShowSkeleton] = useState(false);
   const ready = loaded && loaded.id === docId ? loaded : null;
+  // Instead of the old guide vanishing the instant a new topic is clicked,
+  // it plays a brief exit animation while the new one loads/cascades in.
+  const { display: displayedContent, exiting: contentExiting } = useExitTransition(ready, docId, 150);
+  // Same treatment for the breadcrumb/title/subtitle/meta cluster — doc is
+  // already the new topic's data the instant the route changes (it's
+  // synchronous, unlike the async guide content), so this only delays the
+  // visual swap, not any data fetch.
+  const { display: displayedDoc, exiting: headerExiting } = useExitTransition(doc ?? null, docId, 150);
 
   // Warm the KaTeX fonts as soon as a guide is opened so math never pops in.
   useEffect(() => {
@@ -131,35 +140,44 @@ export function RevisionDocPage() {
     );
   }
 
-  const module = getRevisionModule(doc.meta.module);
+  const headerDoc = displayedDoc ?? doc;
+  const headerModule = getRevisionModule(headerDoc.meta.module);
 
   return (
     <RevisionLayout currentDoc={doc} headings={headings}>
       <article ref={articleRef} className="rev-article">
-        <div className="rev-breadcrumb">
-          <Link to="/revision">Revision</Link>
-          <span>/</span>
-          <span>{module.shortTitle}</span>
-        </div>
-
-        <div className="rev-title-row">
-          <div>
-            <p className="rev-kicker">{doc.meta.topicCode} · {module.title}</p>
-            <h1>{ampersandize(doc.meta.title)}</h1>
+        <div
+          key={headerDoc.id}
+          className={`rev-header-enter${headerExiting ? " rev-header-exit" : ""}`}
+        >
+          <div className="rev-breadcrumb">
+            <Link to="/revision">Revision</Link>
+            <span>/</span>
+            <span>{headerModule.shortTitle}</span>
           </div>
-          <button type="button" className="rev-copy-btn" onClick={copy}>
-            {copied ? "Copied" : "Copy page"}
-          </button>
-        </div>
-        <p className="rev-subtitle">{doc.meta.subtitle}</p>
-        <div className="rev-meta-row">
-          <span>{doc.meta.estimatedMinutes} min read</span>
+
+          <div className="rev-title-row">
+            <div>
+              <p className="rev-kicker">{headerDoc.meta.topicCode} · {headerModule.title}</p>
+              <h1>{ampersandize(headerDoc.meta.title)}</h1>
+            </div>
+            <button type="button" className="rev-copy-btn" onClick={copy}>
+              {copied ? "Copied" : "Copy page"}
+            </button>
+          </div>
+          <p className="rev-subtitle">{headerDoc.meta.subtitle}</p>
+          <div className="rev-meta-row">
+            <span>{headerDoc.meta.estimatedMinutes} min read</span>
+          </div>
         </div>
 
         <div className="rev-mdx">
-          {ready ? (
-            <div key={docId} className="rev-mdx-enter">
-              <ready.Content components={revisionMdxComponents} />
+          {displayedContent ? (
+            <div
+              key={displayedContent.id}
+              className={`rev-mdx-enter${contentExiting ? " rev-mdx-exit" : ""}`}
+            >
+              <displayedContent.Content components={revisionMdxComponents} />
             </div>
           ) : showSkeleton ? (
             <div className="rev-mdx-skeleton" aria-hidden="true">

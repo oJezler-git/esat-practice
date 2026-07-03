@@ -82,6 +82,16 @@ For $\left(25y^4\right)^{\frac12}$, taking the square root first gives $5y^2$ im
 | Inequality | Compares size using $<,\le,>,\ge,\ne$ |
 | Factor | Divides exactly into an expression with no remainder |
 
+<WorkedExample title="Listing the factors of an expression">
+List the factors of $x(x+3)(x-5)$.
+
+Treat this as $1\times x\times(x+3)\times(x-5)$ and take every possible combination of these four pieces:
+
+$$
+1,\ x,\ x+3,\ x-5,\ x(x+3),\ x(x-5),\ (x+3)(x-5),\ x(x+3)(x-5)
+$$
+</WorkedExample>
+
 <WorkedExample title="Substituting with BIDMAS">
 Find $3x^3 - 5(x-y)$ when $x=2$ and $y=5$.
 
@@ -117,6 +127,20 @@ $$
 $$
 (x+a)(x+b) = x^2+(a+b)x+ab \qquad \text{(two binomials)}
 $$
+
+<WorkedExample title="Collecting like terms">
+Simplify $3x-4x^2+3y+3x^3-7x+8x^2+5x-y^2$ by collecting like terms.
+
+Group each power of $x$ and $y$ separately, then combine:
+
+$$
+x\text{ terms: } 3x-7x+5x=x, \qquad x^2\text{ terms: } -4x^2+8x^2=4x^2
+$$
+
+$$
+3x-4x^2+3y+3x^3-7x+8x^2+5x-y^2 = 3x^3+4x^2-y^2+x+3y
+$$
+</WorkedExample>
 
 <WorkedExample title="Expanding a single term over a bracket">
 $$
@@ -155,6 +179,10 @@ For anything bigger than two binomials, lay the multiplication out as a grid (on
 ## M4.5 Factorising quadratics
 
 For $x^2+bx+c$, look for two numbers $p,q$ with $p+q=b$ and $pq=c$: then it factorises as $(x+p)(x+q)$.
+
+<Shortcut title="Read the signs of p and q before searching for numbers">
+If $c$ is positive, $p$ and $q$ have the *same* sign as $b$ (both positive if $b>0$, both negative if $b<0$). If $c$ is negative, $p$ and $q$ have *opposite* signs, and the one with the larger magnitude takes the sign of $b$. Knowing this before you start narrows the factor pairs you need to try.
+</Shortcut>
 
 For $ax^2+bx+c$ (with $a\ne1$), find two numbers that multiply to $a\times c$ and add to $b$, split the middle term using them, then factorise in pairs.
 
@@ -198,6 +226,16 @@ $$
 $$
 </FormulaCard>
 
+<WorkedExample title="Cancelling without factorising">
+Simplify $\dfrac{6x^3y^4}{15x^5y}$.
+
+Divide the numbers and subtract matching indices directly — no factorising needed:
+
+$$
+\frac{6x^3y^4}{15x^5y} = \frac{2x^3y^4}{5x^5y} = \frac{2y^3}{5x^2}
+$$
+</WorkedExample>
+
 <WorkedExample title="Factorise, then cancel">
 Simplify $\dfrac{6x^2+19x+10}{4x^2-25}$.
 
@@ -226,7 +264,7 @@ $\dfrac{x+2}{x}$ does **not** simplify to $\dfrac{1}{1}+2=3$, and it doesn't sim
 
 ## M4.7 Rearranging formulae
 
-To change the subject, you can add, subtract, multiply, divide, invert, square, or square-root **both sides** of the formula — the same toolkit as solving an equation, just with letters instead of numbers on the other side.
+To change the subject, you can add, subtract, multiply, divide, invert, or raise **both sides** to the same non-zero power (including squaring, square-rooting, cubing, and so on) — the same toolkit as solving an equation, just with letters instead of numbers on the other side.
 
 <WorkedExample title="Rearranging with the subject in two places">
 Make $p$ the subject of $q+2p = p+4q-6r$.
@@ -268,6 +306,18 @@ $$
 $$
 
 This isn't identical to $\dfrac{1}{x^2-1}$, so it's an **equation** — true only when $x-7=1$, i.e. $x=8$.
+</WorkedExample>
+
+<WorkedExample title="Proving an identity by simplifying one side">
+Show that $\dfrac{2p}{3}+\dfrac{3q}{2}-\dfrac{5(p+q)}{6} \equiv \dfrac{4q-p}{6}$.
+
+Put the left-hand side over a common denominator of 6, then simplify:
+
+$$
+\frac{2p}{3}+\frac{3q}{2}-\frac{5(p+q)}{6} = \frac{4p+9q-5(p+q)}{6} = \frac{4p+9q-5p-5q}{6} = \frac{4q-p}{6}
+$$
+
+This matches the right-hand side exactly, so the statement is an identity.
 </WorkedExample>
 
 <Tip title="Solving an identity gives you '0 = 0'">
@@ -330,9 +380,31 @@ $$
 Substitute $(3,5)$: $5 = 6+c \Rightarrow c=-1$, so $y=2x-1$.
 </WorkedExample>
 
+<WorkedExample title="Identifying parallel lines">
+Which of these lines are parallel?
+
+$$
+a:\ y+4x=9 \qquad b:\ y=4x+7 \qquad c:\ 3y+4x=9 \qquad d:\ 2y=7-8x \qquad e:\ 3y-12x=-7
+$$
+
+Rearrange each into $y=mx+c$ and compare gradients:
+
+$$
+a:\ y=-4x+9\ (m=-4) \qquad b:\ m=4 \qquad c:\ y=-\tfrac43x+3\ (m=-\tfrac43) \qquad d:\ y=-4x+\tfrac72\ (m=-4) \qquad e:\ y=4x-\tfrac73\ (m=4)
+$$
+
+Lines $a$ and $d$ are parallel (gradient $-4$); lines $b$ and $e$ are parallel (gradient $4$).
+</WorkedExample>
+
 ## M4.11 Roots, intercepts and turning points of quadratics
 
 For $f(x)=ax^2+bx+c$: the graph is a parabola, the $y$-intercept is $c$ (set $x=0$), the roots are where $f(x)=0$ (set $y=0$), and the turning point is found by completing the square.
+
+<WorkedExample title="Reading roots and the y-intercept from a graph">
+The graph of $y=2x^2+6x+3$ is drawn. Read off the roots (to 1 d.p.) and the $y$-intercept.
+
+The curve crosses the $x$-axis at approximately $x=-0.6$ and $x=-2.4$ — these are the roots. It crosses the $y$-axis at $y=3$, matching the constant term $c=3$ (as expected, since $y=c$ when $x=0$).
+</WorkedExample>
 
 <FormulaCard title="Completing the square finds the turning point">
 $$
@@ -380,10 +452,16 @@ Once you know the turning point's $x$-value, any two points with the same $y$-va
 As $x\to0$, $y=\dfrac1x$ shoots off to $\pm\infty$ rather than crossing the $y$-axis, and it never reaches $y=0$ either — both axes are asymptotes, not intercepts.
 </Trap>
 
-<WorkedExample title="Comparing xⁿ curves">
+<WorkedExample title="Comparing x^n curves">
 For $0\le x\le2$, compare $y=x^2$ and $y=x^3$.
 
 At $x=0$ and $x=1$ they're equal (both $0$ and both $1$). For $x>1$, $x^3>x^2$ (multiplying by a number bigger than 1 again makes it grow faster); for $0<x<1$, $x^3<x^2$ (multiplying by a fraction shrinks it further).
+</WorkedExample>
+
+<WorkedExample title="Counting intersections of two standard graphs">
+At how many points do $y=\dfrac1x$ and $y=2^x$ touch or cross?
+
+Sketching both on the same axes — the reciprocal curve confined to the 1st and 3rd quadrants, the exponential curve always positive and passing through $(0,1)$ — shows they meet at exactly **one** point, in the 1st quadrant.
 </WorkedExample>
 
 <Shortcut title="sin and cos cross exactly once between 0° and 180°">
@@ -419,6 +497,16 @@ A graph plots pressure $P$ against volume $V$ of a gas. Reading points off the g
 Since $PV\approx2.5$ throughout, $V$ is inversely proportional to $P$, with $V=\dfrac{2.5}{P}$.
 </WorkedExample>
 
+<WorkedExample title="Reading exponential growth from a graph">
+A bacteria colony has $n$ thousand bacteria after $t$ hours, following $n=k^t$. The graph shows $n=1$ at $t=0$, $n=3$ at $t=1$, $n=9$ at $t=2$, and $n=27$ at $t=3$.
+
+The population is multiplied by $3$ every hour, so $k=3$ and $n=3^t$. At the end of the 4th hour:
+
+$$
+n = 3^4 = 81 \text{ thousand bacteria}
+$$
+</WorkedExample>
+
 <Shortcut title="A curved section of a distance-time graph means changing speed">
 Straight sections of a distance-time graph mean constant speed (the gradient is the speed); a flat section means stationary; a curved section means accelerating or decelerating — read the *shape*, not just the height, to describe the motion in words.
 </Shortcut>
@@ -426,6 +514,22 @@ Straight sections of a distance-time graph mean constant speed (the gradient is 
 ## M4.14 Gradients and areas under graphs
 
 The gradient of a **curve** at a point equals the gradient of the tangent drawn at that point. The area under a **speed–time** graph gives distance; the area under any graph, more generally, is (vertical quantity) × (horizontal quantity).
+
+<FormulaCard title="Gradient of a straight-line graph">
+$$
+\text{gradient} = \frac{y_2-y_1}{x_2-x_1}
+$$
+
+for any two points $(x_1,y_1)$ and $(x_2,y_2)$ on the line.
+</FormulaCard>
+
+<WorkedExample title="Gradient from two points on a line">
+Find the gradient of the line through $(0,2)$ and $(4,14)$.
+
+$$
+\text{gradient} = \frac{14-2}{4-0} = \frac{12}{4} = 3
+$$
+</WorkedExample>
 
 <WorkedExample title="Estimating the gradient of a curve using a tangent">
 Estimate the gradient of $y=x^2$ at $(2,4)$ by drawing the tangent, which also passes through $(1,0)$ and $(3,8)$.
@@ -443,6 +547,14 @@ $$
 $$
 </WorkedExample>
 
+<WorkedExample title="Approximating the area under a curve with strips">
+Estimate the area under a curve for $0\le x\le2.5$, correct to 1 d.p., using two trapezia and a triangle with areas $3.0625$, $5$, and $2$.
+
+$$
+3.0625+5+2 = 10.0625 \approx 10.1 \text{ squares (1 d.p.)}
+$$
+</WorkedExample>
+
 <Shortcut title="Split first, then add — don't try to integrate a hand-drawn curve">
 Break any area under a graph into triangles, rectangles, and trapezia you already have formulas for. For a genuinely curved boundary, approximate with several trapezia (or triangles) rather than one big shape — more, narrower strips always give a better estimate.
 </Shortcut>
@@ -452,6 +564,18 @@ Break any area under a graph into triangles, rectangles, and trapezia you alread
 **Linear–linear**: eliminate one variable by substitution or by combining the equations (multiply so one variable's coefficients match, then add or subtract).
 
 **Linear–quadratic**: rearrange the linear equation for one variable, substitute into the quadratic, and solve — expect *two* solution pairs.
+
+<WorkedExample title="Setting up simultaneous equations from a word problem">
+Two shades of purple paint are made from red and blue paint. 10 litres of imperial purple (7 litres blue, 3 litres red) costs £16.50. 10 litres of royal purple (equal red and blue) costs £17.50. Find the cost of 10 litres of red paint.
+
+Let $£x$ = cost per litre of blue paint and $£y$ = cost per litre of red paint:
+
+$$
+7x+3y=16.50 \qquad 5x+5y=17.50
+$$
+
+Solving these simultaneously gives $x=1.5$ and $y=2$, so 10 litres of red paint costs $10\times£2=£20$.
+</WorkedExample>
 
 <WorkedExample title="Elimination method">
 Solve $3x-4y=7$ and $x+2y=9$.
@@ -496,6 +620,30 @@ $$
 </FormulaCard>
 
 Use whichever method suits the equation: **factorise** if it splits into nice integers, **complete the square** if you also need the turning point, and the **formula** whenever it won't factorise (leave surds unsimplified only if the question allows a decimal).
+
+<Shortcut title="Check the discriminant before solving, to know what you're aiming for">
+The sign of $b^2-4ac$ tells you the number of real roots before you do any more work: positive gives two distinct roots, zero gives one repeated root, negative gives none. If a question only asks *how many* solutions exist, you can stop as soon as you've evaluated the discriminant.
+</Shortcut>
+
+<FormulaCard title="Completing the square to solve">
+$$
+x^2+ax = \left(x+\frac{a}{2}\right)^2-\frac{a^2}{4}
+$$
+
+Rearrange so one side is a squared bracket, then take the square root of both sides (remembering $\pm$).
+</FormulaCard>
+
+<WorkedExample title="Solving by completing the square">
+Solve $x^2-4x-5=0$ by completing the square.
+
+$$
+x^2-4x = (x-2)^2-4 \ \Rightarrow\ (x-2)^2-4-5=0 \ \Rightarrow\ (x-2)^2=9
+$$
+
+$$
+x-2=\pm3 \ \Rightarrow\ x=5 \text{ or } x=-1
+$$
+</WorkedExample>
 
 <WorkedExample title="Solving by the quadratic formula, leaving a surd">
 Solve $3x^2-4x=5$.
@@ -549,6 +697,14 @@ $$
 If a question gives two separate inequalities instead of one combined one, solve each independently first. If the resulting ranges overlap, write the overlap as a single combined inequality; if they don't overlap at all, there's no solution.
 </Shortcut>
 
+<WorkedExample title="Combining two separate inequalities">
+Find the range of $x$ satisfying both inequalities in each case.
+
+**Case 1:** $3x-4<8$ and $3x-2>-8$ give $x<4$ and $x>-2$ — these overlap, giving the bounded range $-2<x<4$.
+
+**Case 2:** $3x-4<8$ and $3x-2<-8$ give $x<4$ and $x<-2$ — the second condition is stricter and already satisfies the first, so it's redundant: the combined range is simply $x<-2$.
+</WorkedExample>
+
 <WorkedExample title="Shading a region in two variables">
 Shade the region $3x+4y\le12$.
 
@@ -558,6 +714,12 @@ Draw the boundary line $3x+4y=12$ as **solid** (since $\le$ includes it). Test a
 <Tip title="With several inequalities, shade OUT the unwanted regions">
 When a graph needs to satisfy three or more inequalities at once, it's much easier to read if you shade the regions you *don't* want and leave the answer region blank, rather than overlaying multiple shaded regions on top of each other.
 </Tip>
+
+<WorkedExample title="Shading a region for three inequalities">
+Shade the region satisfying $3x+4y\le12$, $y\ge x+6$, and $x>-7$ simultaneously.
+
+Draw all three boundary lines ($3x+4y=12$ and $y=x+6$ solid, since $\le/\ge$ include them; $x=-7$ dashed, since $>$ excludes it), then shade *out* the unwanted side of each: above $3x+4y=12$, below $y=x+6$, and left of $x=-7$. The unshaded region left over, bounded by the solid lines, satisfies all three inequalities at once.
+</WorkedExample>
 
 ## M4.18 Generating sequences
 
@@ -580,6 +742,22 @@ Every term satisfies (term $-2$) is a multiple of 4. Here $272-2=270$, and $270\
 <Shortcut title="Reverse-engineer 'is this term in the sequence?' using the nth-term structure">
 Rather than listing terms until you pass 272, subtract the first term and check divisibility by the common difference — it turns a search into a single division.
 </Shortcut>
+
+<WorkedExample title="Using an nth-term rule forwards and backwards">
+The $n$th term of a sequence is $n^2+2n$. Find the 4th term, and find which term equals 35.
+
+$$
+\text{4th term: } 4^2+2(4) = 24
+$$
+
+To find which position gives 35, solve $n^2+2n=35$:
+
+$$
+n^2+2n-35=0 \ \Rightarrow\ (n+7)(n-5)=0 \ \Rightarrow\ n=-7 \text{ or } n=5
+$$
+
+Since $n$ must be positive, $n=5$: 35 is the 5th term.
+</WorkedExample>
 
 ## M4.19 Finding the nth term of linear and quadratic sequences
 

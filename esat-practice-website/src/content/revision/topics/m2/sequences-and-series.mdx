@@ -53,6 +53,10 @@ $S_n=n\times\dfrac{u_1+u_n}{2}$ is often the fastest route: find the first and l
 
 Adding two arithmetic series term-by-term (or taking any linear combination $\alpha u_n+\beta v_n$) always produces another arithmetic series, with first term and common difference combined the same way.
 
+<Shortcut title="Any AP term is the average of its neighbours">
+For three consecutive terms of an AP, the middle one always equals the average of the other two: $u_n = \dfrac{u_{n-1}+u_{n+1}}{2}$. If a question gives you two terms either side of an unknown one, you can read it off directly without finding $a$ or $d$ first.
+</Shortcut>
+
 ## MM2.3 Geometric series, and sum to infinity
 
 <FormulaCard title="Geometric progression (GP)">
@@ -117,6 +121,10 @@ For the coefficient of $x^5$ in $(2-3x)^7$, the term is $\dbinom{7}{5}2^2(-3x)^5
 
 <Shortcut title="Read off n, r, and the two powers directly from the target term">
 For the $x^k$ term in $(a+bx)^n$: the power on $bx$ is $k$, the power on $a$ is $n-k$ (they must sum to $n$), and $\dbinom{n}{k}$ (or equivalently $\dbinom{n}{n-k}$) is the coefficient — no need to write out the general sigma formula each time.
+</Shortcut>
+
+<Shortcut title="Read small binomial coefficients straight off Pascal's triangle">
+For $n$ up to about 8, it's faster to write out (or recall) the row of Pascal's triangle than to compute $\dfrac{n!}{(n-r)!\,r!}$ by hand: row $n=6$ is $1,6,15,20,15,6,1$, giving every $\binom6r$ at a glance.
 </Shortcut>
 
 <Tip title="(n choose r) counts unordered selections">

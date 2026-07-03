@@ -64,6 +64,10 @@ $$
 Once you know a sector's angle, its fraction of the whole is that angle divided by $360°$ — so you never need to measure the frequency directly off a pie chart if the angles are marked.
 </Shortcut>
 
+<Shortcut title="Find degrees-per-item once, then reuse it for every category">
+When building a pie chart from raw frequencies, compute $360°\div\text{total}$ a single time, then multiply every category's frequency by that one constant — much faster than working out each category's fraction of $360°$ from scratch.
+</Shortcut>
+
 <WorkedExample title="Reading a pictogram with part-symbols">
 A pictogram uses triangles to show how many of 60 students have a given number of siblings; the triangle counts (including part-triangles) are $2, 3.5, 4.5, 3, 2$. How many students does one triangle represent, and how many students have 2 or more siblings?
 
@@ -227,11 +231,27 @@ $$
 $$
 </WorkedExample>
 
+<Shortcut title="Code the mid-interval values to keep grouped-mean arithmetic light">
+If every mid-interval value is large, subtract a convenient round number from each one before multiplying by frequency, sum those smaller products, divide by $\sum f$, then add the round number back on at the end — exactly the "assumed mean" trick from raw lists, just applied to mid-interval values instead of individual data points.
+</Shortcut>
+
 <Tip title="Estimates from a histogram, step by step">
 Frequency density gives you the *shape* only — to estimate statistics, first recover each bar's actual frequency ($\text{density}\times\text{width}$), then treat the histogram exactly like an ordinary grouped frequency table for the mean, median and modal class.
 </Tip>
 
 **Comparing distributions.** The mean uses every value so is pulled around by outliers; the median ignores extreme values and needs orderable data; the mode works even for non-numerical categories but may sit at either end of the data. The range is easy but outlier-sensitive; the interquartile range (the middle $50\%$ of the data, $Q_3-Q_1$) is more robust but says nothing about the extremes.
+
+<WorkedExample title="When the mean is misleading">
+A factory has 6 cleaners paid $\pounds x$, 36 machinists paid $\pounds 2x$, 3 managers paid $\pounds 5x$ and 1 owner paid $\pounds 50x$. Comment on the mean, median and mode as summaries of the typical wage.
+
+$$
+\text{mean} = \frac{6x+36(2x)+3(5x)+50x}{46} = \frac{143x}{46} \approx 3.11x
+$$
+
+Ordering all $46$ wages, both the $23$rd and $24$th values fall among the $36$ machinists on $2x$, so the **median** $=2x$; the machinists are also the largest group, so the **mode** $=2x$ too.
+
+The mean is pulled well above $2x$ by the single extreme value ($50x$), so it doesn't represent the typical worker's pay. Here the median and mode both correctly reflect that most workers earn $2x$ — a case where the mean is the *worst* central measure to quote, despite being the most commonly used one.
+</WorkedExample>
 
 <WorkedExample title="Comparing two factories with summary statistics">
 Factories $A$ and $B$ (each open $48$ weeks/year) have weekly output stats: mean $14$ vs $15$, range $4$ vs $11$, lower quartile $13$ each, IQR $2$ vs $6$. Which factory can *guarantee* $11$ or more motorbikes every week?
@@ -295,6 +315,8 @@ $$
 $$
 
 Strength ranges from **no correlation** through **weak**, **strong**, to **perfect** (all points exactly on a line).
+
+Correlation isn't always a straight-line relationship: **non-linear correlation** is also possible, where the points follow a clear curve rather than clustering around a straight line. It's still a real association — just not one a straight line of best fit can describe well.
 </FormulaCard>
 
 <svg viewBox="0 0 300 130" width="100%" height="auto" role="img" aria-label="Two scatter graphs: strong positive correlation and no correlation">

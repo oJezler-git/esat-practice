@@ -23,6 +23,10 @@ Spend time in Desmos plotting quadratics, cubics, quartics and quintics with dif
 
 The pattern worth internalising: a positive leading coefficient means the graph eventually goes up on both ends for even powers (quadratics, quartics), or up on the right and down on the left for odd powers (cubics, quintics) — and a negative leading coefficient flips all of that. The number of times the curve can turn is capped by its degree, but not every polynomial of a given degree uses up all its turns (e.g. $y=x^3$ has no turning points at all, even though a cubic *can* have two).
 
+<Shortcut title="Plug in x = 0 and a large x to sanity-check a sketch">
+Before committing to a sketch, evaluate the function at $x=0$ (gives the $y$-intercept, an easy anchor point) and at a large positive or negative $x$ (confirms which way the ends point). Two quick substitutions catch a sketch that's upside down or mirrored before you've drawn the whole curve.
+</Shortcut>
+
 ### The modulus function, graphically
 
 You already know $|x|$ algebraically — it takes the positive value of whatever's inside. Graphically, the rule for sketching $y=|f(x)|$ from $y=f(x)$ is just that idea drawn out:
@@ -108,6 +112,10 @@ At $x=1$ on $y=f(x)$: $y=f(1)=0$. On $y=f(2x)$, the $y$ value above $x=1$ is $f(
 Given $f(x)=x^2$, we have $f(3x)=(3x)^2=9x^2$ — **not** $3x^2$. The substitution replaces every occurrence of $x$, so any power or coefficient already attached to $x$ inside the function gets carried through the multiplication too. The same care applies to $f(x+a)$: given $f(x)=\cos(2x)$, $f\left(x-\frac\pi2\right)=\cos\left(2\left(x-\frac\pi2\right)\right)=\cos(2x-\pi)$, not $\cos(2x)-\frac\pi2$.
 </Trap>
 
+<Shortcut title="One rule to recall under pressure: horizontal transformations go backwards">
+If you only remember one thing in the exam: vertical transformations ($af(x)$, $f(x)+a$) behave exactly as they look; horizontal ones ($f(x+a)$, $f(ax)$) always do the *opposite* of what the sign suggests. That single flag is enough to stop you guessing wrong on a horizontal shift or squash even if you can't rebuild the full argument on the spot.
+</Shortcut>
+
 ### Combining transformations — order matters
 
 When you chain two transformations together, the order you apply them in changes the result, and it's easy to get it backwards.
@@ -168,7 +176,7 @@ $$
 
 Both routes land on the same graph, which is a good sanity check that the transformation rules are self-consistent — try following either sequence through with specific numbers for $m$ and $c$ to see it directly.
 
-## MM8.4 How a, b, c affect y = a(x + b)² + c
+## MM8.4 How $a$, $b$, $c$ affect $y=a(x+b)^2+c$
 
 The same idea applies to a quadratic written in completed-square form. One way to build it up (for $a>0$):
 

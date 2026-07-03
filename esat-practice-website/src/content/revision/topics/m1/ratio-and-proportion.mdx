@@ -298,6 +298,18 @@ $$
 So $g:y = 8:15$.
 </WorkedExample>
 
+<WorkedExample title="Same answer by rescaling to a common link (Method 2)">
+Same bag: $r:y=2:3$ and $g:r=4:5$ (equivalently $r:g=5:4$). Find $g:y$ by rescaling instead of multiplying fractions.
+
+$r$ is the shared term. Its value is 2 in the first ratio and 5 in the second, so scale each ratio so $r$ matches at $\mathrm{lcm}(2,5)=10$:
+
+$$
+r:y = 2:3 \;(\times5)\to\; 10:15, \qquad r:g = 5:4 \;(\times2)\to\; 10:8
+$$
+
+So $g:r:y = 8:10:15$, giving $g:y = 8:15$ — the same result as Method 1.
+</WorkedExample>
+
 <Shortcut title="Multiply straight through, don't merge tables"
 >
 When you have two ratios sharing one variable, converting both to fractions and multiplying (cancelling the shared variable) is faster and less error-prone than trying to rescale both ratios onto a single combined table.
@@ -315,6 +327,14 @@ $$
 If the new value is $Q$ after a decrease of $x\%$, the original value is $\dfrac{Q}{100-x}\times100$. If the new value is $R$ after an increase of $y\%$, the original value is $\dfrac{R}{100+y}\times100$.
 </FormulaCard>
 
+<Shortcut title="Apply a percentage change with one multiplication">
+Instead of finding the change and adding or subtracting it in two steps, multiply the original value by a single factor: an increase of $x\%$ is $\times(1+\frac{x}{100})$, a decrease of $x\%$ is $\times(1-\frac{x}{100})$. A 15% increase on £60 is $60\times1.15 = \pounds69$ in one line.
+</Shortcut>
+
+<Shortcut title="Build any percentage from 10%, 5% and 1% benchmarks">
+Find 10% (divide by 10), then combine: 5% is half of 10%, 1% is a tenth of 10%. 17% of 240: $10\% = 24$, $5\% = 12$, $2\times1\% = 4.8$, so $17\% = 24+12+4.8 = 40.8$ — no calculator needed.
+</Shortcut>
+
 <WorkedExample title="Percentage as parts per hundred">
 3 out of 8 pupils eat 5-a-day. What percentage is that?
 
@@ -331,9 +351,35 @@ $$
 $$
 </WorkedExample>
 
+<WorkedExample title="Comparing two quantities using percentages">
+Tank A has 300 ml of oxygen in 2.5 l of gas. Tank B has 840 ml of oxygen in 7.5 l of gas. Which gas has the higher concentration of oxygen?
+
+Convert both to the same units and express each as a percentage:
+
+$$
+2.5 \text{ l} = 2500 \text{ ml}, \qquad \frac{300}{2500}\times100\% = 12\%
+$$
+
+$$
+7.5 \text{ l} = 7500 \text{ ml}, \qquad \frac{840}{7500}\times100\% = 11.2\%
+$$
+
+Tank A has the higher concentration of oxygen.
+</WorkedExample>
+
 <Trap title="Percentages above 100% are completely normal">
 If something is sold for more than it cost, or a value grows past its starting point, the percentage will exceed 100% — that isn't a sign you've made an error. £77 as a percentage of £22 is $\frac{77}{22}\times100 = 350\%$.
 </Trap>
+
+<WorkedExample title="Percentage profit">
+A carpenter makes a chair for a total cost of £22 and sells it for £77. What is her percentage profit?
+
+Percentage profit is the actual profit as a percentage of the *cost* price, not the selling price:
+
+$$
+\text{actual profit} = 77-22 = \pounds55, \qquad \frac{\text{actual profit}}{\text{original price}}\times100\% = \frac{55}{22}\times100\% = 250\%
+$$
+</WorkedExample>
 
 <WorkedExample title="Finding the original value after a change">
 After a 20% increase, shoes cost £96. What was the original price?
@@ -407,6 +453,18 @@ $$
 <Tip title="Confirming inverse proportion from a table">
 For inverse proportion, $xy$ should be *constant* across every row of a table — check it the same way you'd check $y/x$ is constant for direct proportion.
 </Tip>
+
+<WorkedExample title="Verifying inverse proportion from a table">
+A table gives paired values: $x = 1, 2, 3, 4, 6, 12$ with matching $y = 12, 6, 4, 3, 2, 1$. Is it reasonable to say $y$ is inversely proportional to $x$?
+
+If $y \propto \dfrac1x$ then $y = \dfrac{k}{x}$, i.e. $xy = k$ for every pair. Check $xy$ at each point:
+
+$$
+1\times12 = 12, \quad 2\times6=12, \quad 3\times4=12, \quad 4\times3=12, \quad 6\times2=12, \quad 12\times1=12
+$$
+
+$xy=12$ is constant across every row, so it's reasonable to conclude $y$ is inversely proportional to $x$ (with $k=12$).
+</WorkedExample>
 
 <WorkedExample title="Proportion to a power">
 Bottled water sales $n$ are proportional to the square of the temperature $t$, for $10\le t\le30$. At $t=12$, $n=72$. Find $n$ at $t=24$.
@@ -483,9 +541,21 @@ Similarity also preserves angles and trigonometric ratios: if triangle DEF is an
 In similar triangles, the smallest side is always opposite the smallest angle, and the largest side opposite the largest — use that to match up corresponding sides even when the vertex labelling doesn't make it obvious.
 </Tip>
 
+<WorkedExample title="Matching sides by size in similar triangles">
+Triangle DEF is an enlargement of triangle ABC with scale factor 4. In ABC, the sides have lengths $x, y, z$ with $y < x < z$. In DEF, $EF < ED < DF$. What is $\sin(\angle DFE)$ in terms of $x, y, z$?
+
+DEF is similar to ABC, so their angles are equal — but the vertex letters don't line up directly, so match them by relative side size instead. In ABC, angle A is opposite the smallest side ($y$); in DEF, angle D is opposite the smallest side ($EF$). So angle A corresponds to angle D, which forces angle C to correspond to angle F:
+
+$$
+\sin F = \sin C = \frac{x}{z}
+$$
+</WorkedExample>
+
 ## M3.11 Growth, decay and iterative processes
 
 If a quantity starts at $q$ and is multiplied by a fixed factor $x$ every time period, after $n$ periods it's $qx^n$. Growth means $x>1$; decay means $0<x<1$.
+
+An **iterative process** is one where a basic set of instructions is applied repeatedly, each time using the output of the previous step as the new input — growth and decay by a fixed factor every period, as above, is one example.
 
 <FormulaCard title="Compound interest">
 $$

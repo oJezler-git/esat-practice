@@ -217,6 +217,10 @@ $$
 Comfortably less than either 2 Ω or 3 Ω, as expected.
 </WorkedExample>
 
+<Shortcut title="Product over sum for exactly two resistors in parallel">
+For just two resistors, skip the reciprocal-addition step: $R_T=\dfrac{R_1R_2}{R_1+R_2}$. For the 2 Ω and 3 Ω pair above, that's $\dfrac{2\times3}{2+3}=\dfrac{6}{5}=1.2\ \Omega$ directly. For $n$ identical resistors $R$ in parallel, it simplifies further to $R_T=\dfrac Rn$.
+</Shortcut>
+
 <Shortcut title="Splitting current at a junction, without solving the full circuit">
 In a parallel pair, current splits **inversely** to resistance — the branch with less resistance carries proportionally more current. If one branch has twice the resistance of the other, it carries half the current. This lets you find individual branch currents quickly once you know the total, without recomputing $I=V/R$ for each branch from scratch.
 </Shortcut>
@@ -230,6 +234,10 @@ $$
 
 Voltage (volts, $1\,\text{V}=1\,\text{J}\,\text{C}^{-1}$) is the energy $E$ transferred per unit charge $Q$ passing through a component.
 </FormulaCard>
+
+<Shortcut title="Voltage splits in series exactly in proportion to resistance">
+The mirror image of the current-splitting rule: in a series circuit (a potential divider), each resistor's share of the supply voltage is proportional to its own resistance, $V_R = V_{\text{supply}}\times\dfrac{R}{R_T}$. A resistor with twice the resistance of another takes twice the voltage — no need to find the current first if all you want is a voltage share.
+</Shortcut>
 
 <Tip title="Current is about rate, voltage is about energy per charge — don't mix them up">
 Current tells you how fast charge is moving round the circuit. Voltage tells you how much energy each unit of that charge hands over (or picks up) at a particular component. That distinction is exactly why current is shared equally in series but voltage is shared out, while voltage is shared equally in parallel but current is shared out.

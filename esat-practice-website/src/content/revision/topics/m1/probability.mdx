@@ -45,6 +45,8 @@ $$
 
 ## M7.2 Expected outcomes, randomness and fairness
 
+The **sample space** is the set of all possible outcomes of an experiment — for two coin flips, that's $\{HH, HT, TH, TT\}$. An **event** is any subset of the sample space (e.g. "at least one head" is the event $\{HH, HT, TH\}$).
+
 A **fair** die or spinner gives every outcome an equal chance. **Equally likely events** share the same probability.
 
 <FormulaCard title="Expected frequency">
@@ -257,6 +259,10 @@ $$
 When a question asks for a range of *products* (rather than sums), check which values in that range can actually be formed from factors of $1$–$6$ before counting ways — primes like $11,13,17,19$, or values needing a factor above $6$ (like $14=2\times7$), simply don't occur.
 </Shortcut>
 
+<Shortcut title="Dice-sum totals form a symmetric triangle peaking at the middle">
+For two fair six-sided dice, the number of ways to make each total rises $1,2,3,4,5,6$ from a total of $2$ up to $7$, then falls $5,4,3,2,1$ back down to $12$ — so $7$ is always the most likely total, and totals equally far from $7$ (like $4$ and $10$) always have the same number of ways. No need to list the whole $6\times6$ grid to find how many ways a given total can occur.
+</Shortcut>
+
 ## M7.7 Adding and multiplying probabilities; conditional probability
 
 <FormulaCard title="Addition rule">
@@ -335,6 +341,12 @@ $$
 $$
 \text{without replacement: } P(\text{both red}) = \tfrac{7}{10}\times\tfrac{6}{9}=\tfrac{42}{90}=\tfrac{7}{15}
 $$
+
+Using the complement, $P(\text{at least one blue})$ is $1-\tfrac{49}{100}=\tfrac{51}{100}$ with replacement, or $1-\tfrac{7}{15}=\tfrac{8}{15}$ without. For "one of each colour," both orders count:
+
+$$
+\text{with replacement: } 2\times\left(\tfrac{7}{10}\times\tfrac{3}{10}\right) = \tfrac{21}{50} \qquad \text{without replacement: } \tfrac{7}{10}\times\tfrac{3}{9}+\tfrac{3}{10}\times\tfrac{7}{9} = \tfrac{7}{15}
+$$
 </WorkedExample>
 
 <Trap title="Without replacement, the second branch's denominator changes">
@@ -349,6 +361,8 @@ A factory's workers are split by department (production/warehouse/office) and by
 $$
 P(\text{drives}\mid\text{warehouse}) = \frac{\text{drives and warehouse}}{\text{total warehouse}} = \frac{37}{57}
 $$
+
+Reversing the condition asks a different question: of the $93$ workers who drive, $21$ work in the office, so $P(\text{office}\mid\text{drives}) = \tfrac{21}{93} = \tfrac{7}{31}$ — a completely different fraction from $P(\text{drives}\mid\text{office})$.
 </WorkedExample>
 
 <WorkedExample title="Conditional probability from a Venn diagram">
