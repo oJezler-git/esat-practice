@@ -24,6 +24,7 @@ export const meta = {
 | Parallel lines | Always the same perpendicular distance apart (shown with arrows) |
 | Perpendicular lines | Meet at a right angle |
 | Subtended angle | The angle formed at a point by two rays through the ends of a line/arc |
+| Polygon | A closed plane shape with three or more straight sides |
 | Regular polygon | All sides equal *and* all angles equal |
 
 A shape's **line symmetry** counts the mirror lines that map it onto itself; its **order of rotational symmetry** counts how many times it fits its own outline in one full turn. Regular polygons generally have both equal to the number of sides.
@@ -88,12 +89,16 @@ For a regular polygon, it's usually faster to find the exterior angle first ($36
 |---|---|
 | Square | All sides equal, all angles $90°$, 4 lines of symmetry, rotational order 4 |
 | Rectangle | 2 pairs parallel sides, all angles $90°$, 2 lines of symmetry, rotational order 2 |
-| Parallelogram | 2 pairs parallel sides, opposite sides equal, opposite angles equal, no line symmetry (usually), rotational order 2 |
+| Parallelogram | 2 pairs parallel sides, opposite sides equal, opposite angles equal, adjacent angles sum to $180°$, no line symmetry (usually), rotational order 2 |
 | Trapezium | Exactly one pair of parallel sides |
 | Kite | 2 pairs of adjacent equal sides, 1 line of symmetry, diagonals meet at right angles |
 | Rhombus | All sides equal, 2 pairs parallel sides, diagonals bisect each other at right angles, 2 lines of symmetry |
 
 Triangles are classified by angles (acute / right-angled / obtuse) and by sides: **scalene** (no equal sides), **isosceles** (2 equal sides, 1 line of symmetry), **equilateral** (3 equal sides, 3 lines of symmetry, rotational order 3).
+
+<Tip title="Side-angle labelling convention">
+In a triangle $ABC$, side $a$ is the side opposite vertex $A$ (i.e. $BC$), side $b$ is opposite $B$ (i.e. $AC$), and side $c$ is opposite $C$ (i.e. $AB$) — lower-case letters always name the side facing the upper-case vertex of the same letter.
+</Tip>
 
 <WorkedExample title="Identifying a quadrilateral from a construction">
 Two identical equilateral triangles are joined along one edge. Name the resulting quadrilateral.
@@ -178,6 +183,8 @@ A' = P + k(A-P)
 $$
 
 A negative scale factor puts the image on the *opposite* side of the centre; a scale factor between $-1$ and $1$ shrinks the object.
+
+A point is **invariant** under a transformation if it maps to itself (image = object). Every point on a mirror line is invariant under that reflection; only the centre is invariant under a rotation or an enlargement; a translation (other than the zero vector) has no invariant points at all.
 
 <WorkedExample title="Rotating a point using coordinates">
 Rotate $A(1,0)$ through $90°$ anticlockwise about $(5,5)$.
@@ -444,6 +451,8 @@ It's easy to accidentally add the whole circle's circumference — remember a se
 
 ## M5.17 Congruence, similarity, and length/area/volume scaling
 
+Two shapes are **congruent** if they are identical in size and shape (one can be mapped onto the other by rotation, reflection and/or translation alone). Two shapes are **similar** if they have the same shape but not necessarily the same size — one is an enlargement of the other, so corresponding angles are equal and corresponding sides are all in the same ratio.
+
 If shape $Y$ is a similar enlargement of shape $X$ with scale factor $n$: lengths $\times n$, areas $\times n^2$, volumes $\times n^3$.
 
 <WorkedExample title="Scaling mass via volume">
@@ -459,6 +468,10 @@ Two right-angled triangles can share the same hypotenuse length yet have complet
 </Trap>
 
 ## M5.18 Trigonometric ratios and exact values
+
+<Trap title="The sine and cosine rules are not required">
+This topic only needs right-angled trigonometry ($\sin$, $\cos$, $\tan$ of a right-angled triangle) and Pythagoras. You are not expected to recall or use the sine rule or cosine rule for non-right-angled triangles.
+</Trap>
 
 <FormulaCard title="Exact trig values to memorise">
 | $\theta$ | $0°$ | $30°$ | $45°$ | $60°$ | $90°$ |
@@ -505,6 +518,16 @@ $$
 
 Vectors $\mathbf{x}$ and $\mathbf{y}$ are parallel exactly when $\mathbf{x}=k\mathbf{y}$ for some constant $k$.
 </FormulaCard>
+
+In a diagram, vectors are often built from two starting vectors out of a shared point. If $O$ is the origin with $\overrightarrow{OA}=\mathbf{a}$ and $\overrightarrow{OB}=\mathbf{b}$, then in parallelogram $OACB$ (where $\overrightarrow{OA}=\overrightarrow{BC}$ and $\overrightarrow{OB}=\overrightarrow{AC}$):
+
+$$
+\overrightarrow{OC} = \mathbf{a}+\mathbf{b}, \qquad \overrightarrow{AB} = \mathbf{b}-\mathbf{a}, \qquad \overrightarrow{BA} = \mathbf{a}-\mathbf{b}
+$$
+
+<Tip title="Route from tail to head via any middle point">
+$\overrightarrow{XY} = \overrightarrow{XZ}+\overrightarrow{ZY}$ for any point $Z$ — this is how $\overrightarrow{AB}$ above becomes $\overrightarrow{AO}+\overrightarrow{OB} = -\mathbf{a}+\mathbf{b}$. Fractions and multiples of $\mathbf{a}$ and $\mathbf{b}$ (like $\tfrac12\mathbf{a}$ or $-3\mathbf{b}$) combine the same way when a diagram labels a point partway along a side.
+</Tip>
 
 <WorkedExample title="Checking which vectors are parallel">
 $\mathbf{x}=\binom{2}{-3}$, $\mathbf{y}=\binom{-6}{-1}$. Is $\binom{16}{-4}$ parallel to $\mathbf{x}-\mathbf{y}$?
