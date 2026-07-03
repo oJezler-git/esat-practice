@@ -64,6 +64,10 @@ $$
 Once you know a sector's angle, its fraction of the whole is that angle divided by $360°$ — so you never need to measure the frequency directly off a pie chart if the angles are marked.
 </Shortcut>
 
+<Shortcut title="Find degrees-per-item once, then reuse it for every category">
+When building a pie chart from raw frequencies, compute $360°\div\text{total}$ a single time, then multiply every category's frequency by that one constant — much faster than working out each category's fraction of $360°$ from scratch.
+</Shortcut>
+
 <WorkedExample title="Reading a pictogram with part-symbols">
 A pictogram uses triangles to show how many of 60 students have a given number of siblings; the triangle counts (including part-triangles) are $2, 3.5, 4.5, 3, 2$. How many students does one triangle represent, and how many students have 2 or more siblings?
 
@@ -226,6 +230,10 @@ $$
 \text{median} \approx 50 + \tfrac{18}{25}\times10 = 57.2 \approx 57 \text{ years}
 $$
 </WorkedExample>
+
+<Shortcut title="Code the mid-interval values to keep grouped-mean arithmetic light">
+If every mid-interval value is large, subtract a convenient round number from each one before multiplying by frequency, sum those smaller products, divide by $\sum f$, then add the round number back on at the end — exactly the "assumed mean" trick from raw lists, just applied to mid-interval values instead of individual data points.
+</Shortcut>
 
 <Tip title="Estimates from a histogram, step by step">
 Frequency density gives you the *shape* only — to estimate statistics, first recover each bar's actual frequency ($\text{density}\times\text{width}$), then treat the histogram exactly like an ordinary grouped frequency table for the mean, median and modal class.
