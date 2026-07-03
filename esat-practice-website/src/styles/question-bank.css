@@ -148,9 +148,39 @@
   padding-top: 0.25rem;
 }
 
+/* Rows reposition instantly while scrolling; the transition is only enabled for
+   the brief window around opening/closing a question so the gap slides open. */
+.question-bank-virtual-row.is-animating {
+  transition: top 240ms var(--motion-smooth);
+}
+
+/* The detail panel slides out from under its row each time it opens. */
+.question-bank-detail-panel {
+  animation: question-bank-detail-in 240ms var(--motion-smooth);
+}
+
+@keyframes question-bank-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .question-bank-row {
   border: 1px solid rgb(255 255 255 / 0.08);
   backdrop-filter: blur(8px);
+  transition: transform 160ms var(--motion-snappy);
+}
+
+/* Press feedback: shrink the whole card as one unit so the border and
+   background scale together — scaling only the inner button exposed the card
+   edge and read as a cut-off overlay. */
+.question-bank-row:has(.question-bank-row-button:active) {
+  transform: scale(0.985);
 }
 
 .question-bank-row-idle {
@@ -183,6 +213,12 @@
 
 .question-bank-row-button:hover {
   background: rgb(255 255 255 / 0.03);
+}
+
+/* Opt out of the global button:active scale — on a full-width row it shrinks
+   inward and exposes the card edge, which reads as a cut-off white overlay. */
+.question-bank-row-button:active {
+  transform: none;
 }
 
 .question-bank-row-year {

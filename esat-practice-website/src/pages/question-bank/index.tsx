@@ -176,6 +176,17 @@ export default function QuestionBank() {
   const cardHeight = isNarrow ? MOBILE_CARD_HEIGHT : VIRTUAL_CARD_HEIGHT;
   const rowGap = isNarrow ? MOBILE_ROW_GAP : VIRTUAL_ROW_GAP;
   const rowHeight = cardHeight + rowGap;
+  // Rows reposition on every scroll, so we only allow the `top` transition during
+  // a short window around open/close — otherwise scrolling would animate too.
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animTimeoutRef = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(animTimeoutRef.current), []);
+  const setExpanded = (id: string | null) => {
+    setIsAnimating(true);
+    window.clearTimeout(animTimeoutRef.current);
+    animTimeoutRef.current = window.setTimeout(() => setIsAnimating(false), 260);
+    dispatchFilter({ type: "set_expanded", id });
+  };
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = nsaaDuplicateAnalysis;
   const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? new Set<string>();
@@ -654,6 +665,11 @@ export default function QuestionBank() {
               return (
                 <div
                   key={question.id}
+                  className={
+                    isAnimating
+                      ? "question-bank-virtual-row is-animating"
+                      : "question-bank-virtual-row"
+                  }
                   style={{
                     position: "absolute",
                     top:
@@ -672,7 +688,7 @@ export default function QuestionBank() {
                     isExcluded={excludedQuestionIds.has(question.id)}
                     selected={expandedId === question.id}
                     onToggle={() =>
-                      dispatchFilter({ type: "set_expanded", id: expandedId === question.id ? null : question.id })
+                      setExpanded(expandedId === question.id ? null : question.id)
                     }
                   />
                 </div>
@@ -691,7 +707,7 @@ export default function QuestionBank() {
                 <QuestionDetailPanel
                   question={selectedQuestion}
                   isExcluded={excludedQuestionIds.has(selectedQuestion.id)}
-                  onClose={() => dispatchFilter({ type: "set_expanded", id: null })}
+                  onClose={() => setExpanded(null)}
                   onHeightChange={(height) => dispatchVirtual({ type: "set_detail_height", height })}
                   onDrillTopic={() => {
                     void drillTopic(selectedQuestion.taxonomy.primary_topic);
@@ -989,7 +1005,7 @@ function QuestionDetailPanel({
   return (
     <section
       ref={panelRef}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#121816] shadow-[0_24px_50px_rgb(0_0_0_/_0.28)]"
+      className="question-bank-detail-panel overflow-hidden rounded-2xl border border-white/10 bg-[#121816] shadow-[0_24px_50px_rgb(0_0_0_/_0.28)]"
     >
         <header className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
           <span className="font-mono text-xs text-slate-500">{question.id}</span>
