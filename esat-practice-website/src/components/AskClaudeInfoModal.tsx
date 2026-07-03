@@ -13,8 +13,7 @@ export function AskClaudeInfoModal({ onClose }: Props) {
 
   useEffect(() => {
     if (!settings.claudeOnboarded) update({ claudeOnboarded: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [settings.claudeOnboarded, update]);
 
   useEffect(() => {
     const dialog = dialogRef.current;

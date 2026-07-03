@@ -97,6 +97,9 @@ const MOBILE_ROW_GAP = 12;
 const NARROW_MEDIA_QUERY = "(max-width: 768px)";
 const VIRTUAL_OVERSCAN = 8;
 const VIRTUAL_BATCH_SIZE = 80;
+// Stable empty-set fallback so the `visibleQuestions` memo below keeps a
+// constant dependency identity when no duplicate analysis is available.
+const EMPTY_NSAA_IDS: ReadonlySet<string> = new Set();
 
 function buildCountItems(
   values: Array<string | number | null | undefined>,
@@ -197,7 +200,7 @@ export default function QuestionBank() {
   );
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = nsaaDuplicateAnalysis;
-  const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? new Set<string>();
+  const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? EMPTY_NSAA_IDS;
   const sourceQuestions = scope === "excluded" ? excludedQuestions : fullPracticeBank;
 
   const visibleQuestions = useMemo(

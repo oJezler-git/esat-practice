@@ -39,9 +39,10 @@ export function useExitTransition<T>(value: T | null, resetKey: unknown, exitMs:
       setExiting(false);
     }, duration);
     return () => window.clearTimeout(timer);
-    // exitMs is a constant per call site; only resetKey should retrigger this.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetKey]);
+    // The resetKey guard at the top short-circuits when only exitMs changes,
+    // so listing exitMs as a dependency can't retrigger the transition —
+    // it just keeps the duration current for the next real resetKey change.
+  }, [exitMs, resetKey]);
 
   // Sync display to value continuously (not just once): value can arrive
   // *after* the exit window has already closed (e.g. a slow content fetch
