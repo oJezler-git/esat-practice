@@ -455,6 +455,40 @@
   margin: 0.3rem 0;
 }
 
+/* "Formula and shortcut summary" is always the last top-level list in a
+   guide, immediately before the practice-link footer — turn it into a grid
+   of reference cards instead of a long wall of bulleted prose. */
+.rev-mdx-enter > ul:last-of-type {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.rev-mdx-enter > ul:last-of-type li {
+  margin-bottom: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border-subtle);
+  border-left: 2px solid var(--border-strong);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--surface-1) 55%, transparent);
+  font-size: 0.83rem;
+  line-height: 1.6;
+}
+
+/* An odd item count leaves the last card alone in the left column — span it
+   across both instead of leaving a lopsided gap. */
+.rev-mdx-enter > ul:last-of-type li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 780px) {
+  .rev-mdx-enter > ul:last-of-type {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* KaTeX ships .katex-display with white-space: nowrap and no scroll
    container, so long equations overflow narrow viewports unless we add one. */
 .rev-mdx .katex-display,
