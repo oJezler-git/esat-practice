@@ -268,12 +268,17 @@
 
   .question-bank-row-button {
     grid-template-columns: 1fr;
-    height: auto;
-    min-height: 90px;
+    /* Stacked rows are taller; keep in sync with MOBILE_CARD_HEIGHT in index.tsx. */
+    height: 152px;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    overflow: hidden;
   }
 
   .question-bank-row-meta {
     justify-content: flex-start;
     min-width: 0;
+    flex-wrap: nowrap;
+    overflow: hidden;
   }
 }

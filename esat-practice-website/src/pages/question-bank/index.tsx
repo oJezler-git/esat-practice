@@ -84,11 +84,14 @@ function virtualReducer(state: VirtualState, action: VirtualAction): VirtualStat
   }
 }
 type CountItem = { label: string; count: number };
-// Each virtual slot is a fixed card plus a uniform gap. Keep VIRTUAL_CARD_HEIGHT
-// in sync with the `height` of `.question-bank-row-button` in question-bank.css.
+// Each virtual slot is a fixed card plus a uniform gap. Keep these in sync with
+// the `height` of `.question-bank-row-button` in question-bank.css — the desktop
+// row is a single line, the mobile row stacks into three, so it needs more room.
 const VIRTUAL_CARD_HEIGHT = 90;
 const VIRTUAL_ROW_GAP = 14;
-const VIRTUAL_ROW_HEIGHT = VIRTUAL_CARD_HEIGHT + VIRTUAL_ROW_GAP;
+const MOBILE_CARD_HEIGHT = 152;
+const MOBILE_ROW_GAP = 12;
+const NARROW_MEDIA_QUERY = "(max-width: 768px)";
 const VIRTUAL_OVERSCAN = 8;
 const VIRTUAL_BATCH_SIZE = 80;
 
@@ -158,6 +161,21 @@ export default function QuestionBank() {
   const { search, scope, topicFilter, yearFilter, verifiedOnly, hideNsaaDuplicates, showDedupDebug, sortKey, expandedId, isDetailsOpen } = filterState;
   const { scrollTop, viewportHeight, virtualCount, detailHeight } = virtualState;
   const listRef = useRef<HTMLDivElement | null>(null);
+  const [isNarrow, setIsNarrow] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia(NARROW_MEDIA_QUERY).matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(NARROW_MEDIA_QUERY);
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const cardHeight = isNarrow ? MOBILE_CARD_HEIGHT : VIRTUAL_CARD_HEIGHT;
+  const rowGap = isNarrow ? MOBILE_ROW_GAP : VIRTUAL_ROW_GAP;
+  const rowHeight = cardHeight + rowGap;
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = nsaaDuplicateAnalysis;
   const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? new Set<string>();
@@ -306,12 +324,12 @@ export default function QuestionBank() {
 
   useEffect(() => {
     const neededCount =
-      Math.ceil((scrollTop + viewportHeight) / VIRTUAL_ROW_HEIGHT) +
+      Math.ceil((scrollTop + viewportHeight) / rowHeight) +
       VIRTUAL_OVERSCAN * 2;
     if (neededCount > virtualCount && virtualCount < filtered.length) {
       dispatchVirtual({ type: "set_count", count: Math.min(filtered.length, Math.max(virtualCount + VIRTUAL_BATCH_SIZE, neededCount)) });
     }
-  }, [filtered.length, scrollTop, viewportHeight, virtualCount]);
+  }, [filtered.length, scrollTop, viewportHeight, virtualCount, rowHeight]);
 
   const selectedQuestion = useMemo(
     () => filtered.find((question) => question.id === expandedId) ?? null,
@@ -322,24 +340,24 @@ export default function QuestionBank() {
     [expandedId, filtered],
   );
   const detailBlockHeight =
-    selectedQuestion && selectedIndex >= 0 ? detailHeight + VIRTUAL_ROW_GAP : 0;
+    selectedQuestion && selectedIndex >= 0 ? detailHeight + rowGap : 0;
   const dynamicTotalHeight =
-    Math.min(virtualCount, filtered.length) * VIRTUAL_ROW_HEIGHT +
+    Math.min(virtualCount, filtered.length) * rowHeight +
     detailBlockHeight;
   // Rows below an open detail panel are pushed down by detailBlockHeight, so the
   // windowing math has to unwind that offset once we've scrolled past the panel —
   // otherwise the visible-row window drifts and rows near the fold stop rendering.
-  const selectionThreshold = (selectedIndex + 1) * VIRTUAL_ROW_HEIGHT;
+  const selectionThreshold = (selectedIndex + 1) * rowHeight;
   const effectiveScrollTop =
     detailBlockHeight > 0 && scrollTop > selectionThreshold
       ? Math.max(selectionThreshold, scrollTop - detailBlockHeight)
       : scrollTop;
   const startIndex = Math.max(
     0,
-    Math.floor(effectiveScrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN,
+    Math.floor(effectiveScrollTop / rowHeight) - VIRTUAL_OVERSCAN,
   );
   const visibleCount =
-    Math.ceil(viewportHeight / VIRTUAL_ROW_HEIGHT) + VIRTUAL_OVERSCAN * 2;
+    Math.ceil(viewportHeight / rowHeight) + VIRTUAL_OVERSCAN * 2;
   const endIndex = Math.min(virtualCount, startIndex + visibleCount);
   const virtualSlice = filtered.slice(startIndex, endIndex);
 
@@ -639,7 +657,7 @@ export default function QuestionBank() {
                   style={{
                     position: "absolute",
                     top:
-                      index * VIRTUAL_ROW_HEIGHT +
+                      index * rowHeight +
                       (selectedQuestion &&
                       selectedIndex >= 0 &&
                       index > selectedIndex
@@ -664,10 +682,7 @@ export default function QuestionBank() {
               <div
                 style={{
                   position: "absolute",
-                  top:
-                    selectedIndex * VIRTUAL_ROW_HEIGHT +
-                    VIRTUAL_CARD_HEIGHT +
-                    VIRTUAL_ROW_GAP,
+                  top: selectedIndex * rowHeight + cardHeight + rowGap,
                   left: 0,
                   right: 0,
                   zIndex: 20,
