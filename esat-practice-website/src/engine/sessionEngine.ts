@@ -60,7 +60,7 @@ export function hydrateSessionState(
     attempts.map((attempt) => [attempt.question_id, attempt]),
   );
   const flagged = new Set(
-    attempts.filter((attempt) => attempt.flagged).map((attempt) => attempt.question_id),
+    attempts.flatMap((attempt) => (attempt.flagged ? [attempt.question_id] : [])),
   );
   const consumedTime = attempts.reduce((sum, attempt) => sum + attempt.time_ms, 0);
   const initialTime =

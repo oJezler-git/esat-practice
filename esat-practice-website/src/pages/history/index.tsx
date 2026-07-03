@@ -145,9 +145,11 @@ export default function HistoryPage() {
   // Streak calculation
   const { currentStreak, bestStreak } = useMemo(() => {
     const activeDates = new Set(
-      rows
-        .filter((r) => r.session.state === "completed" && r.session.completed_at)
-        .map((r) => toDateStr(r.session.completed_at!)),
+      rows.flatMap((r) =>
+        r.session.state === "completed" && r.session.completed_at
+          ? [toDateStr(r.session.completed_at)]
+          : [],
+      ),
     );
 
     // Current streak: count backward from today

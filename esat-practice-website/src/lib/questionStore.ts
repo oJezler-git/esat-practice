@@ -137,9 +137,10 @@ export function getDerivedStoreState(
     }
   }
 
-  const questionsList = allQuestions
-    .filter((question) => !nsaaDuplicateAnalysis.hiddenNsaaIds.has(question.id))
-    .filter((question) => !ids.has(question.id));
+  const questionsList = allQuestions.filter(
+    (question) =>
+      !nsaaDuplicateAnalysis.hiddenNsaaIds.has(question.id) && !ids.has(question.id),
+  );
 
   const fullPracticeBank = allQuestions.filter((question) => !ids.has(question.id));
   const excludedQuestions = allQuestions.filter((question) => ids.has(question.id));

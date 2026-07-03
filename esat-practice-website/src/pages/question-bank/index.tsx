@@ -389,9 +389,9 @@ export default function QuestionBank() {
   }
 
   async function drillTopic(topic: string) {
-    const ids = visibleQuestions
-      .filter((question) => question.taxonomy.primary_topic === topic)
-      .map((question) => question.id);
+    const ids = visibleQuestions.flatMap((question) =>
+      question.taxonomy.primary_topic === topic ? [question.id] : [],
+    );
     if (ids.length === 0) {
       return;
     }

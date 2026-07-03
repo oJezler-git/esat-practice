@@ -53,9 +53,11 @@ async function handleRevisionAsk(request, env) {
 
   const history = Array.isArray(body.history) ? body.history.slice(-MAX_HISTORY_TURNS) : [];
   const contents = [
-    ...history
-      .filter((turn) => turn && (turn.role === "user" || turn.role === "model") && typeof turn.text === "string")
-      .map((turn) => ({ role: turn.role, parts: [{ text: turn.text.slice(0, MAX_QUESTION_LENGTH) }] })),
+    ...history.flatMap((turn) =>
+      turn && (turn.role === "user" || turn.role === "model") && typeof turn.text === "string"
+        ? [{ role: turn.role, parts: [{ text: turn.text.slice(0, MAX_QUESTION_LENGTH) }] }]
+        : [],
+    ),
     { role: "user", parts: [{ text: question }] },
   ];
 

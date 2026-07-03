@@ -102,9 +102,9 @@ export default function Progress() {
 
   async function drillWeak() {
     const weakTopicNames = new Set(weakTopics.map((topic) => topic.topic));
-    const weakIds = questions
-      .filter((question) => weakTopicNames.has(question.taxonomy.primary_topic))
-      .map((question) => question.id);
+    const weakIds = questions.flatMap((question) =>
+      weakTopicNames.has(question.taxonomy.primary_topic) ? [question.id] : [],
+    );
     if (weakIds.length === 0) {
       return;
     }
