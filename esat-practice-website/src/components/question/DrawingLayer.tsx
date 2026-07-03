@@ -497,7 +497,6 @@ export function DrawingLayer({
     );
     return (
       <path
-        key={id}
         data-ann-id={id}
         d={buildSmoothPath(points)}
         fill="none"
@@ -508,6 +507,7 @@ export function DrawingLayer({
         strokeOpacity={kind === "highlighter" ? 0.35 : 1}
         opacity={isEraseTarget ? 0.3 : undefined}
         {...replayProps}
+        key={id}
       />
     );
   };
@@ -531,10 +531,10 @@ export function DrawingLayer({
     };
     const replayProps = replayStrokeProps(id);
     if (kind === "rect") {
-      return <rect key={id} {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} />;
+      return <rect {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} key={id} />;
     }
     if (kind === "ellipse") {
-      return <ellipse key={id} {...common} {...ellipseAttrs(start, end)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} />;
+      return <ellipse {...common} {...ellipseAttrs(start, end)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} key={id} />;
     }
     const headSize = Math.max(strokeWidth * 3.5, naturalSize.width * 0.018);
     return (
