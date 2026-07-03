@@ -1083,6 +1083,7 @@
 .rev-subject-toc {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: 1.1rem;
   margin-top: 0.9rem;
 }
