@@ -339,6 +339,10 @@ $$
 Voltage stepped up by a factor of 10, so current stepped down by the same factor of 10 — a quick sanity check that doesn't even need the full calculation.
 </WorkedExample>
 
+<Shortcut title="Scale by the turns ratio directly, skip setting up the equation">
+Once you know the scale factor between primary and secondary turns (or voltages), apply it directly: multiply voltage by that factor, divide current by the same factor (or vice versa). For a $\times10$ step-up transformer, a 4.0 A input current becomes $4.0\div10=0.40$ A output — no need to write out $V_pI_p=V_sI_s$ and rearrange every time.
+</Shortcut>
+
 <FormulaCard title="Why transmission uses high voltage">
 Transmission cables have resistance $R$, so any current in them wastes power as heat: $P_{\text{wasted}}=I^2R$. Transmitting the *same* power ($P=IV$) at a much **higher voltage** means a much **lower current**, and because the loss depends on $I^2$, even a modest reduction in current gives a much bigger cut in wasted power.
 </FormulaCard>
