@@ -1003,8 +1003,9 @@
 }
 
 .rev-toc-link {
+  position: relative;
   display: block;
-  padding: 0.25rem 0.5rem;
+  padding: 0.28rem 0.5rem;
   border-left: 2px solid transparent;
   border-radius: 0 0.3rem 0.3rem 0;
   color: var(--text-muted);
@@ -1012,9 +1013,47 @@
   line-height: 1.4;
 }
 
+.rev-toc-link--h2 {
+  margin-top: 0.6rem;
+  color: var(--text-secondary);
+  font-weight: 650;
+}
+
+.rev-toc-link--h2:first-child {
+  margin-top: 0;
+}
+
 .rev-toc-link--h3 {
-  padding-left: 1rem;
+  margin-left: 0.9rem;
+  padding-left: 0.85rem;
   font-size: 0.73rem;
+}
+
+/* Tree connector: a vertical rail down the left edge of every h3, joined to
+   its siblings, with a short horizontal branch pointing at the label. The
+   last h3 in a run stops its rail at the branch instead of running past it. */
+.rev-toc-link--h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-subtle);
+}
+
+.rev-toc-link--h3:not(:has(+ .rev-toc-link--h3))::before {
+  bottom: 50%;
+}
+
+.rev-toc-link--h3::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--border-subtle);
 }
 
 .rev-toc-link:hover,
@@ -1022,6 +1061,13 @@
   color: var(--color-accent-strong);
   background: color-mix(in srgb, var(--color-accent-soft) 54%, transparent);
   border-left-color: var(--color-accent-strong);
+}
+
+.rev-toc-link--h3:hover::before,
+.rev-toc-link--h3:hover::after,
+.rev-toc-link--h3.rev-toc-link--active::before,
+.rev-toc-link--h3.rev-toc-link--active::after {
+  background: var(--color-accent-strong);
 }
 
 .rev-toc-empty {
