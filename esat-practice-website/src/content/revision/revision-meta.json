@@ -175,7 +175,7 @@
       "slug": "exponentials-and-logarithms",
       "module": "m2",
       "title": "Exponentials and Logarithms",
-      "subtitle": "The graph of y = aˣ, the laws of logarithms, and solving exponential equations.",
+      "subtitle": "The graph of y = a^x, the laws of logarithms, and solving exponential equations.",
       "topicCode": "MM5",
       "estimatedMinutes": 20,
       "order": 50,
