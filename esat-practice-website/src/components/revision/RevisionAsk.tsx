@@ -68,11 +68,9 @@ const SUGGESTIONS = [
 export function RevisionAsk({
   moduleSlug,
   topicSlug,
-  docId,
 }: {
   moduleSlug: string;
   topicSlug: string;
-  docId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
@@ -84,13 +82,6 @@ export function RevisionAsk({
   const [animatedTurnIndex, setAnimatedTurnIndex] = useState<number | null>(
     null,
   );
-
-  useEffect(() => {
-    setTurns([]);
-    setQuestion("");
-    setError(null);
-    setOpen(false);
-  }, [docId]);
 
   useEffect(() => {
     if (scrollRef.current) {

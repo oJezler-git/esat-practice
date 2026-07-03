@@ -4,7 +4,9 @@ import { RevisionAsk } from "./RevisionAsk";
 import * as revisionAsk from "../../lib/revisionAsk";
 
 function renderAsk(docId = "m1/units") {
-  return render(<RevisionAsk moduleSlug="m1" topicSlug="units" docId={docId} />);
+  // The real parent keys RevisionAsk by docId so a new topic remounts it with
+  // fresh state; mirror that here so the reset behaviour is exercised faithfully.
+  return render(<RevisionAsk key={docId} moduleSlug="m1" topicSlug="units" />);
 }
 
 describe("RevisionAsk", () => {
@@ -70,7 +72,7 @@ describe("RevisionAsk", () => {
     fireEvent.click(screen.getByRole("button", { name: /send/i }));
     await screen.findByText("An answer.");
 
-    rerender(<RevisionAsk moduleSlug="m1" topicSlug="algebra" docId="m1/algebra" />);
+    rerender(<RevisionAsk key="m1/algebra" moduleSlug="m1" topicSlug="algebra" />);
     expect(screen.queryByText("Q1")).not.toBeInTheDocument();
     expect(screen.queryByText("An answer.")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ask ai/i })).toBeInTheDocument();

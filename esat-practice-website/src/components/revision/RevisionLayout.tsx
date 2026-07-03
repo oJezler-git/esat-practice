@@ -192,9 +192,9 @@ export function RevisionLayout({
 
       {currentDoc && (
         <RevisionAsk
+          key={currentDoc.id}
           moduleSlug={currentDoc.meta.module}
           topicSlug={currentDoc.meta.slug}
-          docId={currentDoc.id}
         />
       )}
     </div>
