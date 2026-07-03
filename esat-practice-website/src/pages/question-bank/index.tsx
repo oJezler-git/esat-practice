@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   type DuplicateNearMissDebug,
@@ -79,7 +79,10 @@ function virtualReducer(state: VirtualState, action: VirtualAction): VirtualStat
   switch (action.type) {
     case "sync_metrics": return { ...state, scrollTop: action.scrollTop, viewportHeight: action.viewportHeight };
     case "set_count": return { ...state, virtualCount: action.count };
-    case "set_detail_height": return { ...state, detailHeight: action.height };
+    case "set_detail_height":
+      return action.height === state.detailHeight
+        ? state
+        : { ...state, detailHeight: action.height };
     default: return state;
   }
 }
@@ -187,6 +190,11 @@ export default function QuestionBank() {
     animTimeoutRef.current = window.setTimeout(() => setIsAnimating(false), 260);
     dispatchFilter({ type: "set_expanded", id });
   };
+  // Stable so the panel's ResizeObserver effect doesn't re-subscribe every render.
+  const handleDetailHeightChange = useCallback(
+    (height: number) => dispatchVirtual({ type: "set_detail_height", height }),
+    [],
+  );
   const isQuestionBankLoading = !loaded || isLoading;
   const duplicateAnalysis = nsaaDuplicateAnalysis;
   const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? new Set<string>();
@@ -708,7 +716,7 @@ export default function QuestionBank() {
                   question={selectedQuestion}
                   isExcluded={excludedQuestionIds.has(selectedQuestion.id)}
                   onClose={() => setExpanded(null)}
-                  onHeightChange={(height) => dispatchVirtual({ type: "set_detail_height", height })}
+                  onHeightChange={handleDetailHeightChange}
                   onDrillTopic={() => {
                     void drillTopic(selectedQuestion.taxonomy.primary_topic);
                   }}
