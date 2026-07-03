@@ -1159,6 +1159,12 @@
   color: #182111;
 }
 
+.rev-practice-link-button p {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+
 .rev-secondary-link,
 .rev-empty-link {
   padding: 0.55rem 0.85rem;
