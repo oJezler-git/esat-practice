@@ -60,7 +60,7 @@ export function RevisionLayout({
   currentDoc?: RevisionDocEntry;
   headings?: RevisionHeading[];
 }) {
-  const activeHeading = useActiveHeading(headings);
+  const [activeHeading, setActiveHeading] = useActiveHeading(headings);
   const currentModule = currentDoc ? getRevisionModule(currentDoc.meta.module) : undefined;
   const activeDocId = currentDoc?.id;
   // Memoized so identity is stable across renders where headings/activeDocId
@@ -176,6 +176,7 @@ export function RevisionLayout({
                   <a
                     key={heading.id}
                     href={`#${heading.id}`}
+                    onClick={() => setActiveHeading(heading.id)}
                     className={`rev-toc-link rev-toc-link--h${heading.level} ${
                       activeHeading === heading.id ? "rev-toc-link--active" : ""
                     }`}

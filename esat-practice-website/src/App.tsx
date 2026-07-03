@@ -27,6 +27,15 @@ export default function App() {
   const location = useLocation();
   const isSession = location.pathname.startsWith("/session/");
 
+  // React Router doesn't reset scroll position on navigation, so leaving a
+  // long page (e.g. a revision guide) scrolled down and following a link
+  // lands the next page mid-scroll — on a virtualized list like the question
+  // bank this renders whatever rows fall at that stale scrollY, which reads
+  // as jumping straight to the bottom of the list.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   useEffect(() => {
     document.documentElement.dataset.fontPreset = fontPreset;
   }, [fontPreset]);
