@@ -43,11 +43,18 @@ export function useExitTransition<T>(value: T | null, resetKey: unknown, exitMs:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey]);
 
+  // Sync display to value continuously (not just once): value can arrive
+  // *after* the exit window has already closed (e.g. a slow content fetch
+  // racing a separate, independently-timed exit transition elsewhere on the
+  // page). Gating this on `display === null` meant it only ever fired once —
+  // if the exit timer won that race, display would lock onto whatever stale
+  // value existed at that instant and never update again, since it was no
+  // longer null. This must keep tracking every new `value` while not exiting.
   useEffect(() => {
-    if (!exiting && value !== null && display === null) {
+    if (!exiting && value !== null) {
       setDisplay(value);
     }
-  }, [value, exiting, display]);
+  }, [value, exiting]);
 
   return { display, exiting };
 }

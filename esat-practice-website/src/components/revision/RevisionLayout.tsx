@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { getRevisionModule, prefetchRevisionContent } from "../../content/revision/manifest";
 import { ampersandize } from "../../content/revision/textFormat";
@@ -63,8 +63,13 @@ export function RevisionLayout({
   const activeHeading = useActiveHeading(headings);
   const currentModule = currentDoc ? getRevisionModule(currentDoc.meta.module) : undefined;
   const activeDocId = currentDoc?.id;
-  const headingsValue: DisplayedHeadings | null =
-    headings.length > 0 && activeDocId ? { id: activeDocId, headings } : null;
+  // Memoized so identity is stable across renders where headings/activeDocId
+  // haven't actually changed — useExitTransition re-syncs whenever this
+  // reference changes, so a fresh literal every render would loop forever.
+  const headingsValue: DisplayedHeadings | null = useMemo(
+    () => (headings.length > 0 && activeDocId ? { id: activeDocId, headings } : null),
+    [headings, activeDocId],
+  );
   // The TOC fades out its old links instead of snapping to "Loading sections..."
   // the instant the route settles on a new topic.
   const { display: displayedHeadings, exiting: tocExiting } = useExitTransition(

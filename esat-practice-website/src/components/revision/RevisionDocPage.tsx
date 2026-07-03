@@ -116,12 +116,18 @@ export function RevisionDocPage() {
     };
   }, [docPath, docId]);
 
-  // Build the table of contents once the guide has rendered.
+  // Build the table of contents once the guide has actually painted into the
+  // DOM. This must key off `displayedContent` (not `ready`): the exit-transition
+  // hook delays the real content by a render, so on the render where `ready`
+  // first flips true, articleRef still holds the *previous* (empty) DOM — this
+  // effect would run once, find no headings, and never fire again since `ready`
+  // and `docId` don't change afterward, leaving the TOC stuck on
+  // "Loading sections..." until the next topic navigation resets it.
   useEffect(() => {
-    if (ready) {
+    if (displayedContent) {
       setHeadings(collectHeadings(articleRef.current));
     }
-  }, [ready, docId]);
+  }, [displayedContent, docId]);
 
   const { copied, copy } = useCopy(async () =>
     docPath ? stripMdxExports(await loadRevisionRaw(docPath)) : "",
