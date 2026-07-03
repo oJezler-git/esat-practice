@@ -45,7 +45,7 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
 
 export const DEFAULT_SETTINGS: UserSettings = {
   defaultMode: "untimed",
-  defaultQuestionCount: 20,
+  defaultQuestionCount: 27,
   timedSecondsPerQ: 90,
   examMode: true,
   showKeyboardHints: true,

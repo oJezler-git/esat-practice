@@ -124,8 +124,6 @@ export default function Settings() {
             options={[
               { value: "untimed", label: "Untimed" },
               { value: "timed", label: "Timed" },
-              { value: "topic", label: "Topic focus" },
-              { value: "mixed", label: "Mixed" },
             ]}
           />
         </Field>
@@ -134,9 +132,9 @@ export default function Settings() {
           <div className="flex items-center gap-3">
             <input
               type="range"
-              min={5}
-              max={60}
-              step={5}
+              min={1}
+              max={81}
+              step={1}
               value={settings.defaultQuestionCount}
               onChange={(event) =>
                 update({ defaultQuestionCount: Number(event.target.value) })
@@ -145,11 +143,11 @@ export default function Settings() {
             />
             <input
               type="number"
-              min={5}
-              max={60}
+              min={1}
+              max={81}
               value={settings.defaultQuestionCount}
               onChange={(event) => {
-                const value = Math.max(5, Math.min(60, Number(event.target.value)));
+                const value = Math.max(1, Math.min(81, Number(event.target.value)));
                 if (!Number.isNaN(value)) update({ defaultQuestionCount: value });
               }}
               style={{ width: "4.5rem", textAlign: "right" }}
