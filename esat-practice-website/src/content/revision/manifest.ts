@@ -55,7 +55,7 @@ export const revisionModules: RevisionModule[] = (Object.keys(moduleInfo) as Rev
     docs: revisionDocs.filter((doc) => doc.meta.module === slug).sort(compareDocs),
   }));
 
-export function compareDocs(left: RevisionDocEntry, right: RevisionDocEntry): number {
+function compareDocs(left: RevisionDocEntry, right: RevisionDocEntry): number {
   return (
     left.meta.module.localeCompare(right.meta.module) ||
     left.meta.order - right.meta.order ||
@@ -74,10 +74,6 @@ export function findRevisionDoc(
   return revisionDocs.find(
     (doc) => doc.meta.module === moduleSlug && doc.meta.slug === topicSlug,
   );
-}
-
-export function getFirstRevisionDoc(): RevisionDocEntry | undefined {
-  return revisionDocs[0];
 }
 
 export function getRevisionModule(slug: RevisionModuleSlug): RevisionModule {

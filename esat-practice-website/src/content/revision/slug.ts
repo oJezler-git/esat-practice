@@ -8,7 +8,7 @@ export function slugifyHeading(value: string): string {
     .replace(/-+/g, "-");
 }
 
-export function uniqueSlug(base: string, used: Set<string>): string {
+function uniqueSlug(base: string, used: Set<string>): string {
   const fallback = base || "section";
   let next = fallback;
   let index = 2;

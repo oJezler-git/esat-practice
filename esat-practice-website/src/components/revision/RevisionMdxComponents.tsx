@@ -13,7 +13,7 @@ function calloutLabel(tone: Tone): string {
   }
 }
 
-export function Callout({
+function Callout({
   children,
   tone = "note",
   title,
@@ -30,19 +30,19 @@ export function Callout({
   );
 }
 
-export function Tip(props: Omit<ComponentPropsWithoutRef<typeof Callout>, "tone">) {
+function Tip(props: Omit<ComponentPropsWithoutRef<typeof Callout>, "tone">) {
   return <Callout {...props} tone="tip" />;
 }
 
-export function Shortcut(props: Omit<ComponentPropsWithoutRef<typeof Callout>, "tone">) {
+function Shortcut(props: Omit<ComponentPropsWithoutRef<typeof Callout>, "tone">) {
   return <Callout {...props} tone="shortcut" />;
 }
 
-export function Trap(props: Omit<ComponentPropsWithoutRef<typeof Callout>, "tone">) {
+function Trap(props: Omit<ComponentPropsWithoutRef<typeof Callout>, "tone">) {
   return <Callout {...props} tone="trap" />;
 }
 
-export function WorkedExample({
+function WorkedExample({
   children,
   title = "Worked example",
 }: {
@@ -57,7 +57,7 @@ export function WorkedExample({
   );
 }
 
-export function FormulaCard({
+function FormulaCard({
   children,
   title = "Formula",
 }: {
@@ -72,7 +72,7 @@ export function FormulaCard({
   );
 }
 
-export function Diagram({
+function Diagram({
   src,
   alt,
   caption,
@@ -96,7 +96,7 @@ export function Diagram({
   );
 }
 
-export function PracticeLink({
+function PracticeLink({
   topic,
   children,
 }: {
