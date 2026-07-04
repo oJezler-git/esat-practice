@@ -1,4 +1,5 @@
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 interface QuestionPackManifest {
@@ -116,12 +117,15 @@ function normalizePathForManifest(filePath: string): string {
   return filePath.split(path.sep).join("/");
 }
 
-function resolveDatasetVersion(): string {
+function resolveDatasetVersion(contentHashes: string[]): string {
   const fromEnv = process.env.QUESTION_DATASET_VERSION;
   if (fromEnv && fromEnv.trim().length > 0) {
     return fromEnv.trim();
   }
-  return new Date().toISOString().slice(0, 10);
+  // Derive the version from pack contents so unrelated rebuilds (e.g. a
+  // production deploy that reruns data:prepare) don't bust every client's
+  // cached IndexedDB state and re-trigger the "Loading question bank" popup.
+  return createHash("sha256").update(contentHashes.join("\n")).digest("hex").slice(0, 16);
 }
 
 async function prepareOutputDirs(): Promise<void> {
@@ -194,7 +198,12 @@ function projectQuestion(
   };
 }
 
-async function buildPackManifestEntry(filePath: string): Promise<QuestionPackManifest | null> {
+interface PackManifestEntry {
+  manifest: QuestionPackManifest;
+  contentHash: string;
+}
+
+async function buildPackManifestEntry(filePath: string): Promise<PackManifestEntry | null> {
   const relativeFromInput = path.relative(INPUT_DIR, filePath);
   if (relativeFromInput === "pipeline-sample.json") {
     return null;
@@ -266,19 +275,23 @@ async function buildPackManifestEntry(filePath: string): Promise<QuestionPackMan
   await writeFile(outputPath, projectedText, "utf8");
 
   const projectedBytes = Buffer.byteLength(projectedText, "utf8");
+  const contentHash = createHash("sha256").update(projectedText).digest("hex");
 
   if (extractedImageCount > 0) {
     console.log(`  ${relativeFromInput}: extracted ${extractedImageCount} image(s)`);
   }
 
   return {
-    id: normalizePathForManifest(relativeFromInput.replace(/\.json$/i, "")),
-    path: `data/packs/${outputRelativePath}`,
-    question_count: questions.length,
-    years: [...years].sort((a, b) => a - b),
-    topics: [...topics].sort((a, b) => a.localeCompare(b)),
-    papers: [...papers].sort((a, b) => a.localeCompare(b)),
-    bytes: projectedBytes,
+    manifest: {
+      id: normalizePathForManifest(relativeFromInput.replace(/\.json$/i, "")),
+      path: `data/packs/${outputRelativePath}`,
+      question_count: questions.length,
+      years: [...years].sort((a, b) => a - b),
+      topics: [...topics].sort((a, b) => a.localeCompare(b)),
+      papers: [...papers].sort((a, b) => a.localeCompare(b)),
+      bytes: projectedBytes,
+    },
+    contentHash,
   };
 }
 
@@ -286,15 +299,16 @@ async function main(): Promise<void> {
   await prepareOutputDirs();
 
   const inputFiles = await listJsonFiles(INPUT_DIR);
-  const manifests = await Promise.all(
+  const entries = await Promise.all(
     inputFiles.map((filePath) => buildPackManifestEntry(filePath)),
   );
-  const packs = manifests
-    .filter((entry): entry is QuestionPackManifest => entry !== null)
-    .sort((left, right) => left.id.localeCompare(right.id));
+  const resolvedEntries = entries
+    .filter((entry): entry is PackManifestEntry => entry !== null)
+    .sort((left, right) => left.manifest.id.localeCompare(right.manifest.id));
+  const packs = resolvedEntries.map((entry) => entry.manifest);
 
   const manifest: QuestionDataManifest = {
-    version: resolveDatasetVersion(),
+    version: resolveDatasetVersion(resolvedEntries.map((entry) => entry.contentHash)),
     generated_at: new Date().toISOString(),
     packs,
   };
