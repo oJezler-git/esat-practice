@@ -389,106 +389,11 @@ p {
   transform: translateY(0);
 }
 
-.nav-shell {
-  border-bottom: 1px solid var(--border-subtle);
-  background: color-mix(in srgb, var(--color-canvas) 96%, transparent);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(10px);
-  animation: nav-drop 380ms var(--motion-smooth) both;
-  transition: 
-    transform 450ms var(--motion-smooth), 
-    opacity 350ms ease, 
-    max-height 450ms var(--motion-smooth),
-    border-width 450ms var(--motion-smooth),
-    padding 450ms var(--motion-smooth);
-  overflow: hidden;
-  max-height: 10rem; /* Large enough to fit content dynamically */
-}
-
-.nav-shell-hidden {
-  transform: translateY(-20%);
-  opacity: 0;
-  max-height: 0;
-  border-bottom-width: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  pointer-events: none;
-}
-
-.nav-group {
-  position: relative;
-  display: inline-flex;
-  gap: 0.35rem;
-  padding: 0.35rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  background: var(--surface-2);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.22);
-}
-
-.nav-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: transform 220ms var(--motion-snappy), color 170ms ease, background-color 170ms ease;
-  position: relative;
-  z-index: 2;
-}
-
-.nav-link-idle {
-  color: var(--text-muted);
-}
-
-.nav-link-idle:hover {
-  color: var(--text-primary);
-  background: rgb(152 161 144 / 0.2);
-  transform: translateY(-1px);
-}
-
-.nav-link-active {
-  color: #182111;
-  box-shadow: none;
-}
-
-.nav-active-pill {
-  position: absolute;
-  background: var(--accent);
-  border-radius: 999px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.nav-time {
-  position: absolute;
-  left: calc(100% + 1.5rem);
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.05rem;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.nav-time-day,
-.nav-time-clock {
-  display: block;
-}
-
-.nav-time-clock {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
+/* Nav styles live in ./styles/nav.css (imported below) — the block that used to
+   be duplicated here has been removed. It was a stale copy: its absolute-
+   positioned `.nav-time` leaked `position:absolute` past nav.css's updated rule
+   (which no longer sets position), pushing the countdown chip off-screen where
+   `.nav-shell { overflow:hidden }` clipped it. */
 
 .panel {
   border: 1px solid var(--border-subtle);
