@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ZoomableImage } from "../../components/question/ZoomableImage";
 import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
@@ -7,29 +7,13 @@ import { SessionHeader } from "../../components/session/SessionHeader";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionEngine } from "../../store/sessionSlice";
-import {
-  formatShortcutKey,
-  normalizeShortcutKey,
-  type ShortcutAction,
-} from "../../types/settings";
+import { formatShortcutKey, type ShortcutAction } from "../../types/settings";
 import type { SelfMarkResult } from "../../types/schema";
 import { truncateQuestionText } from "../../lib/textUtils";
 import { AskClaudeButton } from "../../components/AskClaudeButton";
-
-function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-
-  const tagName = target.tagName;
-  return (
-    target.isContentEditable ||
-    tagName === "INPUT" ||
-    tagName === "TEXTAREA" ||
-    tagName === "SELECT" ||
-    tagName === "BUTTON"
-  );
-}
+import { MobileRevealPopup } from "./MobileRevealPopup";
+import { useAutoAdvance } from "./useAutoAdvance";
+import { useSessionKeyboardShortcuts } from "./useSessionKeyboardShortcuts";
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
@@ -59,8 +43,6 @@ export default function SessionPage() {
     questions,
   } = useSessionEngine(id ?? "");
 
-  const autoAdvanceQuestionRef = useRef<string | null>(null);
-  const autoAdvanceTimerRef = useRef<number | null>(null);
   const fontClass = {
     sm: "text-sm",
     md: "text-base",
@@ -77,86 +59,38 @@ export default function SessionPage() {
     [settings.shortcuts],
   );
 
+  const { armForCurrentQuestion } = useAutoAdvance({
+    enabled: settings.autoAdvance,
+    delayMs: settings.autoAdvanceDelayMs,
+    currentQuestionId: currentQuestion?.id,
+    currentAttemptResult,
+    nav,
+  });
+
   const handleMark = useCallback(
     (result: SelfMarkResult) => {
       if (currentQuestion) {
-        autoAdvanceQuestionRef.current = currentQuestion.id;
+        armForCurrentQuestion(currentQuestion.id);
       }
       void mark(result);
     },
-    [currentQuestion, mark],
+    [armForCurrentQuestion, currentQuestion, mark],
   );
 
   const revealAnswer = useCallback(() => {
     setIsAnswerRevealed(true);
   }, []);
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.altKey ||
-        isInteractiveTarget(event.target)
-      ) {
-        return;
-      }
-
-      const key = normalizeShortcutKey(event.key);
-      if (!key) {
-        return;
-      }
-
-      const action = (
-        Object.entries(settings.shortcuts).find(([, shortcut]) => shortcut === key)?.[0] ??
-        null
-      ) as ShortcutAction | null;
-
-      if (!action) {
-        return;
-      }
-
-      event.preventDefault();
-
-      if (action === "revealCorrect") {
-        if (currentAttemptResult) {
-          return;
-        }
-
-        if (!isAnswerRevealed) {
-          revealAnswer();
-          return;
-        }
-
-        handleMark("correct");
-      } else if (action === "incorrect") {
-        handleMark("incorrect");
-      } else if (action === "next") {
-        void nav("next");
-      } else if (action === "prev") {
-        void nav("prev");
-      } else if (action === "flag") {
-        void flag();
-      } else if (action === "skip") {
-        void skip();
-      }
-    },
-    [
-      currentAttemptResult,
-      flag,
-      handleMark,
-      isAnswerRevealed,
-      nav,
-      revealAnswer,
-      settings.shortcuts,
-      skip,
-    ],
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+  useSessionKeyboardShortcuts({
+    shortcuts: settings.shortcuts,
+    currentAttemptResult,
+    isAnswerRevealed,
+    revealAnswer,
+    handleMark,
+    nav,
+    flag,
+    skip,
+  });
 
   useEffect(() => {
     setIsAnswerRevealed(Boolean(currentAttemptResult));
@@ -167,35 +101,6 @@ export default function SessionPage() {
       navigate(`/results/${id}`);
     }
   }, [id, navigate, session?.id, status]);
-
-  useEffect(() => {
-    if (!settings.autoAdvance || !currentQuestion || !currentAttemptResult) {
-      return;
-    }
-
-    if (autoAdvanceQuestionRef.current !== currentQuestion.id) {
-      return;
-    }
-
-    if (autoAdvanceTimerRef.current !== null) {
-      window.clearTimeout(autoAdvanceTimerRef.current);
-    }
-
-    const delay = settings.autoAdvanceDelayMs ?? 600;
-
-    autoAdvanceTimerRef.current = window.setTimeout(() => {
-      autoAdvanceQuestionRef.current = null;
-      autoAdvanceTimerRef.current = null;
-      void nav("next");
-    }, delay);
-
-    return () => {
-      if (autoAdvanceTimerRef.current !== null) {
-        window.clearTimeout(autoAdvanceTimerRef.current);
-        autoAdvanceTimerRef.current = null;
-      }
-    };
-  }, [currentAttemptResult, currentQuestion, nav, settings.autoAdvance, settings.autoAdvanceDelayMs]);
 
   useEffect(() => {
     if (notFound) {
@@ -358,40 +263,12 @@ export default function SessionPage() {
       />
 
       {isAnswerRevealed && (
-        <div className="show-on-mobile selfmark-mobile-popup-overlay">
-          <div className="selfmark-mobile-popup-content">
-            <button
-              type="button"
-              onClick={() => setIsAnswerRevealed(false)}
-              className="selfmark-mobile-close-button"
-            >
-              ✕
-            </button>
-            <div className="selfmark-answer-hero">
-              <span className="selfmark-answer-kicker">Correct answer</span>
-              <strong className="selfmark-answer-value">
-                {currentQuestion.answer.correct}
-              </strong>
-            </div>
-            <p className="selfmark-prompt">Did you get it right?</p>
-            <div className="selfmark-actions">
-              <button
-                type="button"
-                onClick={() => handleMark("correct")}
-                className="selfmark-action-button selfmark-action-button-correct"
-              >
-                <span>Correct</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleMark("incorrect")}
-                className="selfmark-action-button selfmark-action-button-incorrect"
-              >
-                <span>Incorrect</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <MobileRevealPopup
+          correctAnswer={currentQuestion.answer.correct}
+          onClose={() => setIsAnswerRevealed(false)}
+          onMarkCorrect={() => handleMark("correct")}
+          onMarkIncorrect={() => handleMark("incorrect")}
+        />
       )}
     </div>
   );
