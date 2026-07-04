@@ -36,21 +36,33 @@ export default function HistoryPage() {
 
   if (sessions.length === 0) {
     return (
-      <div className="page-shell max-w-3xl">
-        <h1 className="page-title mb-8">History</h1>
-        <div className="text-center py-20 text-muted">
-          No sessions yet. Complete a session to start building your history.
+      <div className="sk-history">
+        <div className="sk-frame">
+          <span className="sk-screw sk-screw--tl" />
+          <span className="sk-screw sk-screw--tr" />
+          <span className="sk-screw sk-screw--bl" />
+          <span className="sk-screw sk-screw--br" />
+          <h1 className="sk-history-title">History</h1>
+          <div className="sk-history-empty">
+            No sessions yet. Complete a session to start building your history.
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page-shell max-w-3xl">
-      <h1 className="page-title mb-8">History</h1>
+    <div className="sk-history">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" />
+        <span className="sk-screw sk-screw--tr" />
+        <span className="sk-screw sk-screw--bl" />
+        <span className="sk-screw sk-screw--br" />
 
-      {/* Stats strip */}
-      <div className="hist-stats">
+        <h1 className="sk-history-title">History</h1>
+
+        {/* Stats strip */}
+        <div className="hist-stats">
         <HistStat label="Sessions" value={String(completedCount)} />
         <HistStat label="Questions answered" value={String(totalQuestions)} />
         <HistStat
@@ -69,32 +81,33 @@ export default function HistoryPage() {
         onSelectDate={setSelectedDate}
       />
 
-      {/* Session list */}
-      <section>
-        <div className="prog-section-head mb-3">
-          <h2 className="prog-section-title">
-            {selectedDate
-              ? new Date(selectedDate + "T12:00:00").toLocaleDateString("en-GB", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                })
-              : "All sessions"}
-          </h2>
-          <span className="text-xs text-muted">{filteredRows.length}</span>
-        </div>
+        {/* Session list */}
+        <section className="sk-history-sessions">
+          <div className="prog-section-head mb-3">
+            <h2 className="prog-section-title">
+              {selectedDate
+                ? new Date(selectedDate + "T12:00:00").toLocaleDateString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  })
+                : "All sessions"}
+            </h2>
+            <span className="text-xs text-muted">{filteredRows.length}</span>
+          </div>
 
-        <div className="hist-list">
-          {filteredRows.map(({ session, summary }) => (
-            <SessionCard
-              key={session.id}
-              session={session}
-              summary={summary}
-              onNavigate={() => navigate(`/results/${session.id}`)}
-            />
-          ))}
-        </div>
-      </section>
+          <div className="hist-list">
+            {filteredRows.map(({ session, summary }) => (
+              <SessionCard
+                key={session.id}
+                session={session}
+                summary={summary}
+                onNavigate={() => navigate(`/results/${session.id}`)}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
