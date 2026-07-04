@@ -1,0 +1,392 @@
+/*
+ * Skeuomorphic results page (design turn 4a — dark brushed metal).
+ *
+ * Reuses the shared token-driven primitives (.sk-frame, .sk-screw, .sk-cta,
+ * .sk-tile) by class name. This file adds the results-only shell (back link,
+ * review toggle, review list, footer actions) and — importantly — remaps the
+ * generic --accent / --text-* / --border-* / --surface-* tokens to their --sk-*
+ * equivalents *within* .sk-results so the SVG-driven score visualisations
+ * (ScaleTrack, AccuracyHistoryChart) and the score panel wells pick up the
+ * skeuo palette without touching the React components. score-viz.css styles the
+ * .sv-* classes against these same remapped tokens.
+ *
+ * Only a dark option (4a) was designed; light values derive from the shared
+ * home light palette and resolve automatically through the --sk-* tokens.
+ */
+
+/* ---- Scoped generic-token remap (drives the sv-* charts & wells) ---- */
+
+.sk-results {
+  --accent: var(--sk-accent);
+  --text-primary: var(--sk-text);
+  --text-secondary: var(--sk-tile-text);
+  --text-muted: var(--sk-muted);
+  --border-subtle: var(--sk-hairline-light);
+  --border-strong: var(--sk-frame-border);
+  --surface-1: var(--sk-well-bg);
+  --surface-3: rgba(0, 0, 0, 0.5);
+
+  /* Results-local accents */
+  --sk-res-label: #8a7c62;
+  --sk-res-warn: #c9922f;
+  --sk-res-weak: #e0a06a;
+}
+
+:root[data-theme="light"] .sk-results {
+  --surface-3: rgba(90, 60, 20, 0.14);
+  --sk-res-label: #8a6a42;
+  --sk-res-warn: #b06a1a;
+  --sk-res-weak: #b05a1c;
+}
+
+/* ---- Layout shell ---- */
+
+.sk-results {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+/* ---- Back link ---- */
+
+.sk-results-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  color: var(--sk-tile-text);
+  background: transparent;
+  transition: color 160ms ease;
+}
+
+.sk-results-back:hover {
+  color: var(--sk-text);
+}
+
+/* ---- Auto-exclude notice (recessed amber well) ---- */
+
+.sk-results .auto-exclude-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 22px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  color: var(--sk-tile-text);
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+}
+
+.sk-results .auto-exclude-notice a {
+  color: var(--sk-accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---- Review header ---- */
+
+.sk-results-review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 14px;
+}
+
+.sk-results-review-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sk-tile-text);
+}
+
+/* ---- Review toggle (gold active / inset idle) ---- */
+
+.sk-results-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.sk-results-seg {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--sk-muted);
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-results-seg:not(.sk-results-seg--active):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-results-seg--active {
+  font-weight: 600;
+  color: var(--sk-nav-active-text);
+  background: var(--sk-nav-active-bg);
+  box-shadow: var(--sk-nav-active-shadow);
+}
+
+/* ---- Review list (single recessed well, hairline-split rows) ---- */
+
+.sk-results-list {
+  border-radius: 16px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.sk-results-item + .sk-results-item {
+  border-top: 1px solid var(--sk-hairline-light);
+}
+
+.sk-results-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 16px 20px;
+  background: transparent;
+  transition: background 160ms ease;
+}
+
+.sk-results-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+:root[data-theme="light"] .sk-results-row:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.sk-results-dot {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .sk-results-dot {
+  background: rgba(90, 60, 20, 0.12);
+}
+
+.sk-results-dot--correct {
+  background: linear-gradient(180deg, #5fc97a, #2a8a44);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 0 6px rgba(95, 201, 122, 0.4);
+}
+
+.sk-results-dot--incorrect {
+  background: linear-gradient(180deg, #e0603c, #a12c14);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 0 6px rgba(224, 96, 60, 0.4);
+}
+
+.sk-results-dot--skipped {
+  background: linear-gradient(180deg, #e8a542, #af6c1e);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 0 6px rgba(232, 165, 66, 0.35);
+}
+
+.sk-results-row-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.84375rem;
+  line-height: 1.45;
+  color: var(--sk-tile-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sk-results-row-status {
+  flex: none;
+  font-size: 0.75rem;
+  color: var(--sk-res-label);
+  text-transform: capitalize;
+}
+
+/* ---- Expanded detail ---- */
+
+.sk-results-detail {
+  padding: 4px 20px 20px;
+  border-top: 1px solid var(--sk-hairline-dark);
+}
+
+.sk-results-detail > * + * {
+  margin-top: 1rem;
+}
+
+.sk-results-verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+.sk-results-verdict-answer {
+  color: var(--sk-muted);
+}
+
+.sk-results-verdict-answer strong {
+  color: var(--sk-text);
+  font-weight: 700;
+}
+
+.sk-results-verdict--correct {
+  color: #8fcf9e;
+  background: linear-gradient(180deg, rgba(58, 107, 70, 0.28), rgba(21, 36, 24, 0.2));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(90, 200, 120, 0.22);
+}
+
+.sk-results-verdict--incorrect {
+  color: #f0b4a6;
+  background: linear-gradient(180deg, rgba(120, 46, 32, 0.28), rgba(58, 19, 16, 0.2));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(220, 110, 95, 0.22);
+}
+
+.sk-results-verdict--skipped {
+  color: var(--sk-muted);
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+}
+
+.sk-results-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--sk-res-label);
+}
+
+/* ---- Footer actions ---- */
+
+.sk-results-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sk-results-actions .sk-cta {
+  margin-bottom: 0;
+  padding: 16px;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.sk-results-actions .sk-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Score-panel (sv-*) skeuo skin — scoped to .sk-results only.
+ *
+ * The base flat sv-* rules in score-viz.css stay intact for the not-yet-migrated
+ * Progress page; these higher-specificity rules restyle the same markup as
+ * recessed wells when it appears inside the results frame. The SVG charts
+ * (ScaleTrack, AccuracyHistoryChart) inherit the remapped --accent / --text-*
+ * tokens declared above, so no per-shape overrides are needed there.
+ * ------------------------------------------------------------------------- */
+
+.sk-results .sv-module-grid {
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.sk-results .sv-card,
+.sk-results .sv-breakdown,
+.sk-results .sv-history {
+  border: none;
+  border-radius: 18px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-results .sv-card {
+  padding: 22px;
+}
+
+.sk-results .sv-breakdown,
+.sk-results .sv-history {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.sk-results .sv-card-label,
+.sk-results .sv-breakdown-title,
+.sk-results .sv-history-title {
+  color: var(--sk-res-label);
+}
+
+.sk-results .sv-low-sample {
+  color: var(--sk-res-warn);
+}
+
+.sk-results .sv-module-group-label {
+  color: var(--sk-text);
+  font-weight: 700;
+}
+
+.sk-results .sv-topic-name--weak {
+  color: var(--sk-res-weak);
+}
+
+.sk-results .sv-topic-bar {
+  height: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .sk-results .sv-topic-bar {
+  background: rgba(90, 60, 20, 0.18);
+  box-shadow: inset 0 1px 3px rgba(90, 60, 20, 0.28);
+}
+
+.sk-results .sv-topic-bar-fill--green {
+  background: linear-gradient(90deg, #2a8a44, #5fc97a);
+  box-shadow: 0 0 6px rgba(95, 201, 122, 0.45);
+}
+
+.sk-results .sv-topic-bar-fill--amber {
+  background: linear-gradient(90deg, #af6c1e, #e8a542);
+  box-shadow: 0 0 6px rgba(232, 165, 66, 0.4);
+}
+
+.sk-results .sv-topic-bar-fill--red {
+  background: linear-gradient(90deg, #a12c14, #e0603c);
+  box-shadow: 0 0 6px rgba(224, 96, 60, 0.45);
+}
+
+.sk-results .sv-tooltip,
+.sk-results .sv-chart-tooltip {
+  background: var(--sk-tile-bg);
+  border: 1px solid var(--sk-tile-border);
+  color: var(--sk-text);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .sk-results-review-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .sk-results-actions {
+    grid-template-columns: 1fr;
+  }
+}
