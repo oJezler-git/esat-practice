@@ -346,6 +346,14 @@ export function CloudSyncSection() {
                   <code
                     className="text-sm font-mono text-primary bg-soft border border-subtle rounded-lg px-2 py-1 select-all cursor-pointer"
                     onClick={() => dispatch({ type: "start_edit" })}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        dispatch({ type: "start_edit" });
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     title="Click to edit"
                   >
                     {key}
