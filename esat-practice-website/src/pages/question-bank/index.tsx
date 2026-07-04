@@ -77,7 +77,12 @@ export default function QuestionBank() {
   }
 
   return (
-    <div className="page-shell question-bank-page max-w-4xl">
+    <div className="sk-bank">
+      <div className="sk-frame">
+      <span className="sk-screw sk-screw--tl" />
+      <span className="sk-screw sk-screw--tr" />
+      <span className="sk-screw sk-screw--bl" />
+      <span className="sk-screw sk-screw--br" />
       <div className="question-bank-hero">
         <div className="question-bank-hero-copy">
           <h1 className="page-title">Question bank</h1>
@@ -129,9 +134,9 @@ export default function QuestionBank() {
                 void practiceFiltered();
               }}
               disabled={isQuestionBankLoading}
-              className="question-bank-practice btn-primary text-sm shadow disabled:cursor-not-allowed disabled:opacity-50"
+              className="sk-bank-practice-cta"
             >
-              Practice these ({Math.min(filtered.length, 40)})
+              <span>Practice these ({Math.min(filtered.length, 40)})</span>
             </button>
           )}
         </div>
@@ -264,17 +269,17 @@ export default function QuestionBank() {
       )}
 
       {isQuestionBankLoading && allQuestions.length === 0 ? (
-        <div className="py-20 text-center text-slate-500">
+        <div className="question-bank-empty">
           Preparing question bank...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="py-20 text-center text-slate-500">
+        <div className="question-bank-empty">
           No questions match your filters.
         </div>
       ) : (
         <div
           ref={listRef}
-          className="question-bank-list relative rounded-lg"
+          className="question-bank-list relative"
         >
           <div style={{ height: dynamicTotalHeight, position: "relative" }}>
             {virtualSlice.map((question, offset) => {
@@ -348,6 +353,7 @@ export default function QuestionBank() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -379,22 +385,22 @@ function DataDumpPanel({
     <details
       open={isDetailsOpen}
       onToggle={(e) => onToggle((e.target as HTMLDetailsElement).open)}
-      className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
+      className="sk-bank-datadump"
     >
-      <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-        <span className="text-sm font-medium text-slate-300">
+      <summary className="sk-bank-datadump-summary">
+        <span className="sk-bank-datadump-title">
           Data dump
         </span>
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+        <div className="sk-bank-datadump-badges">
+          <span className="sk-bank-datadump-badge">
             {totalCount} total
           </span>
           {isDetailsOpen && dataDump && (
             <>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+              <span className="sk-bank-datadump-badge">
                 {dataDump.byPrimaryTopic.length} primary topics
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+              <span className="sk-bank-datadump-badge">
                 {dataDump.byYear.length} years
               </span>
             </>
@@ -403,7 +409,7 @@ function DataDumpPanel({
       </summary>
 
       {isDetailsOpen && dataDump && (
-        <div className="border-t border-white/10 p-4">
+        <div className="sk-bank-datadump-body">
           <div className="grid grid-cols-3 gap-2 mb-3">
             <DataStat
               label="Total questions"
@@ -737,128 +743,83 @@ function QuestionDetailPanel({
   return (
     <section
       ref={panelRef}
-      className="question-bank-detail-panel overflow-hidden rounded-2xl border border-white/10 bg-[#121816] shadow-[0_24px_50px_rgb(0_0_0_/_0.28)]"
+      className="question-bank-detail-panel sk-bank-detail"
     >
-        <header className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
-          <span className="font-mono text-xs text-slate-500">{question.id}</span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-400">
-            {question.source.year}
-          </span>
-          <span className="rounded-full border border-[color:var(--accent)]/40 bg-[rgb(154_178_124_/_0.14)] px-2 py-0.5 text-xs text-[color:var(--accent-strong)]">
-            {question.taxonomy.primary_topic}
-          </span>
-          {!question.answer.verified && (
-            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">
-              escalated model
+      <div
+        className="sk-bank-detail-grid"
+        style={imageSrc ? undefined : { gridTemplateColumns: "1fr" }}
+      >
+        <div
+          className="sk-bank-detail-main"
+          style={imageSrc ? undefined : { borderRight: "none" }}
+        >
+          <div className="sk-bank-detail-metarow">
+            <span className="sk-bank-metapill sk-bank-metapill--id">{question.id}</span>
+            <span className="sk-bank-metapill">{question.source.year}</span>
+            <span className="sk-bank-metapill" style={{ color: "var(--sk-bank-tag-text)" }}>
+              {question.taxonomy.primary_topic}
             </span>
-          )}
-          {isExcluded && (
-            <span className="rounded-full border border-danger bg-danger-soft px-2 py-0.5 text-xs text-danger-text">
-              excluded
+            <span className="sk-bank-metapill">{question.source.paper}</span>
+            <span className="sk-bank-metapill">Page {question.source.page}</span>
+            <span className="sk-bank-metapill sk-bank-metapill--answer">
+              Answer: <strong>{question.answer.correct}</strong>
             </span>
-          )}
-          <button
-            type="button"
-            onClick={isExcluded ? onInclude : onExclude}
-            className={`rounded-lg border px-2.5 py-1 text-xs transition-colors ${
-              isExcluded
-                ? "border-success text-success-text hover:bg-success-soft"
-                : "border-danger text-danger-text hover:bg-danger-soft"
-            }`}
-          >
-            {isExcluded ? "Undo exclusion" : "Exclude"}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="ml-auto rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5"
-          >
-            Close
-          </button>
-        </header>
-
-        <div className="p-4 h-[calc(100%-3.25rem)] overflow-y-auto">
-          <div
-            className={imageSrc && !isDesktop ? "space-y-4" : ""}
-            style={
-              imageSrc && isDesktop
-                ? {
-                    display: "grid",
-                    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
-                    gap: "1rem",
-                    alignItems: "start",
-                  }
-                : undefined
-            }
-          >
-            <div className="space-y-3 min-w-0">
-              <p className="text-sm leading-relaxed text-slate-100 whitespace-pre-wrap break-words">
-                {question.content.text}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {question.taxonomy.secondary_topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-400"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
-                  {question.source.paper}
-                </span>
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
-                  Page {question.source.page}
-                </span>
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
-                  Answer: <strong className="text-slate-100">{question.answer.correct}</strong>
-                </span>
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">
-                  Confidence: {Math.round(question.taxonomy.confidence * 100)}%
-                </span>
-                <button
-                  type="button"
-                  onClick={onDrillTopic}
-                  disabled={isExcluded}
-                  className="ml-auto text-[color:var(--accent-strong)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:text-slate-500"
-                >
-                  {isExcluded ? "Undo exclusion to drill" : "Drill this topic"}
-                </button>
-              </div>
-            </div>
-            {imageSrc && (
-              <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-black/10 p-2">
-                <div
-                  className="overflow-auto rounded-lg border border-white/10 bg-[#0d1210]"
-                  style={{
-                    width: "100%",
-                    maxWidth: "100%",
-                    height: isDesktop ? "70vh" : "56vh",
-                    minHeight: isDesktop ? "28rem" : "20rem",
-                    overflowX: "hidden",
-                    overflowY: "auto",
-                    overscrollBehavior: "contain",
-                    WebkitOverflowScrolling: "touch",
-                    touchAction: "pan-y",
-                  }}
-                >
-                  <img
-                    src={imageSrc}
-                    alt="Diagram"
-                    className="h-auto block"
-                    style={{
-                      width: "100%",
-                      minWidth: "100%",
-                      maxWidth: "100%",
-                    }}
-                  />
-                </div>
-              </div>
+            <span className="sk-bank-metapill sk-bank-metapill--conf">
+              Confidence {Math.round(question.taxonomy.confidence * 100)}%
+            </span>
+            {!question.answer.verified && (
+              <span className="sk-bank-metapill sk-bank-metapill--escalated">
+                escalated model
+              </span>
+            )}
+            {isExcluded && (
+              <span className="sk-bank-metapill sk-bank-metapill--excluded">excluded</span>
             )}
           </div>
+
+          <p className="sk-bank-detail-text">{question.content.text}</p>
+
+          {question.taxonomy.secondary_topics.length > 0 && (
+            <div className="sk-bank-detail-secondary">
+              {question.taxonomy.secondary_topics.map((topic) => (
+                <span key={topic}>{topic}</span>
+              ))}
+            </div>
+          )}
+
+          <div className="sk-bank-detail-actions">
+            <button
+              type="button"
+              onClick={onDrillTopic}
+              disabled={isExcluded}
+              className="sk-bank-btn"
+            >
+              {isExcluded ? "Undo exclusion to drill" : "Drill this topic"}
+            </button>
+            <button
+              type="button"
+              onClick={isExcluded ? onInclude : onExclude}
+              className={isExcluded ? "sk-bank-btn-success" : "sk-bank-btn-danger"}
+            >
+              {isExcluded ? "Undo exclusion" : "Exclude"}
+            </button>
+            <button type="button" onClick={onClose} className="sk-bank-btn-ghost">
+              Close
+            </button>
+          </div>
         </div>
-      </section>
+
+        {imageSrc && (
+          <div className="sk-bank-detail-scan">
+            <div
+              className="sk-bank-detail-paper"
+              style={{ maxHeight: isDesktop ? "70vh" : "56vh" }}
+            >
+              <img src={imageSrc} alt="Diagram" />
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
