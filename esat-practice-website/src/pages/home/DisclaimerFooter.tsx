@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState, type TransitionEvent } from "react";
 
 export function DisclaimerFooter() {
-  const [footerDismissed, setFooterDismissed] = useState(false);
+  const [footerDismissed, setFooterDismissed] = useState(
+    () => localStorage.getItem("footer_dismissed") === "true",
+  );
   const [footerState, setFooterState] = useState<"idle" | "confirming" | "closing">("idle");
   const confirmTimeoutRef = useRef<number | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem("footer_dismissed") === "true";
-    setFooterDismissed(dismissed);
-
     return () => {
       if (confirmTimeoutRef.current !== null) {
         window.clearTimeout(confirmTimeoutRef.current);

@@ -17,6 +17,14 @@ export function formatTime(ms: number) {
   return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
+function toggleFullscreen() {
+  if (document.fullscreenElement) {
+    void document.exitFullscreen();
+  } else if (document.documentElement.requestFullscreen) {
+    void document.documentElement.requestFullscreen();
+  }
+}
+
 function getStatusColor(result?: SelfMarkResult) {
   switch (result) {
     case "correct":
@@ -150,14 +158,6 @@ export function SessionHeader({
       window.removeEventListener("resize", handleResize);
     };
   }, [currentIndex, questionIds.length]);
-
-  const toggleFullscreen = () => {
-    if (document.fullscreenElement) {
-      void document.exitFullscreen();
-    } else if (document.documentElement.requestFullscreen) {
-      void document.documentElement.requestFullscreen();
-    }
-  };
 
   return (
     <header className="z-10 bg-soft border-b border-subtle">

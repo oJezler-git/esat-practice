@@ -26,6 +26,20 @@ function formatTime(ms: number): string {
     : `${totalSeconds}s`;
 }
 
+function formatDate(timestamp: number) {
+  return new Date(timestamp).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function formatDuration(session: Session) {
+  if (!session.completed_at) {
+    return "-";
+  }
+  return formatTime(session.completed_at - session.created_at);
+}
+
 const DIMENSION_LABELS: Record<StatDimension, string> = {
   program: "Programme",
   subject: "Subject",
@@ -114,20 +128,6 @@ export default function Progress() {
       question_count: weakIds.length,
     });
     navigate(`/session/${session.id}`);
-  }
-
-  function formatDate(timestamp: number) {
-    return new Date(timestamp).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-    });
-  }
-
-  function formatDuration(session: Session) {
-    if (!session.completed_at) {
-      return "-";
-    }
-    return formatTime(session.completed_at - session.created_at);
   }
 
   return (

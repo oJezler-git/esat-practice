@@ -6,6 +6,10 @@ interface Props {
   onClose: () => void;
 }
 
+function openScript() {
+  window.open("/esat-claude-helper.user.js", "_blank", "noopener");
+}
+
 export function AskClaudeInfoModal({ onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const navigate = useNavigate();
@@ -25,10 +29,6 @@ export function AskClaudeInfoModal({ onClose }: Props) {
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) dialogRef.current?.close();
-  }
-
-  function openScript() {
-    window.open("/esat-claude-helper.user.js", "_blank", "noopener");
   }
 
   function goToSettings() {

@@ -650,7 +650,7 @@ function QuestionDetailPanel({
   onExclude: () => void;
   onInclude: () => void;
 }) {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 960);
   const panelRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -658,7 +658,6 @@ function QuestionDetailPanel({
       setIsDesktop(window.innerWidth >= 960);
     };
 
-    updateIsDesktop();
     window.addEventListener("resize", updateIsDesktop);
     return () => {
       window.removeEventListener("resize", updateIsDesktop);
