@@ -145,7 +145,7 @@ export default function QuestionBank() {
         </p>
       )}
 
-      {!isQuestionBankLoading && sourceQuestions.length > 0 && (
+      {!isQuestionBankLoading && (
         <DataDumpPanel
           totalCount={sourceQuestions.length}
           isDetailsOpen={isDetailsOpen}
