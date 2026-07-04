@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   type DuplicateNearMissDebug,
@@ -8,121 +8,9 @@ import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import type { Question } from "../../types/schema";
-
-type SortKey = "default" | "topic" | "year" | "accuracy";
-type QuestionScope = "practice" | "excluded";
-
-type FilterState = {
-  search: string;
-  scope: QuestionScope;
-  topicFilter: string[];
-  yearFilter: number[];
-  verifiedOnly: boolean;
-  hideNsaaDuplicates: boolean;
-  showDedupDebug: boolean;
-  sortKey: SortKey;
-  expandedId: string | null;
-  isDetailsOpen: boolean;
-};
-
-type FilterAction =
-  | { type: "set_search"; value: string }
-  | { type: "set_scope"; scope: QuestionScope }
-  | { type: "toggle_topic"; topic: string }
-  | { type: "toggle_year"; year: number }
-  | { type: "set_verified_only"; value: boolean }
-  | { type: "set_hide_dupes"; value: boolean }
-  | { type: "set_debug"; value: boolean }
-  | { type: "set_sort"; key: SortKey }
-  | { type: "set_expanded"; id: string | null }
-  | { type: "set_details_open"; value: boolean };
-
-function filterReducer(state: FilterState, action: FilterAction): FilterState {
-  switch (action.type) {
-    case "set_search": return { ...state, search: action.value };
-    case "set_scope": return { ...state, scope: action.scope };
-    case "toggle_topic": {
-      const topics = state.topicFilter.includes(action.topic)
-        ? state.topicFilter.filter((t) => t !== action.topic)
-        : [...state.topicFilter, action.topic];
-      return { ...state, topicFilter: topics };
-    }
-    case "toggle_year": {
-      const years = state.yearFilter.includes(action.year)
-        ? state.yearFilter.filter((y) => y !== action.year)
-        : [...state.yearFilter, action.year];
-      return { ...state, yearFilter: years };
-    }
-    case "set_verified_only": return { ...state, verifiedOnly: action.value };
-    case "set_hide_dupes": return { ...state, hideNsaaDuplicates: action.value };
-    case "set_debug": return { ...state, showDedupDebug: action.value };
-    case "set_sort": return { ...state, sortKey: action.key };
-    case "set_expanded": return { ...state, expandedId: action.id };
-    case "set_details_open": return { ...state, isDetailsOpen: action.value };
-    default: return state;
-  }
-}
-
-type VirtualState = {
-  scrollTop: number;
-  viewportHeight: number;
-  virtualCount: number;
-  detailHeight: number;
-};
-
-type VirtualAction =
-  | { type: "sync_metrics"; scrollTop: number; viewportHeight: number }
-  | { type: "set_count"; count: number }
-  | { type: "set_detail_height"; height: number };
-
-function virtualReducer(state: VirtualState, action: VirtualAction): VirtualState {
-  switch (action.type) {
-    case "sync_metrics": return { ...state, scrollTop: action.scrollTop, viewportHeight: action.viewportHeight };
-    case "set_count": return { ...state, virtualCount: action.count };
-    case "set_detail_height":
-      return action.height === state.detailHeight
-        ? state
-        : { ...state, detailHeight: action.height };
-    default: return state;
-  }
-}
-type CountItem = { label: string; count: number };
-// Each virtual slot is a fixed card plus a uniform gap. Keep these in sync with
-// the `height` of `.question-bank-row-button` in question-bank.css — the desktop
-// row is a single line, the mobile row stacks into three, so it needs more room.
-const VIRTUAL_CARD_HEIGHT = 90;
-const VIRTUAL_ROW_GAP = 14;
-const MOBILE_CARD_HEIGHT = 152;
-const MOBILE_ROW_GAP = 12;
-const NARROW_MEDIA_QUERY = "(max-width: 768px)";
-const VIRTUAL_OVERSCAN = 8;
-const VIRTUAL_BATCH_SIZE = 80;
-// Stable empty-set fallback so the `visibleQuestions` memo below keeps a
-// constant dependency identity when no duplicate analysis is available.
-const EMPTY_NSAA_IDS: ReadonlySet<string> = new Set();
-
-function buildCountItems(
-  values: Array<string | number | null | undefined>,
-): CountItem[] {
-  const counts = new Map<string, number>();
-  values.forEach((value) => {
-    if (value === null || value === undefined) {
-      return;
-    }
-    const label = String(value).trim();
-    if (!label) {
-      return;
-    }
-    counts.set(label, (counts.get(label) ?? 0) + 1);
-  });
-
-  return [...counts.entries()]
-    .map(([label, count]) => ({ label, count }))
-    .sort(
-      (left, right) =>
-        right.count - left.count || left.label.localeCompare(right.label),
-    );
-}
+import type { CountItem, DataDump, SortKey } from "./useQuestionBankFilters";
+import { useQuestionBankFilters } from "./useQuestionBankFilters";
+import { useVirtualQuestionList } from "./useVirtualQuestionList";
 
 export default function QuestionBank() {
   const navigate = useNavigate();
@@ -146,250 +34,18 @@ export default function QuestionBank() {
   const { createSession } = useSessionStore();
   const { excludeQuestion, includeQuestion } = useExcludedQuestionStore();
 
-  const [filterState, dispatchFilter] = useReducer(filterReducer, {
-    search: "",
-    scope: "practice",
-    topicFilter: initialTopicFilter,
-    yearFilter: [],
-    verifiedOnly: false,
-    hideNsaaDuplicates: true,
-    showDedupDebug: false,
-    sortKey: "default",
-    expandedId: null,
-    isDetailsOpen: false,
-  });
-  const [virtualState, dispatchVirtual] = useReducer(virtualReducer, {
-    scrollTop: 0,
-    viewportHeight: 0,
-    virtualCount: VIRTUAL_BATCH_SIZE,
-    detailHeight: 0,
-  });
-  const { search, scope, topicFilter, yearFilter, verifiedOnly, hideNsaaDuplicates, showDedupDebug, sortKey, expandedId, isDetailsOpen } = filterState;
-  const { scrollTop, viewportHeight, virtualCount, detailHeight } = virtualState;
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const [isNarrow, setIsNarrow] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia(NARROW_MEDIA_QUERY).matches,
-  );
-  useEffect(() => {
-    const mq = window.matchMedia(NARROW_MEDIA_QUERY);
-    const update = () => setIsNarrow(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  const cardHeight = isNarrow ? MOBILE_CARD_HEIGHT : VIRTUAL_CARD_HEIGHT;
-  const rowGap = isNarrow ? MOBILE_ROW_GAP : VIRTUAL_ROW_GAP;
-  const rowHeight = cardHeight + rowGap;
-  // Rows reposition on every scroll, so we only allow the `top` transition during
-  // a short window around open/close — otherwise scrolling would animate too.
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animTimeoutRef = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(animTimeoutRef.current), []);
-  const setExpanded = (id: string | null) => {
-    setIsAnimating(true);
-    window.clearTimeout(animTimeoutRef.current);
-    animTimeoutRef.current = window.setTimeout(() => setIsAnimating(false), 260);
-    dispatchFilter({ type: "set_expanded", id });
-  };
-  // Stable so the panel's ResizeObserver effect doesn't re-subscribe every render.
-  const handleDetailHeightChange = useCallback(
-    (height: number) => dispatchVirtual({ type: "set_detail_height", height }),
-    [],
-  );
+  const {
+    search, scope, topicFilter, yearFilter, verifiedOnly, hideNsaaDuplicates, showDedupDebug, sortKey, isDetailsOpen,
+    setSearch, setScope, toggleTopic, toggleYear, setVerifiedOnly, setHideDupes, setDebug, setSort, setDetailsOpen,
+    sourceQuestions, visibleQuestions, filtered, dataDump, hiddenNsaaDuplicateCount, duplicateAnalysis,
+  } = useQuestionBankFilters({ fullPracticeBank, excludedQuestions, nsaaDuplicateAnalysis, initialTopicFilter });
+
+  const {
+    listRef, cardHeight, rowGap, rowHeight, isAnimating, expandedId, setExpanded, handleDetailHeightChange,
+    selectedQuestion, selectedIndex, detailBlockHeight, dynamicTotalHeight, startIndex, virtualSlice,
+  } = useVirtualQuestionList(filtered);
+
   const isQuestionBankLoading = !loaded || isLoading;
-  const duplicateAnalysis = nsaaDuplicateAnalysis;
-  const nsaaDuplicateIds = duplicateAnalysis?.hiddenNsaaIds ?? EMPTY_NSAA_IDS;
-  const sourceQuestions = scope === "excluded" ? excludedQuestions : fullPracticeBank;
-
-  const visibleQuestions = useMemo(
-    () =>
-      hideNsaaDuplicates
-        ? sourceQuestions.filter((question) => !nsaaDuplicateIds.has(question.id))
-        : sourceQuestions,
-    [hideNsaaDuplicates, nsaaDuplicateIds, sourceQuestions],
-  );
-  const hiddenNsaaDuplicateCount = nsaaDuplicateIds.size;
-
-  const dataDump = useMemo(() => {
-    if (!isDetailsOpen) return null;
-
-    const verified = sourceQuestions.filter(
-      (question) => question.answer.verified,
-    ).length;
-    const withImage = sourceQuestions.filter((question) =>
-      Boolean(question.content.image_url ?? question.content.image_b64),
-    ).length;
-
-    const byPrimaryTopic = buildCountItems(
-      sourceQuestions.map((question) => question.taxonomy.primary_topic),
-    );
-    const bySecondaryTopic = buildCountItems(
-      sourceQuestions.flatMap((question) => question.taxonomy.secondary_topics),
-    );
-    const byYear = buildCountItems(
-      sourceQuestions.map((question) => question.source.year),
-    );
-    const bySubject = buildCountItems(
-      sourceQuestions.map((question) => question.source.subject),
-    );
-    const byPaper = buildCountItems(
-      sourceQuestions.map(
-        (question) => `${question.source.paper} (${question.source.year})`,
-      ),
-    );
-    const byPart = buildCountItems(
-      sourceQuestions.map((question) => question.source.part),
-    );
-    const byCorrectAnswer = buildCountItems(
-      sourceQuestions.map((question) => question.answer.correct),
-    );
-    const byModel = buildCountItems(
-      sourceQuestions.map((question) => question.taxonomy.model_used),
-    );
-
-    return {
-      totalQuestions: sourceQuestions.length,
-      verifiedQuestions: verified,
-      unverifiedQuestions: Math.max(0, sourceQuestions.length - verified),
-      questionsWithImage: withImage,
-      questionsWithoutImage: Math.max(0, sourceQuestions.length - withImage),
-      byPrimaryTopic,
-      bySecondaryTopic,
-      byYear,
-      bySubject,
-      byPaper,
-      byPart,
-      byCorrectAnswer,
-      byModel,
-    };
-  }, [isDetailsOpen, sourceQuestions]);
-
-  const filtered = useMemo(() => {
-    let result = visibleQuestions;
-
-    if (search.trim()) {
-      const term = search.toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.content.text.toLowerCase().includes(term) ||
-          item.taxonomy.primary_topic.toLowerCase().includes(term) ||
-          item.source.paper.toLowerCase().includes(term),
-      );
-    }
-    if (topicFilter.length > 0) {
-      result = result.filter((item) =>
-        topicFilter.includes(item.taxonomy.primary_topic),
-      );
-    }
-    if (yearFilter.length > 0) {
-      result = result.filter((item) => yearFilter.includes(item.source.year));
-    }
-    if (verifiedOnly) {
-      result = result.filter((item) => item.answer.verified);
-    }
-
-    switch (sortKey) {
-      case "topic":
-        return [...result].sort((left, right) =>
-          left.taxonomy.primary_topic.localeCompare(
-            right.taxonomy.primary_topic,
-          ),
-        );
-      case "year":
-        return [...result].sort(
-          (left, right) => right.source.year - left.source.year,
-        );
-      case "accuracy":
-        return [...result].sort(
-          (left, right) => right.meta.accuracy_rate - left.meta.accuracy_rate,
-        );
-      default:
-        return result;
-    }
-  }, [search, sortKey, topicFilter, verifiedOnly, visibleQuestions, yearFilter]);
-
-  useEffect(() => {
-    const syncWindowMetrics = () => {
-      const listTop = listRef.current?.getBoundingClientRect().top ?? 0;
-      const absoluteTop = window.scrollY + listTop;
-      dispatchVirtual({
-        type: "sync_metrics",
-        scrollTop: Math.max(0, window.scrollY - absoluteTop),
-        viewportHeight: window.innerHeight,
-      });
-    };
-
-    syncWindowMetrics();
-    window.addEventListener("scroll", syncWindowMetrics, { passive: true });
-    window.addEventListener("resize", syncWindowMetrics);
-
-    return () => {
-      window.removeEventListener("scroll", syncWindowMetrics);
-      window.removeEventListener("resize", syncWindowMetrics);
-    };
-  }, []);
-
-  useEffect(() => {
-    dispatchVirtual({ type: "set_count", count: Math.min(filtered.length, VIRTUAL_BATCH_SIZE) });
-  }, [
-    filtered.length,
-    search,
-    topicFilter,
-    yearFilter,
-    verifiedOnly,
-    sortKey,
-    hideNsaaDuplicates,
-    scope,
-  ]);
-
-  useEffect(() => {
-    const neededCount =
-      Math.ceil((scrollTop + viewportHeight) / rowHeight) +
-      VIRTUAL_OVERSCAN * 2;
-    if (neededCount > virtualCount && virtualCount < filtered.length) {
-      dispatchVirtual({ type: "set_count", count: Math.min(filtered.length, Math.max(virtualCount + VIRTUAL_BATCH_SIZE, neededCount)) });
-    }
-  }, [filtered.length, scrollTop, viewportHeight, virtualCount, rowHeight]);
-
-  const selectedQuestion = useMemo(
-    () => filtered.find((question) => question.id === expandedId) ?? null,
-    [expandedId, filtered],
-  );
-  const selectedIndex = useMemo(
-    () => filtered.findIndex((question) => question.id === expandedId),
-    [expandedId, filtered],
-  );
-  const detailBlockHeight =
-    selectedQuestion && selectedIndex >= 0 ? detailHeight + rowGap : 0;
-  const dynamicTotalHeight =
-    Math.min(virtualCount, filtered.length) * rowHeight +
-    detailBlockHeight;
-  // Rows below an open detail panel are pushed down by detailBlockHeight, so the
-  // windowing math has to unwind that offset once we've scrolled past the panel —
-  // otherwise the visible-row window drifts and rows near the fold stop rendering.
-  const selectionThreshold = (selectedIndex + 1) * rowHeight;
-  const effectiveScrollTop =
-    detailBlockHeight > 0 && scrollTop > selectionThreshold
-      ? Math.max(selectionThreshold, scrollTop - detailBlockHeight)
-      : scrollTop;
-  const startIndex = Math.max(
-    0,
-    Math.floor(effectiveScrollTop / rowHeight) - VIRTUAL_OVERSCAN,
-  );
-  const visibleCount =
-    Math.ceil(viewportHeight / rowHeight) + VIRTUAL_OVERSCAN * 2;
-  const endIndex = Math.min(virtualCount, startIndex + visibleCount);
-  const virtualSlice = filtered.slice(startIndex, endIndex);
-
-  function toggleTopic(topic: string) {
-    dispatchFilter({ type: "toggle_topic", topic });
-  }
-
-  function toggleYear(year: number) {
-    dispatchFilter({ type: "toggle_year", year });
-  }
 
   async function drillTopic(topic: string) {
     const ids = visibleQuestions.flatMap((question) =>
@@ -440,7 +96,7 @@ export default function QuestionBank() {
         <div className="flex flex-wrap items-center justify-end gap-2">
           <button
             type="button"
-            onClick={() => dispatchFilter({ type: "set_scope", scope: "practice" })}
+            onClick={() => setScope("practice")}
             className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
               scope === "practice"
                 ? "bg-slate-900 text-white"
@@ -451,7 +107,7 @@ export default function QuestionBank() {
           </button>
           <button
             type="button"
-            onClick={() => dispatchFilter({ type: "set_scope", scope: "excluded" })}
+            onClick={() => setScope("excluded")}
             className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
               scope === "excluded"
                 ? "bg-rose-600 text-white"
@@ -476,77 +132,12 @@ export default function QuestionBank() {
       </div>
 
       {!isQuestionBankLoading && sourceQuestions.length > 0 && (
-        <details
-          open={isDetailsOpen}
-          onToggle={(e) => dispatchFilter({ type: "set_details_open", value: (e.target as HTMLDetailsElement).open })}
-          className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
-        >
-          <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-            <span className="text-sm font-medium text-slate-300">
-              Data dump
-            </span>
-            <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
-                {sourceQuestions.length} total
-              </span>
-              {isDetailsOpen && dataDump && (
-                <>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
-                    {dataDump.byPrimaryTopic.length} primary topics
-                  </span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
-                    {dataDump.byYear.length} years
-                  </span>
-                </>
-              )}
-            </div>
-          </summary>
-
-          {isDetailsOpen && dataDump && (
-            <div className="border-t border-white/10 p-4">
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                <DataStat
-                  label="Total questions"
-                  value={dataDump.totalQuestions}
-                />
-                <DataStat label="Verified" value={dataDump.verifiedQuestions} />
-                <DataStat
-                  label="Escalated classifications"
-                  value={dataDump.unverifiedQuestions}
-                />
-                <DataStat
-                  label="With image"
-                  value={dataDump.questionsWithImage}
-                />
-                <DataStat
-                  label="Without image"
-                  value={dataDump.questionsWithoutImage}
-                />
-                <DataStat label="Years covered" value={dataDump.byYear.length} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <DataList
-                  title="Primary topic counts"
-                  items={dataDump.byPrimaryTopic}
-                />
-                <DataList
-                  title="Secondary topic counts"
-                  items={dataDump.bySecondaryTopic}
-                />
-                <DataList title="Year counts" items={dataDump.byYear} />
-                <DataList title="Subject counts" items={dataDump.bySubject} />
-                <DataList title="Paper counts" items={dataDump.byPaper} />
-                <DataList title="Part counts" items={dataDump.byPart} />
-                <DataList
-                  title="Correct answer counts"
-                  items={dataDump.byCorrectAnswer}
-                />
-                <DataList title="Model counts" items={dataDump.byModel} />
-              </div>
-            </div>
-          )}
-        </details>
+        <DataDumpPanel
+          totalCount={sourceQuestions.length}
+          isDetailsOpen={isDetailsOpen}
+          onToggle={(open) => setDetailsOpen(open)}
+          dataDump={dataDump}
+        />
       )}
 
       <section className="question-bank-controls">
@@ -555,7 +146,7 @@ export default function QuestionBank() {
           aria-label="Search questions"
           placeholder="Search questions, topics, papers..."
           value={search}
-          onChange={(event) => dispatchFilter({ type: "set_search", value: event.target.value })}
+          onChange={(event) => setSearch(event.target.value)}
           className="question-bank-search"
         />
 
@@ -608,7 +199,7 @@ export default function QuestionBank() {
                     <input
                       type="checkbox"
                       checked={hideNsaaDuplicates}
-                      onChange={(event) => dispatchFilter({ type: "set_hide_dupes", value: event.target.checked })}
+                      onChange={(event) => setHideDupes(event.target.checked)}
                       className="accent-accent"
                     />
                     Exclude NSAA duplicates
@@ -619,7 +210,7 @@ export default function QuestionBank() {
                   <input
                     type="checkbox"
                     checked={verifiedOnly}
-                    onChange={(event) => dispatchFilter({ type: "set_verified_only", value: event.target.checked })}
+                    onChange={(event) => setVerifiedOnly(event.target.checked)}
                     className="accent-indigo-500"
                   />
                   Primary-model only
@@ -629,7 +220,7 @@ export default function QuestionBank() {
                   <input
                     type="checkbox"
                     checked={showDedupDebug}
-                    onChange={(event) => dispatchFilter({ type: "set_debug", value: event.target.checked })}
+                    onChange={(event) => setDebug(event.target.checked)}
                     className="accent-indigo-500"
                   />
                   Dedupe debug
@@ -638,7 +229,7 @@ export default function QuestionBank() {
 
               <select
                 value={sortKey}
-                onChange={(event) => dispatchFilter({ type: "set_sort", key: event.target.value as SortKey })}
+                onChange={(event) => setSort(event.target.value as SortKey)}
                 className="question-bank-sort"
               >
                 <option value="default">Default order</option>
@@ -750,6 +341,92 @@ function truncateText(value: string, maxLength = 150): string {
     return trimmed;
   }
   return `${trimmed.slice(0, maxLength)}...`;
+}
+
+function DataDumpPanel({
+  totalCount,
+  isDetailsOpen,
+  onToggle,
+  dataDump,
+}: {
+  totalCount: number;
+  isDetailsOpen: boolean;
+  onToggle: (open: boolean) => void;
+  dataDump: DataDump | null;
+}) {
+  return (
+    <details
+      open={isDetailsOpen}
+      onToggle={(e) => onToggle((e.target as HTMLDetailsElement).open)}
+      className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
+    >
+      <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
+        <span className="text-sm font-medium text-slate-300">
+          Data dump
+        </span>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+            {totalCount} total
+          </span>
+          {isDetailsOpen && dataDump && (
+            <>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+                {dataDump.byPrimaryTopic.length} primary topics
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+                {dataDump.byYear.length} years
+              </span>
+            </>
+          )}
+        </div>
+      </summary>
+
+      {isDetailsOpen && dataDump && (
+        <div className="border-t border-white/10 p-4">
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <DataStat
+              label="Total questions"
+              value={dataDump.totalQuestions}
+            />
+            <DataStat label="Verified" value={dataDump.verifiedQuestions} />
+            <DataStat
+              label="Escalated classifications"
+              value={dataDump.unverifiedQuestions}
+            />
+            <DataStat
+              label="With image"
+              value={dataDump.questionsWithImage}
+            />
+            <DataStat
+              label="Without image"
+              value={dataDump.questionsWithoutImage}
+            />
+            <DataStat label="Years covered" value={dataDump.byYear.length} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <DataList
+              title="Primary topic counts"
+              items={dataDump.byPrimaryTopic}
+            />
+            <DataList
+              title="Secondary topic counts"
+              items={dataDump.bySecondaryTopic}
+            />
+            <DataList title="Year counts" items={dataDump.byYear} />
+            <DataList title="Subject counts" items={dataDump.bySubject} />
+            <DataList title="Paper counts" items={dataDump.byPaper} />
+            <DataList title="Part counts" items={dataDump.byPart} />
+            <DataList
+              title="Correct answer counts"
+              items={dataDump.byCorrectAnswer}
+            />
+            <DataList title="Model counts" items={dataDump.byModel} />
+          </div>
+        </div>
+      )}
+    </details>
+  );
 }
 
 function DuplicateDebugPanel({
