@@ -1,0 +1,332 @@
+/*
+ * Skeuomorphic practice-setup page (design turn 2a — dark brushed metal).
+ *
+ * Reuses the shared, token-driven primitives from home-skeuo.css by class name
+ * (.sk-frame, .sk-screw, .sk-well, .sk-well-title, .sk-cta, .sk-divider,
+ * .sk-dial) — those consume only :root --sk-* tokens and are page-agnostic.
+ * This file adds the surfaces unique to Practice: the mode selector cards, the
+ * question-count slider, and the selectable topic/paper chips.
+ *
+ * Only a dark option (2a) was designed. The light values below are derived from
+ * the established home light palette (tan leather / copper hardware) so the page
+ * themes correctly under :root[data-theme="light"].
+ */
+
+/* ---- Page-local tokens ---- */
+
+.sk-practice {
+  /* Selection ring (amber, shared by mode cards + chips) */
+  --sk-select-ring: #c9922f;
+
+  /* Mode cards */
+  --sk-mode-bg: linear-gradient(180deg, #2a2214, #1c160d);
+  --sk-mode-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06), inset 0 -2px 5px rgba(0, 0, 0, 0.6);
+  --sk-mode-border: rgba(255, 255, 255, 0.04);
+  --sk-mode-desc: #8a7c62;
+  --sk-mode-sel-bg: linear-gradient(180deg, #3d3018, #241c0e);
+  --sk-mode-sel-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 0 0 2px var(--sk-select-ring),
+    0 0 16px rgba(201, 146, 47, 0.35);
+
+  /* Selectable chips (topics / papers) */
+  --sk-chip-bg: linear-gradient(180deg, #2e2618, #1c160d);
+  --sk-chip-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), inset 0 -1px 3px rgba(0, 0, 0, 0.5);
+  --sk-chip-border: rgba(255, 255, 255, 0.05);
+  --sk-chip-text: #cdbf9f;
+  --sk-chip-sel-bg: linear-gradient(180deg, #3d3018, #241c0e);
+  --sk-chip-sel-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 0 2px var(--sk-select-ring), 0 0 12px rgba(201, 146, 47, 0.3);
+  --sk-chip-sel-text: #f1e6cc;
+
+  /* Question-count slider */
+  --sk-slider-track: rgba(0, 0, 0, 0.55);
+  --sk-slider-track-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+  --sk-slider-fill: linear-gradient(90deg, #a9781f, #e9bd63);
+  --sk-slider-knob: radial-gradient(circle at 35% 30%, #f6d68c, #a9781f 75%);
+  --sk-slider-knob-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 2px 5px rgba(0, 0, 0, 0.6);
+  --sk-slider-tick: #8a7c62;
+  --sk-slider-tick-major: #cdbf9f;
+
+  /* Inline error banner (not in the mockup; consistent recessed danger tint) */
+  --sk-error-bg: rgba(80, 26, 12, 0.4);
+  --sk-error-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+  --sk-error-border: rgba(201, 92, 52, 0.55);
+  --sk-error-text: #f0b48c;
+}
+
+:root[data-theme="light"] .sk-practice {
+  --sk-select-ring: #b85c28;
+
+  --sk-mode-bg: linear-gradient(180deg, #f9efd6, #e3d0a8);
+  --sk-mode-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -2px 4px rgba(120, 80, 30, 0.22);
+  --sk-mode-border: rgba(255, 255, 255, 0.5);
+  --sk-mode-desc: #8a6a42;
+  --sk-mode-sel-bg: linear-gradient(180deg, #faf1db, #ecdcb8);
+  --sk-mode-sel-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    0 0 0 2px var(--sk-select-ring),
+    0 0 16px rgba(184, 92, 40, 0.3);
+
+  --sk-chip-bg: linear-gradient(180deg, #f9efd6, #e3d0a8);
+  --sk-chip-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -1px 3px rgba(120, 80, 30, 0.2);
+  --sk-chip-border: rgba(255, 255, 255, 0.6);
+  --sk-chip-text: #5a3d1c;
+  --sk-chip-sel-bg: linear-gradient(180deg, #faf1db, #ecdcb8);
+  --sk-chip-sel-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 0 0 2px var(--sk-select-ring), 0 0 12px rgba(184, 92, 40, 0.28);
+  --sk-chip-sel-text: #4a3216;
+
+  --sk-slider-track: rgba(90, 60, 20, 0.25);
+  --sk-slider-track-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.35);
+  --sk-slider-fill: linear-gradient(90deg, #b85c28, #ec9a5f);
+  --sk-slider-knob: radial-gradient(circle at 35% 30%, #fff3d8, #c07a3a 75%);
+  --sk-slider-knob-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 2px 5px rgba(90, 60, 20, 0.4);
+  --sk-slider-tick: #8a6a42;
+  --sk-slider-tick-major: #5a3d1c;
+
+  --sk-error-bg: rgba(214, 122, 68, 0.15);
+  --sk-error-shadow: inset 0 2px 6px rgba(90, 60, 20, 0.18);
+  --sk-error-border: rgba(184, 92, 40, 0.4);
+  --sk-error-text: #963f1c;
+}
+
+/* ---- Layout shell (mirrors .sk-home) ---- */
+
+.sk-practice {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+/* Tighten inter-well spacing to the mockup's 20px */
+.sk-practice .sk-well {
+  margin-bottom: 20px;
+}
+
+/* ---- Title block ---- */
+
+.sk-practice-head {
+  margin-bottom: 24px;
+}
+
+.sk-practice-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3.6vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+  margin: 0 0 8px;
+}
+
+.sk-practice-sub {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--sk-muted);
+}
+
+/* ---- Well hint (italic "leave empty for all") ---- */
+
+.sk-hint {
+  margin: -8px 0 14px;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--sk-mode-desc);
+}
+
+/* ---- Mode selector ---- */
+
+.sk-mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sk-mode {
+  text-align: left;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--sk-mode-bg);
+  border: 1px solid var(--sk-mode-border);
+  box-shadow: var(--sk-mode-shadow);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease, box-shadow 180ms ease;
+}
+
+.sk-mode:not(.sk-mode--active):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-mode:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.sk-mode--active {
+  background: var(--sk-mode-sel-bg);
+  border-color: transparent;
+  box-shadow: var(--sk-mode-sel-shadow);
+}
+
+.sk-mode-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sk-chip-text);
+  margin-bottom: 4px;
+}
+
+.sk-mode--active .sk-mode-name {
+  color: var(--sk-text);
+}
+
+.sk-mode-desc {
+  font-size: 0.8125rem;
+  color: var(--sk-mode-desc);
+}
+
+.sk-mode--active .sk-mode-desc {
+  color: var(--sk-chip-text);
+}
+
+/* ---- Inline error ---- */
+
+.sk-error {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: var(--sk-error-bg);
+  border: 1px solid var(--sk-error-border);
+  box-shadow: var(--sk-error-shadow);
+  color: var(--sk-error-text);
+}
+
+/* ---- Question-count slider ---- */
+
+.sk-q-label {
+  font-size: 0.8125rem;
+  color: var(--sk-muted);
+  margin: 0 0 20px;
+}
+
+.sk-q-label b {
+  color: var(--sk-accent);
+  font-weight: 700;
+}
+
+.sk-slider {
+  position: relative;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  margin: 0 4px;
+}
+
+.sk-slider-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--sk-slider-track);
+  box-shadow: var(--sk-slider-track-shadow);
+  overflow: hidden;
+}
+
+.sk-slider-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--sk-slider-fill);
+}
+
+.sk-slider-knob {
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sk-slider-knob);
+  box-shadow: var(--sk-slider-knob-shadow);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.sk-slider-ticks {
+  position: relative;
+  height: 10px;
+  margin: 6px 4px 0;
+}
+
+.sk-slider-tick {
+  position: absolute;
+  top: 2px;
+  width: 1px;
+  height: 6px;
+  background: var(--sk-slider-tick);
+  opacity: 0.6;
+  transform: translateX(-50%);
+}
+
+.sk-slider-tick--major {
+  top: 0;
+  height: 10px;
+  opacity: 1;
+  background: var(--sk-slider-tick-major);
+}
+
+.sk-slider-labels {
+  position: relative;
+  height: 1.1rem;
+  margin: 2px 4px 0;
+  font-size: 0.75rem;
+  color: var(--sk-slider-tick);
+}
+
+.sk-slider-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* ---- Selectable chips ---- */
+
+.sk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sk-chip {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--sk-chip-text);
+  background: var(--sk-chip-bg);
+  border: 1px solid var(--sk-chip-border);
+  box-shadow: var(--sk-chip-shadow);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease, box-shadow 180ms ease;
+}
+
+.sk-chip:not(.sk-chip--active):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-chip:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.sk-chip--active {
+  color: var(--sk-chip-sel-text);
+  font-weight: 600;
+  background: var(--sk-chip-sel-bg);
+  border-color: transparent;
+  box-shadow: var(--sk-chip-sel-shadow);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .sk-mode-grid {
+    grid-template-columns: 1fr;
+  }
+}

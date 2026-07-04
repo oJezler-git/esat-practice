@@ -68,7 +68,7 @@ const QUESTION_COUNT_MINOR_MARKS = Array.from(
   { length: Math.floor(QUESTION_COUNT_MAX / QUESTION_COUNT_MINOR_STEP) + 1 },
   (_, i) => i * QUESTION_COUNT_MINOR_STEP,
 ).filter((mark) => mark > 0 && !QUESTION_COUNT_MAJOR_MARKS.includes(mark));
-const SLIDER_THUMB_PX = 18;
+const SLIDER_THUMB_PX = 22;
 
 // Position as calc(radius + fraction * (100% - diameter)) so the visual thumb, fill,
 // and tick marks all share one formula instead of trying to match the browser's
@@ -140,154 +140,142 @@ export default function PracticeSetup() {
   }
 
   return (
-    <div className="page-shell max-w-3xl">
-      <h1 className="page-title">New practice session</h1>
-      <p className="page-subtitle">
-        {isQuestionBankLoading
-          ? "Preparing question bank..."
-          : excludedQuestionIds.size > 0
-            ? `${availableQuestions.length} of ${questions.length} questions available`
-            : `${questions.length} questions loaded`}
-      </p>
+    <div className="sk-practice">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" aria-hidden="true" />
+        <span className="sk-screw sk-screw--tr" aria-hidden="true" />
+        <span className="sk-screw sk-screw--bl" aria-hidden="true" />
+        <span className="sk-screw sk-screw--br" aria-hidden="true" />
 
-      <section className="mb-8 card p-4">
-        <h2 className="text-sm font-medium text-muted mb-3">
-          Mode
-        </h2>
-        <div className="grid grid-cols-2 gap-3">
-          {MODES.map((item) => (
-            <button
-              type="button"
-              key={item.value}
-              onClick={() => dispatch({ type: "set_mode", mode: item.value })}
-              className={`text-left p-4 rounded-lg border transition-colors ${
-                mode === item.value
-                  ? "border-accent bg-accent-soft"
-                  : "border-subtle hover:border-strong"
-              }`}
-            >
-              <div className="font-medium text-sm">{item.label}</div>
-              <div className="text-xs text-muted mt-0.5">{item.description}</div>
-            </button>
-          ))}
-        </div>
-      </section>
+        <header className="sk-practice-head">
+          <h1 className="sk-practice-title">New practice session</h1>
+          <p className="sk-practice-sub">
+            {isQuestionBankLoading
+              ? "Preparing question bank…"
+              : excludedQuestionIds.size > 0
+                ? `${availableQuestions.length} of ${questions.length} questions available`
+                : `${questions.length} questions loaded`}
+          </p>
+        </header>
 
-      <button
-        type="button"
-        onClick={handleStart}
-        disabled={!isQuestionBankReady}
-        className="w-full mb-8 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow"
-      >
-        {isQuestionBankLoading ? "Loading question bank..." : "Start session"}
-      </button>
-      {setupError && (
-        <p className="mb-8 text-sm text-danger-text border border-danger bg-danger-soft rounded-lg px-3 py-2">
-          {setupError}
-        </p>
-      )}
+        <div className="sk-divider" aria-hidden="true" />
 
-      <section className="mb-10 card p-4">
-        <h2 className="text-sm font-medium text-muted mb-3">
-          Questions - <span className="text-primary font-medium">{questionCount}</span>
-        </h2>
-        <div className="relative h-[18px] flex items-center">
-          <input
-            type="range"
-            aria-label="Number of questions"
-            min={QUESTION_COUNT_MIN}
-            max={QUESTION_COUNT_MAX}
-            step={1}
-            value={questionCount}
-            onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
-            className="range-slider-native"
-          />
-          <div className="w-full h-1.5 rounded-full bg-subtle overflow-hidden">
-            <div
-              className="h-full bg-accent"
-              style={{ width: markPosition(questionCount) }}
-            />
+        <section className="sk-well">
+          <h2 className="sk-well-title">Mode</h2>
+          <div className="sk-mode-grid">
+            {MODES.map((item) => (
+              <button
+                type="button"
+                key={item.value}
+                onClick={() => dispatch({ type: "set_mode", mode: item.value })}
+                aria-pressed={mode === item.value}
+                className={`sk-mode ${mode === item.value ? "sk-mode--active" : ""}`}
+              >
+                <div className="sk-mode-name">{item.label}</div>
+                <div className="sk-mode-desc">{item.description}</div>
+              </button>
+            ))}
           </div>
-          <div
-            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[18px] h-[18px] rounded-full bg-accent border-[3px] border-solid pointer-events-none"
-            style={{ left: markPosition(questionCount), borderColor: "var(--surface-1)", boxShadow: "0 1px 4px rgb(0 0 0 / 0.35)" }}
-          />
-        </div>
-        <div className="relative h-2.5 mt-1">
-          {QUESTION_COUNT_MINOR_MARKS.map((mark) => (
-            <span
-              key={mark}
-              className="absolute top-0.5 -translate-x-1/2 w-px h-1.5 bg-subtle opacity-60"
-              style={{ left: markPosition(mark) }}
-            />
-          ))}
-          {QUESTION_COUNT_MAJOR_MARKS.map((mark) => (
-            <span
-              key={mark}
-              className="absolute top-0 -translate-x-1/2 w-px h-2.5 bg-strong"
-              style={{ left: markPosition(mark) }}
-            />
-          ))}
-        </div>
-        <div className="relative h-4 mt-0.5 text-xs text-muted opacity-60">
-          <span className="absolute -translate-x-1/2" style={{ left: markPosition(QUESTION_COUNT_MIN) }}>
-            {QUESTION_COUNT_MIN}
-          </span>
-          {QUESTION_COUNT_MAJOR_MARKS.map((mark) => (
-            <span
-              key={mark}
-              className="absolute -translate-x-1/2 whitespace-nowrap"
-              style={{ left: markPosition(mark) }}
-            >
-              {mark}
-            </span>
-          ))}
-        </div>
-      </section>
+        </section>
 
-      <section className="mb-8 card p-4">
-        <h2 className="text-sm font-medium text-muted mb-3">
-          Topics <span className="normal-case font-normal">(leave empty for all)</span>
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {availableTopics.map((topic) => (
-            <button
-              type="button"
-              key={topic}
-              onClick={() => dispatch({ type: "toggle_topic", topic })}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                selectedTopics.includes(topic)
-                  ? "border-accent bg-accent-soft text-accent-strong"
-                  : "border-subtle text-secondary hover:border-strong"
-              }`}
-            >
-              {topic}
-            </button>
-          ))}
-        </div>
-      </section>
+        <button
+          type="button"
+          onClick={handleStart}
+          disabled={!isQuestionBankReady}
+          className="sk-cta"
+        >
+          <span>{isQuestionBankLoading ? "Loading question bank…" : "Start session"}</span>
+        </button>
+        {setupError && (
+          <p className="sk-error" role="alert">
+            {setupError}
+          </p>
+        )}
 
-      <section className="mb-8 card p-4">
-        <h2 className="text-sm font-medium text-muted mb-3">
-          Papers <span className="normal-case font-normal">(leave empty for all)</span>
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {availableYears.map((year) => (
-            <button
-              type="button"
-              key={year}
-              onClick={() => dispatch({ type: "toggle_year", year })}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                selectedYears.includes(year)
-                  ? "border-accent bg-accent-soft text-accent-strong"
-                  : "border-subtle text-secondary hover:border-strong"
-              }`}
-            >
-              {year}
-            </button>
-          ))}
-        </div>
-      </section>
+        <section className="sk-well">
+          <p className="sk-q-label">
+            Questions · <b>{questionCount}</b>
+          </p>
+          <div className="sk-slider">
+            <input
+              type="range"
+              aria-label="Number of questions"
+              min={QUESTION_COUNT_MIN}
+              max={QUESTION_COUNT_MAX}
+              step={1}
+              value={questionCount}
+              onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
+              className="range-slider-native"
+            />
+            <div className="sk-slider-track">
+              <div className="sk-slider-fill" style={{ width: markPosition(questionCount) }} />
+            </div>
+            <div className="sk-slider-knob" style={{ left: markPosition(questionCount) }} />
+          </div>
+          <div className="sk-slider-ticks">
+            {QUESTION_COUNT_MINOR_MARKS.map((mark) => (
+              <span
+                key={mark}
+                className="sk-slider-tick"
+                style={{ left: markPosition(mark) }}
+              />
+            ))}
+            {QUESTION_COUNT_MAJOR_MARKS.map((mark) => (
+              <span
+                key={mark}
+                className="sk-slider-tick sk-slider-tick--major"
+                style={{ left: markPosition(mark) }}
+              />
+            ))}
+          </div>
+          <div className="sk-slider-labels">
+            <span style={{ left: markPosition(QUESTION_COUNT_MIN) }}>{QUESTION_COUNT_MIN}</span>
+            {QUESTION_COUNT_MAJOR_MARKS.map((mark) => (
+              <span key={mark} style={{ left: markPosition(mark) }}>
+                {mark}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="sk-well">
+          <h2 className="sk-well-title">Topics</h2>
+          <p className="sk-hint">leave empty for all</p>
+          <div className="sk-chips">
+            {availableTopics.map((topic) => (
+              <button
+                type="button"
+                key={topic}
+                onClick={() => dispatch({ type: "toggle_topic", topic })}
+                aria-pressed={selectedTopics.includes(topic)}
+                className={`sk-chip ${selectedTopics.includes(topic) ? "sk-chip--active" : ""}`}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="sk-well">
+          <h2 className="sk-well-title">Papers</h2>
+          <p className="sk-hint">leave empty for all</p>
+          <div className="sk-chips">
+            {availableYears.map((year) => (
+              <button
+                type="button"
+                key={year}
+                onClick={() => dispatch({ type: "toggle_year", year })}
+                aria-pressed={selectedYears.includes(year)}
+                className={`sk-chip ${selectedYears.includes(year) ? "sk-chip--active" : ""}`}
+              >
+                {year}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <span className="sk-dial" aria-hidden="true" />
+      </div>
     </div>
   );
 }
