@@ -93,29 +93,35 @@ export default function QuestionBank() {
                 }`}
           </p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => setScope("practice")}
-            className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
-              scope === "practice"
-                ? "bg-slate-900 text-white"
-                : "border border-slate-300 text-slate-600 hover:border-slate-400"
-            }`}
+        <div className="question-bank-hero-actions">
+          <div
+            role="tablist"
+            aria-label="Question bank scope"
+            className="question-bank-scope-toggle"
           >
-            Practice bank
-          </button>
-          <button
-            type="button"
-            onClick={() => setScope("excluded")}
-            className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
-              scope === "excluded"
-                ? "bg-rose-600 text-white"
-                : "border border-danger text-danger-text hover:border-strong"
-            }`}
-          >
-            Excluded ({excludedQuestions.length})
-          </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={scope === "practice"}
+              onClick={() => setScope("practice")}
+              className={`question-bank-scope-tab ${
+                scope === "practice" ? "question-bank-scope-tab-active" : ""
+              }`}
+            >
+              Practice bank
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={scope === "excluded"}
+              onClick={() => setScope("excluded")}
+              className={`question-bank-scope-tab question-bank-scope-tab-danger ${
+                scope === "excluded" ? "question-bank-scope-tab-danger-active" : ""
+              }`}
+            >
+              Excluded ({excludedQuestions.length})
+            </button>
+          </div>
           {scope === "practice" && filtered.length > 0 && (
             <button
               type="button"
@@ -130,6 +136,14 @@ export default function QuestionBank() {
           )}
         </div>
       </div>
+
+      {scope === "excluded" && !isQuestionBankLoading && (
+        <p className="question-bank-scope-hint mb-6">
+          These questions are hidden from practice sessions. Tap{" "}
+          <strong>Restore</strong> on a question to bring it back, or switch
+          to the <strong>Practice bank</strong> tab above to keep browsing.
+        </p>
+      )}
 
       {!isQuestionBankLoading && sourceQuestions.length > 0 && (
         <DataDumpPanel
@@ -292,6 +306,13 @@ export default function QuestionBank() {
                     selected={expandedId === question.id}
                     onToggle={() =>
                       setExpanded(expandedId === question.id ? null : question.id)
+                    }
+                    onRestore={
+                      scope === "excluded"
+                        ? () => {
+                            void includeQuestion(question.id, allQuestions);
+                          }
+                        : undefined
                     }
                   />
                 </div>
@@ -591,11 +612,13 @@ function QuestionRow({
   isExcluded,
   selected,
   onToggle,
+  onRestore,
 }: {
   question: Question;
   isExcluded: boolean;
   selected: boolean;
   onToggle: () => void;
+  onRestore?: () => void;
 }) {
   const preview = truncateText(question.content.text.replace(/\s+/g, " "), 180);
 
@@ -622,11 +645,32 @@ function QuestionRow({
           <span className="question-bank-row-tag">
             {question.taxonomy.primary_topic}
           </span>
-          {isExcluded && (
-            <span className="question-bank-row-warning">
-              Excluded
-            </span>
-          )}
+          {/* fullPracticeBank already excludes excluded questions, so isExcluded
+              is only ever true while browsing the excluded scope — safe to swap
+              the passive "Excluded" badge for a direct restore action here. */}
+          {isExcluded &&
+            (onRestore ? (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onRestore();
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    onRestore();
+                  }
+                }}
+                className="question-bank-row-warning question-bank-row-restore"
+              >
+                Restore
+              </span>
+            ) : (
+              <span className="question-bank-row-warning">Excluded</span>
+            ))}
         </span>
       </button>
     </div>

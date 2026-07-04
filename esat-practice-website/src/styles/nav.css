@@ -218,3 +218,12 @@
   position: relative;
   z-index: 40;
 }
+
+/* .nav-shell creates its own stacking context (position: sticky + z-index),
+   so the hamburger wrapper's z-index only wins against .mobile-menu-overlay
+   (z-index 30) if the shell itself is raised above it too — otherwise the
+   whole nav, button included, stacks under the overlay and the button
+   appears to vanish into the dimmed backdrop once the menu opens. */
+.nav-shell-menu-open {
+  z-index: 40;
+}

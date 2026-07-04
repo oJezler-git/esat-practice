@@ -20,6 +20,56 @@
   color: #aab6af;
 }
 
+.question-bank-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Segmented control: two mutually-exclusive views (not independent toggle
+   chips), styled as one grouped control so it doesn't read like the
+   multi-select topic/year chips below it. */
+.question-bank-scope-toggle {
+  display: inline-flex;
+  padding: 0.2rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  background: rgb(255 255 255 / 0.03);
+  gap: 0.2rem;
+}
+
+.question-bank-scope-tab {
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #b8c1bc;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.question-bank-scope-tab-active {
+  background: var(--text-primary, #edf2ef);
+  color: #10140f;
+}
+
+.question-bank-scope-tab-danger-active {
+  background: rgb(225 70 70);
+  color: white;
+}
+
+.question-bank-scope-hint {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgb(217 159 72 / 0.28);
+  background: rgb(217 159 72 / 0.1);
+  color: #f2d29f;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 .question-bank-practice {
   min-width: 13.5rem;
   justify-self: end;
@@ -272,10 +322,47 @@
   color: #f2d29f;
 }
 
+.question-bank-row-restore {
+  cursor: pointer;
+  border-color: rgb(154 178 124 / 0.42);
+  background: rgb(154 178 124 / 0.16);
+  color: #e5efd5;
+  transition: background-color 160ms ease;
+}
+
+.question-bank-row-restore:hover,
+.question-bank-row-restore:focus-visible {
+  background: rgb(154 178 124 / 0.28);
+}
+
 @media (max-width: 768px) {
   .question-bank-hero {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  /* Anchor the scope toggle + CTA full-width instead of right-justifying a
+     shrink-wrapped cluster — a narrow group floated right left a large,
+     empty-looking gap on its left that got worse once the scope toggle was
+     narrower than the old three-button row. */
+  .question-bank-hero-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .question-bank-scope-toggle {
+    width: 100%;
+  }
+
+  .question-bank-scope-tab {
+    flex: 1;
+    text-align: center;
+  }
+
+  .question-bank-practice {
+    width: 100%;
+    min-width: 0;
   }
 
   .question-bank-filter-row {
@@ -292,35 +379,42 @@
     justify-content: flex-start;
   }
 
-  .question-bank-practice {
-    min-width: 0;
-  }
-
   .question-bank-row-button {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "year tag"
+      "preview preview"
+      "warning warning";
     /* Stacked rows are taller; keep in sync with MOBILE_CARD_HEIGHT in index.tsx. */
     height: 152px;
-    gap: 0.5rem;
+    gap: 0.4rem 0.5rem;
     padding: 0.9rem 1rem;
     overflow: hidden;
   }
 
-  .question-bank-row-meta {
-    justify-content: flex-start;
-    min-width: 0;
-    flex-wrap: nowrap;
-    overflow: hidden;
-    gap: 0.4rem;
+  .question-bank-row-year {
+    grid-area: year;
+    padding-top: 0;
+    align-self: center;
   }
 
-  /* Keep the meta on one line: the topic pill shrinks + ellipsizes, the badge
-     stays its natural size. */
-  .question-bank-row-meta > * {
-    flex: none;
+  .question-bank-row-preview {
+    grid-area: preview;
+  }
+
+  /* The wrapper's own box disappears so the pill and the excluded badge it
+     contains become direct grid items of the row button, letting each land
+     in its own area (pill up top, badge under the preview). */
+  .question-bank-row-meta {
+    display: contents;
   }
 
   .question-bank-row-tag {
-    flex: 0 1 auto;
+    grid-area: tag;
+    justify-self: end;
+    align-self: center;
+    max-width: 100%;
     min-width: 0;
     display: block;
     line-height: 1.3rem;
@@ -330,6 +424,8 @@
   }
 
   .question-bank-row-warning {
+    grid-area: warning;
+    justify-self: start;
     white-space: nowrap;
   }
 }

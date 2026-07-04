@@ -210,7 +210,11 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
 
   return (
     <>
-      <nav className={`nav-shell ${isHidden ? "nav-shell-hidden" : ""}`}>
+      <nav
+        className={`nav-shell ${isHidden ? "nav-shell-hidden" : ""} ${
+          isMenuOpen ? "nav-shell-menu-open" : ""
+        }`}
+      >
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center">
             <img src={logo} alt="ESAT practice" className="h-8 w-auto" />
