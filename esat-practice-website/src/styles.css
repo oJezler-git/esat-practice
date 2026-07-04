@@ -632,6 +632,7 @@ p {
 @import "./styles/results-skeuo.css";
 @import "./styles/progress-skeuo.css";
 @import "./styles/history-skeuo.css";
+@import "./styles/revision-skeuo.css";
 
 .route-loading {
   min-height: 60vh;

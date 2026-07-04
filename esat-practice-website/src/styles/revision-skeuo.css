@@ -1,0 +1,132 @@
+/*
+ * Skeuomorphic revision home (design turn 9a — dark brushed metal, docs-style).
+ *
+ * Same pattern as results-/progress-/history-skeuo.css: remap the generic
+ * --color-accent / --text-* / --border-* / --surface-* tokens to their --sk-*
+ * equivalents *within* .sk-revision, then restyle the existing rev-home /
+ * rev-subject-* markup into the skeuo framed panel — subject cards become
+ * recessed wells, topic rows become hairline-split list rows. The flat rules in
+ * revision-docs.css stay intact for the doc reading view (not part of this
+ * mockup) and any surface not wrapped in .sk-revision.
+ *
+ * Only a dark option (9a) was designed; light values derive from the shared
+ * home light palette through the --sk-* tokens.
+ */
+
+/* ---- Scoped generic-token remap ---- */
+
+.sk-revision {
+  --color-accent-strong: var(--sk-accent);
+  --color-accent-soft: rgba(233, 189, 99, 0.14);
+  --text-primary: var(--sk-text);
+  --text-secondary: var(--sk-tile-text);
+  --text-muted: var(--sk-muted);
+  --border-subtle: var(--sk-hairline-light);
+  --surface-1: var(--sk-well-bg);
+}
+
+:root[data-theme="light"] .sk-revision {
+  --color-accent-soft: rgba(184, 92, 40, 0.14);
+}
+
+/* ---- Framed panel ---- */
+
+.sk-revision .sk-frame {
+  color: var(--sk-text);
+}
+
+/* Hero */
+.sk-revision .rev-kicker {
+  color: var(--sk-accent);
+  letter-spacing: 0.12em;
+}
+
+.sk-revision.rev-home h1 {
+  font-family: var(--font-display);
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+}
+
+.sk-revision .rev-subtitle {
+  color: var(--sk-muted);
+}
+
+/* ---- Subject cards → recessed wells ---- */
+
+.sk-revision .rev-subject-toc {
+  gap: 20px;
+  margin-top: 1.6rem;
+}
+
+.sk-revision .rev-subject-column {
+  border: none;
+  border-radius: 18px;
+  padding: 26px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-revision .rev-subject-column h2 {
+  font-size: 1.0625rem;
+  color: var(--sk-text);
+}
+
+.sk-revision .rev-subject-column-head span {
+  color: var(--sk-muted);
+}
+
+.sk-revision .rev-subject-column p {
+  color: var(--sk-muted);
+  font-size: 0.84rem;
+}
+
+/* Per-subject identifier dots gain a soft glow to match the design. */
+.sk-revision .rev-module-dot {
+  width: 9px;
+  height: 9px;
+  box-shadow: 0 0 6px currentColor, inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.sk-revision .rev-module-dot--m1 {
+  background: #c9a24a;
+  color: #c9a24a;
+}
+
+.sk-revision .rev-module-dot--m2 {
+  background: #e9bd63;
+  color: #e9bd63;
+}
+
+.sk-revision .rev-module-dot--physics {
+  background: #e0708a;
+  color: #e0708a;
+}
+
+/* ---- Topic rows ---- */
+
+.sk-revision .rev-subject-tree {
+  margin-top: 1rem;
+  border-top: 1px solid var(--sk-hairline-light);
+}
+
+.sk-revision .rev-subject-tree a {
+  padding: 0.82rem 0.15rem;
+  border-bottom: 1px solid var(--sk-hairline-light);
+  color: var(--sk-text);
+  font-size: 0.9375rem;
+}
+
+.sk-revision .rev-subject-tree a:hover,
+.sk-revision .rev-subject-tree a:focus-visible {
+  color: var(--sk-text);
+  filter: brightness(1.08);
+}
+
+.sk-revision .rev-subject-topic-code {
+  color: var(--sk-muted);
+  font-size: 0.72rem;
+}
+
+.sk-revision .rev-subject-topic-arrow {
+  color: var(--sk-accent);
+}
