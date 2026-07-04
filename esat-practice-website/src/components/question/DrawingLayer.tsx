@@ -1,52 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactElement } from "react";
-import katex from "katex";
-import "katex/dist/katex.min.css";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import type {
   Annotation,
   AnnPoint,
   AnnTool,
   FreehandKind,
-  MathAnnotation,
   ShapeKind,
-  TextAnnotation,
 } from "../../types/annotations";
-import {
-  arrowHeadPath,
-  buildSmoothPath,
-  clientToUser,
-  ellipseAttrs,
-  rectAttrs,
-  replayTiming,
-} from "./annotationGeometry";
-
-type LabelAnnotation = TextAnnotation | MathAnnotation;
-
-/** Renders a LaTeX source string to KaTeX HTML. Falls back to raw source on parse error. */
-function MathContent({
-  latex,
-  color,
-  fontSize,
-}: {
-  latex: string;
-  color: string;
-  fontSize: number;
-}) {
-  const html = useMemo(() => {
-    try {
-      return katex.renderToString(latex, { throwOnError: false, output: "html" });
-    } catch {
-      return latex;
-    }
-  }, [latex]);
-  return (
-    <div
-      style={{ color, fontSize: `${fontSize}px`, display: "inline-block", lineHeight: 1.25 }}
-      // eslint-disable-next-line react/no-danger -- KaTeX output is generated locally, not user-supplied HTML.
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
+import { clientToUser } from "./annotationGeometry";
+import { MathContent, renderAnnotation, renderFreehand, renderShape } from "./drawing/annotationRenderers";
+import { useAnnotationReplay } from "./drawing/useAnnotationReplay";
+import { useLabelEditor } from "./drawing/useLabelEditor";
 
 interface Props {
   naturalSize: { width: number; height: number };
@@ -66,14 +30,12 @@ interface Props {
   replayNonce?: number;
 }
 
-type ReplayState = { order: Map<string, number>; step: number; dur: number };
-
 type LiveFree = { mode: "free"; kind: FreehandKind; points: AnnPoint[]; width: number };
 type LiveShape = { mode: "shape"; kind: ShapeKind; start: AnnPoint; end: AnnPoint };
 // Tracks a text/math annotation being dragged. On pointer-up without movement, opens the editor.
 type LiveLabelMove = {
   mode: "label-move";
-  ann: LabelAnnotation;
+  ann: Extract<Annotation, { kind: "text" | "math" }>;
   x: number; y: number;  // current origin position in SVG user coords
   offsetX: number; offsetY: number;  // click offset from the annotation's origin
   moved: boolean;
@@ -126,15 +88,6 @@ export function DrawingLayer({
   const activePointerRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
   const [, forceTick] = useState(0);
-  const [editor, setEditor] = useState<{ x: number; y: number } | null>(null);
-  const [editorText, setEditorText] = useState("");
-  // Which kind of label the open editor is creating/editing: plain text or LaTeX math.
-  const [editorKind, setEditorKind] = useState<"text" | "math">("text");
-  // Non-null when editing an *existing* annotation (so commit calls onUpdate/onErase).
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const editorInputRef = useRef<HTMLInputElement>(null);
-  const [replay, setReplay] = useState<ReplayState | null>(null);
-  const replayTimerRef = useRef<number | null>(null);
   const annotationsRef = useRef<Annotation[]>(annotations);
   annotationsRef.current = annotations;
   const [cursorPos, setCursorPos] = useState<AnnPoint | null>(null);
@@ -144,6 +97,20 @@ export function DrawingLayer({
   const isCursorTool = tool === "pen" || tool === "highlighter";
   const fontSize = Math.max(Math.round(naturalSize.width * 0.032), 12);
   const moveThreshold = naturalSize.width * LABEL_MOVE_THRESHOLD;
+
+  const { getReplay } = useAnnotationReplay(annotations, replayNonce);
+  const {
+    editor,
+    editorText,
+    editorKind,
+    editingId,
+    editorInputRef,
+    setEditorText,
+    openEditorForLabel,
+    commitEditor,
+    cancelEditor,
+    startNewEditor,
+  } = useLabelEditor({ color, fontSize, onCommit, onErase, onUpdate, onTextEditingChange });
 
   const scheduleRender = useCallback(() => {
     if (frameRef.current !== null) return;
@@ -156,62 +123,8 @@ export function DrawingLayer({
   useEffect(() => {
     return () => {
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
-      if (replayTimerRef.current !== null) window.clearTimeout(replayTimerRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    if (replayNonce <= 0) return;
-    if (replayTimerRef.current !== null) {
-      window.clearTimeout(replayTimerRef.current);
-      replayTimerRef.current = null;
-    }
-
-    const items = annotationsRef.current;
-    const prefersReduced =
-      typeof window !== "undefined" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (items.length === 0 || prefersReduced) {
-      setReplay(null);
-      return;
-    }
-
-    const order = new Map<string, number>();
-    items.forEach((ann, index) => order.set(ann.id, index));
-    const { step, dur, total } = replayTiming(items.length);
-
-    setReplay({ order, step, dur });
-    replayTimerRef.current = window.setTimeout(() => {
-      setReplay(null);
-      replayTimerRef.current = null;
-    }, total);
-  }, [replayNonce]);
-
-  const getReplay = (id: string): { delay: number; dur: number } | null => {
-    if (!replay) return null;
-    const index = replay.order.get(id);
-    if (index === undefined) return null;
-    return { delay: index * replay.step, dur: replay.dur };
-  };
-
-  const replayStrokeProps = (
-    id: string,
-    extraStyle?: CSSProperties,
-  ): { pathLength?: number; className?: string; style?: CSSProperties } => {
-    const rp = getReplay(id);
-    if (!rp) return { style: extraStyle };
-    return {
-      pathLength: 1,
-      className: "drawing-replay-stroke",
-      style: {
-        ...extraStyle,
-        ["--replay-delay" as string]: `${rp.delay}ms`,
-        ["--replay-dur" as string]: `${rp.dur}ms`,
-      } as CSSProperties,
-    };
-  };
 
   useEffect(() => {
     liveRef.current = null;
@@ -219,20 +132,10 @@ export function DrawingLayer({
     setCursorPos(null);
     setEraserHoverId(null);
     if ((!LABEL_TOOLS.includes(tool) || tool !== editorKind) && editor) {
-      setEditor(null);
-      setEditorText("");
-      setEditingId(null);
-      onTextEditingChange?.(false);
+      cancelEditor();
     }
-  }, [editor, editorKind, onTextEditingChange, tool]);
-
-  useEffect(() => {
-    if (editor) {
-      const id = window.requestAnimationFrame(() => editorInputRef.current?.focus());
-      return () => window.cancelAnimationFrame(id);
-    }
-    return undefined;
-  }, [editor]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, editorKind, tool]);
 
   const eraseAt = useCallback(
     (target: EventTarget | null) => {
@@ -244,59 +147,6 @@ export function DrawingLayer({
     },
     [onErase],
   );
-
-  const openEditorForLabel = useCallback(
-    (ann: LabelAnnotation) => {
-      if (ann.kind === "text") {
-        // editor.y is the top of the foreignObject; baseline = editor.y + fontSize
-        setEditor({ x: ann.x, y: ann.y - ann.fontSize });
-        setEditorText(ann.text);
-      } else {
-        setEditor({ x: ann.x, y: ann.y });
-        setEditorText(ann.latex);
-      }
-      setEditingId(ann.id);
-      setEditorKind(ann.kind);
-      onTextEditingChange?.(true);
-    },
-    [onTextEditingChange],
-  );
-
-  const commitEditor = useCallback(() => {
-    if (!editor) return;
-    const text = editorText.trim();
-    if (editingId) {
-      // Updating an existing annotation: empty text deletes it.
-      if (text) {
-        onUpdate(
-          editorKind === "math"
-            ? { id: editingId, kind: "math", color, x: editor.x, y: editor.y, fontSize, latex: text }
-            : { id: editingId, kind: "text", color, x: editor.x, y: editor.y + fontSize, fontSize, text },
-        );
-      } else {
-        onErase(editingId);
-      }
-    } else {
-      if (text) {
-        onCommit(
-          editorKind === "math"
-            ? { id: newId(), kind: "math", color, x: editor.x, y: editor.y, fontSize, latex: text }
-            : { id: newId(), kind: "text", color, x: editor.x, y: editor.y + fontSize, fontSize, text },
-        );
-      }
-    }
-    setEditor(null);
-    setEditorText("");
-    setEditingId(null);
-    onTextEditingChange?.(false);
-  }, [color, editingId, editor, editorKind, editorText, fontSize, onCommit, onErase, onUpdate, onTextEditingChange]);
-
-  const cancelEditor = useCallback(() => {
-    setEditor(null);
-    setEditorText("");
-    setEditingId(null);
-    onTextEditingChange?.(false);
-  }, [onTextEditingChange]);
 
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (!isDrawTool || event.button !== 0) return;
@@ -317,7 +167,7 @@ export function DrawingLayer({
           const ann = annotationsRef.current.find((a) => a.id === id);
           if (ann?.kind === tool) {
             // Commit any open editor first.
-            if (editor) commitEditor();
+            commitEditor();
             // Start drag tracking; if pointer barely moves, open the editor on up.
             svg.setPointerCapture(event.pointerId);
             activePointerRef.current = event.pointerId;
@@ -336,12 +186,7 @@ export function DrawingLayer({
         }
       }
       // Empty-area click: commit any open editor, then open a new one.
-      if (editor) commitEditor();
-      setEditor({ x: point.x, y: point.y });
-      setEditorText("");
-      setEditingId(null);
-      setEditorKind(tool);
-      onTextEditingChange?.(true);
+      startNewEditor(point, tool);
       return;
     }
 
@@ -483,137 +328,7 @@ export function DrawingLayer({
     scheduleRender();
   };
 
-  const renderFreehand = (
-    id: string,
-    kind: FreehandKind,
-    points: AnnPoint[],
-    strokeColor: string,
-    strokeWidth: number,
-    isEraseTarget = false,
-  ) => {
-    const replayProps = replayStrokeProps(
-      id,
-      kind === "highlighter" ? { mixBlendMode: "multiply" } : undefined,
-    );
-    return (
-      <path
-        data-ann-id={id}
-        d={buildSmoothPath(points)}
-        fill="none"
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeOpacity={kind === "highlighter" ? 0.35 : 1}
-        opacity={isEraseTarget ? 0.3 : undefined}
-        {...replayProps}
-        key={id}
-      />
-    );
-  };
-
-  const renderShape = (
-    id: string,
-    kind: ShapeKind,
-    start: AnnPoint,
-    end: AnnPoint,
-    strokeColor: string,
-    strokeWidth: number,
-    isEraseTarget = false,
-  ) => {
-    const common = {
-      "data-ann-id": id,
-      fill: "none",
-      stroke: strokeColor,
-      strokeWidth,
-      strokeLinecap: "round" as const,
-      strokeLinejoin: "round" as const,
-    };
-    const replayProps = replayStrokeProps(id);
-    if (kind === "rect") {
-      return <rect {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} key={id} />;
-    }
-    if (kind === "ellipse") {
-      return <ellipse {...common} {...ellipseAttrs(start, end)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} key={id} />;
-    }
-    const headSize = Math.max(strokeWidth * 3.5, naturalSize.width * 0.018);
-    return (
-      <g key={id} opacity={isEraseTarget ? 0.3 : undefined}>
-        <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} {...common} {...replayProps} />
-        {kind === "arrow" && <path d={arrowHeadPath(start, end, headSize)} {...common} {...replayProps} />}
-      </g>
-    );
-  };
-
   const live = liveRef.current;
-
-  const renderAnnotation = (ann: Annotation): ReactElement | null => {
-    // Hide a text/math label that is currently open in the editor or being dragged.
-    if (
-      (ann.kind === "text" || ann.kind === "math") &&
-      (ann.id === editingId || (live?.mode === "label-move" && live.ann.id === ann.id))
-    ) {
-      return null;
-    }
-
-    const eraseTarget = ann.id === eraserHoverId;
-    switch (ann.kind) {
-      case "pen":
-      case "highlighter":
-        return renderFreehand(ann.id, ann.kind, ann.points, ann.color, ann.width, eraseTarget);
-      case "text": {
-        const rp = getReplay(ann.id);
-        return (
-          <text
-            key={ann.id}
-            data-ann-id={ann.id}
-            x={ann.x}
-            y={ann.y}
-            fill={ann.color}
-            fontSize={ann.fontSize}
-            opacity={eraseTarget ? 0.3 : undefined}
-            className={`drawing-text${rp ? " drawing-replay-fade" : ""}`}
-            style={
-              rp
-                ? ({ ["--replay-delay" as string]: `${rp.delay}ms` } as CSSProperties)
-                : undefined
-            }
-          >
-            {ann.text}
-          </text>
-        );
-      }
-      case "math": {
-        const rp = getReplay(ann.id);
-        return (
-          <foreignObject
-            key={ann.id}
-            data-ann-id={ann.id}
-            x={ann.x}
-            y={ann.y}
-            width={Math.max(naturalSize.width - ann.x, 1)}
-            height={ann.fontSize * 3}
-            style={{ overflow: "visible" }}
-          >
-            <div
-              data-ann-id={ann.id}
-              className={`drawing-math${rp ? " drawing-replay-fade" : ""}`}
-              style={
-                {
-                  opacity: eraseTarget ? 0.3 : undefined,
-                  ...(rp ? { ["--replay-delay" as string]: `${rp.delay}ms` } : {}),
-                } as CSSProperties
-              }
-            >
-              <MathContent latex={ann.latex} color={ann.color} fontSize={ann.fontSize} />
-            </div>
-          </foreignObject>
-        );
-      }
-      default:
-        return renderShape(ann.id, ann.kind, ann.start, ann.end, ann.color, ann.width, eraseTarget);
-    }
-  };
 
   // Editor width: cap at 45%/60% of image so it's not a full-width bar, but
   // ensure it doesn't spill past the right edge of the image. The math
@@ -665,12 +380,20 @@ export function DrawingLayer({
         </>
       )}
 
-      {annotations.map(renderAnnotation)}
+      {annotations.map((ann) =>
+        renderAnnotation(ann, {
+          getReplay,
+          naturalWidth: naturalSize.width,
+          editingId,
+          draggedLabelId: live?.mode === "label-move" ? live.ann.id : null,
+          eraserHoverId,
+        }),
+      )}
 
       {live?.mode === "free" &&
-        renderFreehand("__live", live.kind, live.points, color, live.width)}
+        renderFreehand(getReplay, "__live", live.kind, live.points, color, live.width)}
       {live?.mode === "shape" &&
-        renderShape("__live", live.kind, live.start, live.end, color, width)}
+        renderShape(getReplay, naturalSize.width, "__live", live.kind, live.start, live.end, color, width)}
 
       {/* Text/math annotation being dragged: render at the live position. */}
       {live?.mode === "label-move" && live.ann.kind === "text" && (
