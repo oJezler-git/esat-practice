@@ -1,0 +1,540 @@
+/*
+ * Skeuomorphic home redesign — a self-contained token layer scoped to `.sk-home`.
+ *
+ * This intentionally does NOT touch the global --color-* / --surface-* tokens in
+ * styles.css. It defines its own `--sk-*` variables so the treatment can later be
+ * promoted to a user-selectable "skeuomorphic" theme in settings without
+ * disturbing the rest of the app. Dark mode = brushed metal & amber glass; light
+ * mode (:root[data-theme="light"]) = tan leather & copper hardware.
+ */
+
+.sk-home {
+  /* Frame */
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(160, 100, 30, 0.22), transparent 60%),
+    linear-gradient(160deg, #241d15 0%, #181209 75%);
+  --sk-frame-border: #362b1a;
+  --sk-frame-shadow:
+    0 40px 70px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+  --sk-stitch-color: transparent;
+
+  /* Hardware (screws / dial) */
+  --sk-screw-bg: radial-gradient(circle at 35% 30%, #a9925f, #241c11 70%);
+  --sk-screw-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.6);
+  --sk-screw-slot: rgba(0, 0, 0, 0.55);
+  --sk-dial-bg: radial-gradient(circle at 35% 30%, #4a3c26, #191309 75%);
+  --sk-dial-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15), inset 0 -1px 3px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.5);
+  --sk-dial-indicator: #e9bd63;
+
+  /* Text */
+  --sk-text: #f1e6cc;
+  --sk-muted: #a89a82;
+  --sk-accent: #e9bd63;
+  --sk-title-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* Hairline divider */
+  --sk-hairline-light: rgba(255, 255, 255, 0.08);
+  --sk-hairline-dark: rgba(0, 0, 0, 0.5);
+
+  /* Inset pill (clock / questions-ready) */
+  --sk-pill-bg: rgba(0, 0, 0, 0.35);
+  --sk-pill-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* Primary CTA */
+  --sk-cta-bg: linear-gradient(180deg, #f5c46c 0%, #da9a3e 45%, #b8701f 100%);
+  --sk-cta-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35),
+    0 10px 18px rgba(0, 0, 0, 0.5),
+    0 2px 0 rgba(0, 0, 0, 0.2);
+  --sk-cta-text: #2a1806;
+
+  /* Secondary tiles */
+  --sk-tile-bg: linear-gradient(180deg, #31281a, #1d170e);
+  --sk-tile-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 5px 10px rgba(0, 0, 0, 0.4);
+  --sk-tile-border: rgba(255, 255, 255, 0.05);
+  --sk-tile-text: #cdbf9f;
+
+  /* Recessed wells (Needs work / Recent) */
+  --sk-well-bg: rgba(0, 0, 0, 0.32);
+  --sk-well-shadow: inset 0 3px 9px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+
+  /* Weak-topic pills */
+  --sk-topic-crit-bg: linear-gradient(180deg, #c15e26, #7c3a12);
+  --sk-topic-crit-text: #2a1204;
+  --sk-topic-crit-sub: #3a1c06;
+  --sk-topic-crit-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.4);
+  --sk-topic-warn-bg: linear-gradient(180deg, #e8a542, #af6c1e);
+  --sk-topic-warn-text: #2a1806;
+  --sk-topic-warn-sub: #3a2408;
+  --sk-topic-warn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.35), 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  /* Recent rows */
+  --sk-recent-active-bg: linear-gradient(180deg, #3c3220, #241d12);
+  --sk-recent-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 3px 6px rgba(0, 0, 0, 0.4);
+  --sk-recent-active-border: linear-gradient(180deg, #e9bd63, #a9781f);
+  --sk-recent-idle-bg: rgba(255, 255, 255, 0.02);
+  --sk-recent-idle-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  --sk-recent-idle-text: rgba(168, 154, 130, 0.45);
+}
+
+:root[data-theme="light"] .sk-home {
+  --sk-frame-bg:
+    repeating-linear-gradient(115deg, rgba(110, 74, 30, 0.035) 0px, rgba(110, 74, 30, 0.035) 2px, transparent 2px, transparent 7px),
+    linear-gradient(160deg, #f2e6ca 0%, #e0cea3 80%);
+  --sk-frame-border: transparent;
+  --sk-frame-shadow: 0 34px 60px rgba(90, 60, 20, 0.28), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+  --sk-stitch-color: rgba(101, 67, 33, 0.3);
+
+  --sk-screw-bg: radial-gradient(circle at 35% 30%, #fff3d8, #a9822f 75%);
+  --sk-screw-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(90, 60, 20, 0.4);
+  --sk-screw-slot: rgba(101, 67, 33, 0.45);
+  --sk-dial-bg: radial-gradient(circle at 35% 30%, #fdf6e6, #d9c090 75%);
+  --sk-dial-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), inset 0 -1px 3px rgba(90, 60, 20, 0.3), 0 2px 4px rgba(90, 60, 20, 0.25);
+  --sk-dial-indicator: #b85c28;
+
+  --sk-text: #4a3216;
+  --sk-muted: #8a6a42;
+  --sk-accent: #b85c28;
+  --sk-title-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  --sk-hairline-light: rgba(255, 255, 255, 0.7);
+  --sk-hairline-dark: rgba(90, 60, 20, 0.15);
+
+  --sk-pill-bg: rgba(255, 255, 255, 0.5);
+  --sk-pill-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.2);
+
+  --sk-cta-bg: linear-gradient(180deg, #f2a367 0%, #c96a34 45%, #9c4a1e 100%);
+  --sk-cta-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -3px 6px rgba(90, 30, 5, 0.3),
+    0 10px 18px rgba(90, 40, 10, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.1);
+  --sk-cta-text: #3a1c08;
+
+  --sk-tile-bg: linear-gradient(180deg, #f9efd6, #e3d0a8);
+  --sk-tile-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -2px 4px rgba(120, 80, 30, 0.22), 0 5px 10px rgba(90, 60, 20, 0.2);
+  --sk-tile-border: rgba(255, 255, 255, 0.5);
+  --sk-tile-text: #5a3d1c;
+
+  --sk-well-bg: rgba(255, 255, 255, 0.35);
+  --sk-well-shadow: inset 0 3px 9px rgba(90, 60, 20, 0.22);
+
+  --sk-topic-crit-bg: linear-gradient(180deg, #d97a44, #963f1c);
+  --sk-topic-crit-text: #fff3e2;
+  --sk-topic-crit-sub: #ffe6cc;
+  --sk-topic-crit-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(90, 40, 10, 0.3);
+  --sk-topic-warn-bg: linear-gradient(180deg, #ecb373, #c07a3a);
+  --sk-topic-warn-text: #3a2005;
+  --sk-topic-warn-sub: #4a2a08;
+  --sk-topic-warn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(90, 40, 10, 0.25), 0 4px 8px rgba(90, 40, 10, 0.25);
+
+  --sk-recent-active-bg: linear-gradient(180deg, #faf1db, #ecdcb8);
+  --sk-recent-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 3px 6px rgba(90, 60, 20, 0.15);
+  --sk-recent-active-border: linear-gradient(180deg, #ec9a5f, #b85c28);
+  --sk-recent-idle-bg: rgba(255, 255, 255, 0.25);
+  --sk-recent-idle-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.18);
+  --sk-recent-idle-text: rgba(138, 106, 66, 0.55);
+}
+
+/* ---- Layout shell ---- */
+
+.sk-home {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-frame {
+  position: relative;
+  box-sizing: border-box;
+  padding: 34px;
+  border-radius: 30px;
+  background: var(--sk-frame-bg);
+  border: 3px solid var(--sk-frame-border);
+  box-shadow: var(--sk-frame-shadow);
+  color: var(--sk-text);
+}
+
+/* Light-mode stitched inner border (transparent in dark) */
+.sk-frame::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 22px;
+  border: 2px dashed var(--sk-stitch-color);
+  pointer-events: none;
+}
+
+/* ---- Corner screws ---- */
+
+.sk-screw {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sk-screw-bg);
+  box-shadow: var(--sk-screw-shadow);
+  z-index: 2;
+}
+
+.sk-screw::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  background: var(--sk-screw-slot);
+  transform: translate(-50%, -50%) rotate(38deg);
+}
+
+.sk-screw--tl { top: 14px; left: 14px; }
+.sk-screw--tr { top: 14px; right: 14px; }
+.sk-screw--bl { bottom: 14px; left: 14px; }
+.sk-screw--br { bottom: 14px; right: 14px; }
+.sk-screw--tr::after,
+.sk-screw--bl::after { transform: translate(-50%, -50%) rotate(-38deg); }
+
+/* ---- Header (greeting + questions-ready) ---- */
+
+.sk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-bottom: 22px;
+}
+
+.sk-greeting {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 2.375rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+  margin: 0 0 8px;
+}
+
+.sk-quote {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-style: italic;
+  color: var(--sk-muted);
+  max-width: 60ch;
+}
+
+.sk-badge {
+  flex: none;
+  margin-top: 4px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sk-accent);
+  white-space: nowrap;
+}
+
+/* ---- Engraved divider ---- */
+
+.sk-divider {
+  margin-bottom: 28px;
+}
+
+.sk-divider::before,
+.sk-divider::after {
+  content: "";
+  display: block;
+  height: 1px;
+}
+
+.sk-divider::before {
+  background: linear-gradient(90deg, transparent, var(--sk-hairline-light), transparent);
+}
+
+.sk-divider::after {
+  background: linear-gradient(90deg, transparent, var(--sk-hairline-dark), transparent);
+}
+
+/* ---- Primary CTA ---- */
+
+.sk-cta {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 18px;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  overflow: hidden;
+  transition: transform 140ms var(--motion-snappy), box-shadow 180ms ease, filter 180ms ease;
+}
+
+/* Glass gloss on the top half */
+.sk-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+}
+
+.sk-cta > span {
+  position: relative;
+}
+
+.sk-cta:not(:disabled):hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.sk-cta:not(:disabled):active {
+  transform: translateY(1px) scale(0.995);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.sk-cta:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.55) brightness(0.82);
+}
+
+/* ---- Secondary tiles ---- */
+
+.sk-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.sk-tile {
+  display: block;
+  padding: 18px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  border: 1px solid var(--sk-tile-border);
+  box-shadow: var(--sk-tile-shadow);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-tile:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-tile:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* ---- Recessed wells ---- */
+
+.sk-well {
+  border-radius: 18px;
+  padding: 20px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+  margin-bottom: 22px;
+}
+
+.sk-well:last-of-type {
+  margin-bottom: 0;
+}
+
+.sk-well-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sk-muted);
+  margin: 0 0 14px;
+}
+
+/* ---- Weak-topic pills ---- */
+
+.sk-topic {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 16px 20px;
+  border-radius: 12px;
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-topic + .sk-topic {
+  margin-top: 10px;
+}
+
+.sk-topic:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.sk-topic:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.sk-topic--crit {
+  background: var(--sk-topic-crit-bg);
+  box-shadow: var(--sk-topic-crit-shadow);
+}
+
+.sk-topic--warn {
+  background: var(--sk-topic-warn-bg);
+  box-shadow: var(--sk-topic-warn-shadow);
+}
+
+.sk-topic-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.sk-topic-meta {
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sk-topic--crit .sk-topic-name { color: var(--sk-topic-crit-text); }
+.sk-topic--crit .sk-topic-meta { color: var(--sk-topic-crit-sub); }
+.sk-topic--warn .sk-topic-name { color: var(--sk-topic-warn-text); }
+.sk-topic--warn .sk-topic-meta { color: var(--sk-topic-warn-sub); }
+
+/* ---- Recent rows ---- */
+
+.sk-recent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  border-radius: 12px;
+}
+
+.sk-recent + .sk-recent {
+  margin-top: 10px;
+}
+
+.sk-recent--idle {
+  background: var(--sk-recent-idle-bg);
+  box-shadow: var(--sk-recent-idle-shadow);
+  cursor: default;
+}
+
+.sk-recent--idle .sk-recent-label,
+.sk-recent--idle .sk-recent-date {
+  color: var(--sk-recent-idle-text);
+}
+
+.sk-recent--active {
+  background: var(--sk-recent-active-bg);
+  box-shadow: var(--sk-recent-active-shadow);
+  border-left: 3px solid;
+  border-image: var(--sk-recent-active-border) 1;
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-recent--active:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.sk-recent--active:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.sk-recent-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sk-text);
+  text-transform: capitalize;
+}
+
+.sk-recent-date {
+  font-size: 0.8125rem;
+  color: var(--sk-accent);
+  white-space: nowrap;
+}
+
+/* ---- Decorative dial ---- */
+
+.sk-dial {
+  position: absolute;
+  bottom: 24px;
+  right: 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sk-dial-bg);
+  box-shadow: var(--sk-dial-shadow);
+  pointer-events: none;
+}
+
+.sk-dial::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 2px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--sk-dial-indicator);
+  transform: translateX(-50%);
+}
+
+/* ---- Offline nudge spacing when present ---- */
+
+.sk-home .offline-nudge {
+  margin-bottom: 22px;
+}
+
+@keyframes sk-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .sk-frame {
+    padding: 24px 18px;
+    border-radius: 22px;
+  }
+
+  .sk-head {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sk-tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .sk-dial {
+    display: none;
+  }
+
+  .sk-screw {
+    width: 14px;
+    height: 14px;
+  }
+}
