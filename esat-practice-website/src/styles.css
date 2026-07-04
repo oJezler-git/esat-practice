@@ -717,7 +717,12 @@ p {
 @import "./styles/history.css";
 @import "./styles/score-reference.css";
 @import "./styles/revision-docs.css";
+
+/* Skeuomorphic redesign — shared tokens first, then per-surface consumers.
+   nav-skeuo.css must follow nav.css (above) so its overrides win. */
+@import "./styles/skeuo-tokens.css";
 @import "./styles/home-skeuo.css";
+@import "./styles/nav-skeuo.css";
 
 .route-loading {
   min-height: 60vh;

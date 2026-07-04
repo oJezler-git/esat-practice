@@ -1,0 +1,178 @@
+/*
+ * Shared skeuomorphic token layer — promoted to :root so any surface (not just
+ * the home page) can consume it. Dark = brushed metal & amber glass; light
+ * (:root[data-theme="light"]) = tan leather & copper hardware.
+ *
+ * This intentionally does NOT touch the global --color-* / --surface-* tokens in
+ * styles.css. When the "skeuomorphic" skin becomes a Settings option, gate the
+ * *consumers* (home-skeuo.css, nav-skeuo.css, …) behind the active skin — these
+ * variable definitions are inert until something reads them.
+ *
+ * Page-specific values still live in each page's own *-skeuo.css; only tokens
+ * reused across pages belong here.
+ */
+
+:root {
+  /* Frame */
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(160, 100, 30, 0.22), transparent 60%),
+    linear-gradient(160deg, #241d15 0%, #181209 75%);
+  --sk-frame-border: #362b1a;
+  --sk-frame-shadow:
+    0 40px 70px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+  --sk-stitch-color: transparent;
+
+  /* Hardware (screws / dial) */
+  --sk-screw-bg: radial-gradient(circle at 35% 30%, #a9925f, #241c11 70%);
+  --sk-screw-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.6);
+  --sk-screw-slot: rgba(0, 0, 0, 0.55);
+  --sk-dial-bg: radial-gradient(circle at 35% 30%, #4a3c26, #191309 75%);
+  --sk-dial-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15), inset 0 -1px 3px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.5);
+  --sk-dial-indicator: #e9bd63;
+
+  /* Text */
+  --sk-text: #f1e6cc;
+  --sk-muted: #a89a82;
+  --sk-accent: #e9bd63;
+  --sk-title-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* Hairline divider */
+  --sk-hairline-light: rgba(255, 255, 255, 0.08);
+  --sk-hairline-dark: rgba(0, 0, 0, 0.5);
+
+  /* Inset pill (clock / questions-ready) */
+  --sk-pill-bg: rgba(0, 0, 0, 0.35);
+  --sk-pill-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* Primary CTA */
+  --sk-cta-bg: linear-gradient(180deg, #f5c46c 0%, #da9a3e 45%, #b8701f 100%);
+  --sk-cta-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35),
+    0 10px 18px rgba(0, 0, 0, 0.5),
+    0 2px 0 rgba(0, 0, 0, 0.2);
+  --sk-cta-text: #2a1806;
+
+  /* Secondary tiles */
+  --sk-tile-bg: linear-gradient(180deg, #31281a, #1d170e);
+  --sk-tile-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 5px 10px rgba(0, 0, 0, 0.4);
+  --sk-tile-border: rgba(255, 255, 255, 0.05);
+  --sk-tile-text: #cdbf9f;
+
+  /* Recessed wells */
+  --sk-well-bg: rgba(0, 0, 0, 0.32);
+  --sk-well-shadow: inset 0 3px 9px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+
+  /* Weak-topic pills */
+  --sk-topic-crit-bg: linear-gradient(180deg, #c15e26, #7c3a12);
+  --sk-topic-crit-text: #2a1204;
+  --sk-topic-crit-sub: #3a1c06;
+  --sk-topic-crit-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.4);
+  --sk-topic-warn-bg: linear-gradient(180deg, #e8a542, #af6c1e);
+  --sk-topic-warn-text: #2a1806;
+  --sk-topic-warn-sub: #3a2408;
+  --sk-topic-warn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.35), 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  /* Recent rows */
+  --sk-recent-active-bg: linear-gradient(180deg, #3c3220, #241d12);
+  --sk-recent-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 3px 6px rgba(0, 0, 0, 0.4);
+  --sk-recent-active-border: linear-gradient(180deg, #e9bd63, #a9781f);
+  --sk-recent-idle-bg: rgba(255, 255, 255, 0.02);
+  --sk-recent-idle-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  --sk-recent-idle-text: rgba(168, 154, 130, 0.45);
+
+  /* Navigation chrome */
+  --sk-nav-shell-bg: color-mix(in srgb, var(--color-canvas) 82%, transparent);
+  --sk-nav-shell-border: rgba(255, 255, 255, 0.06);
+  --sk-nav-group-bg: rgba(0, 0, 0, 0.35);
+  --sk-nav-group-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --sk-nav-active-bg: linear-gradient(180deg, #e9bd63, #a9781f);
+  --sk-nav-active-text: #2a1c06;
+  --sk-nav-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --sk-nav-idle: #b3a488;
+  --sk-nav-idle-hover: #f1e6cc;
+
+  /* Brand mark */
+  --sk-logo-bg: linear-gradient(160deg, #463823, #171209);
+  --sk-logo-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 -2px 3px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0, 0, 0, 0.5);
+  --sk-logo-letter: linear-gradient(180deg, #f3d78e, #a9782a);
+  --sk-wordmark: #f1e6cc;
+  --sk-wordmark-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 3px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] {
+  --sk-frame-bg:
+    repeating-linear-gradient(115deg, rgba(110, 74, 30, 0.035) 0px, rgba(110, 74, 30, 0.035) 2px, transparent 2px, transparent 7px),
+    linear-gradient(160deg, #f2e6ca 0%, #e0cea3 80%);
+  --sk-frame-border: transparent;
+  --sk-frame-shadow: 0 34px 60px rgba(90, 60, 20, 0.28), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+  --sk-stitch-color: rgba(101, 67, 33, 0.3);
+
+  --sk-screw-bg: radial-gradient(circle at 35% 30%, #fff3d8, #a9822f 75%);
+  --sk-screw-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(90, 60, 20, 0.4);
+  --sk-screw-slot: rgba(101, 67, 33, 0.45);
+  --sk-dial-bg: radial-gradient(circle at 35% 30%, #fdf6e6, #d9c090 75%);
+  --sk-dial-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), inset 0 -1px 3px rgba(90, 60, 20, 0.3), 0 2px 4px rgba(90, 60, 20, 0.25);
+  --sk-dial-indicator: #b85c28;
+
+  --sk-text: #4a3216;
+  --sk-muted: #8a6a42;
+  --sk-accent: #b85c28;
+  --sk-title-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  --sk-hairline-light: rgba(255, 255, 255, 0.7);
+  --sk-hairline-dark: rgba(90, 60, 20, 0.15);
+
+  --sk-pill-bg: rgba(255, 255, 255, 0.5);
+  --sk-pill-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.2);
+
+  --sk-cta-bg: linear-gradient(180deg, #f2a367 0%, #c96a34 45%, #9c4a1e 100%);
+  --sk-cta-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -3px 6px rgba(90, 30, 5, 0.3),
+    0 10px 18px rgba(90, 40, 10, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.1);
+  --sk-cta-text: #3a1c08;
+
+  --sk-tile-bg: linear-gradient(180deg, #f9efd6, #e3d0a8);
+  --sk-tile-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -2px 4px rgba(120, 80, 30, 0.22), 0 5px 10px rgba(90, 60, 20, 0.2);
+  --sk-tile-border: rgba(255, 255, 255, 0.5);
+  --sk-tile-text: #5a3d1c;
+
+  --sk-well-bg: rgba(255, 255, 255, 0.35);
+  --sk-well-shadow: inset 0 3px 9px rgba(90, 60, 20, 0.22);
+
+  --sk-topic-crit-bg: linear-gradient(180deg, #d97a44, #963f1c);
+  --sk-topic-crit-text: #fff3e2;
+  --sk-topic-crit-sub: #ffe6cc;
+  --sk-topic-crit-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(90, 40, 10, 0.3);
+  --sk-topic-warn-bg: linear-gradient(180deg, #ecb373, #c07a3a);
+  --sk-topic-warn-text: #3a2005;
+  --sk-topic-warn-sub: #4a2a08;
+  --sk-topic-warn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(90, 40, 10, 0.25), 0 4px 8px rgba(90, 40, 10, 0.25);
+
+  --sk-recent-active-bg: linear-gradient(180deg, #faf1db, #ecdcb8);
+  --sk-recent-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 3px 6px rgba(90, 60, 20, 0.15);
+  --sk-recent-active-border: linear-gradient(180deg, #ec9a5f, #b85c28);
+  --sk-recent-idle-bg: rgba(255, 255, 255, 0.25);
+  --sk-recent-idle-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.18);
+  --sk-recent-idle-text: rgba(138, 106, 66, 0.55);
+
+  --sk-nav-shell-bg: color-mix(in srgb, var(--color-canvas) 78%, transparent);
+  --sk-nav-shell-border: rgba(90, 60, 20, 0.15);
+  --sk-nav-group-bg: rgba(255, 255, 255, 0.45);
+  --sk-nav-group-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  --sk-nav-active-bg: linear-gradient(180deg, #ec9a5f, #b85c28);
+  --sk-nav-active-text: #fff8ec;
+  --sk-nav-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(90, 40, 10, 0.3);
+  --sk-nav-idle: #8a6a42;
+  --sk-nav-idle-hover: #4a3216;
+
+  --sk-logo-bg: linear-gradient(160deg, #f9efd6, #dcc79a);
+  --sk-logo-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.85), inset 0 -2px 3px rgba(120, 80, 30, 0.3), 0 3px 6px rgba(90, 60, 20, 0.25);
+  --sk-logo-letter: linear-gradient(180deg, #c76a34, #8a3f1c);
+  --sk-wordmark: #4a3216;
+  --sk-wordmark-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}

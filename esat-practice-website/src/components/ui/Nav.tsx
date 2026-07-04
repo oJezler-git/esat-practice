@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-import logo from "../../assets/logo.svg";
 
 const links = [
   { to: "/", label: "Home" },
@@ -216,8 +215,11 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
         }`}
       >
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="ESAT practice" className="h-8 w-auto" />
+          <Link to="/" className="nav-brand" aria-label="ESAT practice — home">
+            <span className="nav-logo" aria-hidden="true">
+              <span className="nav-logo-letter">E</span>
+            </span>
+            <span className="nav-wordmark">ESAT</span>
           </Link>
 
           <div className="nav-group nav-desktop-only" ref={navGroupRef}>
