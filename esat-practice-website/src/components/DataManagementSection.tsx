@@ -177,6 +177,7 @@ export function DataManagementSection() {
                 </p>
                 <input
                   type="text"
+                  aria-label="Confirmation phrase"
                   value={userInput}
                   onChange={(e) => dispatch({ type: "update_input", value: e.target.value })}
                   placeholder="Type confirmation phrase..."

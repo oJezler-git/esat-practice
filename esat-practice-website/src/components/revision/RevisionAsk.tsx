@@ -203,6 +203,7 @@ export function RevisionAsk({
 
         <form className="rev-ask-form" onSubmit={handleSubmit}>
           <textarea
+            aria-label="Ask about this page"
             value={question}
             onChange={(event) =>
               setQuestion(event.target.value.slice(0, MAX_QUESTION_LENGTH))

@@ -194,6 +194,7 @@ export default function PracticeSetup() {
         <div className="relative h-[18px] flex items-center">
           <input
             type="range"
+            aria-label="Number of questions"
             min={QUESTION_COUNT_MIN}
             max={QUESTION_COUNT_MAX}
             step={1}

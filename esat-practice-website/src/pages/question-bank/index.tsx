@@ -552,6 +552,7 @@ export default function QuestionBank() {
       <section className="question-bank-controls">
         <input
           type="search"
+          aria-label="Search questions"
           placeholder="Search questions, topics, papers..."
           value={search}
           onChange={(event) => dispatchFilter({ type: "set_search", value: event.target.value })}

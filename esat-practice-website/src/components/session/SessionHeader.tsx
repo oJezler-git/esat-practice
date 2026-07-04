@@ -177,6 +177,7 @@ export function SessionHeader({
                   type="button"
                   onClick={() => onNavigate(index)}
                   className={`flex-1 h-3 rounded-sm border border-subtle transition-all hover:scale-105 ${getStatusColor(result)}`}
+                  aria-label={`Go to question ${index + 1}`}
                   title={`Question ${index + 1}`}
                 />
               );
@@ -214,6 +215,7 @@ export function SessionHeader({
         <button
           type="button"
           onClick={onFlag}
+          aria-label={isFlagged ? "Unflag question" : "Flag question"}
           title="Flag question (F)"
           className={`p-1 rounded transition-colors ${
             isFlagged ? "text-amber bg-amber-soft" : "text-muted hover:text-secondary"

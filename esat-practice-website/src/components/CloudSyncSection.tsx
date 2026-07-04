@@ -316,6 +316,7 @@ export function CloudSyncSection() {
                 <>
                   <input
                     type="text"
+                    aria-label="Sync key"
                     value={draftKey}
                     onChange={(e) => dispatch({ type: "update_draft", draft: e.target.value })}
                     onKeyDown={(e) => { if (e.key === "Enter") handleSaveEdit(); if (e.key === "Escape") dispatch({ type: "cancel_edit" }); }}
@@ -391,6 +392,7 @@ export function CloudSyncSection() {
               <div className="flex items-center gap-2">
                 <input
                   type="text"
+                  aria-label="First word of sync key"
                   list="sync-word-list-adj"
                   value={word1}
                   onChange={(e) => dispatch({ type: "update_word1", word: e.target.value })}
@@ -402,11 +404,12 @@ export function CloudSyncSection() {
                   autoComplete="off"
                 />
                 <datalist id="sync-word-list-adj">
-                  {ADJECTIVES.map((w) => <option key={w} value={w} />)}
+                  {ADJECTIVES.map((w) => <option key={w} value={w}>{w}</option>)}
                 </datalist>
                 <span className="text-muted text-sm select-none">–</span>
                 <input
                   type="text"
+                  aria-label="Second word of sync key"
                   list="sync-word-list-noun"
                   value={word2}
                   onChange={(e) => dispatch({ type: "update_word2", word: e.target.value })}
@@ -420,7 +423,7 @@ export function CloudSyncSection() {
                   autoComplete="off"
                 />
                 <datalist id="sync-word-list-noun">
-                  {NOUNS.map((w) => <option key={w} value={w} />)}
+                  {NOUNS.map((w) => <option key={w} value={w}>{w}</option>)}
                 </datalist>
                 <button
                   type="button"

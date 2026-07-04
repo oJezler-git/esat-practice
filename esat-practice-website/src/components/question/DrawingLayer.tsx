@@ -725,6 +725,7 @@ export function DrawingLayer({
             <input
               ref={editorInputRef}
               className="drawing-text-input"
+              aria-label={editorKind === "math" ? "Math annotation" : "Text annotation"}
               value={editorText}
               placeholder={editorKind === "math" ? "\\frac{1}{2}" : undefined}
               style={{ color, fontSize: `${fontSize}px`, height: `${fontSize * 1.5}px` }}

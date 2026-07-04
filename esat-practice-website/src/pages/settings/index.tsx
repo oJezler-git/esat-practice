@@ -132,6 +132,7 @@ export default function Settings() {
           <div className="flex items-center gap-3">
             <input
               type="range"
+              aria-label="Default question count"
               min={1}
               max={81}
               step={1}
@@ -143,6 +144,7 @@ export default function Settings() {
             />
             <input
               type="number"
+              aria-label="Default question count"
               min={1}
               max={81}
               value={settings.defaultQuestionCount}
@@ -160,6 +162,7 @@ export default function Settings() {
           <div className="flex items-center gap-3">
             <input
               type="range"
+              aria-label="Seconds per question"
               min={10}
               max={600}
               step={5}
@@ -171,6 +174,7 @@ export default function Settings() {
             />
             <input
               type="number"
+              aria-label="Seconds per question"
               min={10}
               max={600}
               value={settings.timedSecondsPerQ}
@@ -194,6 +198,7 @@ export default function Settings() {
           description="Hide topic tags, confidence scores, and metadata during sessions."
         >
           <Toggle
+            ariaLabel="Exam mode"
             checked={settings.examMode}
             onChange={(value) => update({ examMode: value })}
           />
@@ -204,6 +209,7 @@ export default function Settings() {
           description="Move to the next question automatically after marking your answer."
         >
           <Toggle
+            ariaLabel="Auto-advance"
             checked={settings.autoAdvance}
             onChange={(value) => update({ autoAdvance: value })}
           />
@@ -214,6 +220,7 @@ export default function Settings() {
           description="Automatically enter fullscreen mode when starting a session."
         >
           <Toggle
+            ariaLabel="Fullscreen on start"
             checked={settings.fullscreenOnStart}
             onChange={(value) => update({ fullscreenOnStart: value })}
           />
@@ -227,6 +234,7 @@ export default function Settings() {
             <div className="flex items-center gap-3">
               <input
                 type="range"
+                aria-label="Auto-advance delay"
                 min={0}
                 max={3000}
                 step={100}
@@ -250,6 +258,7 @@ export default function Settings() {
           description="Display a shortcut reminder below each question."
         >
           <Toggle
+            ariaLabel="Show keyboard hints"
             checked={settings.showKeyboardHints}
             onChange={(value) => update({ showKeyboardHints: value })}
           />
@@ -333,6 +342,7 @@ export default function Settings() {
           description="After each session, qualifying questions are removed from future sessions."
         >
           <Toggle
+            ariaLabel="Auto-exclude answered questions"
             checked={settings.autoExclude}
             onChange={(value) => update({ autoExclude: value })}
           />
@@ -415,6 +425,7 @@ export default function Settings() {
 
           <textarea
             className="prompt-template-textarea"
+            aria-label="Prompt template"
             value={settings.claudePromptTemplate ?? DEFAULT_PROMPT_TEMPLATE}
             onChange={(e) => update({ claudePromptTemplate: e.target.value })}
             rows={12}
@@ -706,15 +717,18 @@ function Field({
 function Toggle({
   checked,
   onChange,
+  ariaLabel,
 }: {
   checked: boolean;
   onChange: (value: boolean) => void;
+  ariaLabel: string;
 }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
+      aria-label={ariaLabel}
       onClick={() => onChange(!checked)}
       className={`settings-toggle ${checked ? "settings-toggle--on" : ""}`}
     >
