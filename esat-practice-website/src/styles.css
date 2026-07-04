@@ -630,6 +630,7 @@ p {
 @import "./styles/nav-skeuo.css";
 @import "./styles/practice-setup-skeuo.css";
 @import "./styles/results-skeuo.css";
+@import "./styles/progress-skeuo.css";
 
 .route-loading {
   min-height: 60vh;

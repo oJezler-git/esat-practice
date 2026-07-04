@@ -13,7 +13,7 @@ import type {
 } from "../../types/schema";
 
 function accuracyColor(pct: number): string {
-  return pct >= 70 ? "bg-green-400" : pct >= 40 ? "bg-amber-400" : "bg-red-400";
+  return pct >= 70 ? "sk-fill--green" : pct >= 40 ? "sk-fill--amber" : "sk-fill--red";
 }
 
 function formatTime(ms: number): string {
@@ -131,143 +131,141 @@ export default function Progress() {
   }
 
   return (
-    <div className="page-shell max-w-3xl">
-      <h1 className="page-title mb-8">Progress</h1>
+    <div className="sk-progress">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" />
+        <span className="sk-screw sk-screw--tr" />
+        <span className="sk-screw sk-screw--bl" />
+        <span className="sk-screw sk-screw--br" />
 
-      {totalAttempts === 0 ? (
-        <div className="text-center py-20 text-muted">
-          No attempts yet. Complete a session to see your progress.
-        </div>
-      ) : (
-        <>
-          <div className="prog-cards">
-            <StatCard label="Overall accuracy" value={`${overallPct}%`} />
-            <StatCard label="Questions answered" value={String(totalAttempts)} />
-            <StatCard label="Sessions" value={String(summaries.length)} />
-            <StatCard
-              label="Avg / question"
-              value={overallAvgTimeMs > 0 ? formatTime(overallAvgTimeMs) : "-"}
-            />
+        <h1 className="sk-progress-title">Progress</h1>
+
+        {totalAttempts === 0 ? (
+          <div className="sk-progress-empty">
+            No attempts yet. Complete a session to see your progress.
           </div>
+        ) : (
+          <>
+            <div className="prog-cards">
+              <StatCard label="Overall accuracy" value={`${overallPct}%`} />
+              <StatCard label="Questions answered" value={String(totalAttempts)} />
+              <StatCard label="Sessions" value={String(summaries.length)} />
+              <StatCard
+                label="Avg / question"
+                value={overallAvgTimeMs > 0 ? formatTime(overallAvgTimeMs) : "-"}
+              />
+            </div>
 
-          {weakTopics.length > 0 && (
-            <div className="mb-8 p-4 rounded-lg border border-warning bg-amber-soft">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-sm font-medium text-amber mb-1">Weak areas to focus on</h2>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {weakTopics.map((topicStat) => (
-                      <span
-                        key={topicStat.topic}
-                        className="text-xs px-2 py-0.5 bg-amber-soft text-amber rounded-full border border-warning"
-                      >
-                        {topicStat.topic} - {Math.round(topicStat.ewma_accuracy * 100)}%
-                      </span>
-                    ))}
-                  </div>
+            {weakTopics.length > 0 && (
+              <div className="sk-progress-weak">
+                <div className="sk-progress-weak-head">
+                  <h2 className="sk-progress-weak-title">Weak areas to focus on</h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void drillWeak();
+                    }}
+                    className="sk-progress-drill"
+                  >
+                    <span>Drill these</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void drillWeak();
-                  }}
-                  className="flex-shrink-0 px-3 py-1.5 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-                >
-                  Drill these
-                </button>
+                <div className="sk-progress-pills">
+                  {weakTopics.map((topicStat) => (
+                    <span key={topicStat.topic} className="sk-progress-pill">
+                      {topicStat.topic} &ndash; {Math.round(topicStat.ewma_accuracy * 100)}%
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {summaries.length > 0 && <TrendCard summaries={summaries} />}
+            {summaries.length > 0 && <TrendCard summaries={summaries} />}
 
-          <EsatAllTimePanel stats={stats} />
+            <EsatAllTimePanel stats={stats} />
 
-          {categories.length > 0 && <CategoryCard categories={categories} />}
+            {categories.length > 0 && <CategoryCard categories={categories} />}
 
-          <section className="prog-section card">
-            <div className="prog-section-head">
-              <h2 className="prog-section-title">Accuracy by topic</h2>
-            </div>
-            <div className="space-y-3">
-              {stats.map((stat) => (
-                <TopicBar key={stat.topic} stat={stat} />
-              ))}
-            </div>
-          </section>
-
-          {strongTopics.length > 0 && (
             <section className="prog-section card">
               <div className="prog-section-head">
-                <h2 className="prog-section-title">Strong topics</h2>
+                <h2 className="prog-section-title">Accuracy by topic</h2>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {strongTopics.map((topicStat) => (
-                  <span
-                    key={topicStat.topic}
-                    className="text-xs px-2 py-0.5 bg-success-soft border border-success text-success-text rounded-full"
-                  >
-                    {topicStat.topic} - {Math.round(topicStat.ewma_accuracy * 100)}%
-                  </span>
+              <div className="sk-progress-topics">
+                {stats.map((stat) => (
+                  <TopicBar key={stat.topic} stat={stat} />
                 ))}
               </div>
             </section>
-          )}
 
-          <section className="prog-section card">
-            <div className="prog-section-head">
-              <h2 className="prog-section-title">Recent sessions</h2>
-            </div>
-            {sessions.length === 0 ? (
-              <p className="prog-muted">No sessions yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {sessions.map((session) => {
-                  const attemptCount = session.attempt_ids.length;
-                  return (
-                    <button
-                      type="button"
-                      key={session.id}
-                      onClick={() => {
-                        if (session.state === "completed") {
-                          navigate(`/results/${session.id}`);
-                        }
-                      }}
-                      className={`w-full flex items-center gap-4 px-4 py-3 border border-subtle rounded-lg text-left text-sm transition-colors ${
-                        session.state === "completed"
-                          ? "hover:border-strong cursor-pointer"
-                          : "opacity-50 cursor-default"
-                      }`}
-                    >
-                      <div className="flex-1">
-                        <div className="text-secondary capitalize">{session.mode} session</div>
-                        <div className="text-xs text-muted mt-0.5">
-                          {formatDate(session.created_at)} - {attemptCount} questions -{" "}
-                          {formatDuration(session)}
-                        </div>
-                      </div>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full border ${
-                          session.state === "completed"
-                            ? "bg-success-soft border-success text-success-text"
-                            : session.state === "abandoned"
-                              ? "bg-soft border-subtle text-muted"
-                              : "bg-surface-1 border-strong text-accent-strong"
+            {strongTopics.length > 0 && (
+              <section className="prog-section card">
+                <div className="prog-section-head">
+                  <h2 className="prog-section-title">Strong topics</h2>
+                </div>
+                <div className="sk-progress-pills">
+                  {strongTopics.map((topicStat) => (
+                    <span key={topicStat.topic} className="sk-progress-pill sk-progress-pill--good">
+                      {topicStat.topic} &ndash; {Math.round(topicStat.ewma_accuracy * 100)}%
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section className="prog-section card">
+              <div className="prog-section-head">
+                <h2 className="prog-section-title">Recent sessions</h2>
+              </div>
+              {sessions.length === 0 ? (
+                <p className="prog-muted">No sessions yet.</p>
+              ) : (
+                <div className="sk-progress-sessions">
+                  {sessions.map((session) => {
+                    const attemptCount = session.attempt_ids.length;
+                    const completed = session.state === "completed";
+                    return (
+                      <button
+                        type="button"
+                        key={session.id}
+                        onClick={() => {
+                          if (completed) {
+                            navigate(`/results/${session.id}`);
+                          }
+                        }}
+                        className={`sk-progress-session ${
+                          completed
+                            ? "sk-progress-session--clickable"
+                            : "sk-progress-session--idle"
                         }`}
                       >
-                        {session.state}
-                      </span>
-                      {session.state === "completed" && (
-                        <span className="text-muted text-xs">{"View ->"}</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        </>
-      )}
+                        <div>
+                          <div className="sk-progress-session-label">{session.mode} session</div>
+                          <div className="sk-progress-session-date">
+                            {formatDate(session.created_at)} &middot; {attemptCount} questions &middot;{" "}
+                            {formatDuration(session)}
+                          </div>
+                        </div>
+                        <div className="sk-progress-session-right">
+                          <span
+                            className={`sk-progress-badge ${
+                              completed
+                                ? "sk-progress-badge--completed"
+                                : "sk-progress-badge--idle"
+                            }`}
+                          >
+                            {session.state}
+                          </span>
+                          {completed && <span className="sk-progress-session-view">View &rarr;</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -355,6 +353,7 @@ function TrendCard({ summaries }: { summaries: SessionSummary[] }) {
         </div>
       </div>
 
+      <div className="sk-progress-trend-well">
       <svg
         className="prog-trend__svg"
         viewBox={`0 0 ${width} ${height}`}
@@ -391,6 +390,7 @@ function TrendCard({ summaries }: { summaries: SessionSummary[] }) {
           />
         )}
       </svg>
+      </div>
 
       <div className="prog-trend__foot">
         <span>{ordered.length} completed sessions</span>
@@ -481,20 +481,20 @@ function TopicBar({ stat }: { stat: TopicStat }) {
 
   return (
     <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-secondary">{stat.topic}</span>
-        <span className="text-muted tabular-nums">
+      <div className="sk-progress-topic-head">
+        <span className="sk-progress-topic-name">{stat.topic}</span>
+        <span className="sk-progress-topic-stat">
           {stat.correct}/{stat.attempts}
-          <span className="ml-2 text-muted font-medium">{ewmaPct}%</span>
+          <span className="sk-progress-topic-ewma">{ewmaPct}%</span>
           {pct !== ewmaPct && (
-            <span className="ml-1 text-muted text-xs">(all-time {pct}%)</span>
+            <span className="sk-progress-topic-alltime">(all-time {pct}%)</span>
           )}
         </span>
       </div>
-      <div className="h-1.5 bg-surface-1 rounded-full overflow-hidden relative">
-        <div className="absolute h-full bg-surface-2 rounded-full" style={{ width: `${pct}%` }} />
+      <div className="sk-progress-bar sk-progress-bar--track">
+        <div className="sk-progress-bar-ghost" style={{ width: `${pct}%` }} />
         <div
-          className={`absolute h-full rounded-full transition-all ${accuracyColor(ewmaPct)}`}
+          className={`sk-progress-bar-fill sk-progress-bar-fill--abs ${accuracyColor(ewmaPct)}`}
           style={{ width: `${ewmaPct}%` }}
         />
       </div>
