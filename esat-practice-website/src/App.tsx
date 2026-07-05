@@ -7,6 +7,7 @@ import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay
 import { UpdatePrompt } from "./components/ui/UpdatePrompt";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
 import { useSettingsStore } from "./lib/settingsStore";
+import { sweepStaleActiveSessions } from "./lib/sessionStore";
 
 const Home = lazy(() => import("./pages/home"));
 const PracticeSetup = lazy(() => import("./pages/practice-setup"));
@@ -36,6 +37,10 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  useEffect(() => {
+    void sweepStaleActiveSessions();
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.fontPreset = fontPreset;

@@ -7,6 +7,7 @@ interface Props {
   isFlagged: boolean;
   onFlag: () => void;
   onNavigate: (index: number) => void;
+  onQuit: () => void;
   responses: Record<string, Attempt>;
   questionIds: string[];
 }
@@ -44,6 +45,7 @@ export function SessionHeader({
   isFlagged,
   onFlag,
   onNavigate,
+  onQuit,
   responses,
   questionIds,
 }: Props) {
@@ -225,6 +227,20 @@ export function SessionHeader({
             strokeWidth="1.5"
             strokeLinecap="round"
           />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        onClick={onQuit}
+        aria-label="Quit session"
+        title="Quit session"
+        className="sk-session-icon-btn"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M6 2H3.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1H6" strokeLinecap="round" />
+          <path d="M10.5 5 14 8l-3.5 3" strokeLinecap="round" strokeLinejoin="round" />
+          <line x1="14" y1="8" x2="6" y2="8" strokeLinecap="round" />
         </svg>
       </button>
     </header>

@@ -139,19 +139,25 @@ export default function Home() {
             <h2 className="sk-well-title">Recent</h2>
             {recentSessions.map((session) => {
               const isCompleted = session.state === "completed";
+              const isActive = session.state === "active";
+              const isClickable = isCompleted || isActive;
               return (
                 <button
                   type="button"
                   key={session.id}
                   onClick={() => {
-                    if (isCompleted) {
+                    if (isActive) {
+                      navigate(`/session/${session.id}`);
+                    } else if (isCompleted) {
                       navigate(`/results/${session.id}`);
                     }
                   }}
-                  disabled={!isCompleted}
-                  className={`sk-recent ${isCompleted ? "sk-recent--active" : "sk-recent--idle"}`}
+                  disabled={!isClickable}
+                  className={`sk-recent ${isClickable ? "sk-recent--active" : "sk-recent--idle"}`}
                 >
-                  <span className="sk-recent-label">{session.mode} session</span>
+                  <span className="sk-recent-label">
+                    {session.mode} session{isActive ? " — resume" : ""}
+                  </span>
                   <span className="sk-recent-date">
                     {new Date(session.created_at).toLocaleDateString("en-GB", {
                       day: "numeric",

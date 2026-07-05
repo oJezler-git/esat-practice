@@ -3,8 +3,10 @@ import {
   getAttemptsForSession,
   createSessionRecord,
   getRecentSessions,
+  getActiveSessions,
   markSessionCompleted,
   markSessionAbandoned,
+  sweepStaleActiveSessions,
 } from "./sessionStore";
 import { getDb } from "./db";
 
@@ -238,6 +240,99 @@ describe("markSessionAbandoned", () => {
     const { db } = createMockDb({ session: null });
     vi.mocked(getDb).mockResolvedValue(db as any);
     await markSessionAbandoned("nonexistent");
+    expect(db.put).not.toHaveBeenCalled();
+  });
+});
+
+describe("getActiveSessions", () => {
+  it("returns only sessions with state 'active', newest first", async () => {
+    const sessions = [
+      { id: "s1", created_at: 1000, state: "active" },
+      { id: "s2", created_at: 3000, state: "completed" },
+      { id: "s3", created_at: 2000, state: "active" },
+      { id: "s4", created_at: 4000, state: "abandoned" },
+    ];
+    const { db } = createMockDb({ allSessions: sessions });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const result = await getActiveSessions();
+    expect(result.map((s) => s.id)).toEqual(["s3", "s1"]);
+  });
+
+  it("returns an empty array when there are no active sessions", async () => {
+    const sessions = [{ id: "s1", created_at: 1000, state: "completed" }];
+    const { db } = createMockDb({ allSessions: sessions });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    expect(await getActiveSessions()).toEqual([]);
+  });
+});
+
+describe("sweepStaleActiveSessions", () => {
+  const HOUR = 60 * 60 * 1000;
+
+  function makeDb(sessions: Record<string, unknown>[], attemptsBySession: Record<string, unknown[]>) {
+    const db = {
+      getAll: vi.fn().mockResolvedValue(sessions),
+      get: vi.fn(async (_store: string, id: string) => sessions.find((s) => s.id === id) ?? null),
+      getAllFromIndex: vi.fn(async (_store: string, _index: string, sessionId: string) =>
+        attemptsBySession[sessionId] ?? [],
+      ),
+      put: vi.fn().mockResolvedValue(undefined),
+    };
+    return db;
+  }
+
+  it("marks an active session as abandoned when its last attempt is older than the threshold", async () => {
+    const now = Date.now();
+    const session = { id: "s1", created_at: now - 10 * HOUR, state: "active" };
+    const db = makeDb([session], { s1: [{ timestamp: now - 8 * HOUR }] });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    await sweepStaleActiveSessions(6 * HOUR);
+
+    expect(db.put).toHaveBeenCalledWith(
+      "sessions",
+      expect.objectContaining({ id: "s1", state: "abandoned", completed_at: expect.any(Number) }),
+    );
+  });
+
+  it("leaves an active session alone when it has recent attempt activity", async () => {
+    const now = Date.now();
+    const session = { id: "s1", created_at: now - 10 * HOUR, state: "active" };
+    const db = makeDb([session], { s1: [{ timestamp: now - HOUR }] });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    await sweepStaleActiveSessions(6 * HOUR);
+
+    expect(db.put).not.toHaveBeenCalled();
+  });
+
+  it("falls back to created_at when there are no attempts yet", async () => {
+    const now = Date.now();
+    const session = { id: "s1", created_at: now - 8 * HOUR, state: "active" };
+    const db = makeDb([session], { s1: [] });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    await sweepStaleActiveSessions(6 * HOUR);
+
+    expect(db.put).toHaveBeenCalledWith(
+      "sessions",
+      expect.objectContaining({ id: "s1", state: "abandoned" }),
+    );
+  });
+
+  it("does not touch sessions that are already completed or abandoned", async () => {
+    const now = Date.now();
+    const sessions = [
+      { id: "s1", created_at: now - 10 * HOUR, state: "completed" },
+      { id: "s2", created_at: now - 10 * HOUR, state: "abandoned" },
+    ];
+    const db = makeDb(sessions, {});
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    await sweepStaleActiveSessions(6 * HOUR);
+
     expect(db.put).not.toHaveBeenCalled();
   });
 });

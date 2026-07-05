@@ -371,6 +371,77 @@
   box-shadow: var(--sk-chip-sel-shadow);
 }
 
+/* ---- Unfinished-session resume banner ---- */
+
+.sk-resume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--sk-mode-bg);
+  border: 1px solid var(--sk-mode-border);
+  box-shadow: var(--sk-mode-shadow), 0 0 0 1px rgba(233, 189, 99, 0.22);
+  margin-bottom: 20px;
+}
+
+.sk-resume-title {
+  margin: 0 0 3px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sk-text);
+}
+
+.sk-resume-meta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--sk-mode-desc);
+}
+
+.sk-resume-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sk-resume-discard {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sk-mode-desc);
+  background: transparent;
+  border: 1px solid var(--sk-mode-border);
+  transition: color 140ms ease, border-color 140ms ease, filter 140ms ease;
+}
+
+.sk-resume-discard:hover {
+  color: var(--sk-chip-text);
+  border-color: var(--sk-slider-tick);
+}
+
+.sk-resume-resume {
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-resume-resume:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.sk-resume-resume:active {
+  transform: translateY(1px) scale(0.98);
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 640px) {

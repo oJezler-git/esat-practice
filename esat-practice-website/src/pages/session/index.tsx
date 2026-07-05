@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { ZoomableImage } from "../../components/question/ZoomableImage";
 import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
@@ -21,6 +22,7 @@ export default function SessionPage() {
   const { allQuestions } = useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   const {
     notFound,
@@ -39,9 +41,13 @@ export default function SessionPage() {
     nav,
     jumpTo,
     submit,
+    quit,
+    pause,
     responses,
     questions,
   } = useSessionEngine(id ?? "");
+
+  const isTimed = session?.mode === "timed";
 
   const fontClass = {
     sm: "text-sm",
@@ -80,6 +86,16 @@ export default function SessionPage() {
   const revealAnswer = useCallback(() => {
     setIsAnswerRevealed(true);
   }, []);
+
+  const handleDiscard = useCallback(async () => {
+    await quit();
+    navigate("/", { replace: true });
+  }, [quit, navigate]);
+
+  const handleKeep = useCallback(async () => {
+    await pause();
+    navigate("/", { replace: true });
+  }, [pause, navigate]);
 
   useSessionKeyboardShortcuts({
     shortcuts: settings.shortcuts,
@@ -155,6 +171,7 @@ export default function SessionPage() {
         onNavigate={(index) => {
           void jumpTo(index);
         }}
+        onQuit={() => setShowQuitConfirm(true)}
         responses={responses}
         questionIds={questions.map((q) => q.id)}
       />
@@ -262,6 +279,54 @@ export default function SessionPage() {
           onMarkIncorrect={() => handleMark("incorrect")}
         />
       )}
+
+      {showQuitConfirm &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-surface-2 rounded-xl shadow-lg max-w-sm w-full">
+              <div className="px-6 py-4 border-b border-subtle">
+                <h3 className="text-lg font-medium text-primary">
+                  {isTimed ? "Quit this session?" : "Leave this session?"}
+                </h3>
+                <p className="text-sm text-muted mt-1">
+                  {isTimed
+                    ? "Timed sessions can't be paused. Quitting will mark it abandoned and it won't appear in your results."
+                    : "You can discard it, or keep it saved to resume later from the practice setup page."}
+                </p>
+              </div>
+              <div className="px-6 py-3 flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowQuitConfirm(false)}
+                  className="px-4 py-2 text-sm border border-subtle rounded-lg text-secondary hover:bg-soft transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleDiscard();
+                  }}
+                  className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  {isTimed ? "Quit session" : "Discard"}
+                </button>
+                {!isTimed && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleKeep();
+                    }}
+                    className="px-4 py-2 text-sm border border-strong rounded-lg text-primary hover:bg-soft transition-colors"
+                  >
+                    Keep &amp; exit
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

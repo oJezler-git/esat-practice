@@ -106,6 +106,56 @@ export async function getAllSessions(): Promise<Session[]> {
   return sessions.sort((left, right) => right.created_at - left.created_at);
 }
 
+// Sessions left "active" past this age are treated as dead tabs rather than
+// something the user still intends to resume.
+export const SESSION_STALE_AFTER_MS = 6 * 60 * 60 * 1000;
+
+async function getLastActivityTimestamp(
+  database: Awaited<ReturnType<typeof getDb>>,
+  session: Session,
+): Promise<number> {
+  const attempts = await database.getAllFromIndex(
+    "attempts",
+    "by-session-id",
+    session.id,
+  );
+  return attempts.reduce(
+    (latest, attempt) => Math.max(latest, attempt.timestamp ?? 0),
+    session.created_at,
+  );
+}
+
+export async function getActiveSessions(): Promise<Session[]> {
+  const sessions = await getAllSessions();
+  return sessions.filter((session) => session.state === "active");
+}
+
+/**
+ * Marks "active" sessions with no activity in the last `staleAfterMs` as
+ * abandoned, so a closed tab doesn't leave a zombie session behind forever.
+ */
+export async function sweepStaleActiveSessions(
+  staleAfterMs: number = SESSION_STALE_AFTER_MS,
+): Promise<void> {
+  const database = await getDb();
+  const sessions = await database.getAll("sessions");
+  const now = Date.now();
+
+  for (const session of sessions) {
+    if (session.state !== "active") {
+      continue;
+    }
+    const lastActivity = await getLastActivityTimestamp(database, session);
+    if (now - lastActivity > staleAfterMs) {
+      await database.put("sessions", {
+        ...session,
+        state: "abandoned",
+        completed_at: now,
+      });
+    }
+  }
+}
+
 export async function getAttemptsForSession(sessionId: string): Promise<Attempt[]> {
   const database = await getDb();
   const attemptsRaw = await database.getAllFromIndex(
@@ -216,12 +266,14 @@ const sessionStoreApi = {
   getSession: getSessionById,
   getAllSessions,
   getRecentSessions,
+  getActiveSessions,
   getAttempts: getAttemptsForSession,
   upsertAttempt: upsertAttemptRecord,
   saveAttempts: saveSessionAttempts,
   completeSession: markSessionCompleted,
   abandonSession: markSessionAbandoned,
   updateSessionQuestionIds,
+  sweepStaleActiveSessions,
 };
 
 export function useSessionStore() {

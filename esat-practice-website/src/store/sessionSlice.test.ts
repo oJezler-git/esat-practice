@@ -88,6 +88,79 @@ describe("sessionSlice", () => {
     expect(sessionStore.markSessionCompleted).toHaveBeenCalledWith("s1");
   });
 
+  it("should quit a session and mark it abandoned", async () => {
+    useSessionSlice.setState({
+      session: mockSession,
+      questions: mockQuestions,
+      status: "active",
+      currentIndex: 0,
+      responses: {},
+      flagged: new Set(),
+    });
+
+    const store = useSessionSlice.getState();
+    await store.quit();
+
+    const updatedState = useSessionSlice.getState();
+    expect(updatedState.status).toBe("abandoned");
+    expect(sessionStore.markSessionAbandoned).toHaveBeenCalledWith("s1");
+  });
+
+  it("should pause a session by committing elapsed time without abandoning it", async () => {
+    useSessionSlice.setState({
+      session: mockSession,
+      questions: mockQuestions,
+      status: "active",
+      currentIndex: 0,
+      questionElapsed: 5000,
+      responses: {},
+      flagged: new Set(),
+    });
+
+    const store = useSessionSlice.getState();
+    await store.pause();
+
+    const updatedState = useSessionSlice.getState();
+    expect(updatedState.status).toBe("active");
+    expect(updatedState.questionElapsed).toBe(0);
+    expect(updatedState.responses["q1"].time_ms).toBe(5000);
+    expect(sessionStore.upsertAttemptRecord).toHaveBeenCalled();
+    expect(sessionStore.markSessionAbandoned).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when pause is called with no active session", async () => {
+    useSessionSlice.setState({
+      session: null,
+      questions: [],
+      status: "idle",
+      currentIndex: 0,
+      questionElapsed: 0,
+      responses: {},
+      flagged: new Set(),
+    });
+
+    const store = useSessionSlice.getState();
+    await store.pause();
+
+    expect(sessionStore.upsertAttemptRecord).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when quit is called with no active session", async () => {
+    useSessionSlice.setState({
+      session: null,
+      questions: [],
+      status: "idle",
+      currentIndex: 0,
+      responses: {},
+      flagged: new Set(),
+    });
+
+    const store = useSessionSlice.getState();
+    await store.quit();
+
+    expect(sessionStore.markSessionAbandoned).not.toHaveBeenCalled();
+  });
+
   it("does not persist twice when submit is triggered concurrently", async () => {
     useSessionSlice.setState({
       session: mockSession,

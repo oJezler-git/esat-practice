@@ -120,6 +120,7 @@ interface SessionSlice extends SessionEngineState {
   jumpTo: (index: number) => Promise<void>;
   submit: () => Promise<void>;
   quit: () => Promise<void>;
+  pause: () => Promise<void>;
   tick: (elapsedMs: number) => Promise<void>;
 }
 
@@ -411,6 +412,19 @@ return {
     const reduced = reduceSessionState(state, { type: "QUIT" });
     set(reduced);
   },
+  pause: async () => {
+    const state = get();
+    if (!state.session) {
+      return;
+    }
+
+    const { nextState, committed } = commitQuestionElapsed(state);
+    set(nextState);
+
+    if (committed) {
+      await upsertAttemptRecord(committed);
+    }
+  },
   tick: async (elapsedMs: number) => {
     const state = get();
     if (state.status !== "active") {
@@ -449,6 +463,8 @@ export function useSessionEngine(sessionId: string) {
   const nav = useSessionSlice((state) => state.nav);
   const jumpTo = useSessionSlice((state) => state.jumpTo);
   const submit = useSessionSlice((state) => state.submit);
+  const quit = useSessionSlice((state) => state.quit);
+  const pause = useSessionSlice((state) => state.pause);
 
   const currentQuestion = questions[currentIndex] ?? null;
   const currentAttemptResult = currentQuestion
@@ -497,6 +513,8 @@ export function useSessionEngine(sessionId: string) {
       nav,
       jumpTo,
       submit,
+      quit,
+      pause,
       responses,
       questions,
     }),
@@ -518,6 +536,8 @@ export function useSessionEngine(sessionId: string) {
       skip,
       status,
       submit,
+      quit,
+      pause,
       timeRemaining,
     ],
   );

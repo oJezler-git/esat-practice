@@ -1,11 +1,20 @@
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildSession } from "../../engine/sessionBuilder";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionStore } from "../../lib/sessionStore";
+import type { Session } from "../../types/schema";
 import type { SessionMode } from "../../types/engine";
+
+function formatElapsed(ms: number): string {
+  const minutes = Math.round(ms / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  return `${hours}h ago`;
+}
 
 type SetupState = {
   mode: SessionMode;
@@ -111,8 +120,33 @@ export default function PracticeSetup() {
   const { questions, availableTopics, availableYears, isLoading, loaded } =
     useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
-  const { createSession } = useSessionStore();
+  const { createSession, getActiveSessions, abandonSession } = useSessionStore();
   const { excludedQuestionIds } = useExcludedQuestionStore();
+  const [activeSession, setActiveSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getActiveSessions().then((sessions) => {
+      if (!cancelled) {
+        setActiveSession(sessions[0] ?? null);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [getActiveSessions]);
+
+  function handleResume() {
+    if (activeSession) {
+      navigate(`/session/${activeSession.id}`);
+    }
+  }
+
+  async function handleDiscard() {
+    if (!activeSession) return;
+    await abandonSession(activeSession.id);
+    setActiveSession(null);
+  }
 
   const [state, dispatch] = useReducer(setupReducer, undefined, () => ({
     mode: settings.defaultMode,
@@ -188,6 +222,35 @@ export default function PracticeSetup() {
                 : `${questions.length} questions loaded`}
           </p>
         </header>
+
+        {activeSession && (
+          <div className="sk-resume">
+            <div>
+              <p className="sk-resume-title">
+                Unfinished session from {formatElapsed(Date.now() - activeSession.created_at)}
+              </p>
+              <p className="sk-resume-meta">
+                {activeSession.attempt_ids.length} of{" "}
+                {activeSession.config.question_count ?? activeSession.config.question_ids.length}{" "}
+                answered
+              </p>
+            </div>
+            <div className="sk-resume-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  void handleDiscard();
+                }}
+                className="sk-resume-discard"
+              >
+                Discard
+              </button>
+              <button type="button" onClick={handleResume} className="sk-resume-resume">
+                Resume
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="sk-divider" aria-hidden="true" />
 

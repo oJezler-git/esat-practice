@@ -7,6 +7,7 @@ const defaultProps = {
   isFlagged: false,
   onFlag: vi.fn(),
   onNavigate: vi.fn(),
+  onQuit: vi.fn(),
   responses: {},
   questionIds: ["q1", "q2", "q3"],
 };
@@ -76,10 +77,19 @@ describe("SessionHeader — flag button", () => {
   });
 });
 
+describe("SessionHeader — quit button", () => {
+  it("calls onQuit when the quit button is clicked", () => {
+    const onQuit = vi.fn();
+    render(<SessionHeader {...defaultProps} onQuit={onQuit} />);
+    fireEvent.click(screen.getByTitle("Quit session"));
+    expect(onQuit).toHaveBeenCalledOnce();
+  });
+});
+
 describe("SessionHeader — question navigation indicators", () => {
   it("renders one button per question ID", () => {
     render(<SessionHeader {...defaultProps} questionIds={["q1", "q2", "q3"]} />);
-    // 3 navigation dots + fullscreen button + flag button = 5 buttons
+    // 3 navigation dots + fullscreen, flag, and quit buttons = 6 buttons
     const navButtons = screen
       .getAllByRole("button")
       .filter((b) => b.title?.startsWith("Question "));

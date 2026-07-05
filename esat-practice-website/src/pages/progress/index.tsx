@@ -223,17 +223,21 @@ export default function Progress() {
                   {sessions.map((session) => {
                     const attemptCount = session.attempt_ids.length;
                     const completed = session.state === "completed";
+                    const active = session.state === "active";
+                    const clickable = completed || active;
                     return (
                       <button
                         type="button"
                         key={session.id}
                         onClick={() => {
-                          if (completed) {
+                          if (active) {
+                            navigate(`/session/${session.id}`);
+                          } else if (completed) {
                             navigate(`/results/${session.id}`);
                           }
                         }}
                         className={`sk-progress-session ${
-                          completed
+                          clickable
                             ? "sk-progress-session--clickable"
                             : "sk-progress-session--idle"
                         }`}
@@ -255,7 +259,11 @@ export default function Progress() {
                           >
                             {session.state}
                           </span>
-                          {completed && <span className="sk-progress-session-view">View &rarr;</span>}
+                          {clickable && (
+                            <span className="sk-progress-session-view">
+                              {active ? "Resume →" : "View →"}
+                            </span>
+                          )}
                         </div>
                       </button>
                     );

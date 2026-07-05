@@ -102,7 +102,13 @@ export default function HistoryPage() {
                 key={session.id}
                 session={session}
                 summary={summary}
-                onNavigate={() => navigate(`/results/${session.id}`)}
+                onNavigate={() =>
+                  navigate(
+                    session.state === "active"
+                      ? `/session/${session.id}`
+                      : `/results/${session.id}`,
+                  )
+                }
               />
             ))}
           </div>
@@ -144,6 +150,8 @@ function SessionCard({
   const month = d.toLocaleDateString("en-GB", { month: "short" });
 
   const isCompleted = session.state === "completed";
+  const isActive = session.state === "active";
+  const isClickable = isCompleted || isActive;
   const accuracy = summary ? Math.round(summary.accuracy * 100) : null;
   const totalQ = summary
     ? summary.attempts + summary.skipped
@@ -151,7 +159,7 @@ function SessionCard({
 
   let borderColor: string;
   if (!isCompleted || accuracy === null) {
-    borderColor = "var(--border-subtle)";
+    borderColor = isActive ? "var(--accent)" : "var(--border-subtle)";
   } else if (accuracy >= 70) {
     borderColor = "var(--color-success-text)";
   } else if (accuracy >= 40) {
@@ -174,9 +182,9 @@ function SessionCard({
   return (
     <button
       type="button"
-      disabled={!isCompleted}
-      onClick={isCompleted ? onNavigate : undefined}
-      className={`hist-card ${isCompleted ? "hist-card--clickable" : ""}`}
+      disabled={!isClickable}
+      onClick={isClickable ? onNavigate : undefined}
+      className={`hist-card ${isClickable ? "hist-card--clickable" : ""}`}
       style={{ "--hist-border": borderColor } as React.CSSProperties}
     >
       <div className="hist-card__date">
@@ -232,7 +240,8 @@ function SessionCard({
         {duration && (
           <span className="hist-card__duration">{duration}</span>
         )}
-        {isCompleted && (
+        {isActive && <span className="hist-card__duration">Resume</span>}
+        {isClickable && (
           <span className="hist-card__arrow" aria-hidden="true">
             →
           </span>
