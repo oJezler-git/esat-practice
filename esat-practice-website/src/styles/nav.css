@@ -4,7 +4,10 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(10px);
+  /* Persistent (sticky, always on-screen) blur re-evaluates every scroll frame —
+     the main continuous GPU cost. Kept modest; disabled for reduced-motion below. */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   animation: nav-drop 380ms var(--motion-smooth) both;
   transition: 
     transform 450ms var(--motion-smooth), 
@@ -16,6 +19,16 @@
   max-height: 10rem; /* Large enough to fit content dynamically */
 }
 
+/* Reduced-motion users (and, in practice, most low-end devices set this) get a
+   solid bar with no per-frame blur — removes the sticky-nav scroll-jank hotspot. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-shell {
+    background: var(--color-canvas);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 .nav-shell-hidden {
   transform: translateY(-20%);
   opacity: 0;
@@ -24,6 +37,30 @@
   padding-top: 0;
   padding-bottom: 0;
   pointer-events: none;
+}
+
+/* Three-column bar: brand pinned left, links centered, right cluster
+   (clock + hamburger) pinned right. Explicit grid-column keeps the brand and
+   right cluster in place even when the centre column is empty (mobile, where
+   .nav-group is display:none). */
+.nav-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  max-width: 82rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+
+.nav-inner > .nav-brand { grid-column: 1; justify-self: start; }
+.nav-inner > .nav-group { grid-column: 2; justify-self: center; }
+.nav-inner > .nav-right { grid-column: 3; justify-self: end; }
+
+.nav-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .nav-group {
@@ -74,10 +111,6 @@
 }
 
 .nav-time {
-  position: absolute;
-  left: calc(100% + 1.5rem);
-  top: 50%;
-  transform: translateY(-50%);
   display: inline-flex;
   flex-direction: column;
   align-items: flex-end;
@@ -216,5 +249,14 @@
 /* Z-Index Fix */
 .nav-mobile-hamburger-wrapper {
   position: relative;
+  z-index: 40;
+}
+
+/* .nav-shell creates its own stacking context (position: sticky + z-index),
+   so the hamburger wrapper's z-index only wins against .mobile-menu-overlay
+   (z-index 30) if the shell itself is raised above it too — otherwise the
+   whole nav, button included, stacks under the overlay and the button
+   appears to vanish into the dimmed backdrop once the menu opens. */
+.nav-shell-menu-open {
   z-index: 40;
 }

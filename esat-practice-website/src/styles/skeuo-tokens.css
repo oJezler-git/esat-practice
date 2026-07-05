@@ -1,0 +1,305 @@
+/*
+ * Shared skeuomorphic token layer — promoted to :root so any surface (not just
+ * the home page) can consume it. Dark = brushed metal & amber glass; light
+ * (:root[data-theme="light"]) = tan leather & copper hardware.
+ *
+ * This intentionally does NOT touch the global --color-* / --surface-* tokens in
+ * styles.css. When the "skeuomorphic" skin becomes a Settings option, gate the
+ * *consumers* (home-skeuo.css, nav-skeuo.css, …) behind the active skin — these
+ * variable definitions are inert until something reads them.
+ *
+ * Page-specific values still live in each page's own *-skeuo.css; only tokens
+ * reused across pages belong here.
+ */
+
+:root {
+  /* Frame */
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(160, 100, 30, 0.22), transparent 60%),
+    linear-gradient(160deg, #241d15 0%, #181209 75%);
+  --sk-frame-border: #362b1a;
+  --sk-frame-shadow:
+    0 40px 70px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+  --sk-stitch-color: transparent;
+
+  /* Hardware (screws / dial) */
+  --sk-screw-bg: radial-gradient(circle at 35% 30%, #a9925f, #241c11 70%);
+  --sk-screw-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.6);
+  --sk-screw-slot: rgba(0, 0, 0, 0.55);
+  --sk-dial-bg: radial-gradient(circle at 35% 30%, #4a3c26, #191309 75%);
+  --sk-dial-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15), inset 0 -1px 3px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.5);
+  --sk-dial-indicator: #e9bd63;
+
+  /* Text */
+  --sk-text: #f1e6cc;
+  --sk-muted: #a89a82;
+  --sk-accent: #e9bd63;
+  --sk-title-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* Hairline divider */
+  --sk-hairline-light: rgba(255, 255, 255, 0.08);
+  --sk-hairline-dark: rgba(0, 0, 0, 0.5);
+
+  /* Inset pill (clock / questions-ready) */
+  --sk-pill-bg: rgba(0, 0, 0, 0.35);
+  --sk-pill-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* Primary CTA */
+  --sk-cta-bg: linear-gradient(180deg, #f5c46c 0%, #da9a3e 45%, #b8701f 100%);
+  --sk-cta-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35),
+    0 10px 18px rgba(0, 0, 0, 0.5),
+    0 2px 0 rgba(0, 0, 0, 0.2);
+  --sk-cta-text: #2a1806;
+
+  /* Secondary tiles */
+  --sk-tile-bg: linear-gradient(180deg, #31281a, #1d170e);
+  --sk-tile-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 5px 10px rgba(0, 0, 0, 0.4);
+  --sk-tile-border: rgba(255, 255, 255, 0.05);
+  --sk-tile-text: #cdbf9f;
+
+  /* Recessed wells */
+  --sk-well-bg: rgba(0, 0, 0, 0.32);
+  --sk-well-shadow: inset 0 3px 9px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+
+  /* Weak-topic pills */
+  --sk-topic-crit-bg: linear-gradient(180deg, #c15e26, #7c3a12);
+  --sk-topic-crit-text: #2a1204;
+  --sk-topic-crit-sub: #3a1c06;
+  --sk-topic-crit-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.4);
+  --sk-topic-warn-bg: linear-gradient(180deg, #e8a542, #af6c1e);
+  --sk-topic-warn-text: #2a1806;
+  --sk-topic-warn-sub: #3a2408;
+  --sk-topic-warn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.35), 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  /* Recent rows */
+  --sk-recent-active-bg: linear-gradient(180deg, #3c3220, #241d12);
+  --sk-recent-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 3px 6px rgba(0, 0, 0, 0.4);
+  --sk-recent-active-border: linear-gradient(180deg, #e9bd63, #a9781f);
+  --sk-recent-idle-bg: rgba(255, 255, 255, 0.02);
+  --sk-recent-idle-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  --sk-recent-idle-text: rgba(168, 154, 130, 0.45);
+
+  /* Navigation chrome */
+  --sk-nav-shell-bg: color-mix(in srgb, var(--color-canvas) 82%, transparent);
+  --sk-nav-shell-border: rgba(255, 255, 255, 0.06);
+  --sk-nav-group-bg: rgba(0, 0, 0, 0.35);
+  --sk-nav-group-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --sk-nav-active-bg: linear-gradient(180deg, #e9bd63, #a9781f);
+  --sk-nav-active-text: #2a1c06;
+  --sk-nav-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --sk-nav-idle: #b3a488;
+  --sk-nav-idle-hover: #f1e6cc;
+
+  /* Brand mark */
+  --sk-logo-bg: linear-gradient(160deg, #463823, #171209);
+  --sk-logo-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 -2px 3px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0, 0, 0, 0.5);
+  --sk-logo-letter: linear-gradient(180deg, #f3d78e, #a9782a);
+  --sk-wordmark: #f1e6cc;
+  --sk-wordmark-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 3px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] {
+  --sk-frame-bg:
+    repeating-linear-gradient(115deg, rgba(110, 74, 30, 0.035) 0px, rgba(110, 74, 30, 0.035) 2px, transparent 2px, transparent 7px),
+    linear-gradient(160deg, #f2e6ca 0%, #e0cea3 80%);
+  --sk-frame-border: transparent;
+  --sk-frame-shadow: 0 34px 60px rgba(90, 60, 20, 0.28), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+  --sk-stitch-color: rgba(101, 67, 33, 0.3);
+
+  --sk-screw-bg: radial-gradient(circle at 35% 30%, #fff3d8, #a9822f 75%);
+  --sk-screw-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(90, 60, 20, 0.4);
+  --sk-screw-slot: rgba(101, 67, 33, 0.45);
+  --sk-dial-bg: radial-gradient(circle at 35% 30%, #fdf6e6, #d9c090 75%);
+  --sk-dial-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), inset 0 -1px 3px rgba(90, 60, 20, 0.3), 0 2px 4px rgba(90, 60, 20, 0.25);
+  --sk-dial-indicator: #b85c28;
+
+  --sk-text: #4a3216;
+  --sk-muted: #8a6a42;
+  --sk-accent: #b85c28;
+  --sk-title-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  --sk-hairline-light: rgba(255, 255, 255, 0.7);
+  --sk-hairline-dark: rgba(90, 60, 20, 0.15);
+
+  --sk-pill-bg: rgba(255, 255, 255, 0.5);
+  --sk-pill-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.2);
+
+  --sk-cta-bg: linear-gradient(180deg, #f2a367 0%, #c96a34 45%, #9c4a1e 100%);
+  --sk-cta-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -3px 6px rgba(90, 30, 5, 0.3),
+    0 10px 18px rgba(90, 40, 10, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.1);
+  --sk-cta-text: #3a1c08;
+
+  --sk-tile-bg: linear-gradient(180deg, #f9efd6, #e3d0a8);
+  --sk-tile-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -2px 4px rgba(120, 80, 30, 0.22), 0 5px 10px rgba(90, 60, 20, 0.2);
+  --sk-tile-border: rgba(255, 255, 255, 0.5);
+  --sk-tile-text: #5a3d1c;
+
+  --sk-well-bg: rgba(255, 255, 255, 0.35);
+  --sk-well-shadow: inset 0 3px 9px rgba(90, 60, 20, 0.22);
+
+  --sk-topic-crit-bg: linear-gradient(180deg, #d97a44, #963f1c);
+  --sk-topic-crit-text: #fff3e2;
+  --sk-topic-crit-sub: #ffe6cc;
+  --sk-topic-crit-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(90, 40, 10, 0.3);
+  --sk-topic-warn-bg: linear-gradient(180deg, #ecb373, #c07a3a);
+  --sk-topic-warn-text: #3a2005;
+  --sk-topic-warn-sub: #4a2a08;
+  --sk-topic-warn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(90, 40, 10, 0.25), 0 4px 8px rgba(90, 40, 10, 0.25);
+
+  --sk-recent-active-bg: linear-gradient(180deg, #faf1db, #ecdcb8);
+  --sk-recent-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 3px 6px rgba(90, 60, 20, 0.15);
+  --sk-recent-active-border: linear-gradient(180deg, #ec9a5f, #b85c28);
+  --sk-recent-idle-bg: rgba(255, 255, 255, 0.25);
+  --sk-recent-idle-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.18);
+  --sk-recent-idle-text: rgba(138, 106, 66, 0.55);
+
+  --sk-nav-shell-bg: color-mix(in srgb, var(--color-canvas) 78%, transparent);
+  --sk-nav-shell-border: rgba(90, 60, 20, 0.15);
+  --sk-nav-group-bg: rgba(255, 255, 255, 0.45);
+  --sk-nav-group-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  --sk-nav-active-bg: linear-gradient(180deg, #ec9a5f, #b85c28);
+  --sk-nav-active-text: #fff8ec;
+  --sk-nav-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(90, 40, 10, 0.3);
+  --sk-nav-idle: #8a6a42;
+  --sk-nav-idle-hover: #4a3216;
+
+  --sk-logo-bg: linear-gradient(160deg, #f9efd6, #dcc79a);
+  --sk-logo-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.85), inset 0 -2px 3px rgba(120, 80, 30, 0.3), 0 3px 6px rgba(90, 60, 20, 0.25);
+  --sk-logo-letter: linear-gradient(180deg, #c76a34, #8a3f1c);
+  --sk-wordmark: #4a3216;
+  --sk-wordmark-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ---------------------------------------------------------------------------
+ * Colour themes (hue axis) — independent of the light/dark axis above.
+ *
+ * "amber" is the default palette authored at :root / :root[data-theme=light]
+ * above, so it needs no data-color-theme attribute. Each other hue overrides
+ * ONLY the accent-carrying tokens (brand accent, glossy CTA, active nav pill,
+ * logo letter, dial indicator) plus — in dark — the frame's ambient glow and
+ * page canvas tint. The brushed-metal / tan-leather materials and every
+ * recessed depth (wells, tiles, screws, shadows) stay shared, and the semantic
+ * status colours (green/amber/red accuracy tiers, weak-topic pills) are left
+ * fixed on purpose.
+ *
+ * Dark overrides are gated with :not([data-theme="light"]) and light overrides
+ * carry both attributes, so the two modes are mutually exclusive and neither
+ * leaks into the other regardless of source order.
+ * ------------------------------------------------------------------------- */
+
+/* Rose / rosewood */
+:root[data-color-theme="rose"]:not([data-theme="light"]) {
+  --color-canvas: #100c0c;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(170, 70, 70, 0.2), transparent 60%),
+    linear-gradient(160deg, #241515 0%, #180d0d 75%);
+  --sk-accent: #e88f8f;
+  --sk-dial-indicator: #e88f8f;
+  --sk-cta-bg: linear-gradient(180deg, #f2a6a6 0%, #d46e6e 45%, #a84343 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #e88f8f, #a85252);
+  --sk-recent-active-border: linear-gradient(180deg, #e88f8f, #a85252);
+  --sk-logo-letter: linear-gradient(180deg, #f0b3b3, #b05e5e);
+}
+:root[data-color-theme="rose"][data-theme="light"] {
+  --sk-accent: #b5455a;
+  --sk-dial-indicator: #b5455a;
+  --sk-cta-bg: linear-gradient(180deg, #ef93a2 0%, #cc5d72 45%, #9f3a50 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #dd8092, #b5455a);
+  --sk-recent-active-border: linear-gradient(180deg, #dd8092, #b5455a);
+  --sk-logo-letter: linear-gradient(180deg, #c25269, #8c3149);
+}
+
+/* Emerald / forest */
+:root[data-color-theme="emerald"]:not([data-theme="light"]) {
+  --color-canvas: #0a0f0c;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(40, 150, 90, 0.18), transparent 60%),
+    linear-gradient(160deg, #14211a 0%, #0d1810 75%);
+  --sk-accent: #6cc98a;
+  --sk-dial-indicator: #6cc98a;
+  --sk-cta-bg: linear-gradient(180deg, #8fe0aa 0%, #4faf72 45%, #2e7c47 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #7ccf95, #3f8f58);
+  --sk-recent-active-border: linear-gradient(180deg, #7ccf95, #3f8f58);
+  --sk-logo-letter: linear-gradient(180deg, #a6e6bd, #4f9f68);
+}
+:root[data-color-theme="emerald"][data-theme="light"] {
+  --sk-accent: #2f8a52;
+  --sk-dial-indicator: #2f8a52;
+  --sk-cta-bg: linear-gradient(180deg, #7fd39a 0%, #3f9c5f 45%, #237a44 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #5fb87e, #2f8a52);
+  --sk-recent-active-border: linear-gradient(180deg, #5fb87e, #2f8a52);
+  --sk-logo-letter: linear-gradient(180deg, #3f9c5f, #1f6a3c);
+}
+
+/* Teal / lagoon */
+:root[data-color-theme="teal"]:not([data-theme="light"]) {
+  --color-canvas: #090e0f;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(30, 140, 150, 0.18), transparent 60%),
+    linear-gradient(160deg, #14201f 0%, #0d1717 75%);
+  --sk-accent: #58c3c9;
+  --sk-dial-indicator: #58c3c9;
+  --sk-cta-bg: linear-gradient(180deg, #8fdedf 0%, #3fabb0 45%, #1e7c82 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #6fcccf, #2f8f95);
+  --sk-recent-active-border: linear-gradient(180deg, #6fcccf, #2f8f95);
+  --sk-logo-letter: linear-gradient(180deg, #a6e6e8, #4f9fa5);
+}
+:root[data-color-theme="teal"][data-theme="light"] {
+  --sk-accent: #2f8a90;
+  --sk-dial-indicator: #2f8a90;
+  --sk-cta-bg: linear-gradient(180deg, #7fd0d3 0%, #3f9ca2 45%, #237a80 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #5fb8bd, #2f8a90);
+  --sk-recent-active-border: linear-gradient(180deg, #5fb8bd, #2f8a90);
+  --sk-logo-letter: linear-gradient(180deg, #3f9ca2, #1f6a70);
+}
+
+/* Azure / steel blue */
+:root[data-color-theme="azure"]:not([data-theme="light"]) {
+  --color-canvas: #090c0f;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(40, 110, 180, 0.2), transparent 60%),
+    linear-gradient(160deg, #141b24 0%, #0d1218 75%);
+  --sk-accent: #62a9e8;
+  --sk-dial-indicator: #62a9e8;
+  --sk-cta-bg: linear-gradient(180deg, #94c6f2 0%, #4f97d4 45%, #2e6ba8 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #7bb6ea, #3f7fbf);
+  --sk-recent-active-border: linear-gradient(180deg, #7bb6ea, #3f7fbf);
+  --sk-logo-letter: linear-gradient(180deg, #a9d2f4, #4f8fcf);
+}
+:root[data-color-theme="azure"][data-theme="light"] {
+  --sk-accent: #2f6fb5;
+  --sk-dial-indicator: #2f6fb5;
+  --sk-cta-bg: linear-gradient(180deg, #8bbef0 0%, #4f8fcc 45%, #2f6aa1 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #6fa5dd, #2f6fb5);
+  --sk-recent-active-border: linear-gradient(180deg, #6fa5dd, #2f6fb5);
+  --sk-logo-letter: linear-gradient(180deg, #3f7fc2, #1f558c);
+}
+
+/* Indigo / violet */
+:root[data-color-theme="indigo"]:not([data-theme="light"]) {
+  --color-canvas: #0c0b0f;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(90, 70, 180, 0.2), transparent 60%),
+    linear-gradient(160deg, #1a1724 0%, #100d18 75%);
+  --sk-accent: #948ce8;
+  --sk-dial-indicator: #948ce8;
+  --sk-cta-bg: linear-gradient(180deg, #b0a6f2 0%, #7a6ad4 45%, #4f3fa8 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #9d92ea, #5f4fbf);
+  --sk-recent-active-border: linear-gradient(180deg, #9d92ea, #5f4fbf);
+  --sk-logo-letter: linear-gradient(180deg, #c0b6f4, #7a6fcf);
+}
+:root[data-color-theme="indigo"][data-theme="light"] {
+  --sk-accent: #5546b5;
+  --sk-dial-indicator: #5546b5;
+  --sk-cta-bg: linear-gradient(180deg, #a99ff0 0%, #6f5dcc 45%, #463aa1 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #8072dd, #5546b5);
+  --sk-recent-active-border: linear-gradient(180deg, #8072dd, #5546b5);
+  --sk-logo-letter: linear-gradient(180deg, #5f4fc2, #3a2d8c);
+}

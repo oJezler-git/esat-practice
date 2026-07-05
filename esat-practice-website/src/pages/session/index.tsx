@@ -143,7 +143,8 @@ export default function SessionPage() {
   const hintText = `${shortcutLabels.revealCorrect} = reveal/correct | ${shortcutLabels.incorrect} = wrong | ${shortcutLabels.prev}/${shortcutLabels.next} = navigate | ${shortcutLabels.flag} = flag | ${shortcutLabels.skip} = skip`;
 
   return (
-    <div className="h-screen flex flex-col bg-canvas overflow-hidden">
+    <div className="sk-session">
+      <div className="sk-session-frame">
       <SessionHeader
         currentIndex={currentIndex}
         timeRemaining={timeRemaining}
@@ -158,19 +159,15 @@ export default function SessionPage() {
         questionIds={questions.map((q) => q.id)}
       />
 
-      <main className="session-shell flex-1 mx-auto w-full px-4 pt-3 pb-3 flex flex-col min-h-0">
-        <div className="session-answer-layout flex-1 min-h-0">
-          <section className="session-left-panel overflow-y-auto">
-            <div className="session-topline text-sm text-muted mb-3">
+      <main className="sk-session-body">
+        <div className="session-answer-layout">
+          <section className="session-left-panel">
+            <div className="session-topline">
               Question {currentIndex + 1} of {totalCount}
-              {isFlagged && (
-                <span className="ml-2 px-2 py-0.5 bg-amber-soft text-amber text-xs rounded-full border border-warning">
-                  Flagged
-                </span>
-              )}
+              {isFlagged && <span className="sk-flag-badge">Flagged</span>}
             </div>
             <p className={`session-question-preview ${fontClass}`}>{questionPreview}</p>
-            <p className="text-xs text-muted mt-2">
+            <p className="session-ocr-note">
               OCR is inaccurate. Use the image for the question.
             </p>
             {showMetadata && (
@@ -197,25 +194,23 @@ export default function SessionPage() {
               <AskClaudeButton question={currentQuestion} />
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-danger bg-danger-soft px-3 py-2 hide-on-mobile">
-              <div>
-                <p className="text-xs text-danger-text">
-                  Press this if a question number is marked with an ✖, this means it's not on the specification.
-                </p>
-              </div>
+            <div className="session-exclude-notice hide-on-mobile">
+              <p>
+                Press this if a question number is marked with an ✖, this means it's not on the specification.
+              </p>
               <button
                 type="button"
                 onClick={() => {
                   void excludeCurrentQuestion(allQuestions);
                 }}
-                className="shrink-0 rounded-lg border border-danger px-3 py-2 text-sm font-medium text-danger-text transition-colors hover:bg-danger-soft"
+                className="session-exclude-btn"
               >
                 Exclude
               </button>
             </div>
 
             {settings.showKeyboardHints && (
-              <p className="session-left-hints text-xs text-muted mt-4 hide-on-mobile">{hintText}</p>
+              <p className="session-left-hints hide-on-mobile">{hintText}</p>
             )}
           </section>
 
@@ -261,6 +256,7 @@ export default function SessionPage() {
         onReveal={revealAnswer}
         revealed={isAnswerRevealed}
       />
+      </div>
 
       {isAnswerRevealed && (
         <MobileRevealPopup

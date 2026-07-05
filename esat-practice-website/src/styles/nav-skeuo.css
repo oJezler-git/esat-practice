@@ -1,0 +1,119 @@
+/*
+ * Skeuomorphic navigation chrome — overrides the flat styles in nav.css to the
+ * brushed-metal / tan-leather look. Consumes shared tokens from skeuo-tokens.css.
+ *
+ * Kept as an override LAYER (imported after nav.css) rather than edited into
+ * nav.css so that, when the "skeuomorphic" skin becomes a Settings option, this
+ * whole block can be wrapped in :root[data-skin="skeuomorphic"] in one move.
+ *
+ * The active-pill element is positioned/sized imperatively by the spring
+ * animation in Nav.tsx; here we only restyle its surface (gradient + bevel).
+ */
+
+.nav-shell {
+  background: var(--sk-nav-shell-bg);
+  border-bottom: 1px solid var(--sk-nav-shell-border);
+}
+
+/* ---- Brand mark (tile + wordmark) ---- */
+
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--sk-logo-bg);
+  box-shadow: var(--sk-logo-shadow);
+}
+
+/* The favicon.svg mark is a flat white glyph; we mask it and let the gold/copper
+   --sk-logo-letter gradient show through so the mark picks up the skeuo palette. */
+.nav-logo-mark {
+  width: 21px;
+  height: 24px;
+  background: var(--sk-logo-letter);
+  -webkit-mask: url(/favicon.svg) center / contain no-repeat;
+  mask: url(/favicon.svg) center / contain no-repeat;
+}
+
+.nav-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 21px;
+  letter-spacing: 1px;
+  color: var(--sk-wordmark);
+  text-shadow: var(--sk-wordmark-shadow);
+}
+
+/* ---- Pill group (recessed track) ---- */
+
+.nav-group {
+  border: none;
+  padding: 0.4rem;
+  gap: 0.2rem;
+  background: var(--sk-nav-group-bg);
+  box-shadow: var(--sk-nav-group-shadow);
+}
+
+.nav-link {
+  padding: 0.5rem 1.15rem;
+  font-weight: 600;
+}
+
+.nav-link-idle {
+  color: var(--sk-nav-idle);
+}
+
+.nav-link-idle:hover {
+  color: var(--sk-nav-idle-hover);
+  background: transparent;
+}
+
+.nav-link-active {
+  color: var(--sk-nav-active-text);
+}
+
+.nav-active-pill {
+  background: var(--sk-nav-active-bg);
+  box-shadow: var(--sk-nav-active-shadow);
+}
+
+/* ---- Clock module (inset chip) ---- */
+
+.nav-time {
+  align-items: flex-end;
+  padding: 0.35rem 0.8rem;
+  border-radius: 12px;
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+}
+
+.nav-time-day {
+  color: var(--sk-muted);
+  font-size: 0.7rem;
+}
+
+.nav-time-clock {
+  color: var(--sk-accent);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ---- Mobile menu ---- */
+
+.mobile-nav-link {
+  color: var(--sk-nav-idle);
+}
+
+.mobile-nav-link-active {
+  color: var(--sk-accent);
+}

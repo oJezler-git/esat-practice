@@ -53,6 +53,48 @@ interface SettingsSectionProps {
   update: (partial: Partial<UserSettings>) => void;
 }
 
+const COLOUR_THEMES: Array<{
+  value: UserSettings["colorTheme"];
+  label: string;
+  swatch: string;
+}> = [
+  { value: "amber", label: "Amber", swatch: "linear-gradient(145deg, #f5c46c, #a9781f)" },
+  { value: "rose", label: "Rose", swatch: "linear-gradient(145deg, #f2a6a6, #a85252)" },
+  { value: "emerald", label: "Emerald", swatch: "linear-gradient(145deg, #8fe0aa, #2e7c47)" },
+  { value: "teal", label: "Teal", swatch: "linear-gradient(145deg, #8fdedf, #1e7c82)" },
+  { value: "azure", label: "Azure", swatch: "linear-gradient(145deg, #94c6f2, #2e6ba8)" },
+  { value: "indigo", label: "Indigo", swatch: "linear-gradient(145deg, #b0a6f2, #4f3fa8)" },
+];
+
+function ColourThemePicker({ settings, update }: SettingsSectionProps) {
+  return (
+    <div className="px-4 py-3.5">
+      <div className="text-sm text-secondary">Colour theme</div>
+      <div className="text-xs text-muted mt-0.5 mb-3">
+        Sets the accent hue. Works in both light and dark.
+      </div>
+      <div className="theme-swatch-row" role="radiogroup" aria-label="Colour theme">
+        {COLOUR_THEMES.map(({ value, label, swatch }) => {
+          const active = settings.colorTheme === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              aria-label={label}
+              title={label}
+              onClick={() => update({ colorTheme: value })}
+              className={`theme-swatch${active ? " theme-swatch--active" : ""}`}
+              style={{ background: swatch }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function SessionDefaultsSection({ settings, update }: SettingsSectionProps) {
   return (
     <Section
@@ -258,7 +300,9 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
       title="Display"
       description="Choose your reading comfort preferences."
     >
-      <Field label="Colour theme">
+      <ColourThemePicker settings={settings} update={update} />
+
+      <Field label="Appearance">
         <Select
           value={settings.theme}
           onChange={(value) =>

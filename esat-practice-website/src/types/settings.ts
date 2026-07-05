@@ -25,6 +25,7 @@ export interface UserSettings {
   fullscreenOnStart: boolean;
   fontPreset: "academic" | "premium" | "readable" | "modern" | "technical" | "inter" | "monospace";
   theme: "dark" | "light";
+  colorTheme: "amber" | "rose" | "emerald" | "teal" | "azure" | "indigo";
   fontSize: "sm" | "md" | "lg";
   shortcuts: ShortcutMap;
   autoExclude: boolean;
@@ -54,6 +55,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   fullscreenOnStart: true,
   fontPreset: "academic",
   theme: "dark",
+  colorTheme: "amber",
   fontSize: "md",
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,

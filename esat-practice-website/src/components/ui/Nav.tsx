@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-import logo from "../../assets/logo.svg";
 
 const links = [
   { to: "/", label: "Home" },
@@ -11,6 +10,18 @@ const links = [
   { to: "/history", label: "History" },
   { to: "/settings", label: "Settings" },
 ];
+
+// Whole days from today until the exam (12 October); rolls to next year once
+// this year's date has passed. Both dates are taken at local midnight so the
+// result is a clean day count regardless of the current time of day.
+function getDaysUntilExam(now: Date): number {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let target = new Date(now.getFullYear(), 9, 12); // month 9 = October
+  if (target.getTime() < today.getTime()) {
+    target = new Date(now.getFullYear() + 1, 9, 12);
+  }
+  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
+}
 
 export function Nav({ isHidden }: { isHidden?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,25 +47,17 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
   };
 
   useEffect(() => {
+    // The countdown only changes at midnight, so a per-minute tick is plenty.
     const intervalId = window.setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 60_000);
 
     return () => {
       window.clearInterval(intervalId);
     };
   }, []);
 
-  const currentDay = currentTime.toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-  });
-  const currentClock = currentTime.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const daysUntilExam = getDaysUntilExam(currentTime);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -210,10 +213,17 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
 
   return (
     <>
-      <nav className={`nav-shell ${isHidden ? "nav-shell-hidden" : ""}`}>
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="ESAT practice" className="h-8 w-auto" />
+      <nav
+        className={`nav-shell ${isHidden ? "nav-shell-hidden" : ""} ${
+          isMenuOpen ? "nav-shell-menu-open" : ""
+        }`}
+      >
+        <div className="nav-inner">
+          <Link to="/" className="nav-brand" aria-label="ESAT practice — home">
+            <span className="nav-logo" aria-hidden="true">
+              <span className="nav-logo-mark" />
+            </span>
+            <span className="nav-wordmark">ESAT</span>
           </Link>
 
           <div className="nav-group nav-desktop-only" ref={navGroupRef}>
@@ -243,20 +253,23 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
               </NavLink>
             ))}
 
-            <div className="nav-time">
-              <span className="nav-time-day">{currentDay}</span>
-              <span className="nav-time-clock">{currentClock}</span>
-            </div>
           </div>
 
-          <div className="nav-mobile-hamburger-wrapper">
-            <button type="button" className="nav-mobile-hamburger-button" aria-label={isMenuOpen ? "Close menu" : "Open menu"} aria-expanded={isMenuOpen} onClick={() => isMenuOpen ? handleClose() : setIsMenuOpen(true)}>
-              <div className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </button>
+          <div className="nav-right">
+            <div className="nav-time nav-desktop-only">
+              <span className="nav-time-day">Days Left</span>
+              <span className="nav-time-clock">{daysUntilExam}</span>
+            </div>
+
+            <div className="nav-mobile-hamburger-wrapper">
+              <button type="button" className="nav-mobile-hamburger-button" aria-label={isMenuOpen ? "Close menu" : "Open menu"} aria-expanded={isMenuOpen} onClick={() => isMenuOpen ? handleClose() : setIsMenuOpen(true)}>
+                <div className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </nav>

@@ -25,7 +25,6 @@ function TopicNavLinks({
       </NavLink>
       <section className="rev-sidebar-module">
         <div className="rev-sidebar-module-title">
-          <span className={`rev-module-dot rev-module-dot--${module.slug}`} aria-hidden="true" />
           {module.title}
         </div>
         <nav className="rev-sidebar-links">
@@ -100,7 +99,7 @@ export function RevisionLayout({
   }, [activeDocId]);
 
   return (
-    <div className={`rev-shell ${currentDoc ? "rev-shell--doc" : "rev-shell--home"}`}>
+    <div className={`rev-shell sk-revision ${currentDoc ? "rev-shell--doc" : "rev-shell--home"}`}>
       {currentModule && (
         <>
           <button
@@ -118,7 +117,6 @@ export function RevisionLayout({
               <span />
               <span />
             </span>
-            <span className={`rev-module-dot rev-module-dot--${currentModule.slug}`} aria-hidden="true" />
             <span>{currentModule.title} topics</span>
           </button>
 
@@ -135,10 +133,7 @@ export function RevisionLayout({
             >
               <div className="rev-mobile-nav-panel" role="dialog" aria-modal="true" aria-label={`${currentModule.title} revision topics`}>
                 <div className="rev-mobile-nav-panel-header">
-                  <span>
-                    <span className={`rev-module-dot rev-module-dot--${currentModule.slug}`} aria-hidden="true" />
-                    {currentModule.title}
-                  </span>
+                  <span>{currentModule.title}</span>
                   <button
                     type="button"
                     className="rev-mobile-nav-close"

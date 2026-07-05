@@ -25,16 +25,16 @@ function toggleFullscreen() {
   }
 }
 
-function getStatusColor(result?: SelfMarkResult) {
+function getStatusClass(result?: SelfMarkResult) {
   switch (result) {
     case "correct":
-      return "bg-green-500";
+      return "sk-seg--correct";
     case "incorrect":
-      return "bg-red-500";
+      return "sk-seg--incorrect";
     case "skipped":
-      return "bg-amber-500";
+      return "sk-seg--skipped";
     default:
-      return "bg-gray-700";
+      return "";
   }
 }
 
@@ -160,81 +160,73 @@ export function SessionHeader({
   }, [currentIndex, questionIds.length]);
 
   return (
-    <header className="z-10 bg-soft border-b border-subtle">
-      <div className="max-w-4xl mx-auto px-4 py-2 flex items-center gap-4">
-        <div className="flex-1 flex items-center gap-1 relative">
-          <div
-            ref={indicatorRef}
-            className="absolute rounded-full bg-accent pointer-events-none"
-            style={{ left: "0px", top: "calc(100% + 6px)", width: "6px", height: "6px", transform: "translateX(-50%)", zIndex: 10 }}
-          />
-          <div ref={buttonContainerRef} className="flex items-center gap-1 w-full">
-            {questionIds.map((id, index) => {
-              const result = responses[id]?.result;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => onNavigate(index)}
-                  className={`flex-1 h-3 rounded-sm border border-subtle transition-all hover:scale-105 ${getStatusColor(result)}`}
-                  aria-label={`Go to question ${index + 1}`}
-                  title={`Question ${index + 1}`}
-                />
-              );
-            })}
-          </div>
+    <header className="sk-session-topbar">
+      <div className="sk-seg-area">
+        <div
+          ref={indicatorRef}
+          className="sk-seg-dot"
+          style={{ left: "0px", top: "-9px", transform: "translateX(-50%)" }}
+        />
+        <div ref={buttonContainerRef} className="sk-seg-track">
+          {questionIds.map((id, index) => {
+            const result = responses[id]?.result;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onNavigate(index)}
+                className={`sk-seg ${getStatusClass(result)}`}
+                aria-label={`Go to question ${index + 1}`}
+                title={`Question ${index + 1}`}
+              />
+            );
+          })}
         </div>
-
-        {timeRemaining !== undefined && (
-          <span
-            className={`text-xs font-mono font-medium tabular-nums ${
-              isLow ? "text-danger-text" : "text-muted"
-            }`}
-          >
-            {formatTime(timeRemaining)}
-          </span>
-        )}
-
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          className="p-1 rounded text-muted hover:text-secondary transition-colors"
-        >
-          {isFullscreen ? (
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M5 2H2v3l2.5-2.5L5 2zM11 2h3v3l-2.5-2.5L11 2zM11 14h3v-3l-2.5 2.5L11 14zM5 14H2v-3l2.5 2.5L5 14z" />
-            </svg>
-          ) : (
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M0 0h4.5v1.5H1.5V4.5H0ZM11.5 0H16v4.5h-1.5V1.5H11.5ZM0 11.5h1.5V14.5H4.5V16H0ZM14.5 11.5H16V16H11.5v-1.5h3Z" />
-            </svg>
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={onFlag}
-          aria-label={isFlagged ? "Unflag question" : "Flag question"}
-          title="Flag question (F)"
-          className={`p-1 rounded transition-colors ${
-            isFlagged ? "text-amber bg-amber-soft" : "text-muted hover:text-secondary"
-          }`}
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M2 2h9l-2.5 3.5L11 9H2V2z" />
-            <line
-              x1="2"
-              y1="2"
-              x2="2"
-              y2="15"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
       </div>
+
+      {timeRemaining !== undefined && (
+        <span className={`sk-session-timer ${isLow ? "sk-session-timer--low" : ""}`}>
+          {formatTime(timeRemaining)}
+        </span>
+      )}
+
+      <button
+        type="button"
+        onClick={toggleFullscreen}
+        title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        className="sk-session-icon-btn"
+      >
+        {isFullscreen ? (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5 2H2v3l2.5-2.5L5 2zM11 2h3v3l-2.5-2.5L11 2zM11 14h3v-3l-2.5 2.5L11 14zM5 14H2v-3l2.5 2.5L5 14z" />
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M0 0h4.5v1.5H1.5V4.5H0ZM11.5 0H16v4.5h-1.5V1.5H11.5ZM0 11.5h1.5V14.5H4.5V16H0ZM14.5 11.5H16V16H11.5v-1.5h3Z" />
+          </svg>
+        )}
+      </button>
+
+      <button
+        type="button"
+        onClick={onFlag}
+        aria-label={isFlagged ? "Unflag question" : "Flag question"}
+        title="Flag question (F)"
+        className={`sk-session-icon-btn ${isFlagged ? "sk-session-icon-btn--active" : ""}`}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M2 2h9l-2.5 3.5L11 9H2V2z" />
+          <line
+            x1="2"
+            y1="2"
+            x2="2"
+            y2="15"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
     </header>
   );
 }

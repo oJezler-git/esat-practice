@@ -13,22 +13,25 @@ function summarizeTopics(titles: string[]): string {
 export function RevisionHome() {
   return (
     <RevisionLayout>
-      <section className="rev-home">
-        <p className="rev-kicker">ESAT revision</p>
-        <h1>Topic guides for fast, clean problem solving.</h1>
-        <p className="rev-subtitle">
-          A docs-style home for transformed ESAT guide content, shortcut methods, formula fluency,
-          worked examples, & practice links.
-        </p>
+      <section className="rev-home sk-revision">
+        <div className="sk-frame">
+          <span className="sk-screw sk-screw--tl" />
+          <span className="sk-screw sk-screw--tr" />
+          <span className="sk-screw sk-screw--bl" />
+          <span className="sk-screw sk-screw--br" />
 
-        <div className="rev-subject-toc">
+          <p className="rev-kicker">ESAT revision</p>
+          <h1>Topic guides for fast, clean problem solving.</h1>
+          <p className="rev-subtitle">
+            A docs-style home for transformed ESAT guide content, shortcut methods, formula
+            fluency, worked examples, & practice links.
+          </p>
+
+          <div className="rev-subject-toc">
           {revisionModules.map((module) => (
             <section key={module.slug} className="rev-subject-column">
               <div className="rev-subject-column-head">
-                <h2>
-                  <span className={`rev-module-dot rev-module-dot--${module.slug}`} aria-hidden="true" />
-                  {module.title}
-                </h2>
+                <h2>{module.title}</h2>
                 <span>{module.docs.length} topic{module.docs.length === 1 ? "" : "s"}</span>
               </div>
               <p>{summarizeTopics(module.docs.map((doc) => doc.meta.title))}</p>
@@ -55,6 +58,7 @@ export function RevisionHome() {
               </nav>
             </section>
           ))}
+          </div>
         </div>
       </section>
     </RevisionLayout>

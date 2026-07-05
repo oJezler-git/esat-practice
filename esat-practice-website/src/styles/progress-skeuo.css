@@ -1,0 +1,558 @@
+/*
+ * Skeuomorphic progress page (design turn 6a — dark brushed metal).
+ *
+ * Reuses the shared token-driven primitives (.sk-frame, .sk-screw) by class name
+ * and — like results-skeuo.css — remaps the generic --accent / --text-* /
+ * --border-* / --surface-* tokens to their --sk-* equivalents *within*
+ * .sk-progress so the SVG score visualisations (ScaleTrack via EsatAllTimePanel,
+ * the trend sparkline) and the score-panel wells pick up the skeuo palette
+ * without touching the React components. The flat sv-* / prog-* rules stay intact
+ * for any surface that isn't wrapped in .sk-progress.
+ *
+ * Only a dark option (6a) was designed; light values derive from the shared home
+ * light palette and resolve automatically through the --sk-* tokens.
+ */
+
+/* ---- Scoped generic-token remap (drives the sv-* charts, trend & wells) ---- */
+
+.sk-progress {
+  --accent: var(--sk-accent);
+  --accent-strong: var(--sk-accent);
+  --text-primary: var(--sk-text);
+  --text-secondary: var(--sk-tile-text);
+  --text-muted: var(--sk-muted);
+  --border-subtle: var(--sk-hairline-light);
+  --border-strong: var(--sk-frame-border);
+  --surface-1: var(--sk-well-bg);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --surface-3: rgba(0, 0, 0, 0.5);
+
+  /* Progress-local accents */
+  --sk-prog-label: #8a7c62;
+  --sk-prog-warn: #c9922f;
+  --sk-prog-good-text: #a9e0b5;
+  --sk-prog-good-ring: rgba(95, 201, 122, 0.3);
+  --sk-prog-amber-ring: rgba(201, 146, 47, 0.3);
+  --sk-prog-track: rgba(0, 0, 0, 0.5);
+  --sk-prog-track-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .sk-progress {
+  --surface-2: rgba(90, 60, 20, 0.1);
+  --surface-3: rgba(90, 60, 20, 0.14);
+  --sk-prog-label: #8a6a42;
+  --sk-prog-warn: #b06a1a;
+  --sk-prog-good-text: #2e7d46;
+  --sk-prog-good-ring: rgba(46, 139, 70, 0.35);
+  --sk-prog-amber-ring: rgba(176, 106, 26, 0.35);
+  --sk-prog-track: rgba(90, 60, 20, 0.18);
+  --sk-prog-track-shadow: inset 0 1px 3px rgba(90, 60, 20, 0.28);
+}
+
+/* ---- Layout shell ---- */
+
+.sk-progress {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-progress .sk-frame {
+  color: var(--sk-text);
+}
+
+.sk-progress-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.4vw, 2rem);
+  font-weight: 700;
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+  margin: 0 0 20px;
+}
+
+.sk-progress-empty {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--sk-muted);
+  font-size: 0.9375rem;
+}
+
+/* ---- Summary stat cards (recessed insets) ---- */
+
+.sk-progress .prog-cards {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sk-progress .prog-card {
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-progress .prog-card__value {
+  font-size: 1.875rem;
+  color: var(--sk-text);
+}
+
+.sk-progress .prog-card__label {
+  font-size: 0.78rem;
+  color: var(--sk-prog-label);
+  margin-top: 0.25rem;
+}
+
+/* ---- Section wells (recessed panels wrapping each block) ---- */
+
+.sk-progress .prog-section {
+  border: none;
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 20px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-progress .prog-section:last-child {
+  margin-bottom: 0;
+}
+
+.sk-progress .prog-section-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sk-tile-text);
+}
+
+.sk-progress .prog-muted {
+  color: var(--sk-muted);
+}
+
+/* ---- Segmented toggles (gold active / inset idle) ---- */
+
+.sk-progress .prog-toggle {
+  border: none;
+  gap: 4px;
+  padding: 5px;
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+}
+
+.sk-progress .prog-toggle__btn {
+  color: var(--sk-muted);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-progress .prog-toggle__btn:not(.prog-toggle__btn--active):hover {
+  color: var(--sk-tile-text);
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-progress .prog-toggle__btn--active,
+.sk-progress .prog-toggle__btn--active:hover {
+  color: var(--sk-nav-active-text);
+  background: var(--sk-nav-active-bg);
+  box-shadow: var(--sk-nav-active-shadow);
+}
+
+/* ---- Weak-areas panel (amber-tinted, ringed) ---- */
+
+.sk-progress-weak {
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 20px;
+  background: linear-gradient(160deg, rgba(160, 100, 30, 0.18), rgba(90, 55, 15, 0.1));
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(201, 146, 47, 0.3);
+}
+
+:root[data-theme="light"] .sk-progress-weak {
+  background: linear-gradient(160deg, rgba(200, 140, 60, 0.24), rgba(180, 120, 50, 0.12));
+  box-shadow: inset 0 2px 6px rgba(90, 60, 20, 0.16), 0 0 0 1px rgba(176, 106, 26, 0.35);
+}
+
+.sk-progress-weak-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 14px;
+}
+
+.sk-progress-weak-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sk-text);
+  margin: 0;
+}
+
+/* Gold glossy "Drill these" button — a compact CTA. */
+.sk-progress-drill {
+  position: relative;
+  flex: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-progress-drill::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.sk-progress-drill > span {
+  position: relative;
+}
+
+.sk-progress-drill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.sk-progress-drill:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.sk-progress-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sk-progress-pill {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: #e0c8a2;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--sk-prog-amber-ring);
+}
+
+:root[data-theme="light"] .sk-progress-pill {
+  color: #6a4a1e;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.14), 0 0 0 1px var(--sk-prog-amber-ring);
+}
+
+.sk-progress-pill--good {
+  color: var(--sk-prog-good-text);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--sk-prog-good-ring);
+}
+
+:root[data-theme="light"] .sk-progress-pill--good {
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.14), 0 0 0 1px var(--sk-prog-good-ring);
+}
+
+/* ---- Trend sparkline (recessed inner well) ---- */
+
+.sk-progress .prog-trend__svg {
+  height: 100%;
+}
+
+.sk-progress-trend-well {
+  position: relative;
+  height: 170px;
+  border-radius: 10px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .sk-progress-trend-well {
+  background: rgba(90, 60, 20, 0.08);
+  box-shadow: inset 0 2px 6px rgba(90, 60, 20, 0.2);
+}
+
+.sk-progress .prog-trend__foot {
+  margin-top: 12px;
+  color: var(--sk-prog-label);
+}
+
+.sk-progress .prog-trend__latest {
+  color: var(--sk-tile-text);
+}
+
+/* ---- Accuracy bars (topic + category) ---- */
+
+.sk-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--sk-prog-track);
+  box-shadow: var(--sk-prog-track-shadow);
+}
+
+.sk-progress-bar--track {
+  position: relative;
+}
+
+.sk-progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 300ms ease;
+}
+
+.sk-progress-bar-ghost {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--surface-2);
+}
+
+.sk-progress-bar-fill--abs {
+  position: absolute;
+  inset: 0 auto 0 0;
+}
+
+.sk-fill--green {
+  background: linear-gradient(90deg, #2a8a44, #5fc97a);
+  box-shadow: 0 0 6px rgba(95, 201, 122, 0.45);
+}
+
+.sk-fill--amber {
+  background: linear-gradient(90deg, #a9781f, #e9bd63);
+  box-shadow: 0 0 6px rgba(232, 165, 66, 0.4);
+}
+
+.sk-fill--red {
+  background: linear-gradient(90deg, #a12c14, #e0603c);
+  box-shadow: 0 0 6px rgba(224, 96, 60, 0.45);
+}
+
+/* Category breakdown bars reuse the same recessed track + gradient fills. */
+.sk-progress .prog-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--sk-prog-track);
+  box-shadow: var(--sk-prog-track-shadow);
+}
+
+.sk-progress .prog-bar__fill {
+  border-radius: 4px;
+}
+
+.sk-progress .prog-cat-name {
+  color: var(--sk-tile-text);
+}
+
+.sk-progress .prog-cat-stats {
+  color: var(--sk-muted);
+}
+
+.sk-progress .prog-cat-pct {
+  color: var(--sk-text);
+}
+
+/* ---- Topic rows ---- */
+
+.sk-progress-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sk-progress-topic-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  margin-bottom: 5px;
+}
+
+.sk-progress-topic-name {
+  color: var(--sk-tile-text);
+}
+
+.sk-progress-topic-stat {
+  color: var(--sk-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sk-progress-topic-ewma {
+  margin-left: 0.5rem;
+  color: var(--sk-tile-text);
+  font-weight: 600;
+}
+
+.sk-progress-topic-alltime {
+  margin-left: 0.35rem;
+  color: var(--sk-prog-label);
+  font-size: 0.72rem;
+}
+
+/* ---- Recent sessions ---- */
+
+.sk-progress-sessions {
+  display: flex;
+  flex-direction: column;
+}
+
+.sk-progress-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 6px;
+  background: transparent;
+  border-bottom: 1px solid var(--sk-hairline-light);
+  transition: background 160ms ease;
+}
+
+.sk-progress-session:last-child {
+  border-bottom: none;
+}
+
+.sk-progress-session--clickable {
+  cursor: pointer;
+}
+
+.sk-progress-session--clickable:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+:root[data-theme="light"] .sk-progress-session--clickable:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.sk-progress-session--idle {
+  cursor: default;
+}
+
+.sk-progress-session-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sk-text);
+  text-transform: capitalize;
+}
+
+.sk-progress-session--idle .sk-progress-session-label {
+  color: var(--sk-prog-label);
+  font-weight: 400;
+}
+
+.sk-progress-session-date {
+  font-size: 0.75rem;
+  color: var(--sk-muted);
+  margin-top: 2px;
+}
+
+.sk-progress-session--idle .sk-progress-session-date {
+  color: var(--sk-prog-label);
+}
+
+.sk-progress-session-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.sk-progress-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.sk-progress-badge--completed {
+  color: var(--sk-prog-good-text);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 0 1px var(--sk-prog-good-ring);
+}
+
+:root[data-theme="light"] .sk-progress-badge--completed {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.sk-progress-badge--idle {
+  color: var(--sk-prog-label);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="light"] .sk-progress-badge--idle {
+  background: rgba(90, 60, 20, 0.1);
+}
+
+.sk-progress-session-view {
+  font-size: 0.8125rem;
+  color: var(--sk-accent);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Score-panel (sv-*) skeuo skin — scoped to .sk-progress only.
+ * Mirrors the results-skeuo treatment so the "ESAT scaled score estimate" cards
+ * (ModuleScoreCard + ScaleTrack) read as recessed wells with the amber palette.
+ * ------------------------------------------------------------------------- */
+
+.sk-progress .sv-module-grid {
+  gap: 18px;
+  margin-bottom: 0;
+}
+
+.sk-progress .sv-card {
+  border: none;
+  border-radius: 14px;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .sk-progress .sv-card {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 2px 6px rgba(90, 60, 20, 0.18);
+}
+
+.sk-progress .sv-card-label {
+  color: var(--sk-prog-label);
+}
+
+.sk-progress .sv-band-headline {
+  color: var(--sk-text);
+}
+
+.sk-progress .sv-low-sample {
+  color: var(--sk-prog-warn);
+}
+
+.sk-progress .sv-tooltip,
+.sk-progress .sv-chart-tooltip {
+  background: var(--sk-tile-bg);
+  border: 1px solid var(--sk-tile-border);
+  color: var(--sk-text);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .sk-progress .prog-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .sk-progress-weak-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}

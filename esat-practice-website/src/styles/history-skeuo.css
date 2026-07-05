@@ -1,0 +1,286 @@
+/*
+ * Skeuomorphic history page (design turn 7a — dark brushed metal).
+ *
+ * Like results-/progress-skeuo.css, this remaps the generic --accent / --text-* /
+ * --border-* / --surface-* tokens (and the --color-success/amber/danger accents
+ * the session cards read via inline style) to their --sk-* equivalents *within*
+ * .sk-history, and re-defines the heatmap --hist-cell-* scale as a green ramp so
+ * the SVG heatmap + session log adopt the skeuo palette without touching the
+ * React components. The flat hist-* rules in history.css stay intact for any
+ * surface not wrapped in .sk-history.
+ *
+ * Only a dark option (7a) was designed; light values derive from the shared home
+ * light palette and resolve automatically through the --sk-* tokens.
+ */
+
+/* ---- Scoped generic-token remap (drives the heatmap SVG, cards & wells) ---- */
+
+.sk-history {
+  --accent: var(--sk-accent);
+  --accent-strong: var(--sk-accent);
+  --accent-soft: rgba(233, 189, 99, 0.14);
+  --text-primary: var(--sk-text);
+  --text-secondary: var(--sk-tile-text);
+  --text-muted: var(--sk-muted);
+  --border-subtle: var(--sk-hairline-light);
+  --border-strong: var(--sk-hairline-dark);
+  --surface-1: var(--sk-well-bg);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --surface-3: rgba(0, 0, 0, 0.5);
+
+  /* Session-card tier accents (read via inline style on % + ring) */
+  --color-success-text: #5fc97a;
+  --color-amber: #e9bd63;
+  --color-danger-text: #e08a6c;
+
+  /* Heatmap intensity — green ramp over a recessed empty cell */
+  --hist-cell-0: rgba(0, 0, 0, 0.35);
+  --hist-cell-1: rgba(120, 140, 70, 0.5);
+  --hist-cell-2: rgba(140, 165, 80, 0.62);
+  --hist-cell-3: rgba(160, 185, 90, 0.78);
+  --hist-cell-4: rgba(180, 205, 100, 0.95);
+
+  /* History-local */
+  --sk-hist-label: #8a7c62;
+  --sk-hist-card-bg: rgba(0, 0, 0, 0.25);
+  --sk-hist-track: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .sk-history {
+  --accent-soft: rgba(184, 92, 40, 0.14);
+  --surface-2: rgba(90, 60, 20, 0.1);
+  --surface-3: rgba(90, 60, 20, 0.14);
+
+  --color-success-text: #2e8b2e;
+  --color-amber: #b06a1a;
+  --color-danger-text: #c0492e;
+
+  --hist-cell-0: rgba(90, 60, 20, 0.12);
+  --hist-cell-1: rgba(120, 150, 70, 0.45);
+  --hist-cell-2: rgba(110, 150, 60, 0.62);
+  --hist-cell-3: rgba(90, 140, 50, 0.78);
+  --hist-cell-4: rgba(70, 130, 40, 0.95);
+
+  --sk-hist-label: #8a6a42;
+  --sk-hist-card-bg: rgba(255, 255, 255, 0.3);
+  --sk-hist-track: rgba(90, 60, 20, 0.18);
+}
+
+/* ---- Layout shell ---- */
+
+.sk-history {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-history .sk-frame {
+  color: var(--sk-text);
+}
+
+.sk-history-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.4vw, 2rem);
+  font-weight: 700;
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+  margin: 0 0 20px;
+}
+
+.sk-history-empty {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--sk-muted);
+  font-size: 0.9375rem;
+}
+
+/* ---- Stat strip (recessed insets) ---- */
+
+.sk-history .hist-stats {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sk-history .hist-stat {
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-history .hist-stat--highlight {
+  box-shadow: var(--sk-well-shadow), 0 0 0 1px rgba(233, 189, 99, 0.4);
+}
+
+.sk-history .hist-stat__value {
+  font-size: 1.875rem;
+  color: var(--sk-text);
+}
+
+.sk-history .hist-stat--highlight .hist-stat__value {
+  color: var(--sk-accent);
+}
+
+.sk-history .hist-stat__label {
+  font-size: 0.78rem;
+  color: var(--sk-hist-label);
+  margin-top: 0.25rem;
+}
+
+/* ---- Recessed section wells (heatmap + session log) ---- */
+
+.sk-history .hist-heatmap-section,
+.sk-history-sessions {
+  border: none;
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 20px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-history-sessions {
+  margin-bottom: 0;
+}
+
+.sk-history .prog-section-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sk-tile-text);
+}
+
+/* ---- Heatmap legend / clear button ---- */
+
+.sk-history .hist-legend-text {
+  color: var(--sk-hist-label);
+}
+
+.sk-history .hist-clear-btn {
+  border: none;
+  color: var(--sk-nav-active-text);
+  background: var(--sk-nav-active-bg);
+  box-shadow: var(--sk-nav-active-shadow);
+  font-weight: 600;
+}
+
+.sk-history .hist-clear-btn:hover {
+  filter: brightness(1.05);
+}
+
+/* ---- Session list ---- */
+
+.sk-history .hist-list {
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.sk-history .hist-card {
+  grid-template-columns: 46px 1fr auto;
+  gap: 20px;
+  border: none;
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: var(--sk-hist-card-bg);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 0 1.5px var(--hist-border, transparent);
+}
+
+:root[data-theme="light"] .sk-history .hist-card {
+  box-shadow:
+    inset 0 2px 6px rgba(90, 60, 20, 0.18),
+    0 0 0 1.5px var(--hist-border, transparent);
+}
+
+.sk-history .hist-card:disabled {
+  opacity: 1;
+}
+
+.sk-history .hist-card--clickable:hover {
+  background: var(--sk-hist-card-bg);
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-history .hist-card__date {
+  width: 46px;
+}
+
+.sk-history .hist-card__day {
+  font-size: 1.25rem;
+  color: var(--sk-text);
+}
+
+.sk-history .hist-card__month {
+  font-size: 0.65rem;
+  color: var(--sk-hist-label);
+}
+
+/* Mode badges → gold gloss; state badges → inset pill */
+.sk-history .hist-badge {
+  border: none;
+  padding: 5px 12px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--sk-muted);
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+}
+
+.sk-history .hist-badge--mixed,
+.sk-history .hist-badge--timed,
+.sk-history .hist-badge--topic {
+  color: var(--sk-nav-active-text);
+  background: var(--sk-nav-active-bg);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Score bar → taller recessed track with gradient segments */
+.sk-history .hist-score-bar {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--sk-hist-track);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .sk-history .hist-score-bar {
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.28);
+}
+
+.sk-history .hist-score-bar__correct {
+  background: linear-gradient(90deg, #2a8a44, #5fc97a);
+}
+
+.sk-history .hist-score-bar__incorrect {
+  background: linear-gradient(90deg, #a12c14, #e0603c);
+}
+
+.sk-history .hist-card__meta,
+.sk-history .hist-card__score-label,
+.sk-history .hist-card__duration {
+  color: var(--sk-hist-label);
+}
+
+.sk-history .hist-meta-sep {
+  color: var(--sk-hist-label);
+}
+
+.sk-history .hist-pct {
+  font-size: 1.1875rem;
+}
+
+/* Design omits the row arrow (accuracy % + duration stand alone). */
+.sk-history .hist-card__arrow {
+  display: none;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .sk-history .hist-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

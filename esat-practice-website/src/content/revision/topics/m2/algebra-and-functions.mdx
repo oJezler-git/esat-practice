@@ -240,6 +240,14 @@ If dividing $f(x)$ by $(x-b)$ leaves remainder $f(b)=0$, then $(x-b)$ is a facto
 If a cubic's constant term has, say, four possible integer factors to test but the factor theorem only finds two roots before the possibilities run out, the missing root is very likely repeated — confirm with long division rather than assuming an error.
 </Trap>
 
+<Shortcut title="When the leading coefficient isn't 1, test fractions too">
+For $f(x)=ax^n+\cdots+c$ with $a\ne1$, don't restrict your factor-theorem search to whole-number factors of $c$ — any rational root must be of the form $\pm\dfrac{\text{factor of }c}{\text{factor of }a}$. For $2x^3-3x^2-11x+6$, the candidates are $\pm1,\pm2,\pm3,\pm6,\pm\tfrac12,\pm\tfrac32$; testing $x=3$ gives $54-27-33+6=0$, confirming $(x-3)$ is a factor.
+</Shortcut>
+
+<Shortcut title="If the answer options are numbers, test them before you factorise anything">
+When a "solve for $x$" question gives concrete numeric options, substituting each candidate directly into the original equation is often faster than finding the factorisation yourself — you're just checking $f(a)=0$ for a value $a$ you're handed for free, rather than searching for it. Start from the middle option; if it overshoots or undershoots, the direction of the error tells you which way to move next.
+</Shortcut>
+
 ## MM1.7 Functions: mappings, and the shapes of √x and |x|
 
 A function needs three things: a rule mapping inputs to outputs, a domain (the allowed inputs), and — crucially — **exactly one output for every input in the domain**.

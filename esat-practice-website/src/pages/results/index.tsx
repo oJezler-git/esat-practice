@@ -144,98 +144,87 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="page-shell max-w-3xl">
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="mb-6 flex items-center gap-1.5 text-sm text-muted hover:text-secondary transition-colors"
-      >
-        ← Back
-      </button>
+    <div className="sk-results">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" />
+        <span className="sk-screw sk-screw--tr" />
+        <span className="sk-screw sk-screw--bl" />
+        <span className="sk-screw sk-screw--br" />
 
-      {autoExcludedCount !== null && (
-        <div className="auto-exclude-notice">
-          <span>
-            {autoExcludedCount} question{autoExcludedCount !== 1 ? "s" : ""} marked as done and removed from future sessions.
-          </span>
-          <Link to="/settings">Change</Link>
-        </div>
-      )}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="sk-results-back"
+        >
+          ← Back
+        </button>
 
-      <EsatScorePanel items={items} />
+        {autoExcludedCount !== null && (
+          <div className="auto-exclude-notice">
+            <span>
+              {autoExcludedCount} question{autoExcludedCount !== 1 ? "s" : ""} marked as done and removed from future sessions.
+            </span>
+            <Link to="/settings">Change</Link>
+          </div>
+        )}
 
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-sm font-medium text-muted">Review</h2>
-        <div className="flex gap-2">
-          {(["all", "incorrect"] as const).map((value) => (
-            <button
-              type="button"
-              key={value}
-              onClick={() => setReviewMode(value)}
-              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                reviewMode === value
-                  ? "border-accent bg-accent-soft text-accent-strong"
-                  : "border-subtle text-muted"
-              }`}
-            >
-              {value === "all" ? "All" : "Incorrect only"}
-            </button>
-          ))}
-        </div>
-      </div>
+        <EsatScorePanel items={items} />
 
-      <div className="space-y-3 mb-10">
-        {displayItems.map(({ question, attempt }, index) => {
-          const isCorrect = attempt.result === "correct";
-          const isSkipped = attempt.result === "skipped";
-          return (
-            <div
-              key={question.id}
-              className={`border rounded-lg overflow-hidden ${
-                isCorrect
-                  ? "border-success"
-                  : isSkipped
-                    ? "border-subtle"
-                    : "border-danger"
-              }`}
-            >
+        <div className="sk-results-review-head">
+          <h2 className="sk-results-review-title">Review</h2>
+          <div className="sk-results-toggle">
+            {(["all", "incorrect"] as const).map((value) => (
               <button
                 type="button"
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-soft transition-colors"
-                onClick={() =>
-                  setExpandedId(expandedId === question.id ? null : question.id)
-                }
+                key={value}
+                onClick={() => setReviewMode(value)}
+                aria-pressed={reviewMode === value}
+                className={`sk-results-seg ${
+                  reviewMode === value ? "sk-results-seg--active" : ""
+                }`}
               >
-                <span
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
-                    isCorrect
-                      ? "bg-success-soft text-success-text"
-                      : isSkipped
-                        ? "bg-surface-1 text-muted"
-                        : "bg-danger-soft text-danger-text"
-                  }`}
-                >
-                  {isCorrect ? "OK" : isSkipped ? "-" : "X"}
-                </span>
-                <span className="text-sm text-secondary flex-1 line-clamp-2">
-                  Q{index + 1}. {question.content.text.slice(0, 120)}
-                  {question.content.text.length > 120 ? "..." : ""}
-                </span>
-                <span className="text-xs text-muted flex-shrink-0">
-                  {attempt.result}
-                </span>
+                {value === "all" ? "All" : "Incorrect only"}
               </button>
+            ))}
+          </div>
+        </div>
 
-              {expandedId === question.id && (
-                <div className="px-4 pb-4 border-t border-subtle">
-                  <div className="pt-4">
+        <div className="sk-results-list">
+          {displayItems.map(({ question, attempt }, index) => {
+            const isCorrect = attempt.result === "correct";
+            const isSkipped = attempt.result === "skipped";
+            const statusMod = isCorrect
+              ? "sk-results-dot--correct"
+              : isSkipped
+                ? "sk-results-dot--skipped"
+                : "sk-results-dot--incorrect";
+            return (
+              <div key={question.id} className="sk-results-item">
+                <button
+                  type="button"
+                  className="sk-results-row"
+                  aria-expanded={expandedId === question.id}
+                  onClick={() =>
+                    setExpandedId(expandedId === question.id ? null : question.id)
+                  }
+                >
+                  <span className={`sk-results-dot ${statusMod}`} />
+                  <span className="sk-results-row-text">
+                    Q{index + 1}. {question.content.text.slice(0, 120)}
+                    {question.content.text.length > 120 ? "…" : ""}
+                  </span>
+                  <span className="sk-results-row-status">{attempt.result}</span>
+                </button>
+
+                {expandedId === question.id && (
+                  <div className="sk-results-detail">
                     <QuestionCard question={question} />
                     {attempt.result !== "skipped" && (
                       <div
-                        className={`mt-4 px-4 py-3 rounded-lg border text-sm flex items-center justify-between ${
+                        className={`sk-results-verdict ${
                           attempt.result === "correct"
-                            ? "border-success bg-success-soft text-success-text"
-                            : "border-danger bg-danger-soft text-danger-text"
+                            ? "sk-results-verdict--correct"
+                            : "sk-results-verdict--incorrect"
                         }`}
                       >
                         <span>
@@ -243,47 +232,41 @@ export default function ResultsPage() {
                             ? "Self-marked correct"
                             : "Self-marked incorrect"}
                         </span>
-                        <span className="text-muted">
-                          Answer: <strong className="text-secondary">{question.answer.correct}</strong>
+                        <span className="sk-results-verdict-answer">
+                          Answer: <strong>{question.answer.correct}</strong>
                         </span>
                       </div>
                     )}
                     {attempt.result === "skipped" && (
-                      <div className="mt-4 px-4 py-3 rounded-lg border border-subtle bg-soft text-sm text-muted flex items-center justify-between">
+                      <div className="sk-results-verdict sk-results-verdict--skipped">
                         <span>Skipped</span>
-                        <span className="text-muted">
-                          Answer: <strong className="text-secondary">{question.answer.correct}</strong>
+                        <span className="sk-results-verdict-answer">
+                          Answer: <strong>{question.answer.correct}</strong>
                         </span>
                       </div>
                     )}
-                    <div className="mt-3 flex gap-2 text-xs text-muted">
+                    <div className="sk-results-detail-meta">
                       <span>{question.taxonomy.primary_topic}</span>
-                      <span>-</span>
+                      <span>·</span>
                       <span>{Math.round(attempt.time_ms / 1000)}s</span>
-                      <span>-</span>
+                      <span>·</span>
                       <span>{question.source.paper}</span>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-      <div className="flex gap-3">
-        <Link
-          to="/practice"
-          className="flex-1 py-3 bg-accent text-white rounded-lg font-medium text-center hover:bg-accent-strong transition-colors shadow"
-        >
-          New session
-        </Link>
-        <Link
-          to="/progress"
-          className="flex-1 py-3 border border-subtle rounded-lg font-medium text-center hover:border-strong transition-colors text-secondary"
-        >
-          View progress
-        </Link>
+        <div className="sk-results-actions">
+          <Link to="/practice" className="sk-cta">
+            <span>New session</span>
+          </Link>
+          <Link to="/progress" className="sk-tile">
+            View progress
+          </Link>
+        </div>
       </div>
     </div>
   );

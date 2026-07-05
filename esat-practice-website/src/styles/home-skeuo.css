@@ -1,0 +1,407 @@
+/*
+ * Skeuomorphic home page — layout & components for the framed panel.
+ *
+ * Colour/treatment tokens (--sk-*) live in ./skeuo-tokens.css at :root so they
+ * can be shared across pages; this file only consumes them and defines the
+ * home-specific structure (frame, screws, greeting, CTA, wells, dial).
+ */
+
+/* ---- Layout shell ---- */
+
+.sk-home {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-frame {
+  position: relative;
+  box-sizing: border-box;
+  padding: 34px;
+  border-radius: 30px;
+  background: var(--sk-frame-bg);
+  border: 3px solid var(--sk-frame-border);
+  box-shadow: var(--sk-frame-shadow);
+  color: var(--sk-text);
+}
+
+/* Light-mode stitched inner border (transparent in dark) */
+.sk-frame::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 22px;
+  border: 2px dashed var(--sk-stitch-color);
+  pointer-events: none;
+}
+
+/* ---- Corner screws ---- */
+
+.sk-screw {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sk-screw-bg);
+  box-shadow: var(--sk-screw-shadow);
+  z-index: 2;
+}
+
+.sk-screw::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  background: var(--sk-screw-slot);
+  transform: translate(-50%, -50%) rotate(38deg);
+}
+
+.sk-screw--tl { top: 14px; left: 14px; }
+.sk-screw--tr { top: 14px; right: 14px; }
+.sk-screw--bl { bottom: 14px; left: 14px; }
+.sk-screw--br { bottom: 14px; right: 14px; }
+.sk-screw--tr::after,
+.sk-screw--bl::after { transform: translate(-50%, -50%) rotate(-38deg); }
+
+/* ---- Header (greeting + questions-ready) ---- */
+
+.sk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-bottom: 22px;
+}
+
+.sk-greeting {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 2.375rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+  margin: 0 0 8px;
+}
+
+.sk-quote {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-style: italic;
+  color: var(--sk-muted);
+  max-width: 60ch;
+}
+
+.sk-badge {
+  flex: none;
+  margin-top: 4px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sk-accent);
+  white-space: nowrap;
+}
+
+/* ---- Engraved divider ---- */
+
+.sk-divider {
+  margin-bottom: 28px;
+}
+
+.sk-divider::before,
+.sk-divider::after {
+  content: "";
+  display: block;
+  height: 1px;
+}
+
+.sk-divider::before {
+  background: linear-gradient(90deg, transparent, var(--sk-hairline-light), transparent);
+}
+
+.sk-divider::after {
+  background: linear-gradient(90deg, transparent, var(--sk-hairline-dark), transparent);
+}
+
+/* ---- Primary CTA ---- */
+
+.sk-cta {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 18px;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  overflow: hidden;
+  transition: transform 140ms var(--motion-snappy), box-shadow 180ms ease, filter 180ms ease;
+}
+
+/* Glass gloss on the top half */
+.sk-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+}
+
+.sk-cta > span {
+  position: relative;
+}
+
+.sk-cta:not(:disabled):hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.sk-cta:not(:disabled):active {
+  transform: translateY(1px) scale(0.995);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.sk-cta:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.55) brightness(0.82);
+}
+
+/* ---- Secondary tiles ---- */
+
+.sk-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.sk-tile {
+  display: block;
+  padding: 18px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  border: 1px solid var(--sk-tile-border);
+  box-shadow: var(--sk-tile-shadow);
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-tile:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.sk-tile:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* ---- Recessed wells ---- */
+
+.sk-well {
+  border-radius: 18px;
+  padding: 20px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+  margin-bottom: 22px;
+}
+
+.sk-well:last-of-type {
+  margin-bottom: 0;
+}
+
+.sk-well-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sk-muted);
+  margin: 0 0 14px;
+}
+
+/* ---- Weak-topic pills ---- */
+
+.sk-topic {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 16px 20px;
+  border-radius: 12px;
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-topic + .sk-topic {
+  margin-top: 10px;
+}
+
+.sk-topic:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.sk-topic:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.sk-topic--crit {
+  background: var(--sk-topic-crit-bg);
+  box-shadow: var(--sk-topic-crit-shadow);
+}
+
+.sk-topic--warn {
+  background: var(--sk-topic-warn-bg);
+  box-shadow: var(--sk-topic-warn-shadow);
+}
+
+.sk-topic-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.sk-topic-meta {
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sk-topic--crit .sk-topic-name { color: var(--sk-topic-crit-text); }
+.sk-topic--crit .sk-topic-meta { color: var(--sk-topic-crit-sub); }
+.sk-topic--warn .sk-topic-name { color: var(--sk-topic-warn-text); }
+.sk-topic--warn .sk-topic-meta { color: var(--sk-topic-warn-sub); }
+
+/* ---- Recent rows ---- */
+
+.sk-recent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  border-radius: 12px;
+}
+
+.sk-recent + .sk-recent {
+  margin-top: 10px;
+}
+
+.sk-recent--idle {
+  background: var(--sk-recent-idle-bg);
+  box-shadow: var(--sk-recent-idle-shadow);
+  cursor: default;
+}
+
+.sk-recent--idle .sk-recent-label,
+.sk-recent--idle .sk-recent-date {
+  color: var(--sk-recent-idle-text);
+}
+
+.sk-recent--active {
+  background: var(--sk-recent-active-bg);
+  box-shadow: var(--sk-recent-active-shadow);
+  border-left: 3px solid;
+  border-image: var(--sk-recent-active-border) 1;
+  transition: transform 140ms var(--motion-snappy), filter 180ms ease;
+}
+
+.sk-recent--active:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.sk-recent--active:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.sk-recent-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sk-text);
+  text-transform: capitalize;
+}
+
+.sk-recent-date {
+  font-size: 0.8125rem;
+  color: var(--sk-accent);
+  white-space: nowrap;
+}
+
+/* ---- Decorative dial ---- */
+
+.sk-dial {
+  position: absolute;
+  bottom: 24px;
+  right: 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sk-dial-bg);
+  box-shadow: var(--sk-dial-shadow);
+  pointer-events: none;
+}
+
+.sk-dial::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 2px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--sk-dial-indicator);
+  transform: translateX(-50%);
+}
+
+/* ---- Offline nudge spacing when present ---- */
+
+.sk-home .offline-nudge {
+  margin-bottom: 22px;
+}
+
+@keyframes sk-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .sk-frame {
+    padding: 24px 18px;
+    border-radius: 22px;
+  }
+
+  .sk-head {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sk-tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .sk-dial {
+    display: none;
+  }
+
+  .sk-screw {
+    width: 14px;
+    height: 14px;
+  }
+}

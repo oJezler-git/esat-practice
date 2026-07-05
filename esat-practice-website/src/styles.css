@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas:       #101412;
+  --color-canvas:       #0e0d0b;
   --color-soft:         #151b18;
   --color-surface-1:    #1a221f;
   --color-surface-2:    #222c28;
@@ -69,7 +69,7 @@
 }
 
 :root[data-theme="light"] {
-  --color-canvas:       #f5f7f5;
+  --color-canvas:       #e7d9b8;
   --color-soft:         #eef1ee;
   --color-surface-1:    #e6ebe6;
   --color-surface-2:    #dce3dc;
@@ -160,26 +160,22 @@ body {
   overflow-x: hidden;
 }
 
+/* Single fixed decorative layer: corner glows painted over a faint dot grain.
+   Merged from two pseudo-elements into one to halve the full-viewport compositor
+   layers / paint passes. The dot grid's old element opacity (0.02) is baked into
+   its colour alpha (0.55 x 0.02 ~= 0.011) so it can share this background stack.
+   First-listed layers paint on top, so glows precede the grain (original order). */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.02;
   z-index: 0;
-  background-image: radial-gradient(rgb(255 255 255 / 0.55) 0.5px, transparent 0.5px);
-  background-size: 4px 4px;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
+  background-image:
     radial-gradient(circle at 14% -10%, rgb(154 178 124 / 0.08) 0, transparent 34%),
-    radial-gradient(circle at 86% 112%, rgb(70 86 78 / 0.16) 0, transparent 40%);
+    radial-gradient(circle at 86% 112%, rgb(70 86 78 / 0.16) 0, transparent 40%),
+    radial-gradient(rgb(255 255 255 / 0.011) 0.5px, transparent 0.5px);
+  background-size: auto, auto, 4px 4px;
 }
 
 a {
@@ -389,106 +385,11 @@ p {
   transform: translateY(0);
 }
 
-.nav-shell {
-  border-bottom: 1px solid var(--border-subtle);
-  background: color-mix(in srgb, var(--color-canvas) 96%, transparent);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(10px);
-  animation: nav-drop 380ms var(--motion-smooth) both;
-  transition: 
-    transform 450ms var(--motion-smooth), 
-    opacity 350ms ease, 
-    max-height 450ms var(--motion-smooth),
-    border-width 450ms var(--motion-smooth),
-    padding 450ms var(--motion-smooth);
-  overflow: hidden;
-  max-height: 10rem; /* Large enough to fit content dynamically */
-}
-
-.nav-shell-hidden {
-  transform: translateY(-20%);
-  opacity: 0;
-  max-height: 0;
-  border-bottom-width: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  pointer-events: none;
-}
-
-.nav-group {
-  position: relative;
-  display: inline-flex;
-  gap: 0.35rem;
-  padding: 0.35rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  background: var(--surface-2);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.22);
-}
-
-.nav-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: transform 220ms var(--motion-snappy), color 170ms ease, background-color 170ms ease;
-  position: relative;
-  z-index: 2;
-}
-
-.nav-link-idle {
-  color: var(--text-muted);
-}
-
-.nav-link-idle:hover {
-  color: var(--text-primary);
-  background: rgb(152 161 144 / 0.2);
-  transform: translateY(-1px);
-}
-
-.nav-link-active {
-  color: #182111;
-  box-shadow: none;
-}
-
-.nav-active-pill {
-  position: absolute;
-  background: var(--accent);
-  border-radius: 999px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.nav-time {
-  position: absolute;
-  left: calc(100% + 1.5rem);
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.05rem;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.nav-time-day,
-.nav-time-clock {
-  display: block;
-}
-
-.nav-time-clock {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
+/* Nav styles live in ./styles/nav.css (imported below) — the block that used to
+   be duplicated here has been removed. It was a stale copy: its absolute-
+   positioned `.nav-time` leaked `position:absolute` past nav.css's updated rule
+   (which no longer sets position), pushing the countdown chip off-screen where
+   `.nav-shell { overflow:hidden }` clipped it. */
 
 .panel {
   border: 1px solid var(--border-subtle);
@@ -706,7 +607,6 @@ p {
 @import "./styles/zoom.css";
 @import "./styles/drawing.css";
 @import "./styles/question-bank.css";
-@import "./styles/quickstart.css";
 @import "./styles/session.css";
 @import "./styles/page-footer.css";
 @import "./styles/settings.css";
@@ -717,6 +617,20 @@ p {
 @import "./styles/history.css";
 @import "./styles/score-reference.css";
 @import "./styles/revision-docs.css";
+
+/* Skeuomorphic redesign — shared tokens first, then per-surface consumers.
+   nav-skeuo.css must follow nav.css (above) so its overrides win. */
+@import "./styles/skeuo-tokens.css";
+@import "./styles/home-skeuo.css";
+@import "./styles/nav-skeuo.css";
+@import "./styles/practice-setup-skeuo.css";
+@import "./styles/results-skeuo.css";
+@import "./styles/progress-skeuo.css";
+@import "./styles/history-skeuo.css";
+@import "./styles/revision-skeuo.css";
+@import "./styles/score-reference-skeuo.css";
+@import "./styles/settings-skeuo.css";
+@import "./styles/misc-skeuo.css";
 
 .route-loading {
   min-height: 60vh;

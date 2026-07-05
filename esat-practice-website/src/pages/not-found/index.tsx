@@ -2,8 +2,12 @@ import { Link } from "react-router-dom";
 
 export default function NotFound() {
   return (
-    <section className="max-w-3xl mx-auto px-4 py-20">
-      <div className="panel">
+    <section className="max-w-3xl mx-auto px-4 py-20 sk-misc">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" />
+        <span className="sk-screw sk-screw--tr" />
+        <span className="sk-screw sk-screw--bl" />
+        <span className="sk-screw sk-screw--br" />
         <p className="text-sm text-muted mb-2">404</p>
         <h1 className="text-3xl font-medium mb-3">This page does not exist</h1>
         <p className="text-secondary max-w-sm">

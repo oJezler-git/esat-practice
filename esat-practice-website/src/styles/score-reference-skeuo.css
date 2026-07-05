@@ -1,0 +1,311 @@
+/*
+ * Skeuomorphic score-reference doc page (design turn 11a — dark brushed metal).
+ *
+ * Same pattern as the other *-skeuo.css layers: remap the generic
+ * --text-* / --surface-* / --border-* / --color-accent-* tokens to their --sk-*
+ * equivalents within .sk-scoreref, then restyle the existing ref-* doc markup
+ * into the framed panel — recessed-well tables & callouts, a dark "terminal"
+ * code block, gold numbered step coins, and a gold-pill active TOC entry. The
+ * flat rules in score-reference.css stay intact for any surface not wrapped in
+ * .sk-scoreref.
+ *
+ * Only a dark option (11a) was designed; light values derive from the shared
+ * home light palette through the --sk-* tokens. The semantic status colours
+ * (band chips, source badges) keep their hues in both themes, matching how the
+ * status accents work elsewhere in the app.
+ */
+
+/* ---- Scoped generic-token remap ---- */
+
+.sk-scoreref {
+  --text-primary: var(--sk-text);
+  --text-secondary: var(--sk-tile-text);
+  --text-muted: var(--sk-muted);
+  --border-subtle: var(--sk-hairline-light);
+  --border-strong: var(--sk-hairline-dark);
+  --surface-1: var(--sk-well-bg);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --color-accent-strong: var(--sk-accent);
+  --color-accent-soft: rgba(233, 189, 99, 0.12);
+
+  /* Dark "terminal" code block — stays dark in both themes. */
+  --sk-ref-code-bg: rgba(0, 0, 0, 0.4);
+  --sk-ref-code-text: #9fd8b0;
+}
+
+:root[data-theme="light"] .sk-scoreref {
+  --surface-2: rgba(90, 60, 20, 0.1);
+  --color-accent-soft: rgba(184, 92, 40, 0.12);
+  --sk-ref-code-bg: #241d15;
+}
+
+/* ---- Framed two-column shell ---- */
+
+.sk-scoreref.ref-page-shell {
+  display: block;
+  max-width: 74rem;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-scoreref .sk-frame {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.25rem;
+  color: var(--sk-text);
+}
+
+/* ---- Title / breadcrumb ---- */
+
+.sk-scoreref .ref-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.4vw, 2.35rem);
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+  letter-spacing: -0.01em;
+}
+
+/* Copy-as-markdown → raised tile */
+.sk-scoreref .ref-copy-btn {
+  border: none;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+}
+
+.sk-scoreref .ref-copy-btn:hover {
+  color: var(--sk-text);
+  background: var(--sk-tile-bg);
+  filter: brightness(1.08);
+}
+
+/* ---- TL;DR → recessed well ---- */
+
+.sk-scoreref .ref-tldr {
+  border: none;
+  border-radius: 14px;
+  padding: 22px 26px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+  gap: 10px;
+}
+
+.sk-scoreref .ref-tldr-head {
+  color: var(--sk-text);
+  letter-spacing: 0.02em;
+}
+
+.sk-scoreref .ref-tldr li {
+  color: var(--sk-tile-text);
+  font-size: 0.9rem;
+}
+
+/* ---- Headings ---- */
+
+.sk-scoreref .ref-h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--sk-text);
+}
+
+.sk-scoreref .ref-h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--sk-text);
+}
+
+.sk-scoreref .ref-section {
+  border-top: 1px solid var(--sk-hairline-light);
+}
+
+/* ---- Callouts ---- */
+
+.sk-scoreref .ref-callout--warning {
+  border: none;
+  border-radius: 14px;
+  color: var(--sk-tile-text);
+  background: rgba(233, 189, 99, 0.06);
+  box-shadow: 0 0 0 1.5px rgba(233, 189, 99, 0.35), inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- Formula / code block → dark terminal ---- */
+
+.sk-scoreref .ref-formula {
+  border: none;
+  border-radius: 12px;
+  padding: 18px 22px;
+  background: var(--sk-ref-code-bg);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  font-family: "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.sk-scoreref .ref-formula-line {
+  color: var(--sk-ref-code-text);
+  padding: 0;
+}
+
+.sk-scoreref .ref-formula-comment-line,
+.sk-scoreref .ref-formula-comment {
+  color: color-mix(in srgb, var(--sk-ref-code-text) 55%, transparent);
+}
+
+/* ---- Tables → recessed wells ---- */
+
+.sk-scoreref .ref-table-wrap {
+  border: none;
+  border-radius: 14px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-scoreref .ref-table th {
+  background: transparent;
+  color: var(--sk-muted);
+  border-bottom: 1px solid var(--sk-hairline-light);
+  letter-spacing: 0.07em;
+}
+
+.sk-scoreref .ref-table td {
+  color: var(--sk-tile-text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="light"] .sk-scoreref .ref-table td {
+  border-bottom: 1px solid rgba(90, 60, 20, 0.08);
+}
+
+.sk-scoreref .ref-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sk-scoreref .ref-td-note {
+  color: var(--sk-muted);
+}
+
+.sk-scoreref .ref-row--highlight td {
+  color: var(--sk-text);
+  background: rgba(233, 189, 99, 0.08);
+}
+
+/* ---- Source badges (semantic colours, both themes) ---- */
+
+.sk-scoreref .ref-badge {
+  border: none;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.sk-scoreref .ref-badge--high {
+  color: #5fc97a;
+  background: rgba(95, 201, 122, 0.1);
+}
+
+.sk-scoreref .ref-badge--moderate {
+  color: #e9bd63;
+  background: rgba(233, 189, 99, 0.08);
+}
+
+.sk-scoreref .ref-badge--low {
+  color: #e08a6c;
+  background: rgba(224, 96, 60, 0.1);
+}
+
+/* ---- Band chips ---- */
+
+.sk-scoreref .ref-band-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  box-shadow: inset 0 0 0 1px currentColor, inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sk-scoreref .ref-band-chip--red      { color: #e08a6c; background: rgba(224, 96, 60, 0.1); }
+.sk-scoreref .ref-band-chip--amber    { color: #e9bd63; background: rgba(233, 189, 99, 0.1); }
+.sk-scoreref .ref-band-chip--amber-hi { color: #c9d98a; background: rgba(180, 210, 120, 0.1); }
+.sk-scoreref .ref-band-chip--green    { color: #a9e0b5; background: rgba(95, 201, 122, 0.1); }
+.sk-scoreref .ref-band-chip--teal     { color: #8fd0c8; background: rgba(95, 180, 170, 0.1); }
+.sk-scoreref .ref-band-chip--strong   { color: #9dbfe8; background: rgba(110, 150, 210, 0.1); }
+
+/* ---- Step coins ---- */
+
+.sk-scoreref .ref-steps li {
+  border-bottom: 1px solid var(--sk-hairline-light);
+}
+
+.sk-scoreref .ref-steps li::before {
+  border: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--sk-accent);
+  background: linear-gradient(160deg, #463823, #171209);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.sk-scoreref .ref-step-head { color: var(--sk-text); }
+.sk-scoreref .ref-step-body { color: var(--sk-tile-text); }
+
+.sk-scoreref .ref-step-body code {
+  border: none;
+  color: var(--sk-accent);
+  background: rgba(233, 189, 99, 0.1);
+}
+
+/* ---- Limitations ---- */
+
+.sk-scoreref .ref-limitation {
+  border-left: 2.5px solid var(--sk-muted);
+}
+
+.sk-scoreref .ref-limitation-head { color: var(--sk-text); }
+
+/* ---- Sources / links ---- */
+
+.sk-scoreref .ref-link {
+  color: var(--sk-accent);
+  text-decoration-color: color-mix(in srgb, var(--sk-accent) 40%, transparent);
+}
+
+.sk-scoreref .ref-link:hover {
+  color: var(--sk-text);
+  text-decoration-color: var(--sk-text);
+}
+
+/* ---- TOC → gold-pill active ---- */
+
+.sk-scoreref .ref-toc {
+  width: 13rem;
+}
+
+.sk-scoreref .ref-toc-heading { color: var(--sk-muted); }
+
+.sk-scoreref .ref-toc-link {
+  color: var(--sk-muted);
+  border-left: none;
+  border-radius: 9px;
+  padding: 0.6rem 0.9rem;
+}
+
+.sk-scoreref .ref-toc-link:hover {
+  color: var(--sk-tile-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sk-scoreref .ref-toc-link--active {
+  color: var(--sk-accent);
+  background: rgba(233, 189, 99, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.35);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 900px) {
+  .sk-scoreref .sk-frame {
+    display: block;
+  }
+}

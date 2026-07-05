@@ -63,104 +63,110 @@ export default function Home() {
   }
 
   return (
-    <div className="page-shell max-w-3xl">
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">{greeting}</h1>
-          <p className="page-subtitle">{quote}</p>
-        </div>
-        <p className="text-muted text-sm">
-          {isQuestionBankLoading
-            ? "Preparing question bank..."
-            : `${questions.length} questions ready`}
-        </p>
-      </div>
+    <div className="sk-home">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" aria-hidden="true" />
+        <span className="sk-screw sk-screw--tr" aria-hidden="true" />
+        <span className="sk-screw sk-screw--bl" aria-hidden="true" />
+        <span className="sk-screw sk-screw--br" aria-hidden="true" />
 
-      <div className="grid grid-cols-2 gap-3 mb-10">
+        <header className="sk-head">
+          <div>
+            <h1 className="sk-greeting">{greeting}</h1>
+            <p className="sk-quote">{quote}</p>
+          </div>
+          <p className="sk-badge">
+            {isQuestionBankLoading
+              ? "Preparing question bank…"
+              : `${questions.length} questions ready`}
+          </p>
+        </header>
+
+        <div className="sk-divider" aria-hidden="true" />
+
         <button
           type="button"
           onClick={() => {
             void quickStart();
           }}
           disabled={!isQuestionBankReady}
-          className="quickstart-beam col-span-2 py-4 rounded-xl font-medium text-lg disabled:cursor-not-allowed"
+          className="sk-cta"
         >
-          {isQuestionBankLoading
-            ? "Loading question bank..."
-            : "Quick start - 20 random questions"}
+          <span>
+            {isQuestionBankLoading
+              ? "Loading question bank…"
+              : "Quick start — 20 random questions"}
+          </span>
         </button>
-        <Link
-          to="/practice"
-          className="py-3 rounded-xl text-center text-sm font-medium text-secondary card"
-        >
-          Custom session
-        </Link>
-        <Link
-          to="/question-bank"
-          className="py-3 rounded-xl text-center text-sm font-medium text-secondary card"
-        >
-          Browse questions
-        </Link>
+
+        <div className="sk-tiles">
+          <Link to="/practice" className="sk-tile">
+            Custom session
+          </Link>
+          <Link to="/question-bank" className="sk-tile">
+            Browse questions
+          </Link>
+        </div>
+
+        <OfflineNudge />
+
+        {weakTopics.length > 0 && (
+          <section className="sk-well">
+            <h2 className="sk-well-title">Needs work</h2>
+            {weakTopics.map((topicStat) => {
+              const severity = topicStat.ewma_accuracy < 0.25 ? "crit" : "warn";
+              return (
+                <button
+                  type="button"
+                  key={topicStat.topic}
+                  onClick={() => {
+                    void drillTopic(topicStat.topic);
+                  }}
+                  className={`sk-topic sk-topic--${severity}`}
+                >
+                  <span className="sk-topic-name">{topicStat.topic}</span>
+                  <span className="sk-topic-meta">
+                    {`${Math.round(topicStat.ewma_accuracy * 100)}% · Drill now →`}
+                  </span>
+                </button>
+              );
+            })}
+          </section>
+        )}
+
+        {recentSessions.length > 0 && (
+          <section className="sk-well">
+            <h2 className="sk-well-title">Recent</h2>
+            {recentSessions.map((session) => {
+              const isCompleted = session.state === "completed";
+              return (
+                <button
+                  type="button"
+                  key={session.id}
+                  onClick={() => {
+                    if (isCompleted) {
+                      navigate(`/results/${session.id}`);
+                    }
+                  }}
+                  disabled={!isCompleted}
+                  className={`sk-recent ${isCompleted ? "sk-recent--active" : "sk-recent--idle"}`}
+                >
+                  <span className="sk-recent-label">{session.mode} session</span>
+                  <span className="sk-recent-date">
+                    {new Date(session.created_at).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}{" "}
+                    →
+                  </span>
+                </button>
+              );
+            })}
+          </section>
+        )}
+
+        <span className="sk-dial" aria-hidden="true" />
       </div>
-
-      <OfflineNudge />
-
-      {weakTopics.length > 0 && (
-        <section className="mb-8 card p-4">
-          <h2 className="text-sm font-medium text-muted mb-3">
-            Needs work
-          </h2>
-          <div className="space-y-2">
-            {weakTopics.map((topicStat) => (
-              <button
-                type="button"
-                key={topicStat.topic}
-                onClick={() => {
-                  void drillTopic(topicStat.topic);
-                }}
-                className="w-full flex items-center justify-between px-4 py-3 border border-warning bg-amber-soft rounded-lg hover:border-strong transition-colors"
-              >
-                <span className="text-sm text-amber">{topicStat.topic}</span>
-                <span className="text-xs text-amber">
-                  {`${Math.round(topicStat.ewma_accuracy * 100)}% - Drill now ->`}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {recentSessions.length > 0 && (
-        <section className="card p-4">
-          <h2 className="text-sm font-medium text-muted mb-3">
-            Recent
-          </h2>
-          <div className="space-y-2">
-            {recentSessions.map((session) => (
-              <button
-                type="button"
-                key={session.id}
-                onClick={() => {
-                  if (session.state === "completed") {
-                    navigate(`/results/${session.id}`);
-                  }
-                }}
-                disabled={session.state !== "completed"}
-                className="w-full flex items-center justify-between px-4 py-3 border border-subtle rounded-lg hover:border-strong transition-colors disabled:opacity-40"
-              >
-                <span className="text-sm text-secondary capitalize">{session.mode} session</span>
-                <span className="text-xs text-muted">
-                  {new Date(session.created_at).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                  })}{" "}
-                  {"->"}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
 
       <DisclaimerFooter />
     </div>

@@ -58,7 +58,7 @@ export function KeyboardShortcutOverlay() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="bg-surface-2 border border-subtle rounded-xl shadow-xl w-full max-w-sm p-6"
+        className="sk-kbd-overlay bg-surface-2 border border-subtle rounded-xl shadow-xl w-full max-w-sm p-6"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">

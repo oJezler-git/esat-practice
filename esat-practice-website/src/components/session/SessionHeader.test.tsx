@@ -65,13 +65,14 @@ describe("SessionHeader — flag button", () => {
   it("shows flagged styling when isFlagged is true", () => {
     render(<SessionHeader {...defaultProps} isFlagged={true} />);
     const btn = screen.getByTitle("Flag question (F)");
-    expect(btn.className).toContain("text-amber");
+    expect(btn.className).toContain("sk-session-icon-btn--active");
   });
 
   it("shows unflagged styling when isFlagged is false", () => {
     render(<SessionHeader {...defaultProps} isFlagged={false} />);
     const btn = screen.getByTitle("Flag question (F)");
-    expect(btn.className).toContain("text-muted");
+    expect(btn.className).toContain("sk-session-icon-btn");
+    expect(btn.className).not.toContain("sk-session-icon-btn--active");
   });
 });
 
