@@ -1,0 +1,212 @@
+/*
+ * Skeuomorphic odds & ends — the last flat app-chrome surfaces.
+ *
+ * These have no dedicated design turn; they inherit the established skeuo idiom
+ * (recessed wells, raised gold/tile controls, framed panels) so the whole app
+ * reads as one system. The global app-chrome pieces (loading overlay, offline
+ * nudge, update prompt, disclaimer footer) are restyled unscoped since the
+ * entire app is skeuo now; the not-found page and keyboard-shortcut overlay get
+ * a scope hook (.sk-misc / .sk-kbd-overlay) added in their components.
+ *
+ * All values read the global :root --sk-* tokens, so light/dark flip for free.
+ */
+
+/* ---- Boot / data-prepare loading overlay ---- */
+
+.overlay-card {
+  border: 3px solid var(--sk-frame-border);
+  border-radius: 24px;
+  background: var(--sk-frame-bg);
+  box-shadow: var(--sk-frame-shadow);
+  color: var(--sk-text);
+}
+
+.overlay-card-title {
+  color: var(--sk-text);
+  font-family: var(--font-display);
+}
+
+.overlay-divider {
+  border-top: 1px solid var(--sk-hairline-light);
+}
+
+.progress-label,
+.loading-status,
+.pack-info-count {
+  color: var(--sk-muted);
+}
+
+.progress-pct {
+  color: var(--sk-accent);
+}
+
+.pack-info-name {
+  color: var(--sk-tile-text);
+}
+
+.progress-track {
+  border: none;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.65);
+}
+
+:root[data-theme="light"] .progress-track {
+  background: rgba(90, 60, 20, 0.2);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.3);
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #a9781f, #e9bd63);
+}
+
+.pack-info {
+  border: none;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+/* ---- Offline download nudge ---- */
+
+.offline-nudge {
+  border: none;
+  background: rgba(233, 189, 99, 0.06);
+  box-shadow: 0 0 0 1.5px rgba(233, 189, 99, 0.3), inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.offline-nudge__title {
+  color: var(--sk-accent);
+}
+
+.offline-nudge__desc {
+  color: var(--sk-muted);
+}
+
+.offline-nudge__cta {
+  border: none;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+}
+
+.offline-nudge__cta:hover {
+  background: var(--sk-tile-bg);
+  filter: brightness(1.08);
+}
+
+.offline-nudge__dismiss {
+  color: var(--sk-muted);
+}
+
+.offline-nudge__dismiss:hover {
+  color: var(--sk-text);
+}
+
+.offline-section--highlight {
+  background: rgba(233, 189, 99, 0.06);
+  box-shadow: 0 0 0 1.5px rgba(233, 189, 99, 0.35) !important;
+}
+
+/* ---- Update / offline-ready prompt (floating) ---- */
+
+.update-prompt {
+  border: 3px solid var(--sk-frame-border);
+  background: var(--sk-frame-bg);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.update-prompt__message {
+  color: var(--sk-text);
+}
+
+.update-prompt__reload {
+  border: none;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  font-weight: 700;
+}
+
+.update-prompt__reload:hover {
+  background: var(--sk-cta-bg);
+  filter: brightness(1.05);
+}
+
+.update-prompt__close {
+  color: var(--sk-muted);
+}
+
+.update-prompt__close:hover {
+  color: var(--sk-text);
+}
+
+/* ---- Disclaimer footer ---- */
+
+.page-footer {
+  border-top: 1px solid var(--sk-hairline-light);
+  color: var(--sk-muted);
+}
+
+.page-footer-link {
+  color: var(--sk-accent);
+}
+
+.page-footer-link:hover {
+  color: var(--sk-text);
+}
+
+.page-footer-close:hover {
+  color: var(--sk-accent);
+}
+
+/* ---- Keyboard-shortcut overlay (scoped: .sk-kbd-overlay on the card) ---- */
+
+.sk-kbd-overlay {
+  --color-primary: var(--sk-text);
+  --color-secondary: var(--sk-tile-text);
+  --color-muted: var(--sk-muted);
+  --color-subtle: var(--sk-hairline-light);
+  border: 3px solid var(--sk-frame-border) !important;
+  border-radius: 22px !important;
+  background: var(--sk-frame-bg) !important;
+  box-shadow: var(--sk-frame-shadow) !important;
+  color: var(--sk-text);
+}
+
+.sk-kbd-overlay h2 {
+  color: var(--sk-text);
+  font-family: var(--font-display);
+}
+
+.sk-kbd-overlay kbd {
+  border: none !important;
+  color: var(--sk-tile-text) !important;
+  background: var(--sk-tile-bg) !important;
+  box-shadow: var(--sk-tile-shadow);
+  font-family: var(--font-mono);
+}
+
+/* ---- Not-found page (scoped: .sk-misc on the section) ---- */
+
+.sk-misc {
+  --text-primary: var(--sk-text);
+  --text-secondary: var(--sk-tile-text);
+  --text-muted: var(--sk-muted);
+}
+
+.sk-misc .sk-frame {
+  color: var(--sk-text);
+}
+
+.sk-misc h1 {
+  font-family: var(--font-display);
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+}
+
+.sk-misc .btn-primary {
+  border: none;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  font-weight: 700;
+}
