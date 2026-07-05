@@ -368,9 +368,20 @@ html:has(.sk-session) {
 
 /* ---- Exclude notice ---- */
 
+/* Grows to fill the space between the self-mark panel and the exclude notice.
+   Holds the Ask Claude button (only shown once the answer is revealed) and
+   centres it vertically in that gap; when empty it simply pushes the notice to
+   the bottom of the panel. */
+.session-ask-slot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .session-exclude-notice {
-  /* Push the notice (and the hints that follow it) to the bottom of the panel. */
-  margin-top: auto;
+  margin-top: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

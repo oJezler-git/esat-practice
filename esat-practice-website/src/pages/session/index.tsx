@@ -190,8 +190,8 @@ export default function SessionPage() {
               />
             </div>
 
-            <div style={{ marginTop: "0.75rem" }}>
-              <AskClaudeButton question={currentQuestion} />
+            <div className="session-ask-slot">
+              {isAnswerRevealed && <AskClaudeButton question={currentQuestion} />}
             </div>
 
             <div className="session-exclude-notice hide-on-mobile">
