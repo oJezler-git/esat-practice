@@ -25,7 +25,13 @@ export default function Settings() {
   const { excludedQuestions, includeQuestion } = useExcludedQuestionStore();
 
   return (
-    <div className="page-shell max-w-3xl">
+    <div className="page-shell max-w-3xl sk-settings">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" />
+        <span className="sk-screw sk-screw--tr" />
+        <span className="sk-screw sk-screw--bl" />
+        <span className="sk-screw sk-screw--br" />
+
       <div className="flex items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-medium">Settings</h1>
@@ -62,6 +68,7 @@ export default function Settings() {
 
       <OfflineSection />
       <DataManagementSection />
+      </div>
     </div>
   );
 }

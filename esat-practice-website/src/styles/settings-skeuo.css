@@ -1,0 +1,305 @@
+/*
+ * Skeuomorphic settings page (design turn 8a — dark brushed metal).
+ *
+ * The settings page is Tailwind-utility driven (bg-soft / text-muted /
+ * border-subtle …). Those utilities compile to var(--color-*) references, so
+ * overriding the @theme --color-* tokens *within* .sk-settings re-themes every
+ * utility at once. On top of that colour flip we restyle the structural pieces
+ * that need real skeuo depth: section cards → recessed wells, toggles → glossy
+ * green switches, selects/number inputs/sliders → recessed controls, shortcut
+ * keys & action buttons → raised tiles, the prompt template → a dark terminal.
+ *
+ * Only a dark option (8a) was designed; light values derive from the shared
+ * home light palette through the --sk-* tokens. Confirmation modals render in a
+ * body portal (outside .sk-settings) and intentionally keep the flat treatment.
+ */
+
+/* ---- Scoped @theme colour remap (flips every Tailwind utility) ---- */
+
+.sk-settings {
+  --color-soft: transparent;
+  --color-surface-1: rgba(255, 255, 255, 0.06);
+  --color-surface-2: rgba(255, 255, 255, 0.06);
+  --color-surface-3: rgba(0, 0, 0, 0.5);
+  --color-subtle: var(--sk-hairline-light);
+  --color-strong: rgba(255, 255, 255, 0.16);
+  --color-primary: var(--sk-text);
+  --color-secondary: var(--sk-text);
+  --color-muted: var(--sk-muted);
+  --color-accent: var(--sk-accent);
+  --color-accent-strong: var(--sk-accent);
+  --color-accent-soft: rgba(233, 189, 99, 0.12);
+  --color-success-soft: rgba(95, 201, 122, 0.08);
+  --color-success: rgba(95, 201, 122, 0.3);
+  --color-success-text: #5fc97a;
+  --color-danger-soft: rgba(200, 90, 50, 0.1);
+  --color-danger: rgba(200, 90, 50, 0.4);
+  --color-danger-text: #e08a6c;
+  --color-warning-soft: rgba(233, 189, 99, 0.1);
+  --color-warning: rgba(233, 189, 99, 0.4);
+  --color-amber: #e9bd63;
+  --color-amber-soft: rgba(233, 189, 99, 0.1);
+}
+
+:root[data-theme="light"] .sk-settings {
+  --color-surface-1: rgba(90, 60, 20, 0.08);
+  --color-surface-2: rgba(90, 60, 20, 0.08);
+  --color-surface-3: rgba(90, 60, 20, 0.18);
+  --color-strong: rgba(90, 60, 20, 0.22);
+}
+
+/* ---- Framed shell ---- */
+
+.sk-settings.page-shell {
+  display: block;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 3rem;
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-settings .sk-frame {
+  color: var(--sk-text);
+}
+
+.sk-settings h1 {
+  font-family: var(--font-display);
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+}
+
+/* ---- Section cards → recessed wells ---- */
+
+.sk-settings section {
+  border: none !important;
+  border-radius: 18px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+/* Section header title (app uses muted; design makes it bright) */
+.sk-settings section > div:first-child h2 {
+  color: var(--sk-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ---- Toggle switches ---- */
+
+.sk-settings .settings-toggle {
+  width: 44px;
+  height: 25px;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+:root[data-theme="light"] .sk-settings .settings-toggle {
+  background: rgba(90, 60, 20, 0.25);
+  box-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.35);
+}
+
+.sk-settings .settings-toggle--on {
+  background: linear-gradient(180deg, #6fc24a, #2a8a44);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.sk-settings .settings-toggle__knob {
+  width: 20px;
+  height: 20px;
+  top: 2.5px;
+  left: 2.5px;
+  background: linear-gradient(160deg, #9a8f78, #5c5442);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.sk-settings .settings-toggle--on .settings-toggle__knob {
+  transform: translateX(19px);
+  background: linear-gradient(160deg, #ffffff, #dcd6c4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+/* ---- Selects → recessed with chevron ---- */
+
+.sk-settings select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  color: var(--sk-text);
+  background-color: rgba(0, 0, 0, 0.4);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a7c62' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  border-radius: 10px;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .sk-settings select {
+  background-color: rgba(90, 60, 20, 0.12);
+  box-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.28);
+}
+
+/* ---- Number input → recessed box ---- */
+
+.sk-settings input[type="number"] {
+  color: var(--sk-text);
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.65);
+}
+
+:root[data-theme="light"] .sk-settings input[type="number"] {
+  background: rgba(90, 60, 20, 0.12);
+  box-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.3);
+}
+
+/* ---- Range sliders → recessed track + cream knob ---- */
+
+.sk-settings input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.65);
+}
+
+:root[data-theme="light"] .sk-settings input[type="range"] {
+  background: rgba(90, 60, 20, 0.2);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.3);
+}
+
+.sk-settings input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  margin-top: -5.5px;
+  background: linear-gradient(160deg, #f6efdb, #cdbf9f);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.sk-settings input[type="range"]::-moz-range-thumb {
+  width: 17px;
+  height: 17px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #f6efdb, #cdbf9f);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.sk-settings input[type="range"]::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #a9781f, #e9bd63);
+}
+
+/* ---- Shortcut keys → raised mono tiles ---- */
+
+.sk-settings .shortcut-key-btn {
+  border: none;
+  min-width: 5rem;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+  font-family: var(--font-mono);
+}
+
+.sk-settings .shortcut-key-btn:hover {
+  color: var(--sk-text);
+  filter: brightness(1.08);
+}
+
+.sk-settings .shortcut-key-btn:focus-visible,
+.sk-settings .shortcut-key-btn--listening {
+  background: var(--sk-tile-bg);
+  color: var(--sk-accent);
+  box-shadow: var(--sk-tile-shadow), 0 0 0 2px rgba(233, 189, 99, 0.4);
+}
+
+/* ---- Action buttons → raised tiles ---- */
+
+.sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost) {
+  --sk-btn-ring: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow), inset 0 0 0 1px var(--sk-btn-ring);
+}
+
+.sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost):hover {
+  filter: brightness(1.08);
+}
+
+.sk-settings section button.border-warning:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost) {
+  --sk-btn-ring: rgba(233, 189, 99, 0.35);
+  color: #e9bd63;
+}
+
+.sk-settings section button.border-danger:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost) {
+  --sk-btn-ring: rgba(200, 90, 50, 0.4);
+  color: #e08a6c;
+}
+
+/* Reset-to-defaults (header) + primary accent buttons keep the tile look. */
+.sk-settings .storage-btn-enable {
+  color: #241a0a;
+  background: var(--sk-cta-bg, linear-gradient(180deg, #e9bd63, #a9781f));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Ask Claude: prompt template terminal + chips ---- */
+
+.sk-settings .prompt-template-textarea {
+  border: none;
+  border-radius: 10px;
+  color: var(--sk-tile-text);
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.7);
+  font-family: var(--font-mono);
+}
+
+:root[data-theme="light"] .sk-settings .prompt-template-textarea {
+  background: #241d15;
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+.sk-settings .prompt-var-chip {
+  border: none;
+  color: var(--sk-accent);
+  background: rgba(233, 189, 99, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.3);
+  font-family: var(--font-mono);
+}
+
+.sk-settings .prompt-var-chip:hover {
+  filter: brightness(1.1);
+}
+
+.sk-settings .prompt-var-inline {
+  color: var(--sk-accent);
+  background: rgba(233, 189, 99, 0.12);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.sk-settings .settings-text-link {
+  color: var(--sk-accent);
+  text-decoration: underline;
+}
+
+/* ---- Auto-exclude notice ---- */
+
+.sk-settings .auto-exclude-notice {
+  border: none;
+  background: rgba(233, 189, 99, 0.06);
+  box-shadow: 0 0 0 1.5px rgba(233, 189, 99, 0.3), inset 0 2px 6px rgba(0, 0, 0, 0.25);
+  color: var(--sk-accent);
+}
