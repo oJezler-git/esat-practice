@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildSession } from "../../engine/sessionBuilder";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
@@ -20,6 +20,7 @@ type SetupAction =
   | { type: "toggle_topic"; topic: string }
   | { type: "toggle_year"; year: number }
   | { type: "set_count"; count: number }
+  | { type: "set_count_exact"; count: number }
   | { type: "set_error"; error: string | null };
 
 function setupReducer(state: SetupState, action: SetupAction): SetupState {
@@ -39,7 +40,9 @@ function setupReducer(state: SetupState, action: SetupAction): SetupState {
       return { ...state, selectedYears: years };
     }
     case "set_count":
-      return { ...state, questionCount: action.count };
+      return { ...state, questionCount: magnetizeCount(action.count) };
+    case "set_count_exact":
+      return { ...state, questionCount: clampExactCount(action.count) };
     case "set_error":
       return { ...state, setupError: action.error };
     default:
@@ -69,6 +72,31 @@ const QUESTION_COUNT_MINOR_MARKS = Array.from(
   (_, i) => i * QUESTION_COUNT_MINOR_STEP,
 ).filter((mark) => mark > 0 && !QUESTION_COUNT_MAJOR_MARKS.includes(mark));
 const SLIDER_THUMB_PX = 22;
+// Give the major marks (27/54/81) a light magnetic pull: a value dragged within
+// this many steps of one snaps to it, while everything outside the band stays free.
+const QUESTION_COUNT_MAGNET_RADIUS = 2;
+
+// The text box accepts any exact whole number the user types, including values
+// above the slider's 81 ceiling, but never below the 1-question floor.
+function clampExactCount(count: number): number {
+  if (!Number.isFinite(count)) {
+    return QUESTION_COUNT_MIN;
+  }
+  return Math.max(QUESTION_COUNT_MIN, Math.floor(count));
+}
+
+function magnetizeCount(count: number): number {
+  let nearest = count;
+  let nearestDistance = QUESTION_COUNT_MAGNET_RADIUS + 1;
+  for (const mark of QUESTION_COUNT_MAJOR_MARKS) {
+    const distance = Math.abs(count - mark);
+    if (distance <= QUESTION_COUNT_MAGNET_RADIUS && distance < nearestDistance) {
+      nearest = mark;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
+}
 
 // Position as calc(radius + fraction * (100% - diameter)) so the visual thumb, fill,
 // and tick marks all share one formula instead of trying to match the browser's
@@ -95,6 +123,9 @@ export default function PracticeSetup() {
   }));
 
   const { mode, selectedTopics, selectedYears, questionCount, setupError } = state;
+  // While the count field is focused we track the raw text so the user can clear
+  // it and type freely; null means "not editing", so show the committed count.
+  const [countDraft, setCountDraft] = useState<string | null>(null);
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
   const availableQuestions = questions.filter((q) => !excludedQuestionIds.has(q.id));
@@ -194,7 +225,30 @@ export default function PracticeSetup() {
 
         <section className="sk-well">
           <p className="sk-q-label">
-            Questions · <b>{questionCount}</b>
+            <label htmlFor="question-count-input">Questions · </label>
+            <input
+              id="question-count-input"
+              type="number"
+              inputMode="numeric"
+              min={QUESTION_COUNT_MIN}
+              step={1}
+              className="sk-q-count-input"
+              value={countDraft ?? String(questionCount)}
+              onChange={(event) => {
+                const raw = event.target.value;
+                setCountDraft(raw);
+                if (raw.trim() !== "") {
+                  dispatch({ type: "set_count_exact", count: Number(raw) });
+                }
+              }}
+              onFocus={(event) => event.currentTarget.select()}
+              onBlur={() => setCountDraft(null)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.currentTarget.blur();
+                }
+              }}
+            />
           </p>
           <div className="sk-slider">
             <input
@@ -203,14 +257,20 @@ export default function PracticeSetup() {
               min={QUESTION_COUNT_MIN}
               max={QUESTION_COUNT_MAX}
               step={1}
-              value={questionCount}
+              value={Math.min(questionCount, QUESTION_COUNT_MAX)}
               onChange={(event) => dispatch({ type: "set_count", count: Number(event.target.value) })}
               className="range-slider-native"
             />
             <div className="sk-slider-track">
-              <div className="sk-slider-fill" style={{ width: markPosition(questionCount) }} />
+              <div
+                className="sk-slider-fill"
+                style={{ width: markPosition(Math.min(questionCount, QUESTION_COUNT_MAX)) }}
+              />
             </div>
-            <div className="sk-slider-knob" style={{ left: markPosition(questionCount) }} />
+            <div
+              className="sk-slider-knob"
+              style={{ left: markPosition(Math.min(questionCount, QUESTION_COUNT_MAX)) }}
+            />
           </div>
           <div className="sk-slider-ticks">
             {QUESTION_COUNT_MINOR_MARKS.map((mark) => (

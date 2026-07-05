@@ -214,6 +214,44 @@
   font-weight: 700;
 }
 
+/* Editable count: styled to read like the old bold accent number, but focusable
+   and typeable. Width tracks its content via a ch-based min so 2- and 3-digit
+   values both sit snugly after the label. */
+.sk-q-count-input {
+  width: 3.5ch;
+  padding: 1px 4px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--sk-accent);
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  cursor: text;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.sk-q-count-input:hover {
+  border-color: var(--sk-slider-tick);
+}
+
+.sk-q-count-input:focus,
+.sk-q-count-input:focus-visible {
+  outline: none;
+  border-color: var(--sk-accent);
+  background: var(--sk-slider-track);
+}
+
+/* Remove the native up/down spinner entirely — the slider covers stepping. */
+.sk-q-count-input::-webkit-inner-spin-button,
+.sk-q-count-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
 .sk-slider {
   position: relative;
   height: 22px;
@@ -230,12 +268,14 @@
   background: var(--sk-slider-track);
   box-shadow: var(--sk-slider-track-shadow);
   overflow: hidden;
+  pointer-events: none;
 }
 
 .sk-slider-fill {
   height: 100%;
   border-radius: 999px;
   background: var(--sk-slider-fill);
+  transition: width 110ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .sk-slider-knob {
@@ -248,6 +288,14 @@
   box-shadow: var(--sk-slider-knob-shadow);
   transform: translate(-50%, -50%);
   pointer-events: none;
+  transition: left 110ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-slider-fill,
+  .sk-slider-knob {
+    transition: none;
+  }
 }
 
 .sk-slider-ticks {
