@@ -196,7 +196,7 @@ export default function SessionPage() {
 
             <div className="session-exclude-notice hide-on-mobile">
               <p>
-                Press this if a question number is marked with an ✖, this means it's not on the specification.
+                Press this if a question number has a ✖ over it, this means it's not on the specification.
               </p>
               <button
                 type="button"
@@ -217,7 +217,6 @@ export default function SessionPage() {
           <section className="session-right-panel">
             {imageSrc ? (
               <>
-                <div className="session-image-label">Source scan</div>
                 <div className="session-image-scroll">
                   <ZoomableImage
                     src={imageSrc}
