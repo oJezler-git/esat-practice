@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas:       #101412;
+  --color-canvas:       #0e0d0b;
   --color-soft:         #151b18;
   --color-surface-1:    #1a221f;
   --color-surface-2:    #222c28;
@@ -69,7 +69,7 @@
 }
 
 :root[data-theme="light"] {
-  --color-canvas:       #f5f7f5;
+  --color-canvas:       #e7d9b8;
   --color-soft:         #eef1ee;
   --color-surface-1:    #e6ebe6;
   --color-surface-2:    #dce3dc;
