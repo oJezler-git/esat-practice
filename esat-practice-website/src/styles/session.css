@@ -133,6 +133,7 @@
 /* ---- Frame ---- */
 
 .sk-session-frame {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -282,6 +283,8 @@
 .session-left-panel {
   border-right: 1px solid var(--sk-sess-divider);
   overflow-y: auto;
+  /* Reserve room for the floating Prev button so the tips never sit under it. */
+  padding-bottom: 78px;
 }
 
 .session-right-panel {
@@ -450,14 +453,26 @@
 
 /* ---- Bottom nav bar ---- */
 
-/* No bar chrome — just the Prev / Next buttons floating below the body. */
+/* No bar chrome — the Prev / Next buttons float over the bottom corners of the
+   body so the source scan fills the full frame height. The container itself is
+   click-through (pointer-events: none); only the buttons capture clicks, so the
+   empty middle never blocks the scan. */
 .sk-session-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 30px;
+  padding: 20px 30px;
   background: none;
   box-shadow: none;
+  pointer-events: none;
+}
+
+.sk-session-bottom > button {
+  pointer-events: auto;
 }
 
 .sk-navbtn {
@@ -766,6 +781,13 @@
   .sk-session-topbar,
   .sk-session-bottom {
     padding: 12px 16px;
+  }
+
+  /* On mobile the body scrolls and panels stack, so keep the nav bar in flow
+     rather than floating it over the scrolled content. */
+  .sk-session-bottom {
+    position: static;
+    pointer-events: auto;
   }
 
   .sk-session-body {
