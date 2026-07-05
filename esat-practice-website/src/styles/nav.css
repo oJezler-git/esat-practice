@@ -4,7 +4,10 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(10px);
+  /* Persistent (sticky, always on-screen) blur re-evaluates every scroll frame —
+     the main continuous GPU cost. Kept modest; disabled for reduced-motion below. */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   animation: nav-drop 380ms var(--motion-smooth) both;
   transition: 
     transform 450ms var(--motion-smooth), 
@@ -14,6 +17,16 @@
     padding 450ms var(--motion-smooth);
   overflow: hidden;
   max-height: 10rem; /* Large enough to fit content dynamically */
+}
+
+/* Reduced-motion users (and, in practice, most low-end devices set this) get a
+   solid bar with no per-frame blur — removes the sticky-nav scroll-jank hotspot. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-shell {
+    background: var(--color-canvas);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .nav-shell-hidden {
