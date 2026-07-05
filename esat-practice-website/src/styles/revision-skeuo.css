@@ -183,7 +183,7 @@
 
 .sk-revision .rev-sidebar-link {
   border-left: none;
-  border-radius: 9px;
+  border-radius: 10px;
   color: var(--sk-muted);
 }
 
@@ -194,8 +194,8 @@
 
 .sk-revision .rev-sidebar-link--active {
   color: var(--sk-text);
-  background: rgba(233, 189, 99, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.35), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(90deg, rgba(233, 189, 99, 0.16), transparent 80%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 10px rgba(233, 189, 99, 0.14);
 }
 
 .sk-revision .rev-sidebar-link--active .rev-sidebar-code {
@@ -301,34 +301,35 @@
   box-shadow: var(--sk-tile-shadow);
 }
 
-/* ---- TOC → gold-pill active ---- */
+/* ---- TOC → warm accent rail (keeps the base tree-connector geometry so
+   subtopic branches still line up; only the colour/finish is re-skinned). ---- */
 
 .sk-revision .rev-toc-heading {
   color: var(--sk-muted);
 }
 
 .sk-revision .rev-toc-link {
-  border-left: none;
-  border-radius: 9px;
+  border-radius: 0 0.5rem 0.5rem 0;
   color: var(--sk-muted);
-  padding: 0.55rem 0.85rem;
 }
 
 .sk-revision .rev-toc-link--h2 {
   color: var(--sk-tile-text);
 }
 
-.sk-revision .rev-toc-link:hover {
-  color: var(--sk-tile-text);
-  background: rgba(255, 255, 255, 0.04);
-  border-left: none;
-}
-
+.sk-revision .rev-toc-link:hover,
 .sk-revision .rev-toc-link--active {
   color: var(--sk-accent);
-  background: rgba(233, 189, 99, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.35);
-  border-left: none;
+  background: linear-gradient(90deg, rgba(233, 189, 99, 0.16), transparent 85%);
+  border-left-color: var(--sk-accent);
+}
+
+.sk-revision .rev-toc-link--h3:hover::before,
+.sk-revision .rev-toc-link--h3:hover::after,
+.sk-revision .rev-toc-link--h3.rev-toc-link--active::before,
+.sk-revision .rev-toc-link--h3.rev-toc-link--active::after {
+  background: var(--sk-accent);
+  box-shadow: 0 0 4px rgba(233, 189, 99, 0.55);
 }
 
 /* =========================================================================
