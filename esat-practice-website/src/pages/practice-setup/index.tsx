@@ -169,6 +169,9 @@ export default function PracticeSetup() {
       dispatch({ type: "set_error", error: "Question bank is still loading. Please wait a few seconds." });
       return;
     }
+    if (activeSession) {
+      return;
+    }
     dispatch({ type: "set_error", error: null });
 
     const config = {
@@ -275,10 +278,16 @@ export default function PracticeSetup() {
         <button
           type="button"
           onClick={handleStart}
-          disabled={!isQuestionBankReady}
+          disabled={!isQuestionBankReady || Boolean(activeSession)}
           className="sk-cta"
         >
-          <span>{isQuestionBankLoading ? "Loading question bank…" : "Start session"}</span>
+          <span>
+            {isQuestionBankLoading
+              ? "Loading question bank…"
+              : activeSession
+                ? "Resume or discard your unfinished session first"
+                : "Start session"}
+          </span>
         </button>
         {setupError && (
           <p className="sk-error" role="alert">

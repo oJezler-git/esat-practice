@@ -249,13 +249,18 @@
   margin-top: 10px;
 }
 
-.sk-topic:hover {
+.sk-topic:not(:disabled):hover {
   transform: translateY(-1px);
   filter: brightness(1.06);
 }
 
-.sk-topic:active {
+.sk-topic:not(:disabled):active {
   transform: translateY(1px) scale(0.995);
+}
+
+.sk-topic:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.55) brightness(0.82);
 }
 
 .sk-topic--crit {

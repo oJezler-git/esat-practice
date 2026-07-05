@@ -18,9 +18,10 @@ export default function Home() {
   const { recentSessions, weakTopics, greeting, quote } = useHomeData();
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
+  const activeSession = recentSessions.find((session) => session.state === "active") ?? null;
 
   async function quickStart() {
-    if (!isQuestionBankReady) {
+    if (!isQuestionBankReady || activeSession) {
       return;
     }
 
@@ -47,6 +48,9 @@ export default function Home() {
   }
 
   async function drillTopic(topic: string) {
+    if (activeSession) {
+      return;
+    }
     const ids = questions.flatMap((question) =>
       question.taxonomy.primary_topic === topic ? [question.id] : [],
     );
@@ -89,13 +93,15 @@ export default function Home() {
           onClick={() => {
             void quickStart();
           }}
-          disabled={!isQuestionBankReady}
+          disabled={!isQuestionBankReady || Boolean(activeSession)}
           className="sk-cta"
         >
           <span>
             {isQuestionBankLoading
               ? "Loading question bank…"
-              : "Quick start — 20 random questions"}
+              : activeSession
+                ? "Resume or discard your unfinished session first"
+                : "Quick start — 20 random questions"}
           </span>
         </button>
 
@@ -122,11 +128,14 @@ export default function Home() {
                   onClick={() => {
                     void drillTopic(topicStat.topic);
                   }}
+                  disabled={Boolean(activeSession)}
                   className={`sk-topic sk-topic--${severity}`}
                 >
                   <span className="sk-topic-name">{topicStat.topic}</span>
                   <span className="sk-topic-meta">
-                    {`${Math.round(topicStat.ewma_accuracy * 100)}% · Drill now →`}
+                    {activeSession
+                      ? `${Math.round(topicStat.ewma_accuracy * 100)}%`
+                      : `${Math.round(topicStat.ewma_accuracy * 100)}% · Drill now →`}
                   </span>
                 </button>
               );
