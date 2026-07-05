@@ -464,31 +464,28 @@ function DuplicateDebugPanel({
   nearMissPairs: DuplicateNearMissDebug[];
 }) {
   return (
-    <details
-      className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgb(0_0_0_/_0.2)] backdrop-blur-sm"
-      open
-    >
-      <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
-        <span className="text-sm font-medium text-slate-300">
+    <details className="sk-bank-datadump mb-6" open>
+      <summary className="sk-bank-datadump-summary">
+        <span className="sk-bank-datadump-title">
           Dedupe debug
         </span>
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+        <div className="sk-bank-datadump-badges">
+          <span className="sk-bank-datadump-badge">
             {excludedPairs.length} excluded
           </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-400">
+          <span className="sk-bank-datadump-badge">
             {nearMissPairs.length} near miss
           </span>
         </div>
       </summary>
 
-      <div className="space-y-4 border-t border-white/10 p-4">
+      <div className="sk-bank-datadump-body space-y-4 pt-4">
         <section>
-          <h3 className="mb-2 text-xs font-medium text-slate-300">
+          <h3 className="sk-bank-dedupe-heading mb-2 text-xs font-medium">
             Excluded (NSAA hidden)
           </h3>
           {excludedPairs.length === 0 ? (
-            <p className="text-xs text-slate-500">
+            <p className="sk-bank-dedupe-empty text-xs">
               No excluded duplicates found.
             </p>
           ) : (
@@ -496,9 +493,9 @@ function DuplicateDebugPanel({
               {excludedPairs.map((pair) => (
                 <div
                   key={pair.nsaaQuestion.id}
-                  className="rounded-xl border border-white/10 bg-black/10 p-3"
+                  className="sk-bank-dedupe-card p-3"
                 >
-                  <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                  <div className="sk-bank-dedupe-meta mb-2 flex flex-wrap items-center gap-2 text-xs">
                     <span className="font-mono">{pair.nsaaQuestion.id}</span>
                     <span>{"->"}</span>
                     <span className="font-mono">{pair.engaaQuestion.id}</span>
@@ -507,12 +504,12 @@ function DuplicateDebugPanel({
                       {formatSimilarity(pair.textLengthRatio)}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-200">
-                    <strong>NSAA:</strong>{" "}
+                  <p className="sk-bank-dedupe-nsaa-text text-xs">
+                    <strong className="sk-bank-dedupe-nsaa-label">NSAA:</strong>{" "}
                     {truncateText(pair.nsaaQuestion.content.text)}
                   </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    <strong>ENGAA:</strong>{" "}
+                  <p className="sk-bank-dedupe-engaa-text mt-1 text-xs">
+                    <strong className="sk-bank-dedupe-engaa-label">ENGAA:</strong>{" "}
                     {truncateText(pair.engaaQuestion.content.text)}
                   </p>
                 </div>
@@ -522,11 +519,11 @@ function DuplicateDebugPanel({
         </section>
 
         <section>
-          <h3 className="mb-2 text-xs font-medium text-slate-300">
+          <h3 className="sk-bank-dedupe-heading mb-2 text-xs font-medium">
             Near misses (not excluded)
           </h3>
           {nearMissPairs.length === 0 ? (
-            <p className="text-xs text-slate-500">
+            <p className="sk-bank-dedupe-empty text-xs">
               No near misses above debug floor.
             </p>
           ) : (
@@ -534,9 +531,9 @@ function DuplicateDebugPanel({
               {nearMissPairs.map((pair) => (
                 <div
                   key={pair.nsaaQuestion.id}
-                  className="rounded-xl border border-white/10 bg-black/10 p-3"
+                  className="sk-bank-dedupe-card p-3"
                 >
-                  <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                  <div className="sk-bank-dedupe-meta mb-2 flex flex-wrap items-center gap-2 text-xs">
                     <span className="font-mono">{pair.nsaaQuestion.id}</span>
                     <span>{"->"}</span>
                     <span className="font-mono">{pair.engaaQuestion.id}</span>
@@ -545,18 +542,18 @@ function DuplicateDebugPanel({
                       {formatSimilarity(pair.textLengthRatio)}
                     </span>
                   </div>
-                  <p className="mb-1 text-xs text-amber-300">
+                  <p className="sk-bank-dedupe-reason mb-1 text-xs">
                     Reason:{" "}
                     {pair.reason === "similarity_below_threshold"
                       ? "similarity below exclusion threshold"
                       : "length ratio below minimum"}
                   </p>
-                  <p className="text-xs text-slate-200">
-                    <strong>NSAA:</strong>{" "}
+                  <p className="sk-bank-dedupe-nsaa-text text-xs">
+                    <strong className="sk-bank-dedupe-nsaa-label">NSAA:</strong>{" "}
                     {truncateText(pair.nsaaQuestion.content.text)}
                   </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    <strong>ENGAA:</strong>{" "}
+                  <p className="sk-bank-dedupe-engaa-text mt-1 text-xs">
+                    <strong className="sk-bank-dedupe-engaa-label">ENGAA:</strong>{" "}
                     {truncateText(pair.engaaQuestion.content.text)}
                   </p>
                 </div>
@@ -571,27 +568,27 @@ function DuplicateDebugPanel({
 
 function DataStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/10 px-2.5 py-2">
-      <div className="text-base font-medium tabular-nums text-slate-100">
+    <div className="sk-bank-stat px-2.5 py-2">
+      <div className="sk-bank-stat-value text-base font-medium tabular-nums">
         {value}
       </div>
-      <div className="text-xs text-slate-400">{label}</div>
+      <div className="sk-bank-stat-label text-xs">{label}</div>
     </div>
   );
 }
 
 function DataList({ title, items }: { title: string; items: CountItem[] }) {
   return (
-    <details className="rounded-xl border border-white/10 bg-black/10">
-      <summary className="px-3 py-2 cursor-pointer flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-slate-300">
+    <details className="sk-bank-list">
+      <summary className="sk-bank-list-summary px-3 py-2 cursor-pointer flex items-center justify-between gap-2">
+        <span className="sk-bank-list-title text-xs font-medium">
           {title}
         </span>
-        <span className="text-xs text-slate-500">{items.length}</span>
+        <span className="sk-bank-list-count text-xs">{items.length}</span>
       </summary>
       <div className="px-3 pb-3">
         {items.length === 0 ? (
-          <p className="text-xs text-slate-500">No data</p>
+          <p className="sk-bank-list-empty text-xs">No data</p>
         ) : (
           <div
             className="space-y-1"
@@ -602,8 +599,8 @@ function DataList({ title, items }: { title: string; items: CountItem[] }) {
                 key={item.label}
                 className="flex items-center justify-between gap-2 text-xs"
               >
-                <span className="text-slate-400">{item.label}</span>
-                <span className="tabular-nums text-slate-100">{item.count}</span>
+                <span className="sk-bank-list-row-label">{item.label}</span>
+                <span className="sk-bank-list-row-count tabular-nums">{item.count}</span>
               </div>
             ))}
           </div>

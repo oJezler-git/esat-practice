@@ -310,6 +310,86 @@
   border-top: 1px solid var(--sk-hairline-dark);
 }
 
+/* ---- Stat tiles + collapsible count lists (Data dump body) ---- */
+
+.sk-bank-stat {
+  border-radius: 10px;
+  background: var(--sk-bank-detail-bg);
+  box-shadow: var(--sk-bank-detail-shadow);
+}
+
+.sk-bank-stat-value {
+  color: var(--sk-tile-text);
+}
+
+.sk-bank-stat-label {
+  color: var(--sk-bank-label);
+}
+
+.sk-bank-list {
+  border-radius: 10px;
+  background: var(--sk-bank-detail-bg);
+  box-shadow: var(--sk-bank-detail-shadow);
+}
+
+.sk-bank-list-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sk-bank-list-title {
+  color: var(--sk-tile-text);
+}
+
+.sk-bank-list-count,
+.sk-bank-list-empty {
+  color: var(--sk-bank-label);
+}
+
+.sk-bank-list-row-label {
+  color: var(--sk-bank-label);
+}
+
+.sk-bank-list-row-count {
+  color: var(--sk-tile-text);
+}
+
+/* ---- Dedupe debug panel ---- */
+
+.sk-bank-dedupe-heading {
+  color: var(--sk-bank-label);
+}
+
+.sk-bank-dedupe-empty {
+  color: var(--sk-bank-label);
+}
+
+.sk-bank-dedupe-card {
+  border-radius: 12px;
+  background: var(--sk-bank-detail-bg);
+  box-shadow: var(--sk-bank-detail-shadow);
+}
+
+.sk-bank-dedupe-meta {
+  color: var(--sk-bank-metapill-text);
+}
+
+.sk-bank-dedupe-nsaa-label,
+.sk-bank-dedupe-engaa-label {
+  color: var(--sk-tile-text);
+}
+
+.sk-bank-dedupe-nsaa-text {
+  color: var(--sk-tile-text);
+}
+
+.sk-bank-dedupe-engaa-text {
+  color: var(--sk-bank-label);
+}
+
+.sk-bank-dedupe-reason {
+  color: var(--sk-accent);
+}
+
 /* ---- Controls well ---- */
 
 .question-bank-controls {

@@ -156,24 +156,20 @@ export function DataManagementSection() {
       {/* Clear All Confirmation Modal */}
       {showClearAllModal &&
         createPortal(
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface-2 rounded-xl shadow-lg max-w-lg w-full">
-              <div className="px-6 py-4 border-b border-subtle">
-                <h3 className="text-lg font-medium text-primary">
-                  Clear everything?
-                </h3>
-                <p className="text-sm text-muted mt-1">
+          <div className="sk-confirm-backdrop">
+            <div className="sk-confirm-panel">
+              <div className="sk-confirm-header">
+                <h3 className="sk-confirm-title">Clear everything?</h3>
+                <p className="sk-confirm-desc">
                   This will delete all your data, including settings. This
                   action cannot be undone.
                 </p>
               </div>
 
-              <div className="px-6 py-4 space-y-4">
-                <p className="text-sm text-secondary">
+              <div className="sk-confirm-body">
+                <p>
                   Type the following to confirm:{" "}
-                  <span className="font-mono font-semibold text-danger-text">
-                    {confirmationPhrase}
-                  </span>
+                  <span className="sk-confirm-phrase">{confirmationPhrase}</span>
                 </p>
                 <input
                   type="text"
@@ -181,15 +177,13 @@ export function DataManagementSection() {
                   value={userInput}
                   onChange={(e) => dispatch({ type: "update_input", value: e.target.value })}
                   placeholder="Type confirmation phrase..."
-                  className="w-full px-3 py-2 border border-strong rounded-lg text-sm focus:outline-none focus:border-danger-text"
+                  className="sk-confirm-input"
                 />
 
                 {message && (
                   <div
-                    className={`px-3 py-2 rounded-lg text-sm ${
-                      message.type === "success"
-                        ? "bg-success-soft text-success-text border border-success"
-                        : "bg-danger-soft text-danger-text border border-danger"
+                    className={`sk-confirm-message ${
+                      message.type === "success" ? "sk-confirm-message--success" : "sk-confirm-message--error"
                     }`}
                   >
                     {message.text}
@@ -197,12 +191,12 @@ export function DataManagementSection() {
                 )}
               </div>
 
-              <div className="px-6 py-3 border-t border-subtle flex gap-2 justify-end">
+              <div className="sk-confirm-footer">
                 <button
                   type="button"
                   onClick={() => dispatch({ type: "close_clear_all" })}
                   disabled={isClearing}
-                  className="px-4 py-2 text-sm border border-subtle rounded-lg text-secondary hover:bg-soft transition-colors disabled:opacity-50"
+                  className="sk-confirm-cancel-btn"
                 >
                   Cancel
                 </button>
@@ -210,7 +204,7 @@ export function DataManagementSection() {
                   type="button"
                   onClick={() => { void handleClearAll(); }}
                   disabled={userInput !== confirmationPhrase || isClearing}
-                  className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
+                  className="sk-confirm-btn sk-confirm-btn--danger"
                 >
                   {isClearing ? "Clearing..." : "Clear All"}
                 </button>
@@ -223,44 +217,40 @@ export function DataManagementSection() {
       {/* Clear Progress Confirmation Modal */}
       {showClearProgressModal &&
         createPortal(
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface-2 rounded-xl shadow-lg max-w-lg w-full">
-              <div className="px-6 py-4 border-b border-subtle">
-                <h3 className="text-lg font-medium text-primary">
-                  Clear progress data?
-                </h3>
-                <p className="text-sm text-muted mt-1">
+          <div className="sk-confirm-backdrop">
+            <div className="sk-confirm-panel">
+              <div className="sk-confirm-header">
+                <h3 className="sk-confirm-title">Clear progress data?</h3>
+                <p className="sk-confirm-desc">
                   Sessions, stats, and question cache will be removed. This
                   action cannot be undone.
                 </p>
               </div>
 
-              <div className="px-6 py-4">
+              <div className="sk-confirm-body">
                 {message && (
                   <div
-                    className={`px-3 py-2 rounded-lg text-sm ${
-                      message.type === "success"
-                        ? "bg-success-soft text-success-text border border-success"
-                        : "bg-danger-soft text-danger-text border border-danger"
+                    className={`sk-confirm-message ${
+                      message.type === "success" ? "sk-confirm-message--success" : "sk-confirm-message--error"
                     }`}
                   >
                     {message.text}
                   </div>
                 )}
                 {!message && (
-                  <p className="text-sm text-secondary">
+                  <p>
                     Are you sure you want to clear your practice statistics and
                     session history?
                   </p>
                 )}
               </div>
 
-              <div className="px-6 py-3 border-t border-subtle flex gap-2 justify-end">
+              <div className="sk-confirm-footer">
                 <button
                   type="button"
                   onClick={() => dispatch({ type: "close_clear_progress" })}
                   disabled={isClearing}
-                  className="px-4 py-2 text-sm border border-subtle rounded-lg text-secondary hover:bg-soft transition-colors disabled:opacity-50"
+                  className="sk-confirm-cancel-btn"
                 >
                   Cancel
                 </button>
@@ -268,7 +258,7 @@ export function DataManagementSection() {
                   type="button"
                   onClick={() => { void handleClearProgress(); }}
                   disabled={isClearing}
-                  className="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:bg-amber-300 disabled:cursor-not-allowed"
+                  className="sk-confirm-btn sk-confirm-btn--warning"
                 >
                   {isClearing ? "Clearing..." : "Clear Progress"}
                 </button>

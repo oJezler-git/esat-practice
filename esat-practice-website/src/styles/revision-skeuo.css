@@ -332,6 +332,44 @@
   box-shadow: 0 0 4px rgba(233, 189, 99, 0.55);
 }
 
+/* ---- Mobile topic nav (hamburger trigger + drawer) ----
+ * The trigger button already inherits the well/hairline/text remap above
+ * through its var(--surface-1) / var(--border-subtle) / var(--text-secondary)
+ * rules in revision-docs.css. The overlay + panel are hand-restyled here since
+ * revision-docs.css reaches past the remap to --surface-0 for the panel and a
+ * flat black shadow, neither of which are covered by the token swap. */
+
+.sk-revision .rev-mobile-nav-overlay {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.sk-revision .rev-mobile-nav-panel {
+  border: 3px solid var(--sk-frame-border);
+  background: var(--sk-frame-bg);
+  box-shadow: var(--sk-frame-shadow);
+  color: var(--sk-text);
+}
+
+.sk-revision .rev-mobile-nav-panel-header {
+  color: var(--sk-text);
+}
+
+.sk-revision .rev-mobile-nav-close {
+  color: var(--sk-muted);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sk-revision .rev-mobile-nav-close:hover {
+  color: var(--sk-text);
+  filter: brightness(1.1);
+}
+
+:root[data-theme="light"] .sk-revision .rev-mobile-nav-close {
+  background: rgba(90, 60, 20, 0.1);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.25);
+}
+
 /* =========================================================================
  * Ask AI FAB + drawer (portaled to <body> — styled with global --sk-* tokens)
  * ========================================================================= */

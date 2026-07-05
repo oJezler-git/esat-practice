@@ -171,12 +171,16 @@
   opacity: 1;
 }
 
-/* ── Ask Claude info modal ─────────────────────────────────────────────── */
+/* ── Ask Claude info modal ─────────────────────────────────────────────────
+ * Portaled to <body> and used from both the session page and Settings, so —
+ * like the update-prompt / overlay-card in misc-skeuo.css — it's styled with
+ * the global --sk-* tokens rather than a page-scoped remap.
+ * ────────────────────────────────────────────────────────────────────────── */
 
 .ask-claude-modal {
   padding: 0;
   border: none;
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   background: transparent;
   max-width: 36rem;
   width: calc(100vw - 2rem);
@@ -189,9 +193,10 @@
 }
 
 .ask-claude-modal__panel {
-  background: var(--surface-elevated, #1c1c1e);
-  border: 1px solid var(--border-subtle);
-  border-radius: 1rem;
+  background: var(--sk-frame-bg);
+  border: 3px solid var(--sk-frame-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--sk-frame-shadow);
   max-height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
@@ -213,14 +218,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.1rem 1.25rem 0.75rem;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--sk-hairline-light);
   flex-shrink: 0;
 }
 
 .ask-claude-modal__title {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  font-family: var(--font-display);
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
   margin: 0;
 }
 
@@ -230,42 +237,50 @@
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
-  border-radius: 0.4rem;
+  border-radius: 0.5rem;
   border: none;
-  background: none;
-  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  color: var(--sk-muted);
   cursor: pointer;
 }
 
 .ask-claude-modal__close:hover {
-  background: rgb(255 255 255 / 0.06);
-  color: var(--text-secondary);
+  color: var(--sk-text);
+  filter: brightness(1.15);
+}
+
+:root[data-theme="light"] .ask-claude-modal__close {
+  background: rgba(90, 60, 20, 0.1);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.22);
 }
 
 .ask-claude-modal__intro {
   padding: 1rem 1.25rem 0.5rem;
   font-size: 0.84rem;
-  color: var(--text-secondary);
+  color: var(--sk-muted);
   line-height: 1.55;
   margin: 0;
 }
 
 .ask-claude-modal__intro strong {
-  color: var(--text-primary);
+  color: var(--sk-text);
   font-weight: 600;
 }
 
 .ask-claude-modal__why {
   margin: 0.5rem 1.25rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
+  border: none;
+  border-radius: 0.9rem;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
   padding: 0.85rem 1rem;
 }
 
 .ask-claude-modal__why-title {
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--sk-text);
   margin: 0 0 0.55rem;
 }
 
@@ -279,25 +294,27 @@
 
 .ask-claude-modal__why-list li {
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: var(--sk-muted);
   line-height: 1.5;
 }
 
 .ask-claude-modal__why-list li strong {
-  color: var(--text-primary);
+  color: var(--sk-text);
   font-weight: 600;
 }
 
 .ask-claude-modal__option {
   margin: 0.5rem 1.25rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
+  border: none;
+  border-radius: 0.9rem;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
   padding: 1rem;
 }
 
 .ask-claude-modal__option--featured {
-  border-color: rgb(154 178 124 / 0.35);
-  background: rgb(154 178 124 / 0.04);
+  box-shadow: var(--sk-well-shadow), 0 0 0 1.5px rgba(111, 194, 74, 0.3);
+  background: color-mix(in srgb, #6fc24a 6%, var(--sk-well-bg));
 }
 
 .ask-claude-modal__option-header {
@@ -313,28 +330,36 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  background: rgb(255 255 255 / 0.06);
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.3rem;
+  color: var(--sk-muted);
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  border-radius: 0.35rem;
   padding: 0.1rem 0.4rem;
 }
 
+:root[data-theme="light"] .ask-claude-modal__badge {
+  background: rgba(90, 60, 20, 0.1);
+}
+
 .ask-claude-modal__badge--green {
-  color: rgb(154 178 124);
-  background: rgb(154 178 124 / 0.1);
-  border-color: rgb(154 178 124 / 0.3);
+  color: #8fd970;
+  background: rgba(111, 194, 74, 0.14);
+}
+
+:root[data-theme="light"] .ask-claude-modal__badge--green {
+  color: #2a7a2e;
+  background: rgba(60, 150, 50, 0.14);
 }
 
 .ask-claude-modal__option-title {
   font-size: 0.84rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--sk-text);
 }
 
 .ask-claude-modal__option-desc {
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: var(--sk-muted);
   line-height: 1.5;
   margin: 0 0 0.85rem;
 }
@@ -342,7 +367,7 @@
 .ask-claude-modal__option-desc em {
   font-style: normal;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--sk-text);
 }
 
 .ask-claude-modal__steps {
@@ -355,29 +380,31 @@
 
 .ask-claude-modal__steps li {
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: var(--sk-muted);
   line-height: 1.5;
 }
 
 .ask-claude-modal__steps li strong {
-  color: var(--text-primary);
+  color: var(--sk-text);
   font-weight: 600;
 }
 
 .ask-claude-modal__steps li kbd {
   font-size: 0.75rem;
-  background: rgb(255 255 255 / 0.08);
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.25rem;
-  padding: 0.05rem 0.3rem;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.35rem;
   font-family: inherit;
 }
 
 .ask-claude-modal__note {
   margin: 0.65rem 0 0;
   font-size: 0.75rem;
-  color: var(--text-muted);
-  opacity: 0.7;
+  color: var(--sk-muted);
+  opacity: 0.8;
   line-height: 1.4;
 }
 
@@ -398,28 +425,29 @@
   width: 1.4rem;
   height: 1.4rem;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.08);
-  border: 1px solid var(--border-subtle);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--sk-tile-text);
   margin-top: 0.05rem;
 }
 
 .ask-claude-modal__step-title {
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--sk-text);
   line-height: 1.4;
   margin-bottom: 0.2rem;
 }
 
 .ask-claude-modal__step-desc {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--sk-muted);
   line-height: 1.4;
   margin-bottom: 0.45rem;
 }
@@ -433,38 +461,41 @@
 
 .ask-claude-modal__step-links a {
   font-size: 0.78rem;
-  color: var(--accent-muted, #7b9fd4);
+  color: var(--sk-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .ask-claude-modal__step-links a:hover {
-  color: var(--accent-strong, #a8c4e8);
+  filter: brightness(1.15);
 }
 
 .ask-claude-modal__install-btn {
   display: inline-flex;
   align-items: center;
   margin-top: 0.35rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.8rem;
   font-size: 0.8rem;
-  font-weight: 600;
-  color: rgb(154 178 124);
-  background: rgb(154 178 124 / 0.1);
-  border: 1px solid rgb(154 178 124 / 0.35);
-  border-radius: 0.45rem;
+  font-weight: 700;
+  color: #0e2410;
+  background: linear-gradient(180deg, #6fc24a, #2a8a44);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.25),
+    0 3px 6px rgba(0, 0, 0, 0.35);
+  border: none;
+  border-radius: 0.5rem;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: filter 0.15s;
 }
 
 .ask-claude-modal__install-btn:hover {
-  background: rgb(154 178 124 / 0.18);
-  border-color: rgb(154 178 124 / 0.6);
+  filter: brightness(1.08);
 }
 
 .ask-claude-modal__footer {
   padding: 0.85rem 1.25rem 1.1rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--sk-hairline-light);
   margin-top: 0.5rem;
 }
 
@@ -473,8 +504,8 @@
   border: none;
   padding: 0;
   font-size: 0.8rem;
-  color: var(--text-muted);
-  opacity: 0.7;
+  color: var(--sk-muted);
+  opacity: 0.85;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -482,7 +513,7 @@
 
 .ask-claude-modal__settings-link:hover {
   opacity: 1;
-  color: var(--text-secondary);
+  color: var(--sk-text);
 }
 
 /* Prompt template editor */
