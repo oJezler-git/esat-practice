@@ -236,7 +236,7 @@
 
 /* ---- Action buttons → raised tiles ---- */
 
-.sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost) {
+.sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost):not(.theme-swatch) {
   --sk-btn-ring: rgba(255, 255, 255, 0.08);
   border: none;
   color: var(--sk-tile-text);
@@ -244,7 +244,7 @@
   box-shadow: var(--sk-tile-shadow), inset 0 0 0 1px var(--sk-btn-ring);
 }
 
-.sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost):hover {
+.sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost):not(.theme-swatch):hover {
   filter: brightness(1.08);
 }
 
@@ -327,4 +327,46 @@
   background: rgba(233, 189, 99, 0.06);
   box-shadow: 0 0 0 1.5px rgba(233, 189, 99, 0.3), inset 0 2px 6px rgba(0, 0, 0, 0.25);
   color: var(--sk-accent);
+}
+
+/* ---- Colour theme swatch picker ---- */
+
+.sk-settings .theme-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.sk-settings .theme-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  /* Recessed rim so the coloured disc reads as inset hardware. */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 120ms ease;
+}
+
+.sk-settings .theme-swatch:hover {
+  transform: scale(1.08);
+}
+
+.sk-settings .theme-swatch:focus-visible {
+  outline: 2px solid var(--sk-accent);
+  outline-offset: 3px;
+}
+
+/* Selected: gap in the page colour, then a bright accent ring — reads clearly
+ * in both modes since the accent always contrasts the canvas. */
+.sk-settings .theme-swatch--active {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+    0 0 0 2.5px var(--color-canvas),
+    0 0 0 5px var(--sk-accent);
 }

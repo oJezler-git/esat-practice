@@ -176,3 +176,130 @@
   --sk-wordmark: #4a3216;
   --sk-wordmark-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
 }
+
+/* ---------------------------------------------------------------------------
+ * Colour themes (hue axis) — independent of the light/dark axis above.
+ *
+ * "amber" is the default palette authored at :root / :root[data-theme=light]
+ * above, so it needs no data-color-theme attribute. Each other hue overrides
+ * ONLY the accent-carrying tokens (brand accent, glossy CTA, active nav pill,
+ * logo letter, dial indicator) plus — in dark — the frame's ambient glow and
+ * page canvas tint. The brushed-metal / tan-leather materials and every
+ * recessed depth (wells, tiles, screws, shadows) stay shared, and the semantic
+ * status colours (green/amber/red accuracy tiers, weak-topic pills) are left
+ * fixed on purpose.
+ *
+ * Dark overrides are gated with :not([data-theme="light"]) and light overrides
+ * carry both attributes, so the two modes are mutually exclusive and neither
+ * leaks into the other regardless of source order.
+ * ------------------------------------------------------------------------- */
+
+/* Rose / rosewood */
+:root[data-color-theme="rose"]:not([data-theme="light"]) {
+  --color-canvas: #100c0c;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(170, 70, 70, 0.2), transparent 60%),
+    linear-gradient(160deg, #241515 0%, #180d0d 75%);
+  --sk-accent: #e88f8f;
+  --sk-dial-indicator: #e88f8f;
+  --sk-cta-bg: linear-gradient(180deg, #f2a6a6 0%, #d46e6e 45%, #a84343 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #e88f8f, #a85252);
+  --sk-recent-active-border: linear-gradient(180deg, #e88f8f, #a85252);
+  --sk-logo-letter: linear-gradient(180deg, #f0b3b3, #b05e5e);
+}
+:root[data-color-theme="rose"][data-theme="light"] {
+  --sk-accent: #b5455a;
+  --sk-dial-indicator: #b5455a;
+  --sk-cta-bg: linear-gradient(180deg, #ef93a2 0%, #cc5d72 45%, #9f3a50 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #dd8092, #b5455a);
+  --sk-recent-active-border: linear-gradient(180deg, #dd8092, #b5455a);
+  --sk-logo-letter: linear-gradient(180deg, #c25269, #8c3149);
+}
+
+/* Emerald / forest */
+:root[data-color-theme="emerald"]:not([data-theme="light"]) {
+  --color-canvas: #0a0f0c;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(40, 150, 90, 0.18), transparent 60%),
+    linear-gradient(160deg, #14211a 0%, #0d1810 75%);
+  --sk-accent: #6cc98a;
+  --sk-dial-indicator: #6cc98a;
+  --sk-cta-bg: linear-gradient(180deg, #8fe0aa 0%, #4faf72 45%, #2e7c47 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #7ccf95, #3f8f58);
+  --sk-recent-active-border: linear-gradient(180deg, #7ccf95, #3f8f58);
+  --sk-logo-letter: linear-gradient(180deg, #a6e6bd, #4f9f68);
+}
+:root[data-color-theme="emerald"][data-theme="light"] {
+  --sk-accent: #2f8a52;
+  --sk-dial-indicator: #2f8a52;
+  --sk-cta-bg: linear-gradient(180deg, #7fd39a 0%, #3f9c5f 45%, #237a44 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #5fb87e, #2f8a52);
+  --sk-recent-active-border: linear-gradient(180deg, #5fb87e, #2f8a52);
+  --sk-logo-letter: linear-gradient(180deg, #3f9c5f, #1f6a3c);
+}
+
+/* Teal / lagoon */
+:root[data-color-theme="teal"]:not([data-theme="light"]) {
+  --color-canvas: #090e0f;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(30, 140, 150, 0.18), transparent 60%),
+    linear-gradient(160deg, #14201f 0%, #0d1717 75%);
+  --sk-accent: #58c3c9;
+  --sk-dial-indicator: #58c3c9;
+  --sk-cta-bg: linear-gradient(180deg, #8fdedf 0%, #3fabb0 45%, #1e7c82 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #6fcccf, #2f8f95);
+  --sk-recent-active-border: linear-gradient(180deg, #6fcccf, #2f8f95);
+  --sk-logo-letter: linear-gradient(180deg, #a6e6e8, #4f9fa5);
+}
+:root[data-color-theme="teal"][data-theme="light"] {
+  --sk-accent: #2f8a90;
+  --sk-dial-indicator: #2f8a90;
+  --sk-cta-bg: linear-gradient(180deg, #7fd0d3 0%, #3f9ca2 45%, #237a80 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #5fb8bd, #2f8a90);
+  --sk-recent-active-border: linear-gradient(180deg, #5fb8bd, #2f8a90);
+  --sk-logo-letter: linear-gradient(180deg, #3f9ca2, #1f6a70);
+}
+
+/* Azure / steel blue */
+:root[data-color-theme="azure"]:not([data-theme="light"]) {
+  --color-canvas: #090c0f;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(40, 110, 180, 0.2), transparent 60%),
+    linear-gradient(160deg, #141b24 0%, #0d1218 75%);
+  --sk-accent: #62a9e8;
+  --sk-dial-indicator: #62a9e8;
+  --sk-cta-bg: linear-gradient(180deg, #94c6f2 0%, #4f97d4 45%, #2e6ba8 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #7bb6ea, #3f7fbf);
+  --sk-recent-active-border: linear-gradient(180deg, #7bb6ea, #3f7fbf);
+  --sk-logo-letter: linear-gradient(180deg, #a9d2f4, #4f8fcf);
+}
+:root[data-color-theme="azure"][data-theme="light"] {
+  --sk-accent: #2f6fb5;
+  --sk-dial-indicator: #2f6fb5;
+  --sk-cta-bg: linear-gradient(180deg, #8bbef0 0%, #4f8fcc 45%, #2f6aa1 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #6fa5dd, #2f6fb5);
+  --sk-recent-active-border: linear-gradient(180deg, #6fa5dd, #2f6fb5);
+  --sk-logo-letter: linear-gradient(180deg, #3f7fc2, #1f558c);
+}
+
+/* Indigo / violet */
+:root[data-color-theme="indigo"]:not([data-theme="light"]) {
+  --color-canvas: #0c0b0f;
+  --sk-frame-bg:
+    radial-gradient(ellipse 900px 700px at 12% 105%, rgba(90, 70, 180, 0.2), transparent 60%),
+    linear-gradient(160deg, #1a1724 0%, #100d18 75%);
+  --sk-accent: #948ce8;
+  --sk-dial-indicator: #948ce8;
+  --sk-cta-bg: linear-gradient(180deg, #b0a6f2 0%, #7a6ad4 45%, #4f3fa8 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #9d92ea, #5f4fbf);
+  --sk-recent-active-border: linear-gradient(180deg, #9d92ea, #5f4fbf);
+  --sk-logo-letter: linear-gradient(180deg, #c0b6f4, #7a6fcf);
+}
+:root[data-color-theme="indigo"][data-theme="light"] {
+  --sk-accent: #5546b5;
+  --sk-dial-indicator: #5546b5;
+  --sk-cta-bg: linear-gradient(180deg, #a99ff0 0%, #6f5dcc 45%, #463aa1 100%);
+  --sk-nav-active-bg: linear-gradient(180deg, #8072dd, #5546b5);
+  --sk-recent-active-border: linear-gradient(180deg, #8072dd, #5546b5);
+  --sk-logo-letter: linear-gradient(180deg, #5f4fc2, #3a2d8c);
+}

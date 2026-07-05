@@ -24,6 +24,7 @@ const RevisionDocPage = lazy(() => import("./pages/revision/doc"));
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
   const theme = useSettingsStore((state) => state.settings.theme);
+  const colorTheme = useSettingsStore((state) => state.settings.colorTheme);
   const location = useLocation();
   const isSession = location.pathname.startsWith("/session/");
 
@@ -47,6 +48,15 @@ export default function App() {
       delete document.documentElement.dataset.theme;
     }
   }, [theme]);
+
+  useEffect(() => {
+    // "amber" is the default palette authored at :root, so it needs no attribute.
+    if (colorTheme && colorTheme !== "amber") {
+      document.documentElement.dataset.colorTheme = colorTheme;
+    } else {
+      delete document.documentElement.dataset.colorTheme;
+    }
+  }, [colorTheme]);
 
   return (
     <>
