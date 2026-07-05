@@ -84,13 +84,13 @@
 
 .ask-claude-btn[data-extension="true"][data-state="idle"]:hover:not(:disabled),
 .ask-claude-btn[data-extension="true"][data-state="working"]:hover:not(:disabled) {
-  transform: scale(1.2);
+  transform: scale(1.05);
   box-shadow:
-    0 0 8rem 2rem rgba(195, 85, 30, 0.75),
+    0 0 3rem 0.5rem rgba(195, 85, 30, 0.35),
     0 2px 0 0 rgb(225, 130, 60) inset,
     0 -2px 0 0 rgb(185, 75, 20) inset;
-  outline: 7px solid rgba(220, 120, 55, 0.2);
-  background: radial-gradient(70% 100% at 50% 110%, #f09a60 0%, rgb(185, 75, 20) 100%);
+  outline: 4px solid rgba(220, 120, 55, 0.12);
+  background: radial-gradient(70% 100% at 50% 110%, #e08a52 0%, rgb(175, 72, 22) 100%);
 }
 
 .ask-claude-btn[data-extension="true"][data-state="idle"]:hover:not(:disabled) .ask-claude-btn__label,
