@@ -303,7 +303,13 @@ export default function ScoreReference() {
   const { copied, copy } = useCopy(PAGE_MARKDOWN);
 
   return (
-    <div className="ref-page-shell">
+    <div className="ref-page-shell sk-scoreref">
+      <div className="sk-frame">
+        <span className="sk-screw sk-screw--tl" />
+        <span className="sk-screw sk-screw--tr" />
+        <span className="sk-screw sk-screw--bl" />
+        <span className="sk-screw sk-screw--br" />
+
       {/* Main content */}
       <article className="ref-content">
         <div className="ref-breadcrumb">
@@ -372,6 +378,7 @@ export default function ScoreReference() {
           </nav>
         </div>
       </aside>
+      </div>
     </div>
   );
 }
