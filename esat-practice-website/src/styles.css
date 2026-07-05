@@ -627,6 +627,7 @@ p {
 @import "./styles/skeuo-tokens.css";
 @import "./styles/home-skeuo.css";
 @import "./styles/nav-skeuo.css";
+@import "./styles/drawing-skeuo.css";
 @import "./styles/practice-setup-skeuo.css";
 @import "./styles/results-skeuo.css";
 @import "./styles/progress-skeuo.css";
