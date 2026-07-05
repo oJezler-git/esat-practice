@@ -100,7 +100,7 @@ export function RevisionLayout({
   }, [activeDocId]);
 
   return (
-    <div className={`rev-shell ${currentDoc ? "rev-shell--doc" : "rev-shell--home"}`}>
+    <div className={`rev-shell sk-revision ${currentDoc ? "rev-shell--doc" : "rev-shell--home"}`}>
       {currentModule && (
         <>
           <button

@@ -130,3 +130,310 @@
 .sk-revision .rev-subject-topic-arrow {
   color: var(--sk-accent);
 }
+
+/* =========================================================================
+ * Doc reading view (design turn 10a) + Ask AI panel (10b).
+ *
+ * The whole reading layout (sidebar + article + TOC) sits inside one big frame.
+ * revision-docs.css is almost entirely token-driven, so the .sk-revision remap
+ * above already carries the prose colours; here we add the frame, recessed
+ * surfaces (callouts, formula cards, sidebar/meta pills), and gold active
+ * states. The Ask AI FAB + drawer are portaled to <body>, so they are styled
+ * globally with the :root --sk-* tokens (they only exist on revision pages).
+ * ========================================================================= */
+
+.sk-revision.rev-shell--doc {
+  max-width: 82rem;
+  padding: 34px;
+  border-radius: 30px;
+  background: var(--sk-frame-bg);
+  border: 3px solid var(--sk-frame-border);
+  box-shadow: var(--sk-frame-shadow);
+  color: var(--sk-text);
+  animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+/* ---- Sidebar ---- */
+
+.sk-revision .rev-sidebar-home {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--sk-tile-text);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .sk-revision .rev-sidebar-home {
+  background: rgba(90, 60, 20, 0.12);
+  box-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.28);
+}
+
+.sk-revision .rev-sidebar-home:hover,
+.sk-revision .rev-sidebar-home--active {
+  color: var(--sk-text);
+  background: rgba(0, 0, 0, 0.4);
+  filter: brightness(1.1);
+}
+
+.sk-revision .rev-sidebar-module-title {
+  color: var(--sk-muted);
+  letter-spacing: 0.08em;
+}
+
+.sk-revision .rev-sidebar-link {
+  border-left: none;
+  border-radius: 9px;
+  color: var(--sk-muted);
+}
+
+.sk-revision .rev-sidebar-link:hover {
+  color: var(--sk-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sk-revision .rev-sidebar-link--active {
+  color: var(--sk-text);
+  background: rgba(233, 189, 99, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.35), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.sk-revision .rev-sidebar-link--active .rev-sidebar-code {
+  color: var(--sk-accent);
+}
+
+/* ---- Article header ---- */
+
+.sk-revision .rev-article h1 {
+  font-family: var(--font-display);
+  color: var(--sk-text);
+  text-shadow: var(--sk-title-shadow);
+}
+
+.sk-revision .rev-copy-btn {
+  border: none;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+}
+
+.sk-revision .rev-copy-btn:hover {
+  color: var(--sk-text);
+  filter: brightness(1.08);
+}
+
+.sk-revision .rev-meta-row span {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: var(--sk-muted);
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .sk-revision .rev-meta-row span {
+  background: rgba(90, 60, 20, 0.1);
+  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.22);
+}
+
+/* ---- MDX headings → serif ---- */
+
+.sk-revision .rev-mdx h2,
+.sk-revision .rev-mdx h3 {
+  font-family: var(--font-display);
+  color: var(--sk-text);
+}
+
+/* ---- Callouts / formula cards → recessed wells ---- */
+
+.sk-revision .rev-callout,
+.sk-revision .rev-worked-example,
+.sk-revision .rev-formula-card {
+  border: none;
+  border-radius: 14px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-revision .rev-callout {
+  border-left: 3px solid var(--sk-accent);
+}
+
+.sk-revision .rev-callout--tip { border-left-color: #5fa03d; }
+.sk-revision .rev-callout--shortcut { border-left-color: var(--sk-accent); }
+.sk-revision .rev-callout--trap { border-left-color: #e0708a; }
+.sk-revision .rev-callout--note { border-left-color: var(--sk-muted); }
+
+.sk-revision .rev-callout-title,
+.sk-revision .rev-worked-example-title,
+.sk-revision .rev-formula-card-title,
+.sk-revision .rev-practice-link-title {
+  color: var(--sk-text);
+}
+
+.sk-revision .rev-blockquote {
+  border-left: 3px solid var(--sk-accent);
+}
+
+/* ---- Practice-link drill footer → recessed well + gold CTA ---- */
+
+.sk-revision .rev-practice-link {
+  border: none;
+  border-radius: 14px;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+}
+
+.sk-revision .rev-practice-link-button,
+.sk-revision .rev-primary-link {
+  border: none;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  font-weight: 700;
+}
+
+.sk-revision .rev-secondary-link,
+.sk-revision .rev-empty-link {
+  border: none;
+  color: var(--sk-tile-text);
+  background: var(--sk-tile-bg);
+  box-shadow: var(--sk-tile-shadow);
+}
+
+/* ---- TOC → gold-pill active ---- */
+
+.sk-revision .rev-toc-heading {
+  color: var(--sk-muted);
+}
+
+.sk-revision .rev-toc-link {
+  border-left: none;
+  border-radius: 9px;
+  color: var(--sk-muted);
+  padding: 0.55rem 0.85rem;
+}
+
+.sk-revision .rev-toc-link--h2 {
+  color: var(--sk-tile-text);
+}
+
+.sk-revision .rev-toc-link:hover {
+  color: var(--sk-tile-text);
+  background: rgba(255, 255, 255, 0.04);
+  border-left: none;
+}
+
+.sk-revision .rev-toc-link--active {
+  color: var(--sk-accent);
+  background: rgba(233, 189, 99, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.35);
+  border-left: none;
+}
+
+/* =========================================================================
+ * Ask AI FAB + drawer (portaled to <body> — styled with global --sk-* tokens)
+ * ========================================================================= */
+
+.rev-ask-fab {
+  border: none;
+  color: #0e2410;
+  font-weight: 700;
+  background: linear-gradient(180deg, #6fc24a, #2a8a44);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.25),
+    0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+.rev-ask-drawer {
+  border: 3px solid var(--sk-frame-border);
+  border-radius: 22px;
+  background: var(--sk-frame-bg);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+  color: var(--sk-text);
+}
+
+.rev-ask-drawer-header {
+  border-bottom: 1px solid var(--sk-hairline-light);
+}
+
+.rev-ask-drawer-title {
+  color: var(--sk-text);
+  font-weight: 700;
+}
+
+.rev-ask-drawer-close {
+  border: none;
+  border-radius: 8px;
+  color: var(--sk-muted);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.rev-ask-empty-title {
+  font-family: var(--font-display);
+  color: var(--sk-text);
+  font-weight: 700;
+}
+
+.rev-ask-empty-hint {
+  color: var(--sk-muted);
+}
+
+.rev-ask-suggestion {
+  border: none;
+  border-radius: 12px;
+  color: var(--sk-tile-text);
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.rev-ask-suggestion:hover {
+  color: var(--sk-text);
+  filter: brightness(1.1);
+}
+
+.rev-ask-form {
+  border-top: 1px solid var(--sk-hairline-light);
+}
+
+.rev-ask-form textarea {
+  border: none;
+  border-radius: 999px;
+  color: var(--sk-text);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.rev-ask-form button {
+  border: none;
+  border-radius: 50%;
+  color: #0e2410;
+  font-weight: 700;
+  background: linear-gradient(180deg, #6fc24a, #2a8a44);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.25),
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.rev-ask-turn--user {
+  color: var(--sk-text);
+  background: rgba(233, 189, 99, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(233, 189, 99, 0.3);
+}
+
+.rev-ask-turn--model {
+  color: var(--sk-tile-text);
+}
+
+:root[data-theme="light"] .rev-ask-drawer-close,
+:root[data-theme="light"] .rev-ask-suggestion,
+:root[data-theme="light"] .rev-ask-form textarea {
+  background: rgba(90, 60, 20, 0.1);
+  box-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.25);
+}
