@@ -164,7 +164,11 @@ body {
    Merged from two pseudo-elements into one to halve the full-viewport compositor
    layers / paint passes. The dot grid's old element opacity (0.02) is baked into
    its colour alpha (0.55 x 0.02 ~= 0.011) so it can share this background stack.
-   First-listed layers paint on top, so glows precede the grain (original order). */
+   First-listed layers paint on top, so glows precede the grain (original order).
+   Corner glows derive from --sk-accent so they follow the light/dark axis AND the
+   data-color-theme hue (the old hardcoded greens were vestigial flat-era colour
+   the canvas-warming pass missed). Kept subtle + asymmetric so it reads as a
+   gentle vignette, not two hotspots. */
 body::before {
   content: "";
   position: fixed;
@@ -172,8 +176,8 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background-image:
-    radial-gradient(circle at 14% -10%, rgb(154 178 124 / 0.08) 0, transparent 34%),
-    radial-gradient(circle at 86% 112%, rgb(70 86 78 / 0.16) 0, transparent 40%),
+    radial-gradient(circle at 14% -10%, color-mix(in srgb, var(--sk-accent) 10%, transparent) 0, transparent 34%),
+    radial-gradient(circle at 86% 112%, color-mix(in srgb, var(--sk-accent) 6%, transparent) 0, transparent 40%),
     radial-gradient(rgb(255 255 255 / 0.011) 0.5px, transparent 0.5px);
   background-size: auto, auto, 4px 4px;
 }
