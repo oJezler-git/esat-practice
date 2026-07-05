@@ -160,26 +160,22 @@ body {
   overflow-x: hidden;
 }
 
+/* Single fixed decorative layer: corner glows painted over a faint dot grain.
+   Merged from two pseudo-elements into one to halve the full-viewport compositor
+   layers / paint passes. The dot grid's old element opacity (0.02) is baked into
+   its colour alpha (0.55 x 0.02 ~= 0.011) so it can share this background stack.
+   First-listed layers paint on top, so glows precede the grain (original order). */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.02;
   z-index: 0;
-  background-image: radial-gradient(rgb(255 255 255 / 0.55) 0.5px, transparent 0.5px);
-  background-size: 4px 4px;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
+  background-image:
     radial-gradient(circle at 14% -10%, rgb(154 178 124 / 0.08) 0, transparent 34%),
-    radial-gradient(circle at 86% 112%, rgb(70 86 78 / 0.16) 0, transparent 40%);
+    radial-gradient(circle at 86% 112%, rgb(70 86 78 / 0.16) 0, transparent 40%),
+    radial-gradient(rgb(255 255 255 / 0.011) 0.5px, transparent 0.5px);
+  background-size: auto, auto, 4px 4px;
 }
 
 a {
