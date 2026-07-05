@@ -247,9 +247,6 @@ export default function SessionPage() {
         onNext={() => {
           void nav("next");
         }}
-        onExclude={() => {
-          void excludeCurrentQuestion(allQuestions);
-        }}
         onSubmit={() => {
           void submit();
         }}

@@ -450,13 +450,14 @@
 
 /* ---- Bottom nav bar ---- */
 
+/* No bar chrome — just the Prev / Next buttons floating below the body. */
 .sk-session-bottom {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px 30px;
-  background: var(--sk-sess-bar-bg);
-  box-shadow: var(--sk-sess-bottom-shadow);
+  padding: 14px 30px;
+  background: none;
+  box-shadow: none;
 }
 
 .sk-navbtn {
@@ -484,21 +485,6 @@
   opacity: 0.4;
   cursor: not-allowed;
   color: var(--sk-hint-text);
-}
-
-.sk-navbtn-exclude {
-  border: none;
-  background: none;
-  padding: 12px 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--sk-sess-danger);
-  cursor: pointer;
-  transition: filter 160ms ease;
-}
-
-.sk-navbtn-exclude:hover {
-  filter: brightness(1.15);
 }
 
 .sk-navbtn-primary {
