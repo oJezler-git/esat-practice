@@ -4,7 +4,7 @@
  * The page content is wrapped in the shared .sk-frame panel (global nav sits
  * above, as on every migrated page). This file consumes the shared --sk-*
  * tokens plus page-local .sk-bank tokens, and remaps the generic
- * --text-*/--accent tokens to their --sk-* equivalents within .sk-bank so the
+ * --text-* and --accent tokens to their --sk-* equivalents within .sk-bank so the
  * few token-driven surfaces (search field, detail drill link) pick up the
  * skeuo palette.
  *
