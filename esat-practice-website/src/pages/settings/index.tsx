@@ -46,7 +46,7 @@ export default function Settings() {
               reset();
             }
           }}
-          className="px-3 py-1.5 text-sm border border-subtle rounded-lg text-muted hover:border-strong hover:text-secondary transition-colors"
+          className="settings-reset-btn px-3 py-1.5 text-sm rounded-lg transition-colors"
         >
           Reset to defaults
         </button>

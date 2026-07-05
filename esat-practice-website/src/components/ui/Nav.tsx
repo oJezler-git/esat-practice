@@ -221,7 +221,7 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
         <div className="nav-inner">
           <Link to="/" className="nav-brand" aria-label="ESAT practice — home">
             <span className="nav-logo" aria-hidden="true">
-              <span className="nav-logo-letter">E</span>
+              <span className="nav-logo-mark" />
             </span>
             <span className="nav-wordmark">ESAT</span>
           </Link>

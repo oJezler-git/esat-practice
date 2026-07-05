@@ -34,15 +34,14 @@
   box-shadow: var(--sk-logo-shadow);
 }
 
-.nav-logo-letter {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 1;
+/* The favicon.svg mark is a flat white glyph; we mask it and let the gold/copper
+   --sk-logo-letter gradient show through so the mark picks up the skeuo palette. */
+.nav-logo-mark {
+  width: 21px;
+  height: 24px;
   background: var(--sk-logo-letter);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  -webkit-mask: url(/favicon.svg) center / contain no-repeat;
+  mask: url(/favicon.svg) center / contain no-repeat;
 }
 
 .nav-wordmark {
