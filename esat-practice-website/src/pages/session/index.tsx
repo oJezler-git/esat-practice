@@ -214,8 +214,17 @@ export default function SessionPage() {
 
             <div className="session-exclude-notice hide-on-mobile">
               <p>
-                Use the Exclude button below if a question number has a ✖ over it, this means it's not on the specification.
+                Press this if a question number has a ✖ over it, this means it's not on the specification.
               </p>
+              <button
+                type="button"
+                onClick={() => {
+                  void excludeCurrentQuestion(allQuestions);
+                }}
+                className="session-exclude-btn"
+              >
+                Exclude
+              </button>
             </div>
 
             {settings.showKeyboardHints && (

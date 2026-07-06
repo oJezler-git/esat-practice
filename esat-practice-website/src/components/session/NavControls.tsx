@@ -38,11 +38,10 @@ export function NavControls({
       <button
         type="button"
         onClick={onExclude}
-        className="sk-navbtn-exclude"
+        className="sk-navbtn-exclude hide-on-desktop show-inline-on-mobile"
         title="Exclude"
       >
-        <span className="hide-on-mobile">Exclude</span>
-        <span className="show-on-mobile">✖</span>
+        ✖
       </button>
 
       {onReveal && !revealed && (
