@@ -21,13 +21,7 @@ export function EsatScorePanel({ items }: EsatScorePanelProps) {
   const physicsResult = groups.physics.total > 0 ? computeModuleResult(groups.physics.correct, groups.physics.total, "physics") : null;
 
   if (!m1Result && !m2Result && !physicsResult) {
-    return (
-      <div className="sv-panel">
-        <div className="sv-empty">
-          No classifiable questions found — topic prefixes did not match ESAT modules.
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const attempted = items.filter((i) => i.attempt.result !== "skipped");
