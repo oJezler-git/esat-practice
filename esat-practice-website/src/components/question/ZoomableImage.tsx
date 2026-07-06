@@ -130,6 +130,7 @@ export function ZoomableImage({
         onClick={handleOpenImage}
       >
         <img
+          key={persistKey ?? src}
           src={src}
           alt={alt}
           className={previewImageClassName}
@@ -169,6 +170,7 @@ export function ZoomableImage({
                 }}
               >
                 <img
+                  key={persistKey ?? src}
                   src={src}
                   alt={alt}
                   className="source-scan-image"
