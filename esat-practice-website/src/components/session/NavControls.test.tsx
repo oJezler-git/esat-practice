@@ -82,7 +82,7 @@ describe("NavControls — Exclude button", () => {
   it("calls onExclude when the Exclude button is clicked", () => {
     const onExclude = vi.fn();
     render(<NavControls {...defaultProps({ onExclude })} />);
-    fireEvent.click(screen.getByTitle("Exclude"));
+    fireEvent.click(screen.getByRole("button", { name: /exclude/i }));
     expect(onExclude).toHaveBeenCalledTimes(1);
   });
 });

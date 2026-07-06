@@ -521,18 +521,24 @@ html:has(.sk-session) {
 }
 
 .sk-navbtn-exclude {
+  padding: 12px 20px;
   border: none;
-  background: none;
-  padding: 12px 8px;
-  font-size: 0.875rem;
+  border-radius: 12px;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--sk-sess-danger);
+  color: var(--sk-exclude-btn-text);
+  background: var(--sk-exclude-btn-bg);
+  box-shadow: var(--sk-exclude-btn-shadow);
   cursor: pointer;
-  transition: filter 160ms ease;
+  transition: filter 160ms ease, transform 140ms var(--motion-snappy);
 }
 
 .sk-navbtn-exclude:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.1);
+}
+
+.sk-navbtn-exclude:active {
+  transform: translateY(1px);
 }
 
 .sk-navbtn-primary {
