@@ -1,4 +1,5 @@
 import { DEFAULT_PROMPT_TEMPLATE } from "../lib/askClaude";
+import type { Subject } from "../lib/subjects";
 
 export type ShortcutAction =
   | "revealCorrect"
@@ -33,6 +34,7 @@ export interface UserSettings {
   claudeMode: ClaudeMode;
   claudeOnboarded: boolean;
   claudePromptTemplate: string;
+  enabledSubjects: Subject[];
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
@@ -63,6 +65,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   claudeMode: "auto",
   claudeOnboarded: false,
   claudePromptTemplate: DEFAULT_PROMPT_TEMPLATE,
+  enabledSubjects: ["maths1", "maths2", "physics"],
 };
 
 export function normalizeShortcutKey(key: string): string | null {

@@ -9,6 +9,7 @@ import {
 } from "../../types/settings";
 import { DEFAULT_PROMPT_TEMPLATE } from "../../lib/askClaude";
 import { AskClaudeInfoModal } from "../../components/AskClaudeInfoModal";
+import { ALL_SUBJECTS, SUBJECT_LABELS } from "../../lib/subjects";
 import { Field, Section, Select, ShortcutInput, Toggle } from "./controls";
 
 const SHORTCUT_FIELDS: Array<{
@@ -173,6 +174,43 @@ export function SessionDefaultsSection({ settings, update }: SettingsSectionProp
           />
         </div>
       </Field>
+    </Section>
+  );
+}
+
+const SUBJECT_DESCRIPTIONS: Partial<Record<UserSettings["enabledSubjects"][number], string>> = {
+  chemistry: "Addon subject — enable to include Chemistry questions in practice.",
+  biology: "Addon subject — enable to include Biology questions in practice.",
+};
+
+export function SubjectsSection({ settings, update }: SettingsSectionProps) {
+  const enabledSubjects = settings.enabledSubjects;
+
+  function setSubjectEnabled(subject: UserSettings["enabledSubjects"][number], enabled: boolean) {
+    const next = enabled
+      ? [...enabledSubjects, subject]
+      : enabledSubjects.filter((s) => s !== subject);
+    update({ enabledSubjects: next });
+  }
+
+  return (
+    <Section
+      title="Subjects"
+      description="Choose which subjects appear in practice sessions and topic pickers."
+    >
+      {ALL_SUBJECTS.map((subject) => (
+        <Field
+          key={subject}
+          label={SUBJECT_LABELS[subject]}
+          description={SUBJECT_DESCRIPTIONS[subject]}
+        >
+          <Toggle
+            ariaLabel={SUBJECT_LABELS[subject]}
+            checked={enabledSubjects.includes(subject)}
+            onChange={(value) => setSubjectEnabled(subject, value)}
+          />
+        </Field>
+      ))}
     </Section>
   );
 }

@@ -18,6 +18,7 @@ import {
   KeyboardShortcutsSection,
   QuestionPoolSection,
   SessionDefaultsSection,
+  SubjectsSection,
 } from "./sections";
 
 export default function Settings() {
@@ -55,6 +56,7 @@ export default function Settings() {
       <CloudSyncSection />
 
       <SessionDefaultsSection settings={settings} update={update} />
+      <SubjectsSection settings={settings} update={update} />
       <BehaviourSection settings={settings} update={update} />
       <KeyboardShortcutsSection settings={settings} update={update} />
       <DisplaySection settings={settings} update={update} />

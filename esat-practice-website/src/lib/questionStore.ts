@@ -6,6 +6,8 @@ import { useExcludedQuestionStore } from "./excludedQuestionStore";
 import { analyseNsaaDuplicates, type NsaaDuplicateAnalysis } from "./questionDedup";
 import { ensureBundledQuestionsBootstrapped } from "./loader";
 import { resetLoadingProgress } from "./loadingProgress";
+import { useSettingsStore } from "./settingsStore";
+import { ALL_SUBJECTS, subjectForTopic, type Subject } from "./subjects";
 
 function sortQuestions(left: Question, right: Question): number {
   if (left.source.year !== right.source.year) {
@@ -91,6 +93,7 @@ const useQuestionStoreBase = create<QuestionStoreState>((set) => ({
 // Module-level cache for derived state
 let lastAllQuestions: Question[] | null = null;
 let lastExcludedIds: Set<string> | null = null;
+let lastEnabledSubjects: Subject[] | null = null;
 
 export interface DerivedStoreState {
   nsaaDuplicateAnalysis: NsaaDuplicateAnalysis;
@@ -107,11 +110,13 @@ let cachedDerivedState: DerivedStoreState | null = null;
 export function getDerivedStoreState(
   allQuestions: Question[],
   excludedQuestionIds: Set<string>,
+  enabledSubjects: Subject[] = ALL_SUBJECTS,
 ): DerivedStoreState {
   if (
     cachedDerivedState &&
     lastAllQuestions === allQuestions &&
-    lastExcludedIds === excludedQuestionIds
+    lastExcludedIds === excludedQuestionIds &&
+    lastEnabledSubjects === enabledSubjects
   ) {
     return cachedDerivedState;
   }
@@ -137,9 +142,17 @@ export function getDerivedStoreState(
     }
   }
 
+  const enabledSubjectsSet = new Set(enabledSubjects);
+  const isSubjectEnabled = (question: Question) => {
+    const subject = subjectForTopic(question.taxonomy.primary_topic);
+    return subject === null || enabledSubjectsSet.has(subject);
+  };
+
   const questionsList = allQuestions.filter(
     (question) =>
-      !nsaaDuplicateAnalysis.hiddenNsaaIds.has(question.id) && !ids.has(question.id),
+      !nsaaDuplicateAnalysis.hiddenNsaaIds.has(question.id) &&
+      !ids.has(question.id) &&
+      isSubjectEnabled(question),
   );
 
   const fullPracticeBank = allQuestions.filter((question) => !ids.has(question.id));
@@ -171,6 +184,7 @@ export function getDerivedStoreState(
 
   lastAllQuestions = allQuestions;
   lastExcludedIds = excludedQuestionIds;
+  lastEnabledSubjects = enabledSubjects;
   cachedDerivedState = newState;
 
   return newState;
@@ -182,6 +196,7 @@ export function useQuestionStore() {
   const loaded = useQuestionStoreBase((state) => state.loaded);
   const loadQuestions = useQuestionStoreBase((state) => state.loadQuestions);
   const getQuestionsByIds = useQuestionStoreBase((state) => state.getQuestionsByIds);
+  const enabledSubjects = useSettingsStore((state) => state.settings.enabledSubjects);
   const {
     excludedQuestions: excludedQuestionRecords,
     excludedQuestionIds,
@@ -206,7 +221,7 @@ export function useQuestionStore() {
     loadExcludedQuestions,
   ]);
 
-  const derived = getDerivedStoreState(allQuestions, excludedQuestionIds);
+  const derived = getDerivedStoreState(allQuestions, excludedQuestionIds, enabledSubjects);
 
   return {
     allQuestions,
