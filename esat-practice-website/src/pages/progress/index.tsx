@@ -50,7 +50,7 @@ export default function Progress() {
   const navigate = useNavigate();
   const { getAllStats, getCategoryStats, getSessionSummaries } = useStatsStore();
   const { getRecentSessions, createSession } = useSessionStore();
-  const { questions } = useQuestionStore();
+  const { allQuestions } = useQuestionStore();
 
   const [stats, setStats] = useState<TopicStat[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -116,7 +116,7 @@ export default function Progress() {
 
   async function drillWeak() {
     const weakTopicNames = new Set(weakTopics.map((topic) => topic.topic));
-    const weakIds = questions.flatMap((question) =>
+    const weakIds = allQuestions.flatMap((question) =>
       weakTopicNames.has(question.taxonomy.primary_topic) ? [question.id] : [],
     );
     if (weakIds.length === 0) {

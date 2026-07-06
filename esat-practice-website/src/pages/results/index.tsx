@@ -40,7 +40,7 @@ export default function ResultsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getSession, getAttempts } = useSessionStore();
-  const { getQuestionsByIds, questions: allQuestions } = useQuestionStore();
+  const { getQuestionsByIds, allQuestions } = useQuestionStore();
   const { excludeQuestion } = useExcludedQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
 
