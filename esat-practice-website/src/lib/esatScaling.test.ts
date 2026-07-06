@@ -20,6 +20,8 @@ describe("convertRawToScaled", () => {
   it("raw 23 (ceiling for maths1) → 9.0", () => expect(convertRawToScaled(23, "maths1")).toBe(9.0));
   it("raw 20 (ceiling for maths2) → 9.0", () => expect(convertRawToScaled(20, "maths2")).toBe(9.0));
   it("raw 24 (ceiling for physics) → 9.0", () => expect(convertRawToScaled(24, "physics")).toBe(9.0));
+  it("raw 24 (ceiling for chemistry) → 9.0", () => expect(convertRawToScaled(24, "chemistry")).toBe(9.0));
+  it("raw 22 (ceiling for biology) → 9.0", () => expect(convertRawToScaled(22, "biology")).toBe(9.0));
   it("raw above ceiling → 9.0", () => expect(convertRawToScaled(30, "maths1")).toBe(9.0));
 
   it("raw 5 → 1.5 (formula anchor)", () => {
@@ -151,6 +153,17 @@ describe("computeModuleResult", () => {
     const r = computeModuleResult(0, 0, "maths2");
     expect(r.scaled).toBe(1.0);
   });
+
+  it("isCeilingExtrapolated false for maths1/maths2/physics", () => {
+    expect(computeModuleResult(5, 10, "maths1").isCeilingExtrapolated).toBe(false);
+    expect(computeModuleResult(5, 10, "maths2").isCeilingExtrapolated).toBe(false);
+    expect(computeModuleResult(5, 10, "physics").isCeilingExtrapolated).toBe(false);
+  });
+
+  it("isCeilingExtrapolated true for chemistry/biology", () => {
+    expect(computeModuleResult(5, 10, "chemistry").isCeilingExtrapolated).toBe(true);
+    expect(computeModuleResult(5, 10, "biology").isCeilingExtrapolated).toBe(true);
+  });
 });
 
 // --- moduleForTopic ---
@@ -161,6 +174,8 @@ describe("moduleForTopic", () => {
   it("M prefix (non-MM) → m1", () => expect(moduleForTopic("M01")).toBe("m1"));
   it("M prefix → m1", () => expect(moduleForTopic("MCalculus")).toBe("m1"));
   it("P prefix → physics", () => expect(moduleForTopic("PForces")).toBe("physics"));
+  it("C prefix → chemistry", () => expect(moduleForTopic("C1. Atomic Structure")).toBe("chemistry"));
+  it("B prefix → biology", () => expect(moduleForTopic("B1. Cells")).toBe("biology"));
   it("unknown prefix → unclassified", () => expect(moduleForTopic("XUnknown")).toBe("unclassified"));
   it("null → unclassified", () => expect(moduleForTopic(null)).toBe("unclassified"));
   it("undefined → unclassified", () => expect(moduleForTopic(undefined)).toBe("unclassified"));
@@ -216,6 +231,19 @@ describe("detectModuleGroups", () => {
     expect(g.m1.total).toBe(0);
     expect(g.m2.total).toBe(0);
     expect(g.physics.total).toBe(0);
+  });
+
+  it("groups chemistry and biology", () => {
+    const items = [
+      makeItem("C1. Atomic Structure", "correct"),
+      makeItem("C1. Atomic Structure", "incorrect"),
+      makeItem("B1. Cells", "correct"),
+    ];
+    const g = detectModuleGroups(items);
+    expect(g.chemistry.total).toBe(2);
+    expect(g.chemistry.correct).toBe(1);
+    expect(g.biology.total).toBe(1);
+    expect(g.biology.correct).toBe(1);
   });
 });
 

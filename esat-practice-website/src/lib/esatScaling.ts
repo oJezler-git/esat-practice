@@ -1,4 +1,4 @@
-export type EsatModule = "maths1" | "maths2" | "physics";
+export type EsatModule = "maths1" | "maths2" | "physics" | "chemistry" | "biology";
 
 export interface ScoreBand {
   label: string;
@@ -23,6 +23,7 @@ export interface ModuleResult {
   scaledHigh: number;
   band: ScoreBand;
   isLowSample: boolean;
+  isCeilingExtrapolated: boolean;
 }
 
 export interface ModuleGroup {
@@ -34,6 +35,19 @@ const MODULE_CEILINGS: Record<EsatModule, number> = {
   maths1: 23,
   maths2: 20,
   physics: 24,
+  chemistry: 24,
+  biology: 22,
+};
+
+// Chemistry/Biology ceilings are extrapolated from the NSAA Section 1 conversion
+// table and FOI module-ordering, not from a crowdsourced ESAT raw/scaled pair like
+// M1/M2/Physics have. Flagged so the UI can mark them as a lower-confidence tier.
+const MODULE_CEILING_EXTRAPOLATED: Record<EsatModule, boolean> = {
+  maths1: false,
+  maths2: false,
+  physics: false,
+  chemistry: true,
+  biology: true,
 };
 
 export const SCORE_BANDS: ScoreBand[] = [
@@ -115,14 +129,19 @@ export function computeModuleResult(
     scaledHigh,
     band: getScoreBand(scaled),
     isLowSample: total < 10,
+    isCeilingExtrapolated: MODULE_CEILING_EXTRAPOLATED[module],
   };
 }
 
-export function moduleForTopic(topic: string | null | undefined): "m1" | "m2" | "physics" | "unclassified" {
+export function moduleForTopic(
+  topic: string | null | undefined,
+): "m1" | "m2" | "physics" | "chemistry" | "biology" | "unclassified" {
   if (!topic) return "unclassified";
   if (topic.startsWith("MM")) return "m2";
   if (topic.startsWith("M"))  return "m1";
   if (topic.startsWith("P"))  return "physics";
+  if (topic.startsWith("C"))  return "chemistry";
+  if (topic.startsWith("B"))  return "biology";
   return "unclassified";
 }
 
@@ -138,8 +157,16 @@ export function detectModuleGroups(items: ScoredItem[]): {
   m1: ModuleGroup;
   m2: ModuleGroup;
   physics: ModuleGroup;
+  chemistry: ModuleGroup;
+  biology: ModuleGroup;
 } {
-  const groups = { m1: { correct: 0, total: 0 }, m2: { correct: 0, total: 0 }, physics: { correct: 0, total: 0 } };
+  const groups = {
+    m1: { correct: 0, total: 0 },
+    m2: { correct: 0, total: 0 },
+    physics: { correct: 0, total: 0 },
+    chemistry: { correct: 0, total: 0 },
+    biology: { correct: 0, total: 0 },
+  };
   for (const item of items) {
     const mod = moduleForTopic(item.question.taxonomy.primary_topic);
     if (mod === "unclassified") continue;
