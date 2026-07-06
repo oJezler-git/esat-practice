@@ -5,6 +5,7 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onSubmit: () => void;
+  onExclude: () => void;
   onReveal?: () => void;
   revealed?: boolean;
 }
@@ -16,6 +17,7 @@ export function NavControls({
   onPrev,
   onNext,
   onSubmit,
+  onExclude,
   onReveal,
   revealed = false,
 }: Props) {
@@ -31,6 +33,14 @@ export function NavControls({
       >
         <span className="hide-on-mobile">Prev</span>
         <span className="show-on-mobile">←</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={onExclude}
+        className="sk-navbtn-exclude hide-on-mobile"
+      >
+        Exclude
       </button>
 
       {onReveal && !revealed && (

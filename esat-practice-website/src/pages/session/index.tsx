@@ -21,7 +21,7 @@ export default function SessionPage() {
   const navigate = useNavigate();
   const { allQuestions } = useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
-  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [manuallyRevealedId, setManuallyRevealedId] = useState<string | null>(null);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   const {
@@ -48,6 +48,9 @@ export default function SessionPage() {
   } = useSessionEngine(id ?? "");
 
   const isTimed = session?.mode === "timed";
+  const isAnswerRevealed =
+    Boolean(currentAttemptResult) ||
+    (currentQuestion !== null && manuallyRevealedId === currentQuestion.id);
 
   const fontClass = {
     sm: "text-sm",
@@ -84,8 +87,10 @@ export default function SessionPage() {
   );
 
   const revealAnswer = useCallback(() => {
-    setIsAnswerRevealed(true);
-  }, []);
+    if (currentQuestion) {
+      setManuallyRevealedId(currentQuestion.id);
+    }
+  }, [currentQuestion]);
 
   const handleDiscard = useCallback(async () => {
     await quit();
@@ -107,10 +112,6 @@ export default function SessionPage() {
     flag,
     skip,
   });
-
-  useEffect(() => {
-    setIsAnswerRevealed(Boolean(currentAttemptResult));
-  }, [currentAttemptResult, currentQuestion?.id]);
 
   useEffect(() => {
     if (status === "completed" && id && session?.id === id) {
@@ -213,17 +214,8 @@ export default function SessionPage() {
 
             <div className="session-exclude-notice hide-on-mobile">
               <p>
-                Press this if a question number has a ✖ over it, this means it's not on the specification.
+                Use the Exclude button below if a question number has a ✖ over it, this means it's not on the specification.
               </p>
-              <button
-                type="button"
-                onClick={() => {
-                  void excludeCurrentQuestion(allQuestions);
-                }}
-                className="session-exclude-btn"
-              >
-                Exclude
-              </button>
             </div>
 
             {settings.showKeyboardHints && (
@@ -266,6 +258,9 @@ export default function SessionPage() {
         onSubmit={() => {
           void submit();
         }}
+        onExclude={() => {
+          void excludeCurrentQuestion(allQuestions);
+        }}
         onReveal={revealAnswer}
         revealed={isAnswerRevealed}
       />
@@ -274,7 +269,7 @@ export default function SessionPage() {
       {isAnswerRevealed && (
         <MobileRevealPopup
           correctAnswer={currentQuestion.answer.correct}
-          onClose={() => setIsAnswerRevealed(false)}
+          onClose={() => setManuallyRevealedId(null)}
           onMarkCorrect={() => handleMark("correct")}
           onMarkIncorrect={() => handleMark("incorrect")}
         />

@@ -520,6 +520,21 @@ html:has(.sk-session) {
   color: var(--sk-hint-text);
 }
 
+.sk-navbtn-exclude {
+  border: none;
+  background: none;
+  padding: 12px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sk-sess-danger);
+  cursor: pointer;
+  transition: filter 160ms ease;
+}
+
+.sk-navbtn-exclude:hover {
+  filter: brightness(1.15);
+}
+
 .sk-navbtn-primary {
   position: relative;
   padding: 12px 32px;

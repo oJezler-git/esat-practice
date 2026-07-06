@@ -10,6 +10,7 @@ function defaultProps(overrides = {}) {
     onPrev: vi.fn(),
     onNext: vi.fn(),
     onSubmit: vi.fn(),
+    onExclude: vi.fn(),
     ...overrides,
   };
 }
@@ -74,6 +75,15 @@ describe("NavControls — Next vs Submit", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: /submit session/i }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("NavControls — Exclude button", () => {
+  it("calls onExclude when the Exclude button is clicked", () => {
+    const onExclude = vi.fn();
+    render(<NavControls {...defaultProps({ onExclude })} />);
+    fireEvent.click(screen.getByRole("button", { name: /exclude/i }));
+    expect(onExclude).toHaveBeenCalledTimes(1);
   });
 });
 
