@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  AddonModulesSection,
   ConversionSection,
   EstimationSection,
   LimitationsSection,
@@ -29,7 +30,14 @@ The three modules taken by Cambridge Engineering applicants are:
 - **Mathematics 2** — harder calculus, complex numbers, differential equations (prefixed MM)
 - **Physics** — mechanics, waves, electricity, thermal physics (prefixed P)
 
-Maths 2 appears to be the hardest of the three. In the UAT-UK October 2024 distributions, its modal scaled score is about 3.5, compared with about 4.0 for Maths 1 and 5.0 for Physics. A raw 16/27 in Maths 2 maps to roughly 7.0 on the scale, while the same raw mark in Maths 1 maps to roughly 6.1. The module scales should not be treated as interchangeable.
+Two further optional modules can be enabled as addons in Settings:
+
+- **Chemistry** — atomic structure, bonding, quantitative chemistry, organic chemistry (prefixed C)
+- **Biology** — cells, inheritance, DNA, enzymes, physiology (prefixed B)
+
+Chemistry and Biology are scored on the same 1-9 scale, but — unlike the three modules above — no crowdsourced raw↔scaled data point exists for either module. Their benchmark figures and ceilings are extrapolated rather than measured; see section 3.5 below.
+
+Maths 2 appears to be the hardest of the three required modules. In the UAT-UK October 2024 distributions, its modal scaled score is about 3.5, compared with about 4.0 for Maths 1 and 5.0 for Physics. A raw 16/27 in Maths 2 maps to roughly 7.0 on the scale, while the same raw mark in Maths 1 maps to roughly 6.1. The module scales should not be treated as interchangeable.
 
 | Band | Scaled range | What it means |
 |---|---|---|
@@ -121,6 +129,36 @@ Module ceilings: **Maths 1 = 23/27, Maths 2 = 20/27, Physics = 24/27**
 
 ---
 
+## 3.5 Chemistry & Biology (addon modules)
+
+> **Lower confidence than M1/M2/Physics:** both Chemistry and Biology are among the higher-scoring ESAT science modules, but for neither module does a genuine crowdsourced ESAT raw↔scaled pair exist. Their 9.0 raw-mark ceilings are extrapolated from the last published NSAA conversion table and FOI module-ordering, not measured from real ESAT self-reports. Score cards for these two modules show an "estimated" badge for this reason.
+
+Chemistry is required for Chemical Engineering routes and is a free-choice option for Natural Sciences and Veterinary Medicine applicants. Biology cannot be taken for Imperial Engineering/Physics routes; it is chosen mainly by Cambridge Natural Sciences (biological) and Veterinary Medicine applicants. Both are 27-question, 40-minute, no-negative-marking modules, same as the three required modules.
+
+| Benchmark | Scaled | Chemistry raw | Biology raw | Source |
+|---|---|---|---|---|
+| Floor cap | 1.0 | ≤ 4 | ≤ 4 | Official |
+| Modal / typical candidate | ~4.0 | ~11-12 | ~11-12 | Official chart (secondhand) |
+| All-applicant mean | 4.62 / 4.72 | ~12-13 | ~12-13 | FOI |
+| Median | 4.5 | ~12-13 | ~12 | FOI |
+| 75th percentile | 5.7 / 5.9 | ~16 | ~15 | FOI |
+| Competitive / interview-viable | ~6.5 | ~18 | ~16-17 | Extrapolated |
+| Top ~10% | 7.0 | ~19 | ~18 | Official anchor, raw extrapolated |
+| Top ~3-5% | ~8.0 | ~22 | ~20 | Extrapolated |
+| Module ceiling (9.0) | 9.0 | ~24 (23-25) | ~22 (21-23) | Extrapolated |
+
+**Why the ceilings differ from M1/M2/Physics:** the recommended ceiling of 24/27 for Chemistry and 22/27 for Biology both come from proportionally rescaling the last published NSAA Section 1 conversion table (2023) to the ESAT's /27 mark scheme, cross-checked against the FOI module-mean ordering. This is a much weaker anchor than the Maths 1 (23/27), Maths 2 (20/27) and Physics (24/27) ceilings, which are self-reported ESAT raw/scaled pairs from TSR. Treat the Chemistry/Biology ceilings as a plausible range (23-25 and 21-23 respectively), not a fixed boundary.
+
+**Distribution shape:** the two modules do not share a curve shape. Chemistry is comparatively peaked — nearly 50% of candidates scored in the 4.0-5.5 range, the tightest cluster of any module, alongside a heavy low tail (over 20% scored the 1.0 floor on the legacy NSAA; a 3.0 spike appeared in the 2025/26 ESAT cohort). Biology is the flattest, widest curve of the five modules — about 39% of candidates fell in 4.0-5.5, spread roughly evenly rather than peaked. Biology also has the thinnest top end (~1% scored 9.0, versus a ~2% module average), and its low tail is volatile between sittings — a 2025/26-only floor spike put 6-7% of candidates at 1.0, absent from 2024/25. In both modules essentially no candidate scored 8.5, so the curve jumps from ~8.0 straight to a small 9.0 pile in each case.
+
+**Limitations specific to these two modules:**
+- No candidate on The Student Room, Reddit, or the WhatDoTheyKnow FOI archive has posted a paired raw Chemistry or Biology mark and its scaled score.
+- Every UAT-UK request for a raw-to-scaled conversion table has been refused under FOI exemption s.43(2) (commercial sensitivity).
+- Distribution percentages are read secondhand from tutoring-company descriptions of the official charts, not extracted from the chart images directly.
+- FOI means/quartiles cover the whole ESAT applicant pool, not the self-selected sub-cohort who sit Chemistry or Biology specifically.
+
+---
+
 ## 4. Wilson confidence interval and score ranges
 
 The score panel shows a *range*, not a single estimate. This is intentional: a 10-question session is not enough data to pin down true accuracy, and turning that result into one scaled score would make the estimate look more precise than it is.
@@ -200,6 +238,8 @@ The point-estimate scaled score, used for the gap-to-next-benchmark calculation,
 
 **Module ceiling estimates are informal.** The values 23/27 (M1), 20/27 (M2), and 24/27 (Physics) come from student self-reports on TSR. They were not verified by UAT-UK and may not hold for other sittings.
 
+**Chemistry and Biology ceilings are extrapolated, not measured.** Unlike M1/M2/Physics, no candidate has publicly reported a paired raw Chemistry or Biology mark and its scaled score. The 24/27 (Chemistry) and 22/27 (Biology) ceilings are extrapolated from the last published NSAA conversion table and FOI module-mean ordering. See section 3.5 for the full reasoning and the plausible ranges.
+
 **ESAT is not additive in admissions decisions.** Cambridge and Imperial look at module profiles, not just averages. A 9.0 in Maths 1 and a 4.0 in Physics is a very different profile from two 6.5s.
 
 **Interview performance still matters most after shortlisting.** The Cambridge FOI data suggests that ESAT helps shape the shortlist, but interview scores carry the most weight in final offer decisions.
@@ -226,6 +266,16 @@ Crowdsourced and unverified. The only public source for raw-mark ceiling estimat
 - [TSR — Minimum Cambridge grades](https://www.thestudentroom.co.uk/showthread.php?t=7530101) — Admitted average ~5-6.
 - [TSR — Grade boundaries query](https://www.thestudentroom.co.uk/showthread.php?t=7634104)
 
+### Chemistry & Biology (extrapolated ceilings)
+
+No TSR/FOI raw↔scaled pair exists for either module. These sources support the FOI scaled means/quartiles and the NSAA-proportional ceiling estimate only.
+
+- [FOI "Esat 2025" (UAT-UK, 2024/25 cycle)](https://www.whatdotheyknow.com/request/esat_2025) — Chemistry mean 4.617 (median 4.5, 25th 3.4, 75th 5.7); Biology mean 4.715 (median 4.5, 25th 3.6, 75th 5.9) — the highest mean and 75th percentile of the five modules.
+- [UniAdmissions — ESAT results guide](https://www.uniadmissions.co.uk/esat/guides/esat-results/) — secondhand description of official charts; reproduces the NSAA 2023 conversion table used as the ceiling anchor (Chemistry 18/20→9.0, Biology 16/20→9.0).
+- [Exams.Ninja — ESAT results guide](https://exams.ninja/esat/guides/results/) — Chemistry spike at 3.0; Biology "over 7%" at the 1.0 floor in 2025/26.
+- [Tutela Prep — What is a good ESAT score?](https://www.tutelaprep.com/blog/what-is-a-good-esat-score/) — Biology "over 6%" scoring 1.0 (2025/26).
+- [Oxbridge Mind — ESAT for Imperial College London](https://www.oxbridgemind.co.uk/ucas/ucas-esat-for-imperial-college-london/) — Chemistry percentages: ~72% scored ≥4.0, ~32% scored above 5.0 (2024/25).
+
 ### Tutoring / admissions-prep commentary
 
 Secondary interpretation. Commercially motivated but broadly consistent with the primary sources on key thresholds (7.0 ≈ top 10%, 8.0+ ≈ top 3-5%).
@@ -241,13 +291,14 @@ Secondary interpretation. Commercially motivated but broadly consistent with the
 - [Oxbridge Applications — ESAT guide](https://oxbridgeapplications.com/application-resources/admissions-tests-resources/esat-guide/)
 `.trim();
 
-const SECTION_IDS = ["overview", "scale", "thresholds", "conversion", "wilson", "estimation", "limitations", "sources"];
+const SECTION_IDS = ["overview", "scale", "thresholds", "conversion", "addons", "wilson", "estimation", "limitations", "sources"];
 
 const SECTIONS = [
   { id: "overview",    label: "Overview" },
   { id: "scale",       label: "The 1-9 scale" },
   { id: "thresholds",  label: "Score thresholds" },
   { id: "conversion",  label: "Conversion model" },
+  { id: "addons",      label: "Chemistry & Biology" },
   { id: "wilson",      label: "Wilson CI & ranges" },
   { id: "estimation",  label: "How estimates work" },
   { id: "limitations", label: "Limitations" },
@@ -348,6 +399,7 @@ export default function ScoreReference() {
           <li className="ref-tldr-head">TL;DR</li>
           <li>Score ranges are 80% confidence intervals on your <strong>practice accuracy</strong> — not predictions of your actual ESAT score.</li>
           <li>Module ceilings (23/27 M1, 20/27 M2, 24/27 Physics) are the weakest link: sourced from TSR self-reports, not confirmed by UAT-UK.</li>
+          <li>Chemistry and Biology ceilings are one confidence tier weaker still — extrapolated from NSAA data, not from any ESAT self-report.</li>
           <li>80% confidence chosen over 95% so ranges stay narrow enough to be useful on a 10-question session; a 95% CI would span nearly the full 1–9 scale.</li>
         </ul>
 
@@ -355,6 +407,7 @@ export default function ScoreReference() {
         <ScaleSection />
         <ThresholdsSection />
         <ConversionSection />
+        <AddonModulesSection />
         <WilsonSection />
         <EstimationSection />
         <LimitationsSection />

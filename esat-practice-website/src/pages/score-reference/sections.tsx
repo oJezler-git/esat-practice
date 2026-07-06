@@ -39,7 +39,21 @@ export function ScaleSection() {
         <li><strong>Physics</strong> — mechanics, waves, electricity, thermal physics (prefixed P)</li>
       </ul>
       <p className="ref-prose">
-        Maths 2 appears to be the hardest of the three. In the UAT-UK October 2024 distributions,
+        Two further optional modules can be enabled as addons in Settings:
+      </p>
+      <ul className="ref-prose-list">
+        <li><strong>Chemistry</strong> — atomic structure, bonding, quantitative chemistry, organic chemistry (prefixed C)</li>
+        <li><strong>Biology</strong> — cells, inheritance, DNA, enzymes, physiology (prefixed B)</li>
+      </ul>
+      <p className="ref-prose">
+        Chemistry and Biology are scored on the same 1-9 scale, but — unlike the three modules
+        above — <strong>no crowdsourced raw↔scaled data point exists for either module</strong>.
+        Their benchmark figures and ceilings are extrapolated rather than measured; see{" "}
+        <a className="ref-link" href="#addons">Chemistry &amp; Biology</a> below for the details
+        and the confidence caveats.
+      </p>
+      <p className="ref-prose">
+        Maths 2 appears to be the hardest of the three required modules. In the UAT-UK October 2024 distributions,
         its modal scaled score is about 3.5, compared with about 4.0 for Maths 1 and 5.0 for
         Physics. A raw 16/27 in Maths 2 maps to roughly 7.0 on the scale, while the same raw
         mark in Maths 1 maps to roughly 6.1. The module scales should not be treated as
@@ -293,6 +307,123 @@ export function ConversionSection() {
   );
 }
 
+export function AddonModulesSection() {
+  return (
+    <section id="addons" className="ref-section">
+      <h2 className="ref-h2">Chemistry &amp; Biology (addon modules)</h2>
+
+      <div className="ref-callout ref-callout--warning">
+        <strong>Lower confidence than M1/M2/Physics:</strong> both Chemistry and Biology are
+        among the higher-scoring ESAT science modules, but for neither module does a genuine
+        crowdsourced ESAT raw↔scaled pair exist. Their 9.0 raw-mark ceilings are extrapolated
+        from the last published NSAA conversion table and FOI module-ordering, not measured
+        from real ESAT self-reports — materially weaker evidence than the TSR-anchored
+        ceilings for Maths 1, Maths 2 and Physics. Score cards for these two modules show an
+        "estimated" badge for this reason.
+      </div>
+
+      <p className="ref-prose">
+        Chemistry is required for Chemical Engineering routes and is a free-choice option for
+        Natural Sciences and Veterinary Medicine applicants. Biology cannot be taken for
+        Imperial Engineering/Physics routes; it is chosen mainly by Cambridge Natural Sciences
+        (biological) and Veterinary Medicine applicants. Both are 27-question, 40-minute,
+        no-negative-marking modules, same as the three required modules.
+      </p>
+
+      <div className="ref-table-wrap">
+        <table className="ref-table">
+          <thead>
+            <tr>
+              <th>Benchmark</th>
+              <th>Scaled</th>
+              <th>Chemistry raw</th>
+              <th>Biology raw</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Floor cap</td><td>1.0</td><td>≤ 4</td><td>≤ 4</td>
+              <td><span className="ref-badge ref-badge--high">Official</span></td>
+            </tr>
+            <tr>
+              <td>Modal / typical candidate</td><td>~4.0</td><td>~11-12</td><td>~11-12</td>
+              <td><span className="ref-badge ref-badge--moderate">Chart (secondhand)</span></td>
+            </tr>
+            <tr>
+              <td>All-applicant mean</td><td>4.62 / 4.72</td><td>~12-13</td><td>~12-13</td>
+              <td><span className="ref-badge ref-badge--high">FOI</span></td>
+            </tr>
+            <tr>
+              <td>Median</td><td>4.5</td><td>~12-13</td><td>~12</td>
+              <td><span className="ref-badge ref-badge--high">FOI</span></td>
+            </tr>
+            <tr>
+              <td>75th percentile</td><td>5.7 / 5.9</td><td>~16</td><td>~15</td>
+              <td><span className="ref-badge ref-badge--high">FOI</span></td>
+            </tr>
+            <tr>
+              <td>Competitive / interview-viable</td><td>~6.5</td><td>~18</td><td>~16-17</td>
+              <td><span className="ref-badge ref-badge--low">Extrapolated</span></td>
+            </tr>
+            <tr>
+              <td>Top ~10%</td><td>7.0</td><td>~19</td><td>~18</td>
+              <td><span className="ref-badge ref-badge--moderate">Anchor official, raw est.</span></td>
+            </tr>
+            <tr>
+              <td>Top ~3-5%</td><td>~8.0</td><td>~22</td><td>~20</td>
+              <td><span className="ref-badge ref-badge--low">Extrapolated</span></td>
+            </tr>
+            <tr>
+              <td>Module ceiling (9.0)</td><td>9.0</td><td>~24 (23-25)</td><td>~22 (21-23)</td>
+              <td><span className="ref-badge ref-badge--low">Extrapolated</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="ref-prose">
+        Scaled figures are Chemistry / Biology respectively where they differ. Chemistry mean
+        4.62, Biology mean 4.72 — both above the Maths 1 and Physics means. Chemistry's 75th
+        percentile is 5.7, Biology's is 5.9 (the highest 75th percentile of the five modules).
+      </p>
+
+      <h3 className="ref-h3">Why the ceilings differ from M1/M2/Physics</h3>
+      <p className="ref-prose">
+        The recommended ceiling of <strong>24/27 for Chemistry</strong> and{" "}
+        <strong>22/27 for Biology</strong> both come from proportionally rescaling the last
+        published NSAA Section 1 conversion table (2023) to the ESAT's /27 mark scheme, cross-checked
+        against the FOI module-mean ordering. This is a much weaker anchor than the Maths 1 (23/27),
+        Maths 2 (20/27) and Physics (24/27) ceilings, which are self-reported ESAT raw/scaled
+        pairs from TSR. Treat the Chemistry/Biology ceilings as a plausible range (23-25 and 21-23
+        respectively), not a fixed boundary.
+      </p>
+
+      <h3 className="ref-h3">Distribution shape</h3>
+      <p className="ref-prose">
+        The two modules do not share a curve shape. Per UniAdmissions' reading of the official
+        October 2024 chart, <strong>Chemistry is comparatively peaked</strong>: nearly 50% of
+        candidates scored in the 4.0-5.5 range, the tightest cluster of any module, alongside a
+        heavy low tail (over 20% scored the 1.0 floor on the legacy NSAA; a 3.0 spike appeared in
+        the 2025/26 ESAT cohort). <strong>Biology is the flattest, widest curve of the five
+        modules</strong> — about 39% of candidates fell in 4.0-5.5, spread roughly evenly rather
+        than peaked, staying "fairly smooth until 7.5." Biology also has the thinnest top end
+        (~1% scored 9.0, versus a ~2% module average), and its low tail is volatile between
+        sittings — a 2025/26-only floor spike put 6-7% of candidates at 1.0, a spike absent from
+        2024/25. In both modules essentially no candidate scored 8.5, so the curve jumps from
+        ~8.0 straight to a small 9.0 pile in each case.
+      </p>
+
+      <h3 className="ref-h3">Limitations specific to these two modules</h3>
+      <ul className="ref-prose-list">
+        <li>No candidate on The Student Room, Reddit, or the WhatDoTheyKnow FOI archive has posted a paired raw Chemistry or Biology mark and its scaled score.</li>
+        <li>Every UAT-UK request for a raw-to-scaled conversion table has been refused under FOI exemption s.43(2) (commercial sensitivity).</li>
+        <li>Distribution percentages are read secondhand from tutoring-company descriptions of the official charts, not extracted from the chart images directly.</li>
+        <li>FOI means/quartiles cover the whole ESAT applicant pool, not the self-selected sub-cohort who sit Chemistry or Biology specifically.</li>
+      </ul>
+    </section>
+  );
+}
+
 export function WilsonSection() {
   return (
     <section id="wilson" className="ref-section">
@@ -499,6 +630,17 @@ export function LimitationsSection() {
       </div>
 
       <div className="ref-limitation">
+        <div className="ref-limitation-head">Chemistry and Biology ceilings are extrapolated, not measured</div>
+        <p className="ref-prose">
+          Unlike M1/M2/Physics, no candidate has publicly reported a paired raw Chemistry or
+          Biology mark and its scaled score. The 24/27 (Chemistry) and 22/27 (Biology) ceilings
+          are extrapolated from the last published NSAA conversion table and FOI module-mean
+          ordering. See <a className="ref-link" href="#addons">Chemistry &amp; Biology</a> for
+          the full reasoning and the plausible ranges.
+        </p>
+      </div>
+
+      <div className="ref-limitation">
         <div className="ref-limitation-head">ESAT is not additive in admissions decisions</div>
         <p className="ref-prose">
           Cambridge and Imperial look at module profiles, not just averages. A 9.0 in Maths 1 and a
@@ -578,6 +720,71 @@ export function SourcesSection() {
             <p className="ref-source-note">
               Applications, offers, and acceptances by course and college. Referenced in the FOI response.
             </p>
+          </div>
+        </li>
+      </ul>
+
+      <h3 className="ref-h3">Chemistry &amp; Biology (extrapolated ceilings)</h3>
+      <p className="ref-prose">
+        No TSR/FOI raw↔scaled pair exists for either module. These sources support the FOI
+        scaled means/quartiles and the NSAA-proportional ceiling estimate only.
+      </p>
+      <ul className="ref-source-list">
+        <li>
+          <span className="ref-badge ref-badge--high">FOI</span>
+          <div>
+            <a className="ref-link" href="https://www.whatdotheyknow.com/request/esat_2025" target="_blank" rel="noopener noreferrer">
+              FOI "Esat 2025" (UAT-UK, 2024/25 cycle)
+            </a>
+            <p className="ref-source-note">
+              Per-module scaled means and quartiles: Chemistry mean 4.617 (median 4.5, 25th 3.4,
+              75th 5.7); Biology mean 4.715 (median 4.5, 25th 3.6, 75th 5.9) — the highest mean
+              and 75th percentile of the five modules.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="ref-badge ref-badge--low">Extrapolated</span>
+          <div>
+            <a className="ref-link" href="https://www.uniadmissions.co.uk/esat/guides/esat-results/" target="_blank" rel="noopener noreferrer">
+              UniAdmissions — ESAT results guide
+            </a>
+            <p className="ref-source-note">
+              Secondhand description of the official 2024/25 and 2025/26 charts: ~50% of Chemistry
+              candidates in 4.0-5.5 vs ~39% of Biology; no candidates at 8.5 in either module;
+              ~2% at 9.0 on average vs Biology's ~1%; reproduces the NSAA 2023 conversion table
+              used as the ceiling anchor (Chemistry 18/20→9.0, Biology 16/20→9.0).
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="ref-badge ref-badge--low">Extrapolated</span>
+          <div>
+            <a className="ref-link" href="https://exams.ninja/esat/guides/results/" target="_blank" rel="noopener noreferrer">
+              Exams.Ninja — ESAT results guide
+            </a>
+            <p className="ref-source-note">
+              Secondhand description of 2025/26 charts: Chemistry spike at 3.0; Biology "over 7%"
+              of candidates scoring the 1.0 floor, a spike not present in 2024/25 data.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="ref-badge ref-badge--low">Extrapolated</span>
+          <div>
+            <a className="ref-link" href="https://www.tutelaprep.com/blog/what-is-a-good-esat-score/" target="_blank" rel="noopener noreferrer">
+              Tutela Prep — What is a good ESAT score?
+            </a>
+            <p className="ref-source-note">Secondhand 2025/26 figure: Biology "over 6%" scoring 1.0.</p>
+          </div>
+        </li>
+        <li>
+          <span className="ref-badge ref-badge--low">Extrapolated</span>
+          <div>
+            <a className="ref-link" href="https://www.oxbridgemind.co.uk/ucas/ucas-esat-for-imperial-college-london/" target="_blank" rel="noopener noreferrer">
+              Oxbridge Mind — ESAT for Imperial College London
+            </a>
+            <p className="ref-source-note">Secondhand Chemistry percentages, 2024/25: ~72% scored ≥4.0, ~32% scored above 5.0.</p>
           </div>
         </li>
       </ul>
