@@ -434,6 +434,10 @@ html:has(.sk-session) {
   box-shadow: var(--sk-sess-paper-shadow);
   /* Hide the scrollbar on the scan itself but keep it scrollable. */
   scrollbar-width: none;
+  /* Animate this wrapper (not the img) so the settle-in only plays once per
+     session mount — the img itself is now keyed per-question to force a
+     fresh DOM node, which would otherwise replay this on every navigation. */
+  animation: image-settle 700ms var(--motion-smooth) both;
 }
 
 .session-image-scroll::-webkit-scrollbar {
@@ -448,7 +452,6 @@ html:has(.sk-session) {
   min-width: 0;
   max-width: 100%;
   transform-origin: top center;
-  animation: image-settle 700ms var(--motion-smooth) both;
 }
 
 .session-image-scroll-expanded img,
