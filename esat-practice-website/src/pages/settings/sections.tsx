@@ -178,11 +178,6 @@ export function SessionDefaultsSection({ settings, update }: SettingsSectionProp
   );
 }
 
-const SUBJECT_DESCRIPTIONS: Partial<Record<UserSettings["enabledSubjects"][number], string>> = {
-  chemistry: "Addon subject — enable to include Chemistry questions in practice.",
-  biology: "Addon subject — enable to include Biology questions in practice.",
-};
-
 export function SubjectsSection({ settings, update }: SettingsSectionProps) {
   const enabledSubjects = settings.enabledSubjects;
 
@@ -199,11 +194,7 @@ export function SubjectsSection({ settings, update }: SettingsSectionProps) {
       description="Choose which subjects appear in practice sessions and topic pickers."
     >
       {ALL_SUBJECTS.map((subject) => (
-        <Field
-          key={subject}
-          label={SUBJECT_LABELS[subject]}
-          description={SUBJECT_DESCRIPTIONS[subject]}
-        >
+        <Field key={subject} label={SUBJECT_LABELS[subject]}>
           <Toggle
             ariaLabel={SUBJECT_LABELS[subject]}
             checked={enabledSubjects.includes(subject)}
