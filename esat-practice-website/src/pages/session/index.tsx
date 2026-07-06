@@ -6,6 +6,7 @@ import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
 import { NavControls } from "../../components/session/NavControls";
 import { SessionHeader } from "../../components/session/SessionHeader";
 import { useQuestionStore } from "../../lib/questionStore";
+import { getQuestionImageSrc } from "../../lib/questionImage";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionEngine } from "../../store/sessionSlice";
 import { formatShortcutKey, type ShortcutAction } from "../../types/settings";
@@ -14,6 +15,7 @@ import { truncateQuestionText } from "../../lib/textUtils";
 import { AskClaudeButton } from "../../components/AskClaudeButton";
 import { MobileRevealPopup } from "./MobileRevealPopup";
 import { useAutoAdvance } from "./useAutoAdvance";
+import { useImagePreload } from "./useImagePreload";
 import { useSessionKeyboardShortcuts } from "./useSessionKeyboardShortcuts";
 
 export default function SessionPage() {
@@ -67,6 +69,8 @@ export default function SessionPage() {
       ) as Record<ShortcutAction, string>,
     [settings.shortcuts],
   );
+
+  useImagePreload(questions, currentIndex);
 
   const { armForCurrentQuestion } = useAutoAdvance({
     enabled: settings.autoAdvance,
@@ -145,13 +149,7 @@ export default function SessionPage() {
     );
   }
 
-  const imageSrc =
-    currentQuestion.content.image_url ??
-    (currentQuestion.content.image_b64
-      ? currentQuestion.content.image_b64.startsWith("data:")
-        ? currentQuestion.content.image_b64
-        : `data:image/png;base64,${currentQuestion.content.image_b64}`
-      : undefined);
+  const imageSrc = getQuestionImageSrc(currentQuestion);
   const questionPreview = truncateQuestionText(currentQuestion.content.text.replace(/\s+/g, " "), 130);
   const showMetadata = !settings.examMode && (isAnswerRevealed || Boolean(currentAttemptResult));
   const confidence = Math.round(currentQuestion.taxonomy.confidence * 100);
