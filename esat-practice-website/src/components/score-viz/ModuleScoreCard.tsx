@@ -23,7 +23,14 @@ export function ModuleScoreCard({ result, label }: ModuleScoreCardProps) {
 
   return (
     <div className="sv-card">
-      <div className="sv-card-label">{label}</div>
+      <div className="sv-card-label">
+        {label}
+        {result.isCeilingExtrapolated && (
+          <span className="sv-extrapolated-badge" title="This module's raw-to-scaled ceiling is extrapolated, not confirmed by UAT-UK">
+            estimated
+          </span>
+        )}
+      </div>
 
       <div className="sv-headline-row">
         <span className="sv-band-headline">{bandHeadline}</span>

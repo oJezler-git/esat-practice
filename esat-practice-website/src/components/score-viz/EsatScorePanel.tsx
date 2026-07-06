@@ -16,11 +16,13 @@ interface EsatScorePanelProps {
 export function EsatScorePanel({ items }: EsatScorePanelProps) {
   const groups = detectModuleGroups(items);
 
-  const m1Result     = groups.m1.total     > 0 ? computeModuleResult(groups.m1.correct,     groups.m1.total,     "maths1")  : null;
-  const m2Result     = groups.m2.total     > 0 ? computeModuleResult(groups.m2.correct,     groups.m2.total,     "maths2")  : null;
-  const physicsResult = groups.physics.total > 0 ? computeModuleResult(groups.physics.correct, groups.physics.total, "physics") : null;
+  const m1Result        = groups.m1.total        > 0 ? computeModuleResult(groups.m1.correct,        groups.m1.total,        "maths1")    : null;
+  const m2Result        = groups.m2.total        > 0 ? computeModuleResult(groups.m2.correct,        groups.m2.total,        "maths2")    : null;
+  const physicsResult   = groups.physics.total   > 0 ? computeModuleResult(groups.physics.correct,   groups.physics.total,   "physics")   : null;
+  const chemistryResult = groups.chemistry.total > 0 ? computeModuleResult(groups.chemistry.correct, groups.chemistry.total, "chemistry") : null;
+  const biologyResult   = groups.biology.total   > 0 ? computeModuleResult(groups.biology.correct,   groups.biology.total,   "biology")   : null;
 
-  if (!m1Result && !m2Result && !physicsResult) {
+  if (!m1Result && !m2Result && !physicsResult && !chemistryResult && !biologyResult) {
     return null;
   }
 
@@ -31,9 +33,11 @@ export function EsatScorePanel({ items }: EsatScorePanelProps) {
   return (
     <div className="sv-panel">
       <div className="sv-module-grid">
-        {m1Result     && <ModuleScoreCard result={m1Result}     label="Mathematics 1" />}
-        {m2Result     && <ModuleScoreCard result={m2Result}     label="Mathematics 2" />}
-        {physicsResult && <ModuleScoreCard result={physicsResult} label="Physics"       />}
+        {m1Result        && <ModuleScoreCard result={m1Result}        label="Mathematics 1" />}
+        {m2Result        && <ModuleScoreCard result={m2Result}        label="Mathematics 2" />}
+        {physicsResult   && <ModuleScoreCard result={physicsResult}   label="Physics"       />}
+        {chemistryResult && <ModuleScoreCard result={chemistryResult} label="Chemistry"     />}
+        {biologyResult   && <ModuleScoreCard result={biologyResult}   label="Biology"       />}
       </div>
 
       <TopicModuleBreakdown items={items} />

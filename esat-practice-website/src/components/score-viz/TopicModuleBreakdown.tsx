@@ -17,7 +17,7 @@ interface ModuleTopics {
   topics: TopicStats[];
 }
 
-function collectModuleTopics(items: ReviewItem[], prefix: "M" | "MM" | "P"): TopicStats[] {
+function collectModuleTopics(items: ReviewItem[], prefix: "M" | "MM" | "P" | "C" | "B"): TopicStats[] {
   const map = new Map<string, TopicStats>();
   for (const { question, attempt } of items) {
     const topic = question.taxonomy.primary_topic;
@@ -25,7 +25,9 @@ function collectModuleTopics(items: ReviewItem[], prefix: "M" | "MM" | "P"): Top
     const belongs =
       (prefix === "MM" && mod === "m2") ||
       (prefix === "M"  && mod === "m1") ||
-      (prefix === "P"  && mod === "physics");
+      (prefix === "P"  && mod === "physics") ||
+      (prefix === "C"  && mod === "chemistry") ||
+      (prefix === "B"  && mod === "biology");
     if (!belongs) continue;
     const entry = map.get(topic) ?? { topic, correct: 0, total: 0 };
     entry.total++;
@@ -44,6 +46,8 @@ export function TopicModuleBreakdown({ items }: TopicModuleBreakdownProps) {
     { label: "Mathematics 1",  topics: collectModuleTopics(items, "M")  },
     { label: "Mathematics 2",  topics: collectModuleTopics(items, "MM") },
     { label: "Physics",        topics: collectModuleTopics(items, "P")  },
+    { label: "Chemistry",      topics: collectModuleTopics(items, "C")  },
+    { label: "Biology",        topics: collectModuleTopics(items, "B")  },
   ].filter((g) => g.topics.length > 0);
 
   if (groups.length === 0) return null;

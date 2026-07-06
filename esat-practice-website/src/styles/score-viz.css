@@ -45,6 +45,20 @@
   letter-spacing: 0.07em;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sv-extrapolated-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-amber);
+  border: 1px solid var(--color-amber);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
 }
 
 .sv-headline-row {
