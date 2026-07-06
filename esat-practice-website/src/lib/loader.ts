@@ -529,7 +529,7 @@ async function loadPackPayload(pack: QuestionPackManifest): Promise<unknown> {
   if (!pack.path) {
     return pipelineSample;
   }
-  return fetchJson(resolveDataUrl(pack.path), "force-cache");
+  return fetchJson(resolveDataUrl(pack.path), "no-cache");
 }
 
 export async function ensureQuestionPacksBootstrapped(
