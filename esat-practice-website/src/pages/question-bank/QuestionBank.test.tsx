@@ -147,6 +147,149 @@ describe("QuestionBank", () => {
     expect(screen.getByText("No questions match your filters.")).toBeInTheDocument();
   });
 
+  it("drills the expanded question's topic into a topic session", async () => {
+    renderQuestionBank();
+
+    fireEvent.click(screen.getByText(/Algebra expansion practice/).closest("button") as HTMLElement);
+    fireEvent.click(await screen.findByRole("button", { name: "Drill this topic" }));
+
+    await waitFor(() => {
+      expect(storeMocks.sessionState.createSession).toHaveBeenCalledWith({
+        mode: "topic",
+        question_ids: ["q1"],
+        topic_filter: ["Algebra"],
+        question_count: 1,
+      });
+    });
+    expect(screen.getByTestId("location")).toHaveTextContent("/session/session-1");
+  });
+
+  it("filters by topic chips, year chips, primary-model toggle, and sort order", () => {
+    renderQuestionBank();
+
+    // Topic chip narrows to Algebra.
+    fireEvent.click(screen.getByRole("button", { name: "Algebra" }));
+    expect(screen.getByText(/Algebra expansion practice/)).toBeInTheDocument();
+    expect(screen.queryByText(/Mechanics velocity practice/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Algebra" }));
+
+    // Year chip narrows to 2021.
+    fireEvent.click(screen.getByRole("button", { name: "2021" }));
+    expect(screen.getByText(/Mechanics velocity practice/)).toBeInTheDocument();
+    expect(screen.queryByText(/Algebra expansion practice/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "2021" }));
+
+    // Primary-model only hides the escalated question (q2).
+    fireEvent.click(screen.getByLabelText("Primary-model only"));
+    expect(screen.queryByText(/Mechanics velocity practice/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Primary-model only"));
+
+    // Sorting by topic puts Algebra before Mechanics.
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "topic" } });
+    const previews = screen
+      .getAllByText(/practice$/)
+      .map((node) => node.textContent);
+    expect(previews[0]).toContain("Algebra expansion");
+  });
+
+  it("reports hidden NSAA duplicates and can un-hide them", () => {
+    const twin = makeQuestion("nsaa1", "Algebra expansion practice", "Algebra", 2020);
+    storeMocks.questionState.fullPracticeBank = [...practiceQuestions, twin];
+    storeMocks.questionState.allQuestions = [...practiceQuestions, twin, ...excludedQuestions];
+    storeMocks.questionState.nsaaDuplicateAnalysis = {
+      hiddenNsaaIds: new Set(["nsaa1"]),
+      excludedPairs: [],
+      nearMissPairs: [],
+    };
+
+    renderQuestionBank();
+    expect(screen.getByText(/\(1 NSAA duplicates hidden\)/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Exclude NSAA duplicates"));
+    expect(screen.queryByText(/NSAA duplicates hidden/)).not.toBeInTheDocument();
+    expect(screen.getByText(/3 of 3 practice questions/)).toBeInTheDocument();
+  });
+
+  it("opens the data dump panel and shows aggregate stats", () => {
+    const { container } = renderQuestionBank();
+
+    const details = container.querySelector("details.sk-bank-datadump") as HTMLDetailsElement;
+    details.open = true;
+    fireEvent(details, new Event("toggle"));
+
+    expect(screen.getByText("Total questions")).toBeInTheDocument();
+    expect(screen.getByText("Primary topic counts")).toBeInTheDocument();
+    expect(screen.getByText("Year counts")).toBeInTheDocument();
+  });
+
+  it("shows the dedupe debug panel with excluded pairs and near misses", () => {
+    const nsaaTwin = makeQuestion("nsaa1", "Shared duplicate text", "Algebra", 2020);
+    const engaaTwin = makeQuestion("q1", "Shared duplicate text", "Algebra", 2020);
+    storeMocks.questionState.nsaaDuplicateAnalysis = {
+      hiddenNsaaIds: new Set(["nsaa1"]),
+      excludedPairs: [
+        {
+          nsaaQuestion: nsaaTwin,
+          engaaQuestion: engaaTwin,
+          similarity: 0.97,
+          textLengthRatio: 0.99,
+          year: 2020,
+          partKey: "1A",
+        },
+      ],
+      nearMissPairs: [
+        {
+          nsaaQuestion: makeQuestion("nsaa2", "Nearly the same text", "Algebra", 2021),
+          engaaQuestion: makeQuestion("q2", "Nearly identical text", "Algebra", 2021),
+          similarity: 0.82,
+          textLengthRatio: 0.95,
+          year: 2021,
+          partKey: "1A",
+          reason: "similarity_below_threshold",
+        },
+      ],
+    };
+
+    renderQuestionBank();
+    fireEvent.click(screen.getByLabelText("Dedupe debug"));
+
+    expect(screen.getByText("1 excluded")).toBeInTheDocument();
+    expect(screen.getByText("1 near miss")).toBeInTheDocument();
+    expect(screen.getByText("score 97% | length ratio 99%")).toBeInTheDocument();
+    expect(
+      screen.getByText("Reason: similarity below exclusion threshold"),
+    ).toBeInTheDocument();
+  });
+
+  it("excluded-scope detail panel offers undo instead of exclude and renders the scan", async () => {
+    storeMocks.questionState.excludedQuestions = [
+      {
+        ...excludedQuestions[0],
+        content: { ...excludedQuestions[0].content, image_b64: "abc123" },
+      },
+    ];
+
+    renderQuestionBank();
+    fireEvent.click(screen.getByRole("tab", { name: "Excluded (1)" }));
+    fireEvent.click(
+      screen.getByText(/Excluded calculus practice/).closest("button") as HTMLElement,
+    );
+
+    // Drill is blocked while excluded; the danger action flips to undo.
+    const drill = await screen.findByRole("button", { name: "Undo exclusion to drill" });
+    expect(drill).toBeDisabled();
+    expect(screen.getByAltText("Diagram")).toHaveAttribute(
+      "src",
+      "data:image/png;base64,abc123",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo exclusion" }));
+    expect(storeMocks.excludedState.includeQuestion).toHaveBeenCalledWith(
+      "ex1",
+      storeMocks.questionState.allQuestions,
+    );
+  });
+
   it("filters, expands, excludes/restores, and starts a filtered practice session", async () => {
     renderQuestionBank();
 

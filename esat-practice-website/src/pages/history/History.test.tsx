@@ -178,7 +178,7 @@ describe("HistoryPage", () => {
     );
     expect(todayCellTitle).toBeDefined();
 
-    fireEvent.click(todayCellTitle?.parentElement as SVGRectElement);
+    fireEvent.click(todayCellTitle?.parentElement as Element);
 
     expect(await screen.findByRole("heading", { name: todayLabel })).toBeInTheDocument();
     expect(screen.getByText("timed")).toBeInTheDocument();

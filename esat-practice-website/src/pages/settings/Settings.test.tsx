@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import Settings from ".";
@@ -127,6 +127,80 @@ describe("Settings", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
     expect(useSettingsStore.getState().settings.claudePromptTemplate).toBe(DEFAULT_PROMPT_TEMPLATE);
+  });
+
+  it("updates display preferences: colour theme, appearance, fonts", () => {
+    renderSettings();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Emerald" }));
+    expect(useSettingsStore.getState().settings.colorTheme).toBe("emerald");
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Appearance" }), {
+      target: { value: "light" },
+    });
+    expect(useSettingsStore.getState().settings.theme).toBe("light");
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Interface font" }), {
+      target: { value: "monospace" },
+    });
+    expect(useSettingsStore.getState().settings.fontPreset).toBe("monospace");
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Question font size" }), {
+      target: { value: "lg" },
+    });
+    expect(useSettingsStore.getState().settings.fontSize).toBe("lg");
+  });
+
+  it("changes the auto-exclude predicate once enabled", () => {
+    renderSettings();
+
+    fireEvent.click(screen.getByRole("switch", { name: "Auto-exclude answered questions" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Exclude when" }), {
+      target: { value: "correct" },
+    });
+    expect(useSettingsStore.getState().settings.autoExcludeOn).toBe("correct");
+  });
+
+  it("Reset pool re-adds every excluded question only after confirmation", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderSettings();
+
+    const resetPool = screen.getByRole("button", { name: "Reset pool" });
+    fireEvent.click(resetPool);
+    expect(mocks.includeQuestion).not.toHaveBeenCalled();
+
+    confirmSpy.mockReturnValue(true);
+    fireEvent.click(resetPool);
+    await waitFor(() => {
+      expect(mocks.includeQuestion).toHaveBeenCalledWith("q1");
+    });
+    expect(confirmSpy).toHaveBeenCalledWith("Re-add all 1 excluded questions to the pool?");
+  });
+
+  it("assigning a shortcut key already in use swaps the two shortcuts", () => {
+    renderSettings();
+
+    // Give "Mark incorrect" the key currently held by "Next question".
+    const nextKey = DEFAULT_SETTINGS.shortcuts.next;
+    const incorrectKey = DEFAULT_SETTINGS.shortcuts.incorrect;
+    const incorrectInput = screen.getByRole("button", { name: "Mark incorrect" });
+    fireEvent.focus(incorrectInput);
+    fireEvent.keyDown(incorrectInput, { key: nextKey });
+
+    const { shortcuts } = useSettingsStore.getState().settings;
+    expect(shortcuts.incorrect).toBe(nextKey);
+    expect(shortcuts.next).toBe(incorrectKey);
+  });
+
+  it("mounts the Ask Claude installation guide modal on request", () => {
+    // Open/close behaviour of the native <dialog> itself is covered by
+    // AskClaudeInfoModal.test.tsx; here we only assert the section wires the
+    // button to mounting the modal.
+    renderSettings();
+
+    expect(document.querySelector("dialog.ask-claude-modal")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /installation guide/i }));
+    expect(document.querySelector("dialog.ask-claude-modal")).toBeInTheDocument();
   });
 
   it("resets all settings to defaults after confirmation", () => {
