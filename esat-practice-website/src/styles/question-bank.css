@@ -216,6 +216,17 @@
   color: var(--sk-text);
 }
 
+.question-bank-practice-cta-slot {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 13.75rem;
+}
+
+.sk-bank-practice-cta-placeholder {
+  display: block;
+  width: 13.75rem;
+}
+
 /* Green glossy "Practice these" CTA */
 .sk-bank-practice-cta {
   position: relative;
@@ -503,6 +514,11 @@
 
 /* Custom skeuo checkbox — recessed well when off, glossy gold tile with an
    engraved check when on (native accent-color left the browser box shape). */
+.question-bank-toggle-spacer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .question-bank-toggle input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
@@ -956,6 +972,23 @@
   .sk-bank-practice-cta {
     width: 100%;
     text-align: center;
+  }
+
+  .question-bank-practice-cta-slot {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .question-bank-practice-cta-slot-empty {
+    display: none;
+  }
+
+  .sk-bank-practice-cta-placeholder {
+    width: 100%;
+  }
+
+  .question-bank-toggle-spacer {
+    display: none;
   }
 
   .question-bank-filter-row {

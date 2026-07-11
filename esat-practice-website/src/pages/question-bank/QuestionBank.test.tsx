@@ -161,7 +161,11 @@ describe("QuestionBank", () => {
         question_count: 1,
       });
     });
-    expect(screen.getByTestId("location")).toHaveTextContent("/session/session-1");
+    await waitFor(() => {
+      expect(screen.getByTestId("location")).toHaveTextContent(
+        "/session/session-1",
+      );
+    });
   });
 
   it("filters by topic chips, year chips, primary-model toggle, and sort order", () => {

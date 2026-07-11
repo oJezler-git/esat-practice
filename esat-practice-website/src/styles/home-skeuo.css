@@ -320,8 +320,6 @@
 .sk-recent--active {
   background: var(--sk-recent-active-bg);
   box-shadow: var(--sk-recent-active-shadow);
-  border-left: 3px solid;
-  border-image: var(--sk-recent-active-border) 1;
   transition: transform 140ms var(--motion-snappy), filter 180ms ease;
 }
 
