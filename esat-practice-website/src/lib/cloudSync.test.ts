@@ -4,6 +4,11 @@ import {
   getSyncKey,
   setSyncKey,
   getLastPush,
+  getLastPull,
+  saveLocalBackup,
+  hasLocalBackup,
+  restoreLastBackup,
+  clearLastBackup,
   createSyncKeyWithWords,
   pushToCloud,
   pullFromCloud,
@@ -15,14 +20,17 @@ import { getDb } from "./db";
 
 vi.mock("./db");
 
+const backupDbMock = vi.hoisted(() => ({
+  put: vi.fn().mockResolvedValue(undefined),
+  get: vi.fn().mockResolvedValue(undefined),
+  delete: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("idb", async (importOriginal) => {
   const actual = await importOriginal() as typeof import("idb");
   return {
     ...actual,
-    openDB: vi.fn().mockResolvedValue({
-      put: vi.fn().mockResolvedValue(undefined),
-      get: vi.fn().mockResolvedValue(undefined),
-    }),
+    openDB: vi.fn().mockResolvedValue(backupDbMock),
   };
 });
 
@@ -41,6 +49,25 @@ function createMockDb() {
   };
   const db = { transaction: vi.fn().mockReturnValue(tx) };
   return { db, tx, store };
+}
+
+function createNamedMockDb(records: Record<string, unknown[]> = {}) {
+  const stores = new Map(
+    ["sessions", "attempts", "stats", "excludedQuestions"].map((name) => [
+      name,
+      {
+        getAll: vi.fn().mockResolvedValue(records[name] ?? []),
+        clear: vi.fn().mockResolvedValue(undefined),
+        put: vi.fn().mockResolvedValue(undefined),
+      },
+    ]),
+  );
+  const tx = {
+    objectStore: vi.fn((name: string) => stores.get(name)),
+    done: Promise.resolve(),
+  };
+  const db = { transaction: vi.fn().mockReturnValue(tx) };
+  return { db, tx, stores };
 }
 
 function mockFetchResponse(body: unknown, ok = true, status = 200) {
@@ -333,5 +360,88 @@ describe("pullFromCloud", () => {
     vi.stubGlobal("fetch", mockFetchResponse({ ...validPayload, version: 2 }));
 
     await expect(pullFromCloud("amber-forest-1234")).rejects.toThrow(/Unsupported sync payload version/);
+  });
+});
+
+describe("local pull backup helpers", () => {
+  const localRecords = {
+    sessions: [{ id: "local-session" }],
+    attempts: [{ id: "local-attempt", session_id: "local-session" }],
+    stats: [{ topic: "Algebra", last_attempted: 1 }],
+    excludedQuestions: [{ question_id: "q1", excluded_at: 1 }],
+  };
+
+  beforeEach(() => {
+    localStorage.clear();
+    backupDbMock.put.mockClear();
+    backupDbMock.get.mockReset();
+    backupDbMock.delete.mockClear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("saveLocalBackup stores an exported local snapshot", async () => {
+    const { db } = createNamedMockDb(localRecords);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    await saveLocalBackup();
+
+    expect(backupDbMock.put).toHaveBeenCalledWith("backups", {
+      id: "last-pull",
+      payload: expect.objectContaining({
+        version: 1,
+        sessions: localRecords.sessions,
+        attempts: localRecords.attempts,
+        stats: localRecords.stats,
+        excludedQuestions: localRecords.excludedQuestions,
+      }),
+    });
+  });
+
+  it("hasLocalBackup reflects whether the backup record exists", async () => {
+    backupDbMock.get.mockResolvedValueOnce({ id: "last-pull", payload: {} });
+    await expect(hasLocalBackup()).resolves.toBe(true);
+
+    backupDbMock.get.mockResolvedValueOnce(undefined);
+    await expect(hasLocalBackup()).resolves.toBe(false);
+  });
+
+  it("restoreLastBackup replaces local data, clears last-pull, and deletes the backup", async () => {
+    const backupPayload = {
+      version: 1 as const,
+      exported_at: 1,
+      ...localRecords,
+    };
+    backupDbMock.get.mockResolvedValue({ id: "last-pull", payload: backupPayload });
+    const { db, stores } = createNamedMockDb();
+    vi.mocked(getDb).mockResolvedValue(db as any);
+    localStorage.setItem("esat-sync-last-pull", "1700000000000");
+
+    await restoreLastBackup();
+
+    expect(stores.get("sessions")?.clear).toHaveBeenCalled();
+    expect(stores.get("attempts")?.clear).toHaveBeenCalled();
+    expect(stores.get("stats")?.clear).toHaveBeenCalled();
+    expect(stores.get("excludedQuestions")?.clear).toHaveBeenCalled();
+    expect(stores.get("sessions")?.put).toHaveBeenCalledWith(localRecords.sessions[0]);
+    expect(stores.get("attempts")?.put).toHaveBeenCalledWith(localRecords.attempts[0]);
+    expect(stores.get("stats")?.put).toHaveBeenCalledWith(localRecords.stats[0]);
+    expect(stores.get("excludedQuestions")?.put).toHaveBeenCalledWith(localRecords.excludedQuestions[0]);
+    expect(getLastPull()).toBeNull();
+    expect(backupDbMock.delete).toHaveBeenCalledWith("backups", "last-pull");
+  });
+
+  it("restoreLastBackup throws when no backup exists", async () => {
+    backupDbMock.get.mockResolvedValue(undefined);
+
+    await expect(restoreLastBackup()).rejects.toThrow("No backup found.");
+  });
+
+  it("clearLastBackup deletes the stored backup record", async () => {
+    await clearLastBackup();
+
+    expect(backupDbMock.delete).toHaveBeenCalledWith("backups", "last-pull");
   });
 });
