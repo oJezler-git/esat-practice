@@ -46,6 +46,11 @@ export async function downloadAllImagesForOffline(
     ),
   ];
 
+  if (typeof caches === "undefined" || typeof caches.open !== "function") {
+    onProgress(0, urls.length);
+    return 0;
+  }
+
   const cache = await caches.open(OFFLINE_IMAGES_CACHE);
   const existing = new Set((await cache.keys()).map((req) => req.url));
 

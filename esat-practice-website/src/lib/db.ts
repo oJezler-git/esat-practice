@@ -1,5 +1,5 @@
 import { openDB } from "idb";
-import type { DBSchema, IDBPDatabase } from "idb";
+import type { DBSchema, IDBPDatabase, OpenDBCallbacks } from "idb";
 import type {
   Attempt,
   CategoryStat,
@@ -76,85 +76,80 @@ interface EsatPracticeDB extends DBSchema {
 
 let databasePromise: Promise<IDBPDatabase<EsatPracticeDB>> | null = null;
 
+export const upgradeDatabase: NonNullable<
+  OpenDBCallbacks<EsatPracticeDB>["upgrade"]
+> = (database, _oldVersion, _newVersion, transaction) => {
+  if (!database.objectStoreNames.contains("questions")) {
+    const questionStore = database.createObjectStore("questions", {
+      keyPath: "id",
+    });
+    questionStore.createIndex("by-topic", "taxonomy.primary_topic");
+    questionStore.createIndex("by-paper", "source.paper");
+    questionStore.createIndex("by-year", "source.year");
+    questionStore.createIndex("by-part", "source.part");
+  }
+
+  if (!database.objectStoreNames.contains("sessions")) {
+    const sessionStore = database.createObjectStore("sessions", {
+      keyPath: "id",
+    });
+    sessionStore.createIndex("by-created-at", "created_at");
+    sessionStore.createIndex("by-state", "state");
+  }
+
+  if (!database.objectStoreNames.contains("attempts")) {
+    const attemptStore = database.createObjectStore("attempts", {
+      keyPath: "id",
+    });
+    attemptStore.createIndex("by-question-id", "question_id");
+    attemptStore.createIndex("by-session-id", "session_id");
+    attemptStore.createIndex("by-timestamp", "timestamp");
+  }
+
+  if (!database.objectStoreNames.contains("stats")) {
+    const statsStore = database.createObjectStore("stats", {
+      keyPath: "topic",
+    });
+    statsStore.createIndex("by-accuracy", "accuracy");
+    statsStore.createIndex("by-last-attempted", "last_attempted");
+  } else {
+    // Stats are now derived from the attempts store and rebuilt on startup.
+    transaction.objectStore("stats").clear();
+  }
+
+  if (!database.objectStoreNames.contains("categoryStats")) {
+    const categoryStatsStore = database.createObjectStore("categoryStats", {
+      keyPath: "id",
+    });
+    categoryStatsStore.createIndex("by-dimension", "dimension");
+    categoryStatsStore.createIndex("by-accuracy", "accuracy");
+  } else {
+    transaction.objectStore("categoryStats").clear();
+  }
+
+  if (!database.objectStoreNames.contains("sessionSummaries")) {
+    const sessionSummariesStore = database.createObjectStore(
+      "sessionSummaries",
+      { keyPath: "session_id" },
+    );
+    sessionSummariesStore.createIndex("by-completed-at", "completed_at");
+  } else {
+    transaction.objectStore("sessionSummaries").clear();
+  }
+
+  if (!database.objectStoreNames.contains("excludedQuestions")) {
+    const excludedQuestionsStore = database.createObjectStore(
+      "excludedQuestions",
+      { keyPath: "question_id" },
+    );
+    excludedQuestionsStore.createIndex("by-excluded-at", "excluded_at");
+  }
+};
+
 export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
   if (!databasePromise) {
     databasePromise = openDB<EsatPracticeDB>(DB_NAME, DB_VERSION, {
-      upgrade(database, _oldVersion, _newVersion, transaction) {
-        if (!database.objectStoreNames.contains("questions")) {
-          const questionStore = database.createObjectStore("questions", {
-            keyPath: "id",
-          });
-          questionStore.createIndex("by-topic", "taxonomy.primary_topic");
-          questionStore.createIndex("by-paper", "source.paper");
-          questionStore.createIndex("by-year", "source.year");
-          questionStore.createIndex("by-part", "source.part");
-        }
-
-        if (!database.objectStoreNames.contains("sessions")) {
-          const sessionStore = database.createObjectStore("sessions", {
-            keyPath: "id",
-          });
-          sessionStore.createIndex("by-created-at", "created_at");
-          sessionStore.createIndex("by-state", "state");
-        }
-
-        if (!database.objectStoreNames.contains("attempts")) {
-          const attemptStore = database.createObjectStore("attempts", {
-            keyPath: "id",
-          });
-          attemptStore.createIndex("by-question-id", "question_id");
-          attemptStore.createIndex("by-session-id", "session_id");
-          attemptStore.createIndex("by-timestamp", "timestamp");
-        }
-
-        if (!database.objectStoreNames.contains("stats")) {
-          const statsStore = database.createObjectStore("stats", {
-            keyPath: "topic",
-          });
-          statsStore.createIndex("by-accuracy", "accuracy");
-          statsStore.createIndex("by-last-attempted", "last_attempted");
-        } else {
-          // Stats are now derived from the attempts store and rebuilt on
-          // startup, so any previously-accumulated (incrementally-mutated) stats
-          // are discarded here to avoid showing stale values before recompute.
-          transaction.objectStore("stats").clear();
-        }
-
-        // Sibling derived stores (Phase 2). Like `stats` these are rebuilt from
-        // the attempts store on startup, so on upgrade we either create them or
-        // clear any stale rows before the next recompute repopulates them.
-        if (!database.objectStoreNames.contains("categoryStats")) {
-          const categoryStatsStore = database.createObjectStore("categoryStats", {
-            keyPath: "id",
-          });
-          categoryStatsStore.createIndex("by-dimension", "dimension");
-          categoryStatsStore.createIndex("by-accuracy", "accuracy");
-        } else {
-          transaction.objectStore("categoryStats").clear();
-        }
-
-        if (!database.objectStoreNames.contains("sessionSummaries")) {
-          const sessionSummariesStore = database.createObjectStore(
-            "sessionSummaries",
-            {
-              keyPath: "session_id",
-            },
-          );
-          sessionSummariesStore.createIndex("by-completed-at", "completed_at");
-        } else {
-          transaction.objectStore("sessionSummaries").clear();
-        }
-
-        if (!database.objectStoreNames.contains("excludedQuestions")) {
-          const excludedQuestionsStore = database.createObjectStore(
-            "excludedQuestions",
-            {
-              keyPath: "question_id",
-            },
-          );
-          excludedQuestionsStore.createIndex("by-excluded-at", "excluded_at");
-        }
-      },
+      upgrade: upgradeDatabase,
     });
   }
 

@@ -69,7 +69,7 @@ function getBackupDb(): Promise<any> {
   return backupDbPromise;
 }
 
-async function saveLocalBackup(): Promise<void> {
+export async function saveLocalBackup(): Promise<void> {
   const [payload, db] = await Promise.all([exportData(), getBackupDb()]);
   await db.put("backups", { id: BACKUP_RECORD_KEY, payload });
 }
@@ -84,6 +84,11 @@ export async function hasLocalBackup(): Promise<boolean> {
   const db = await getBackupDb();
   const record = await db.get("backups", BACKUP_RECORD_KEY);
   return record !== undefined;
+}
+
+export async function clearLastBackup(): Promise<void> {
+  const db = await getBackupDb();
+  await db.delete("backups", BACKUP_RECORD_KEY);
 }
 
 /** Restore local data to exactly the pre-pull snapshot. Destructive by design — the user is explicitly undoing the last pull. */
@@ -106,8 +111,7 @@ export async function restoreLastBackup(): Promise<void> {
   ]);
   await tx.done;
   localStorage.removeItem(LAST_PULL_STORAGE_KEY);
-  const backupDb = await getBackupDb();
-  await backupDb.delete("backups", BACKUP_RECORD_KEY);
+  await clearLastBackup();
 }
 
 // ---------------------------------------------------------------------------
