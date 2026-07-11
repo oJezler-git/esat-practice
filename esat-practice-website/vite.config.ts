@@ -148,7 +148,42 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    // Heavy jsdom page tests starve past the 5s default when the full suite
+    // runs in parallel with coverage instrumentation.
+    testTimeout: 15_000,
+    hookTimeout: 15_000,
     setupFiles: "./src/vitest-setup.ts",
-    include: ["src/**/*.{test,spec}.{ts,tsx}", "cloudflare-worker/**/*.{test,spec}.{js,ts}"],
+    include: [
+      "src/**/*.{test,spec}.{ts,tsx}",
+      "scripts/**/*.{test,spec}.ts",
+      "cloudflare-worker/**/*.{test,spec}.{js,ts}",
+    ],
+    coverage: {
+      // Count every shipped source file, not just the ones tests import.
+      include: [
+        "src/**/*.{ts,tsx,js}",
+        "scripts/**/*.ts",
+        "cloudflare-worker/**/*.js",
+      ],
+      exclude: [
+        "**/*.{test,spec}.{ts,tsx,js}",
+        "src/data/**",
+        "src/types/schema.ts",
+        "src/types/engine.ts",
+        "src/vitest-setup.ts",
+        "src/vite-env.d.ts",
+        "src/main.tsx",
+      ],
+      reportOnFailure: true,
+      // Ratchet floor just under the current baseline (63.7% lines after the
+      // 2026-07-11 review-round gap closing) so regressions fail the run;
+      // raise as coverage improves.
+      thresholds: {
+        lines: 62,
+        statements: 62,
+        branches: 64,
+        functions: 78,
+      },
+    },
   },
 });
