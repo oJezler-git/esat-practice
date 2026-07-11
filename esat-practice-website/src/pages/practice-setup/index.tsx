@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildSession } from "../../engine/sessionBuilder";
 import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
@@ -157,6 +157,9 @@ export default function PracticeSetup() {
   }));
 
   const { mode, selectedTopics, selectedYears, questionCount, setupError } = state;
+  // O(1) membership checks for the chip render loops below.
+  const selectedTopicSet = useMemo(() => new Set(selectedTopics), [selectedTopics]);
+  const selectedYearSet = useMemo(() => new Set(selectedYears), [selectedYears]);
   // While the count field is focused we track the raw text so the user can clear
   // it and type freely; null means "not editing", so show the committed count.
   const [countDraft, setCountDraft] = useState<string | null>(null);
@@ -379,8 +382,8 @@ export default function PracticeSetup() {
                 type="button"
                 key={topic}
                 onClick={() => dispatch({ type: "toggle_topic", topic })}
-                aria-pressed={selectedTopics.includes(topic)}
-                className={`sk-chip ${selectedTopics.includes(topic) ? "sk-chip--active" : ""}`}
+                aria-pressed={selectedTopicSet.has(topic)}
+                className={`sk-chip ${selectedTopicSet.has(topic) ? "sk-chip--active" : ""}`}
               >
                 {topic}
               </button>
@@ -397,8 +400,8 @@ export default function PracticeSetup() {
                 type="button"
                 key={year}
                 onClick={() => dispatch({ type: "toggle_year", year })}
-                aria-pressed={selectedYears.includes(year)}
-                className={`sk-chip ${selectedYears.includes(year) ? "sk-chip--active" : ""}`}
+                aria-pressed={selectedYearSet.has(year)}
+                className={`sk-chip ${selectedYearSet.has(year) ? "sk-chip--active" : ""}`}
               >
                 {year}
               </button>

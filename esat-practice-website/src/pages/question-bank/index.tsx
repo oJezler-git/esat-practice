@@ -40,6 +40,10 @@ export default function QuestionBank() {
     sourceQuestions, visibleQuestions, filtered, dataDump, hiddenNsaaDuplicateCount, duplicateAnalysis,
   } = useQuestionBankFilters({ fullPracticeBank, excludedQuestions, nsaaDuplicateAnalysis, initialTopicFilter });
 
+  // O(1) membership checks for the chip render loops below.
+  const topicFilterSet = useMemo(() => new Set(topicFilter), [topicFilter]);
+  const yearFilterSet = useMemo(() => new Set(yearFilter), [yearFilter]);
+
   const {
     listRef, cardHeight, rowGap, rowHeight, isAnimating, expandedId, setExpanded, handleDetailHeightChange,
     selectedQuestion, selectedIndex, detailBlockHeight, dynamicTotalHeight, startIndex, virtualSlice,
@@ -178,7 +182,7 @@ export default function QuestionBank() {
               key={topic}
               onClick={() => toggleTopic(topic)}
               className={`question-bank-chip ${
-                topicFilter.includes(topic)
+                topicFilterSet.has(topic)
                   ? "question-bank-chip-active"
                   : "question-bank-chip-idle"
               }`}
@@ -200,7 +204,7 @@ export default function QuestionBank() {
               key={year}
               onClick={() => toggleYear(year)}
               className={`question-bank-chip ${
-                yearFilter.includes(year)
+                yearFilterSet.has(year)
                   ? "question-bank-chip-active"
                   : "question-bank-chip-idle"
               }`}

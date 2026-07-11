@@ -199,12 +199,14 @@ export function useQuestionBankFilters({ fullPracticeBank, excludedQuestions, ns
       );
     }
     if (topicFilter.length > 0) {
+      const topicSet = new Set(topicFilter);
       result = result.filter((item) =>
-        topicFilter.includes(item.taxonomy.primary_topic),
+        topicSet.has(item.taxonomy.primary_topic),
       );
     }
     if (yearFilter.length > 0) {
-      result = result.filter((item) => yearFilter.includes(item.source.year));
+      const yearSet = new Set(yearFilter);
+      result = result.filter((item) => yearSet.has(item.source.year));
     }
     if (verifiedOnly) {
       result = result.filter((item) => item.answer.verified);
