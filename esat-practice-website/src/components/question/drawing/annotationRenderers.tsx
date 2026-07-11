@@ -67,6 +67,7 @@ export function renderFreehand(
   );
   return (
     <path
+      key={id}
       data-ann-id={id}
       d={buildSmoothPath(points)}
       fill="none"
@@ -77,7 +78,6 @@ export function renderFreehand(
       strokeOpacity={kind === "highlighter" ? 0.35 : 1}
       opacity={isEraseTarget ? 0.3 : undefined}
       {...replayProps}
-      key={id}
     />
   );
 }
@@ -103,10 +103,10 @@ export function renderShape(
   };
   const replayProps = replayStrokeProps(getReplay, id);
   if (kind === "rect") {
-    return <rect {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} key={id} />;
+    return <rect key={id} {...common} {...rectAttrs(start, end)} rx={Math.min(strokeWidth, 6)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} />;
   }
   if (kind === "ellipse") {
-    return <ellipse {...common} {...ellipseAttrs(start, end)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} key={id} />;
+    return <ellipse key={id} {...common} {...ellipseAttrs(start, end)} opacity={isEraseTarget ? 0.3 : undefined} {...replayProps} />;
   }
   const headSize = Math.max(strokeWidth * 3.5, naturalWidth * 0.018);
   return (

@@ -10,6 +10,9 @@ const RevisionMarkdown = lazy(() => import("./RevisionMarkdown"));
 
 const MAX_QUESTION_LENGTH = 400;
 
+// A turn as held in local state: the wire shape plus a stable id for React keys.
+type UiTurn = RevisionAskTurn & { id: string };
+
 function TypewriterText({ text, animate }: { text: string; animate: boolean }) {
   const prefersReduced =
     typeof window !== "undefined" &&
@@ -74,7 +77,7 @@ export function RevisionAsk({
 }) {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
-  const [turns, setTurns] = useState<RevisionAskTurn[]>([]);
+  const [turns, setTurns] = useState<UiTurn[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -95,8 +98,9 @@ export function RevisionAsk({
       return;
     }
 
-    const history = turns;
-    setTurns((prev) => [...prev, { role: "user", text: trimmed }]);
+    // Send only the wire fields (role, text) to the server, not the local id.
+    const history: RevisionAskTurn[] = turns.map(({ role, text }) => ({ role, text }));
+    setTurns((prev) => [...prev, { id: crypto.randomUUID(), role: "user", text: trimmed }]);
     setQuestion("");
     setLoading(true);
     setError(null);
@@ -113,7 +117,7 @@ export function RevisionAsk({
       // index history.length       = user turn (just added)
       // index history.length + 1   = this model turn
       const modelTurnIndex = history.length + 1;
-      setTurns((prev) => [...prev, { role: "model" as const, text: answer }]);
+      setTurns((prev) => [...prev, { id: crypto.randomUUID(), role: "model" as const, text: answer }]);
       setAnimatedTurnIndex(modelTurnIndex);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -181,7 +185,7 @@ export function RevisionAsk({
             <div className="rev-ask-turns">
               {turns.map((turn, index) => (
                 <div
-                  key={index}
+                  key={turn.id}
                   className={`rev-ask-turn rev-ask-turn--${turn.role}`}
                 >
                   {turn.role === "model" ? (
