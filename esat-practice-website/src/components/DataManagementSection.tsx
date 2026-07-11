@@ -51,7 +51,13 @@ function dataMgmtReducer(state: DataMgmtState, action: DataMgmtAction): DataMgmt
   }
 }
 
-export function DataManagementSection() {
+interface DataManagementSectionProps {
+  reloadPage?: () => void;
+}
+
+export function DataManagementSection({
+  reloadPage = () => window.location.reload(),
+}: DataManagementSectionProps = {}) {
   const navigate = useNavigate();
   const [state, dispatch] = useReducer(dataMgmtReducer, {
     showClearAllModal: false,
@@ -80,7 +86,7 @@ export function DataManagementSection() {
       dispatch({ type: "set_message", message: { type: "success", text: "All data cleared. Reloading..." } });
       setTimeout(() => {
         navigate("/");
-        window.location.reload();
+        reloadPage();
       }, 1500);
     } catch (error) {
       dispatch({ type: "clear_error", error: `Error: ${error instanceof Error ? error.message : "Unknown error"}` });
@@ -93,7 +99,7 @@ export function DataManagementSection() {
       await clearProgressData();
       dispatch({ type: "set_message", message: { type: "success", text: "Progress data cleared. Reloading..." } });
       setTimeout(() => {
-        window.location.reload();
+        reloadPage();
       }, 1500);
     } catch (error) {
       dispatch({ type: "clear_error", error: `Error: ${error instanceof Error ? error.message : "Unknown error"}` });
