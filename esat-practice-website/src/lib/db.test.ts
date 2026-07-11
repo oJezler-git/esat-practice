@@ -109,6 +109,73 @@ describe("schema round-trips", () => {
 });
 
 describe("upgrades", () => {
+  it("migrates a v1 database (pre-exclusions) to v4 without losing user data", async () => {
+    dbCounter += 1;
+    const name = `db-test-${dbCounter}`;
+
+    // Recreate the historical v1 schema by hand (questions/sessions/attempts/
+    // stats only — verified against the original db.ts from commit 00e32b6),
+    // rather than using today's upgrade callback, so this test still fails if
+    // the current upgrade ever assumes a store v1 users don't have.
+    const v1 = await openDB(name, 1, {
+      upgrade(database) {
+        database.createObjectStore("questions", { keyPath: "id" });
+        database.createObjectStore("sessions", { keyPath: "id" });
+        database.createObjectStore("attempts", { keyPath: "id" });
+        database.createObjectStore("stats", { keyPath: "topic" });
+      },
+    });
+    await v1.put("questions", makeQuestion({ id: "q-v1" }));
+    await v1.put("sessions", makeSession({ id: "s-v1", state: "completed" }));
+    await v1.put("attempts", makeAttempt({ id: "a-v1", session_id: "s-v1" }));
+    await v1.put("stats", {
+      topic: "Stale",
+      attempts: 1,
+      correct: 1,
+      accuracy: 1,
+      ewma_accuracy: 1,
+      last_attempted: 1,
+    });
+    v1.close();
+
+    const v4 = await openDB<EsatPracticeDB>(name, 4, { upgrade: upgradeDatabase });
+
+    // Source-of-truth user data survives the three-version jump.
+    expect((await v4.get("questions", "q-v1"))?.id).toBe("q-v1");
+    expect((await v4.get("sessions", "s-v1"))?.state).toBe("completed");
+    expect((await v4.get("attempts", "a-v1"))?.session_id).toBe("s-v1");
+    // Derived stats are wiped for the startup recompute.
+    expect(await v4.getAll("stats")).toEqual([]);
+    // The stores added in v2-v4 exist and are usable, indexes included.
+    await v4.put("excludedQuestions", { question_id: "q-v1", excluded_at: 42 });
+    expect(
+      await v4.getAllFromIndex("excludedQuestions", "by-excluded-at", 42),
+    ).toHaveLength(1);
+    expect(await v4.getAll("categoryStats")).toEqual([]);
+    expect(await v4.getAll("sessionSummaries")).toEqual([]);
+  });
+
+  it("migrating from v2 preserves the user's manual exclusions", async () => {
+    dbCounter += 1;
+    const name = `db-test-${dbCounter}`;
+
+    // v2 = v1 plus the excludedQuestions store.
+    const v2 = await openDB(name, 2, {
+      upgrade(database) {
+        database.createObjectStore("questions", { keyPath: "id" });
+        database.createObjectStore("sessions", { keyPath: "id" });
+        database.createObjectStore("attempts", { keyPath: "id" });
+        database.createObjectStore("stats", { keyPath: "topic" });
+        database.createObjectStore("excludedQuestions", { keyPath: "question_id" });
+      },
+    });
+    await v2.put("excludedQuestions", { question_id: "q-hidden", excluded_at: 7 });
+    v2.close();
+
+    const v4 = await openDB<EsatPracticeDB>(name, 4, { upgrade: upgradeDatabase });
+    expect((await v4.get("excludedQuestions", "q-hidden"))?.excluded_at).toBe(7);
+  });
+
   it("clears derived stats stores on upgrade but keeps source-of-truth data", async () => {
     dbCounter += 1;
     const name = `db-test-${dbCounter}`;

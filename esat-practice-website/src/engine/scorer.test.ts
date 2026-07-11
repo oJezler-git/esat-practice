@@ -1,35 +1,35 @@
 import { describe, it, expect } from "vitest";
 import { scoreSession } from "./scorer";
-import type { Question } from "../types/schema";
+import { makeAttempt, makeQuestion } from "../test-utils/factories";
 import type { Attempt } from "../types/schema";
 
 describe("scorer", () => {
-  const mockQuestions: Question[] = [
-    {
+  const mockQuestions = [
+    makeQuestion({
       id: "q1",
       taxonomy: { primary_topic: "Math" },
       content: { text: "1+1" },
-      answer: { correct: "A", choices: { A: "2" } },
-    } as any,
-    {
+      answer: { correct: "A" },
+    }),
+    makeQuestion({
       id: "q2",
       taxonomy: { primary_topic: "Physics" },
       content: { text: "F=ma" },
-      answer: { correct: "B", choices: { B: "Force" } },
-    } as any,
-    {
+      answer: { correct: "B" },
+    }),
+    makeQuestion({
       id: "q3",
       taxonomy: { primary_topic: "Math" },
       content: { text: "2+2" },
-      answer: { correct: "C", choices: { C: "4" } },
-    } as any,
+      answer: { correct: "C" },
+    }),
   ];
 
   it("should calculate correct topic breakdown", () => {
     const responses: Record<string, Attempt> = {
-      q1: { id: "a1", result: "correct", time_ms: 100 } as any,
-      q2: { id: "a2", result: "incorrect", time_ms: 200 } as any,
-      q3: { id: "a3", result: "correct", time_ms: 300 } as any,
+      q1: makeAttempt({ id: "a1", question_id: "q1", result: "correct", time_ms: 100 }),
+      q2: makeAttempt({ id: "a2", question_id: "q2", result: "incorrect", time_ms: 200 }),
+      q3: makeAttempt({ id: "a3", question_id: "q3", result: "correct", time_ms: 300 }),
     };
 
     const result = scoreSession(mockQuestions, responses, "session-1");
@@ -43,8 +43,8 @@ describe("scorer", () => {
 
   it("should handle skipped questions in breakdown", () => {
     const responses: Record<string, Attempt> = {
-      q1: { id: "a1", result: "correct", time_ms: 100 } as any,
-      q2: { id: "a2", result: "skipped", time_ms: 200 } as any,
+      q1: makeAttempt({ id: "a1", question_id: "q1", result: "correct", time_ms: 100 }),
+      q2: makeAttempt({ id: "a2", question_id: "q2", result: "skipped", time_ms: 200 }),
     };
 
     const result = scoreSession(mockQuestions, responses, "session-1");
@@ -57,7 +57,7 @@ describe("scorer", () => {
 
   it("should generate attempts for all questions", () => {
     const responses: Record<string, Attempt> = {
-      q1: { id: "a1", result: "correct", time_ms: 100 } as any,
+      q1: makeAttempt({ id: "a1", question_id: "q1", result: "correct", time_ms: 100 }),
     };
 
     const result = scoreSession(mockQuestions, responses, "session-1");
@@ -69,7 +69,12 @@ describe("scorer", () => {
 
   it("should handle invalid result values by defaulting to skipped", () => {
     const responses: Record<string, Attempt> = {
-      q1: { id: "a1", result: "garbage" as any, time_ms: 100 } as any,
+      q1: makeAttempt({
+        id: "a1",
+        question_id: "q1",
+        result: "garbage" as Attempt["result"],
+        time_ms: 100,
+      }),
     };
 
     const result = scoreSession(mockQuestions, responses, "session-1");

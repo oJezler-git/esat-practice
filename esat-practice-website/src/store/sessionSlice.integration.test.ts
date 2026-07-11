@@ -1,0 +1,333 @@
+/**
+ * Integration tests for the session slice against real IndexedDB semantics
+ * (fake-indexeddb). Unlike sessionSlice.test.ts, nothing below the slice is
+ * mocked except the bundled-data bootstrap: actions run through the real
+ * sessionStore/questionStore/statsStore modules and land in a real object
+ * store, so schema drift between the layers fails here.
+ */
+import "fake-indexeddb/auto";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { useSessionEngine, useSessionSlice } from "./sessionSlice";
+import { createInitialSessionState } from "../engine/sessionEngine";
+import { clearAllStores, getDb } from "../lib/db";
+import { createSessionRecord, getAttemptsForSession, getSessionById } from "../lib/sessionStore";
+import { excludeQuestionInDb, getExcludedQuestionIdsFromDb } from "../lib/excludedQuestionStore";
+import { getTopicStats } from "../lib/statsStore";
+import { makeQuestion } from "../test-utils/factories";
+import type { Question, Session } from "../types/schema";
+
+// The only mock: question reads normally trigger the bundled-data fetch
+// bootstrap, which has no network in tests. Everything else is real.
+vi.mock("../lib/loader", () => ({
+  ensureBundledQuestionsBootstrapped: vi.fn().mockResolvedValue(undefined),
+}));
+
+const questions: Question[] = [
+  makeQuestion({ id: "q1", taxonomy: { primary_topic: "Algebra" } }),
+  makeQuestion({ id: "q2", taxonomy: { primary_topic: "Mechanics" } }),
+  makeQuestion({ id: "q3", taxonomy: { primary_topic: "Algebra" } }),
+];
+
+async function seedQuestions(): Promise<void> {
+  const database = await getDb();
+  for (const question of questions) {
+    await database.put("questions", question);
+  }
+}
+
+async function seedSession(
+  overrides: { mode?: Session["mode"]; time_limit_ms?: number } = {},
+): Promise<Session> {
+  return createSessionRecord({
+    mode: overrides.mode ?? "untimed",
+    question_ids: questions.map((question) => question.id),
+    question_count: questions.length,
+    time_limit_ms: overrides.time_limit_ms,
+  });
+}
+
+beforeEach(async () => {
+  await clearAllStores();
+  useSessionSlice.setState({ ...createInitialSessionState(), notFound: false });
+});
+
+describe("load", () => {
+  it("hydrates an active session with its questions from the database", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+
+    await useSessionSlice.getState().load(session.id);
+
+    const state = useSessionSlice.getState();
+    expect(state.status).toBe("active");
+    expect(state.session?.id).toBe(session.id);
+    expect(state.questions.map((question) => question.id)).toEqual(["q1", "q2", "q3"]);
+  });
+
+  it("flags notFound for a session id that is not in the database", async () => {
+    await useSessionSlice.getState().load("missing-session");
+    expect(useSessionSlice.getState().notFound).toBe(true);
+  });
+
+  it("drops excluded questions and persists the trimmed id list", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await excludeQuestionInDb("q2");
+
+    await useSessionSlice.getState().load(session.id);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q1",
+      "q3",
+    ]);
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.config.question_ids).toEqual(["q1", "q3"]);
+    expect(persisted?.config.question_count).toBe(2);
+  });
+
+  it("restores prior attempts, flags, and remaining time on rehydrate", async () => {
+    await seedQuestions();
+    const session = await seedSession({ mode: "timed", time_limit_ms: 60_000 });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().mark("correct");
+    await useSessionSlice.getState().flag();
+    await useSessionSlice.getState().tick(10_000);
+    await useSessionSlice.getState().nav("next");
+
+    // Fresh hydrate, as if the page reloaded.
+    useSessionSlice.setState({ ...createInitialSessionState(), notFound: false });
+    await useSessionSlice.getState().load(session.id);
+
+    const state = useSessionSlice.getState();
+    expect(state.responses["q1"].result).toBe("correct");
+    expect(state.flagged.has("q1")).toBe(true);
+    expect(state.timeRemaining).toBe(60_000 - 10_000);
+  });
+});
+
+describe("mark / flag / skip", () => {
+  it("persists a marked attempt and links it on the session record", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().mark("correct");
+
+    const attempts = await getAttemptsForSession(session.id);
+    expect(attempts).toHaveLength(1);
+    expect(attempts[0]).toMatchObject({
+      question_id: "q1",
+      session_id: session.id,
+      result: "correct",
+    });
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.attempt_ids).toEqual([attempts[0].id]);
+  });
+
+  it("persists flag state on the attempt record", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().flag();
+
+    const attempts = await getAttemptsForSession(session.id);
+    expect(attempts).toHaveLength(1);
+    expect(attempts[0].flagged).toBe(true);
+  });
+
+  it("records a skipped attempt with accumulated time and advances", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().tick(4_000);
+    await useSessionSlice.getState().skip();
+
+    const state = useSessionSlice.getState();
+    expect(state.currentIndex).toBe(1);
+    const attempts = await getAttemptsForSession(session.id);
+    expect(attempts).toHaveLength(1);
+    expect(attempts[0].result).toBe("skipped");
+    expect(attempts[0].time_ms).toBe(4_000);
+  });
+});
+
+describe("navigation", () => {
+  it("commits elapsed time to the attempt when navigating away", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().tick(2_500);
+    await useSessionSlice.getState().nav("next");
+    // Coming back and spending more time accumulates on the same attempt.
+    await useSessionSlice.getState().nav("prev");
+    await useSessionSlice.getState().tick(1_500);
+    await useSessionSlice.getState().nav("next");
+
+    const attempts = await getAttemptsForSession(session.id);
+    const first = attempts.find((attempt) => attempt.question_id === "q1");
+    expect(first?.time_ms).toBe(4_000);
+  });
+
+  it("jumpTo clamps out-of-range targets", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().jumpTo(99);
+    expect(useSessionSlice.getState().currentIndex).toBe(2);
+    await useSessionSlice.getState().jumpTo(-5);
+    expect(useSessionSlice.getState().currentIndex).toBe(0);
+  });
+});
+
+describe("submit", () => {
+  it("completes the session, saves all attempts, and rebuilds topic stats", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().mark("correct");
+    await useSessionSlice.getState().nav("next");
+    await useSessionSlice.getState().mark("incorrect");
+    await useSessionSlice.getState().submit();
+
+    expect(useSessionSlice.getState().status).toBe("completed");
+
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.state).toBe("completed");
+    expect(persisted?.completed_at).toBeTypeOf("number");
+
+    // Unanswered q3 is stored as skipped.
+    const attempts = await getAttemptsForSession(session.id);
+    expect(attempts).toHaveLength(3);
+    expect(attempts.find((attempt) => attempt.question_id === "q3")?.result).toBe("skipped");
+
+    // Real recomputeAllStats derived per-topic stats from the attempts store.
+    const stats = await getTopicStats();
+    const algebra = stats.find((stat) => stat.topic === "Algebra");
+    const mechanics = stats.find((stat) => stat.topic === "Mechanics");
+    expect(algebra).toMatchObject({ attempts: 1, correct: 1 });
+    expect(mechanics).toMatchObject({ attempts: 1, correct: 0 });
+  });
+
+  it("auto-submits when a timed session ticks down to zero", async () => {
+    await seedQuestions();
+    const session = await seedSession({ mode: "timed", time_limit_ms: 5_000 });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().mark("correct");
+    await useSessionSlice.getState().tick(5_000);
+
+    expect(useSessionSlice.getState().status).toBe("completed");
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.state).toBe("completed");
+  });
+});
+
+describe("excludeCurrentQuestion", () => {
+  it("records the exclusion and rewrites the session question list", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion();
+
+    const excludedIds = await getExcludedQuestionIdsFromDb();
+    expect(excludedIds.has("q1")).toBe(true);
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q2",
+      "q3",
+    ]);
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.config.question_ids).toEqual(["q2", "q3"]);
+  });
+
+  it("submits automatically when the last question is excluded", async () => {
+    const only = makeQuestion({ id: "solo" });
+    const database = await getDb();
+    await database.put("questions", only);
+    const session = await createSessionRecord({
+      mode: "untimed",
+      question_ids: ["solo"],
+      question_count: 1,
+    });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion();
+
+    expect(useSessionSlice.getState().status).toBe("completed");
+    expect((await getSessionById(session.id))?.state).toBe("completed");
+  });
+});
+
+describe("useSessionEngine", () => {
+  it("loads the session on mount and exposes derived question state", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+
+    const { result, unmount } = renderHook(() => useSessionEngine(session.id));
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("active");
+    });
+    expect(result.current.currentQuestion?.id).toBe("q1");
+    expect(result.current.totalCount).toBe(3);
+    expect(result.current.isFlagged).toBe(false);
+    expect(result.current.currentAttemptResult).toBeUndefined();
+
+    await act(async () => {
+      await result.current.mark("correct");
+    });
+    expect(result.current.currentAttemptResult).toBe("correct");
+
+    await act(async () => {
+      await result.current.flag();
+    });
+    expect(result.current.isFlagged).toBe(true);
+
+    unmount();
+  });
+
+  it("surfaces notFound for an unknown session id", async () => {
+    const { result, unmount } = renderHook(() => useSessionEngine("missing"));
+
+    await waitFor(() => {
+      expect(result.current.notFound).toBe(true);
+    });
+    expect(result.current.session).toBeNull();
+
+    unmount();
+  });
+});
+
+describe("quit / pause", () => {
+  it("marks the session abandoned in the database on quit", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().quit();
+
+    expect(useSessionSlice.getState().status).toBe("abandoned");
+    expect((await getSessionById(session.id))?.state).toBe("abandoned");
+  });
+
+  it("pause commits elapsed time without changing session state", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().tick(3_000);
+    await useSessionSlice.getState().pause();
+
+    expect(useSessionSlice.getState().status).toBe("active");
+    const attempts = await getAttemptsForSession(session.id);
+    expect(attempts[0]?.time_ms).toBe(3_000);
+    expect((await getSessionById(session.id))?.state).toBe("active");
+  });
+});

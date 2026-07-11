@@ -4,6 +4,7 @@ import { createInitialSessionState } from "../engine/sessionEngine";
 import * as questionStore from "../lib/questionStore";
 import * as sessionStore from "../lib/sessionStore";
 import * as statsStore from "../lib/statsStore";
+import { makeAttempt, makeQuestion, makeSession } from "../test-utils/factories";
 
 // Mock the external stores
 vi.mock("../lib/questionStore");
@@ -23,16 +24,16 @@ describe("sessionSlice", () => {
   });
 
   const mockQuestions = [
-    { id: "q1", taxonomy: { primary_topic: "Math" } },
-    { id: "q2", taxonomy: { primary_topic: "Physics" } },
-  ] as any;
+    makeQuestion({ id: "q1", taxonomy: { primary_topic: "Math" } }),
+    makeQuestion({ id: "q2", taxonomy: { primary_topic: "Physics" } }),
+  ];
 
-  const mockSession = {
+  const mockSession = makeSession({
     id: "s1",
     state: "active",
     mode: "untimed",
     config: { question_ids: ["q1", "q2"] },
-  } as any;
+  });
 
   it("should load a session and its questions", async () => {
     vi.mocked(sessionStore.getSessionById).mockResolvedValue(mockSession);
@@ -74,8 +75,8 @@ describe("sessionSlice", () => {
       status: "active",
       currentIndex: 0,
       responses: {
-        q1: { question_id: "q1", result: "correct", time_ms: 1000 } as any,
-        q2: { question_id: "q2", result: "incorrect", time_ms: 1000 } as any,
+        q1: makeAttempt({ id: "a1", question_id: "q1", result: "correct" }),
+        q2: makeAttempt({ id: "a2", question_id: "q2", result: "incorrect" }),
       },
       flagged: new Set(),
     });
@@ -172,8 +173,8 @@ describe("sessionSlice", () => {
       status: "active",
       currentIndex: 0,
       responses: {
-        q1: { question_id: "q1", result: "correct", time_ms: 1000 } as any,
-        q2: { question_id: "q2", result: "incorrect", time_ms: 1000 } as any,
+        q1: makeAttempt({ id: "a1", question_id: "q1", result: "correct" }),
+        q2: makeAttempt({ id: "a2", question_id: "q2", result: "incorrect" }),
       },
       flagged: new Set(),
     });

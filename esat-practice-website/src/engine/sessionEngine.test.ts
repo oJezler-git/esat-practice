@@ -1,16 +1,17 @@
 import { describe, it, expect } from "vitest";
 import {
   createInitialSessionState,
+  getCurrentQuestion,
   hydrateSessionState,
   reduceSessionState,
 } from "./sessionEngine";
-import type { Question } from "../types/schema";
+import { makeAttempt, makeQuestion, makeSession } from "../test-utils/factories";
 
 describe("sessionEngine", () => {
-  const mockQuestions: Question[] = [
-    { id: "q1", taxonomy: { primary_topic: "T1" } } as any,
-    { id: "q2", taxonomy: { primary_topic: "T2" } } as any,
-    { id: "q3", taxonomy: { primary_topic: "T3" } } as any,
+  const mockQuestions = [
+    makeQuestion({ id: "q1", taxonomy: { primary_topic: "T1" } }),
+    makeQuestion({ id: "q2", taxonomy: { primary_topic: "T2" } }),
+    makeQuestion({ id: "q3", taxonomy: { primary_topic: "T3" } }),
   ];
 
   const getActiveState = () => ({
@@ -54,6 +55,34 @@ describe("sessionEngine", () => {
       });
       expect(nextState.currentIndex).toBe(0);
     });
+
+    it("should reset per-question elapsed time when navigating", () => {
+      const state = { ...getActiveState(), questionElapsed: 7000 };
+      const nextState = reduceSessionState(state, {
+        type: "NAV",
+        direction: "next",
+      });
+      expect(nextState.questionElapsed).toBe(0);
+    });
+  });
+
+  describe("START", () => {
+    it("should reset to a configured state carrying the time limit", () => {
+      const dirty = {
+        ...getActiveState(),
+        responses: { q1: makeAttempt({ question_id: "q1" }) },
+        flagged: new Set(["q1"]),
+      };
+      const nextState = reduceSessionState(dirty, {
+        type: "START",
+        config: { mode: "timed", question_count: 2, time_limit_ms: 90_000 },
+      });
+
+      expect(nextState.status).toBe("configured");
+      expect(nextState.timeRemaining).toBe(90_000);
+      expect(nextState.responses).toEqual({});
+      expect(nextState.flagged.size).toBe(0);
+    });
   });
 
   describe("Marking and Flagging", () => {
@@ -64,6 +93,19 @@ describe("sessionEngine", () => {
         result: "correct",
       });
       expect(nextState.responses["q1"].result).toBe("correct");
+    });
+
+    it("should create a draft attempt when marking a question with no response yet", () => {
+      const nextState = reduceSessionState(getActiveState(), {
+        type: "MARK",
+        question_id: "q2",
+        result: "incorrect",
+      });
+      expect(nextState.responses["q2"]).toMatchObject({
+        question_id: "q2",
+        result: "incorrect",
+        time_ms: 0,
+      });
     });
 
     it("should toggle a flag on a question", () => {
@@ -81,6 +123,44 @@ describe("sessionEngine", () => {
         question_id: "q1",
       });
       expect(state2.flagged.has("q1")).toBe(false);
+    });
+
+    it("should mirror the flag onto an existing attempt record", () => {
+      const state = {
+        ...getActiveState(),
+        responses: {
+          q1: makeAttempt({ question_id: "q1", flagged: false }),
+        },
+      };
+      const nextState = reduceSessionState(state, {
+        type: "FLAG",
+        question_id: "q1",
+      });
+      expect(nextState.responses["q1"].flagged).toBe(true);
+    });
+  });
+
+  describe("SKIP", () => {
+    it("should record a skipped result for the question", () => {
+      const nextState = reduceSessionState(getActiveState(), {
+        type: "SKIP",
+        question_id: "q1",
+      });
+      expect(nextState.responses["q1"].result).toBe("skipped");
+    });
+
+    it("should overwrite an earlier mark with skipped", () => {
+      const state = {
+        ...getActiveState(),
+        responses: {
+          q1: makeAttempt({ question_id: "q1", result: "correct" }),
+        },
+      };
+      const nextState = reduceSessionState(state, {
+        type: "SKIP",
+        question_id: "q1",
+      });
+      expect(nextState.responses["q1"].result).toBe("skipped");
     });
   });
 
@@ -111,6 +191,19 @@ describe("sessionEngine", () => {
       });
       expect(nextState.questionElapsed).toBe(500);
     });
+
+    it("should ignore ticks when the session is not active", () => {
+      const reviewingState = {
+        ...getActiveState(),
+        status: "reviewing" as const,
+        timeRemaining: 10_000,
+      };
+      const nextState = reduceSessionState(reviewingState, {
+        type: "TICK",
+        ms: 1000,
+      });
+      expect(nextState).toBe(reviewingState);
+    });
   });
 
   describe("Session Lifecycle", () => {
@@ -125,17 +218,34 @@ describe("sessionEngine", () => {
     });
   });
 
+  describe("getCurrentQuestion", () => {
+    it("returns the question at the current index", () => {
+      const state = { ...getActiveState(), currentIndex: 1 };
+      expect(getCurrentQuestion(state)?.id).toBe("q2");
+    });
+
+    it("returns undefined when there are no questions", () => {
+      expect(getCurrentQuestion(createInitialSessionState())).toBeUndefined();
+    });
+  });
+
   describe("hydrateSessionState", () => {
     it("should correctly hydrate from session, questions and attempts", () => {
-      const mockSession = {
+      const mockSession = makeSession({
         id: "s1",
         state: "active",
         mode: "timed",
         config: { time_limit_ms: 60000, question_ids: ["q1", "q2"] },
-      } as any;
+      });
       const mockAttempts = [
-        { question_id: "q1", result: "correct", time_ms: 10000, flagged: true },
-      ] as any;
+        makeAttempt({
+          question_id: "q1",
+          session_id: "s1",
+          result: "correct",
+          time_ms: 10000,
+          flagged: true,
+        }),
+      ];
 
       const state = hydrateSessionState(mockSession, mockQuestions.slice(0, 2), mockAttempts);
 
@@ -146,7 +256,7 @@ describe("sessionEngine", () => {
     });
 
     it("should set status to completed if session state is completed", () => {
-      const mockSession = { state: "completed", mode: "untimed", config: {} } as any;
+      const mockSession = makeSession({ state: "completed", mode: "untimed" });
       const state = hydrateSessionState(mockSession, [], []);
       expect(state.status).toBe("completed");
     });

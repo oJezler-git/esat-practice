@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { buildSession } from "./sessionBuilder";
 import { useSettingsStore } from "../lib/settingsStore";
-import type { Question } from "../types/schema";
+import { makeQuestion } from "../test-utils/factories";
+import { DEFAULT_SETTINGS } from "../types/settings";
+
+function mockSettings(overrides: Partial<typeof DEFAULT_SETTINGS>) {
+  vi.mocked(useSettingsStore.getState).mockReturnValue({
+    settings: { ...DEFAULT_SETTINGS, ...overrides },
+  } as ReturnType<typeof useSettingsStore.getState>);
+}
 
 vi.mock("../lib/settingsStore", () => ({
   useSettingsStore: {
@@ -10,31 +17,26 @@ vi.mock("../lib/settingsStore", () => ({
 }));
 
 describe("sessionBuilder", () => {
-  const mockQuestions: Question[] = [
-    {
+  const mockQuestions = [
+    makeQuestion({
       id: "q1",
       taxonomy: { primary_topic: "Math", secondary_topics: ["Logic"] },
       source: { paper: "Paper A", year: 2020, page: 1 },
-    } as any,
-    {
+    }),
+    makeQuestion({
       id: "q2",
       taxonomy: { primary_topic: "Physics", secondary_topics: [] },
       source: { paper: "Paper B", year: 2021, page: 2 },
-    } as any,
-    {
+    }),
+    makeQuestion({
       id: "q3",
       taxonomy: { primary_topic: "Math", secondary_topics: ["Geometry"] },
       source: { paper: "Paper A", year: 2020, page: 5 },
-    } as any,
+    }),
   ];
 
   beforeEach(() => {
-    vi.mocked(useSettingsStore.getState).mockReturnValue({
-      settings: {
-        defaultMode: "untimed",
-        defaultQuestionCount: 20,
-      },
-    } as any);
+    mockSettings({ defaultMode: "untimed", defaultQuestionCount: 20 });
   });
 
   it("should filter by primary topic", () => {
@@ -80,12 +82,7 @@ describe("sessionBuilder", () => {
   });
 
   it("should use default settings if config is partial", () => {
-    vi.mocked(useSettingsStore.getState).mockReturnValue({
-      settings: {
-        defaultQuestionCount: 2,
-        defaultMode: "untimed"
-      },
-    } as any);
+    mockSettings({ defaultQuestionCount: 2, defaultMode: "untimed" });
 
     const result = buildSession(mockQuestions, {});
     expect(result).toHaveLength(2);
