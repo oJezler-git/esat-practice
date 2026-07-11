@@ -106,6 +106,17 @@ const useExcludedQuestionStoreBase = create<ExcludedQuestionStoreState>(
   }),
 );
 
+/**
+ * Re-reads exclusions from the database into the in-memory store. Callers
+ * that write exclusions outside the store's own actions (e.g. the session
+ * slice's exclude-current-question path) must call this afterwards, or pages
+ * that consume the store keep serving the excluded question until a reload.
+ */
+export async function refreshExcludedQuestionsStore(): Promise<void> {
+  const excludedQuestions = await listExcludedQuestionsFromDb();
+  useExcludedQuestionStoreBase.setState({ excludedQuestions, loaded: true });
+}
+
 export function useExcludedQuestionStore() {
   const excludedQuestions = useExcludedQuestionStoreBase(
     (state) => state.excludedQuestions,

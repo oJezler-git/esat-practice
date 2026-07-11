@@ -9,7 +9,11 @@ import {
 import { scoreSession } from "../engine/scorer";
 import { createSessionTicker } from "../engine/timer";
 import { getQuestionsByIdsFromDb } from "../lib/questionStore";
-import { excludeQuestionInDb, getExcludedQuestionIdsFromDb } from "../lib/excludedQuestionStore";
+import {
+  excludeQuestionInDb,
+  getExcludedQuestionIdsFromDb,
+  refreshExcludedQuestionsStore,
+} from "../lib/excludedQuestionStore";
 import {
   getAttemptsForSession,
   getSessionById,
@@ -289,12 +293,18 @@ return {
     }
 
     await Promise.all(idsToExclude.map((id) => excludeQuestionInDb(id)));
+    // Sync the in-memory exclusion store, or the practice-setup page keeps
+    // offering the excluded question until a full reload.
+    await refreshExcludedQuestionsStore();
 
-    let nextState: SessionEngineState = state;
+    // Re-read after the awaits: a mark/flag/tick that landed while the DB
+    // writes were in flight must not be clobbered by the stale snapshot.
+    const latest = get();
+    let nextState: SessionEngineState = latest;
     for (const id of idsToExclude) {
       nextState = removeQuestionFromState(nextState, id);
     }
-    set({ ...state, ...nextState });
+    set({ ...latest, ...nextState });
 
     await updateSessionQuestionIds(
       state.session.id,
