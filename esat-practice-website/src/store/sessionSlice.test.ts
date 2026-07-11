@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useSessionSlice } from "./sessionSlice";
+import { createInitialSessionState } from "../engine/sessionEngine";
 import * as questionStore from "../lib/questionStore";
 import * as sessionStore from "../lib/sessionStore";
 import * as statsStore from "../lib/statsStore";
@@ -15,7 +16,10 @@ vi.mock("../lib/excludedQuestionStore", () => ({
 describe("sessionSlice", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset Zustand state manually if needed, though for these tests we can just reload
+    useSessionSlice.setState({
+      ...createInitialSessionState(),
+      notFound: false,
+    });
   });
 
   const mockQuestions = [
