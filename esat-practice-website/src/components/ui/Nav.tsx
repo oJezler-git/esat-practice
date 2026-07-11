@@ -46,6 +46,18 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
     }, 300); // Should match animation duration
   };
 
+  // Keyboard users dismiss the mobile menu with Escape (the backdrop click is
+  // a pointer-only convenience).
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") handleClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMenuOpen]);
+
   useEffect(() => {
     // The countdown only changes at midnight, so a per-minute tick is plenty.
     const intervalId = window.setInterval(() => {
@@ -275,6 +287,10 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
       </nav>
 
       {isMenuOpen && (
+        // Backdrop wrapper: catches bubbled clicks to dismiss. Keyboard users
+        // dismiss via Escape (above) or the hamburger toggle, so no role/handler
+        // belongs on the wrapper itself.
+        // react-doctor-disable-next-line no-static-element-interactions, click-events-have-key-events
         <div className={`mobile-menu-overlay ${isClosing ? 'mobile-menu-closing' : ''}`} onClick={handleClose}>
           <div className="mobile-menu-content">
             {links.map(({ to, label }, index) => (

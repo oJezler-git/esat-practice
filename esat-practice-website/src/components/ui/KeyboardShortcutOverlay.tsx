@@ -53,6 +53,10 @@ export function KeyboardShortcutOverlay() {
   }
 
   return (
+    // Backdrop wrapper: catches bubbled clicks to dismiss. Keyboard users
+    // dismiss via Escape (see the keydown effect above) or the Close button, so
+    // no role/handler belongs on the wrapper itself.
+    // react-doctor-disable-next-line no-static-element-interactions
     <div
       className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
       onClick={() => setOpen(false)}

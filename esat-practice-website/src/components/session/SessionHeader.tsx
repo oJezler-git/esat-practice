@@ -195,6 +195,7 @@ export function SessionHeader({
       <button
         type="button"
         onClick={toggleFullscreen}
+        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         className="sk-session-icon-btn"
       >

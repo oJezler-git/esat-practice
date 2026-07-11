@@ -131,28 +131,33 @@ export default function QuestionBank() {
               Excluded ({excludedQuestions.length})
             </button>
           </div>
-          {scope === "practice" && filtered.length > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                void practiceFiltered();
-              }}
-              disabled={isQuestionBankLoading}
-              className="sk-bank-practice-cta"
-            >
-              <span>Practice these ({Math.min(filtered.length, 40)})</span>
-            </button>
-          )}
+          <div
+            className={`question-bank-practice-cta-slot ${
+              scope === "practice" && filtered.length > 0
+                ? ""
+                : "question-bank-practice-cta-slot-empty"
+            }`}
+          >
+            {scope === "practice" && filtered.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  void practiceFiltered();
+                }}
+                disabled={isQuestionBankLoading}
+                className="sk-bank-practice-cta"
+              >
+                <span>Practice these ({Math.min(filtered.length, 40)})</span>
+              </button>
+            ) : (
+              <span
+                aria-hidden="true"
+                className="sk-bank-practice-cta-placeholder"
+              />
+            )}
+          </div>
         </div>
       </div>
-
-      {scope === "excluded" && !isQuestionBankLoading && (
-        <p className="question-bank-scope-hint mb-6">
-          These questions are hidden from practice sessions. Tap{" "}
-          <strong>Restore</strong> on a question to bring it back, or switch
-          to the <strong>Practice bank</strong> tab above to keep browsing.
-        </p>
-      )}
 
       {!isQuestionBankLoading && (
         <DataDumpPanel
@@ -217,17 +222,22 @@ export default function QuestionBank() {
 
             <div className="question-bank-tools">
               <div className="question-bank-toggles">
-                {scope === "practice" && (
-                  <label className="question-bank-toggle">
-                    <input
-                      type="checkbox"
-                      checked={hideNsaaDuplicates}
-                      onChange={(event) => setHideDupes(event.target.checked)}
-                      className="accent-accent"
-                    />
-                    Exclude NSAA duplicates
-                  </label>
-                )}
+                <label
+                  className={`question-bank-toggle ${
+                    scope === "practice" ? "" : "question-bank-toggle-spacer"
+                  }`}
+                  aria-hidden={scope === "practice" ? undefined : "true"}
+                >
+                  <input
+                    type="checkbox"
+                    checked={hideNsaaDuplicates}
+                    onChange={(event) => setHideDupes(event.target.checked)}
+                    className="accent-accent"
+                    disabled={scope !== "practice"}
+                    tabIndex={scope === "practice" ? undefined : -1}
+                  />
+                  Exclude NSAA duplicates
+                </label>
 
                 <label className="question-bank-toggle">
                   <input
@@ -278,7 +288,11 @@ export default function QuestionBank() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="question-bank-empty">
-          No questions match your filters.
+          {scope === "excluded"
+            ? sourceQuestions.length === 0
+              ? "No excluded questions."
+              : "No excluded questions match your filters."
+            : "No questions match your filters."}
         </div>
       ) : (
         <div

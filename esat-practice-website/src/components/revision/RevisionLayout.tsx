@@ -107,6 +107,18 @@ export function RevisionLayout({
     };
   }, []);
 
+  // Keyboard users dismiss the mobile drawer with Escape (the backdrop click is
+  // a pointer-only convenience).
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMobileNav();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileNavOpen]);
+
   // Close the mobile topic drawer whenever the route settles on a new doc
   // (the page itself is transitioning, so no exit animation is needed here).
   useEffect(() => {
@@ -140,6 +152,10 @@ export function RevisionLayout({
           </aside>
 
           {mobileNavOpen && (
+            // Backdrop wrapper: catches bubbled clicks to dismiss. Keyboard users
+            // dismiss via Escape (see the keydown effect above) or the Close
+            // button, so no role/handler belongs on the wrapper itself.
+            // react-doctor-disable-next-line no-static-element-interactions
             <div
               className={`rev-mobile-nav-overlay ${mobileNavClosing ? "rev-mobile-nav-overlay--closing" : ""}`}
               onClick={(event) => {

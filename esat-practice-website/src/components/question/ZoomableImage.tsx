@@ -148,6 +148,10 @@ export function ZoomableImage({
       </button>
 
       {isExpanded && createPortal(
+        // Backdrop wrapper: catches bubbled clicks to dismiss. Keyboard users
+        // dismiss via Escape (see the keydown effect above), so no role/handler
+        // belongs on the wrapper itself.
+        // react-doctor-disable-next-line no-static-element-interactions
         <div
           className={`source-scan-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 ${
             isClosing ? "modal-backdrop-exit" : "modal-backdrop-enter"
