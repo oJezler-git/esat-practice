@@ -536,8 +536,11 @@ export async function ensureQuestionPacksBootstrapped(
   packIds: string[],
 ): Promise<LoaderSummary> {
   setLoadingStage("manifest", "Loading manifest...");
-  const manifest = await loadQuestionDataManifest();
-  const existingDatabase = await getDb();
+  // The manifest fetch and opening the DB are independent, so race them.
+  const [manifest, existingDatabase] = await Promise.all([
+    loadQuestionDataManifest(),
+    getDb(),
+  ]);
   const existing = await existingDatabase.count("questions");
   const targetPackIds = new Set(packIds);
   if (targetPackIds.size === 0) {

@@ -141,19 +141,22 @@ export async function sweepStaleActiveSessions(
   const sessions = await database.getAll("sessions");
   const now = Date.now();
 
-  for (const session of sessions) {
-    if (session.state !== "active") {
-      continue;
-    }
-    const lastActivity = await getLastActivityTimestamp(database, session);
-    if (now - lastActivity > staleAfterMs) {
-      await database.put("sessions", {
+  // Each session's last-activity lookup is an independent read, and marking one
+  // stale doesn't affect another — so fan the reads and writes out in parallel.
+  const active = sessions.filter((session) => session.state === "active");
+  const lastActivity = await Promise.all(
+    active.map((session) => getLastActivityTimestamp(database, session)),
+  );
+  const stale = active.filter((_, index) => now - lastActivity[index] > staleAfterMs);
+  await Promise.all(
+    stale.map((session) =>
+      database.put("sessions", {
         ...session,
         state: "abandoned",
         completed_at: now,
-      });
-    }
-  }
+      }),
+    ),
+  );
 }
 
 export async function getAttemptsForSession(sessionId: string): Promise<Attempt[]> {
