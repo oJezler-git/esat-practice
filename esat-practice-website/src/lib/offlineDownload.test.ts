@@ -100,6 +100,39 @@ describe("clearOfflineImageCache", () => {
 });
 
 describe("downloadAllImagesForOffline", () => {
+  it("returns zero without throwing when the Cache API is unavailable", async () => {
+    vi.stubGlobal("caches", undefined);
+    vi.stubGlobal("fetch", makeFetch());
+    vi.mocked(listQuestionsFromDb).mockResolvedValue([
+      makeQuestion("/img/q1.png"),
+    ] as any);
+
+    const onProgress = vi.fn();
+    const count = await downloadAllImagesForOffline(onProgress);
+
+    expect(count).toBe(0);
+    expect(onProgress).toHaveBeenCalledWith(0, 1);
+    expect(localStorage.getItem("offline_images_state")).toBeNull();
+  });
+
+  it("treats relative URLs as cache hits after normalizing against location.href", async () => {
+    const absoluteUrl = new URL("/img/q1.png", location.href).href;
+    const cache = makeCache([absoluteUrl]);
+    const mockFetch = makeFetch();
+    vi.stubGlobal("caches", { open: vi.fn().mockResolvedValue(cache) });
+    vi.stubGlobal("fetch", mockFetch);
+    vi.mocked(listQuestionsFromDb).mockResolvedValue([
+      makeQuestion("/img/q1.png"),
+    ] as any);
+
+    const count = await downloadAllImagesForOffline(vi.fn());
+
+    expect(mockFetch).toHaveBeenCalledWith("/data/manifest.json", { cache: "no-store" });
+    expect(mockFetch).not.toHaveBeenCalledWith("/img/q1.png");
+    expect(cache.put).not.toHaveBeenCalled();
+    expect(count).toBe(1);
+  });
+
   it("fires progress with the initial cache-hit count before downloading", async () => {
     const cache = makeCache(["https://cdn.example.com/img/q1.png"]);
     vi.stubGlobal("caches", { open: vi.fn().mockResolvedValue(cache) });
@@ -141,6 +174,47 @@ describe("downloadAllImagesForOffline", () => {
 
     expect(cache.put).toHaveBeenCalledTimes(2);
     expect(count).toBe(2);
+  });
+
+  it("does not cache non-OK image fetch responses", async () => {
+    const cache = makeCache([]);
+    const mockFetch = vi.fn().mockImplementation((url: string) => {
+      if (String(url).includes("manifest")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ version: "2026-01-01" }),
+        });
+      }
+      return Promise.resolve({ ok: false });
+    });
+    vi.stubGlobal("caches", { open: vi.fn().mockResolvedValue(cache) });
+    vi.stubGlobal("fetch", mockFetch);
+    vi.mocked(listQuestionsFromDb).mockResolvedValue([
+      makeQuestion("/img/q1.png"),
+    ] as any);
+
+    const count = await downloadAllImagesForOffline(vi.fn());
+
+    expect(cache.put).not.toHaveBeenCalled();
+    expect(count).toBe(1);
+  });
+
+  it("continues when cache.put rejects for an image", async () => {
+    const cache = makeCache([]);
+    cache.put.mockRejectedValueOnce(new Error("quota exceeded"));
+    vi.stubGlobal("caches", { open: vi.fn().mockResolvedValue(cache) });
+    vi.stubGlobal("fetch", makeFetch());
+    vi.mocked(listQuestionsFromDb).mockResolvedValue([
+      makeQuestion("/img/q1.png"),
+      makeQuestion("/img/q2.png"),
+    ] as any);
+
+    const calls: [number, number][] = [];
+    const count = await downloadAllImagesForOffline((done, total) => calls.push([done, total]));
+
+    expect(cache.put).toHaveBeenCalledTimes(2);
+    expect(count).toBe(2);
+    expect(calls[calls.length - 1]).toEqual([2, 2]);
   });
 
   it("deduplicates image URLs", async () => {
@@ -188,6 +262,33 @@ describe("downloadAllImagesForOffline", () => {
     await downloadAllImagesForOffline(vi.fn(), controller.signal);
 
     expect(cache.put).not.toHaveBeenCalled();
+  });
+
+  it("stops before the next batch when aborted during a partially completed batch", async () => {
+    const cache = makeCache([]);
+    vi.stubGlobal("caches", { open: vi.fn().mockResolvedValue(cache) });
+
+    const controller = new AbortController();
+    const mockFetch = vi.fn().mockImplementation((url: string) => {
+      if (String(url).includes("manifest")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ version: "2026-01-01" }),
+        });
+      }
+      controller.abort();
+      return Promise.resolve({ ok: true });
+    });
+    vi.stubGlobal("fetch", mockFetch);
+    vi.mocked(listQuestionsFromDb).mockResolvedValue(
+      Array.from({ length: 8 }, (_, i) => makeQuestion(`/img/q${i}.png`)) as any,
+    );
+
+    const count = await downloadAllImagesForOffline(vi.fn(), controller.signal);
+
+    expect(cache.put).toHaveBeenCalledTimes(6);
+    expect(mockFetch).toHaveBeenCalledTimes(7);
+    expect(count).toBe(6);
   });
 
   it("saves state to localStorage after completion", async () => {
