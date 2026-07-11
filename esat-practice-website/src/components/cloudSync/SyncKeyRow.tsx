@@ -90,21 +90,14 @@ export function SyncKeyRow({
             </>
           ) : key_ ? (
             <>
-              <code
+              <button
+                type="button"
                 className="text-sm font-mono text-primary bg-soft border border-subtle rounded-lg px-2 py-1 select-all cursor-pointer"
                 onClick={onStartEdit}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onStartEdit();
-                  }
-                }}
-                role="button"
-                tabIndex={0}
                 title="Click to edit"
               >
                 {key_}
-              </code>
+              </button>
               <button
                 type="button"
                 onClick={onCopy}

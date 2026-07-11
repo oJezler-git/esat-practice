@@ -24,12 +24,18 @@ export function AskClaudeInfoModal({ onClose }: Props) {
     if (!dialog) return;
     // Defer past the triggering click so it doesn't leak onto the backdrop
     const id = requestAnimationFrame(() => { if (!dialog.open) dialog.showModal(); });
-    return () => { cancelAnimationFrame(id); if (dialog.open) dialog.close(); };
+    // Pointer-only dismissal on the native ::backdrop. Keyboard/AT users close
+    // via native Escape or the explicit Close button, so this stays off the JSX.
+    const onBackdropClick = (e: MouseEvent) => {
+      if (e.target === dialog) dialog.close();
+    };
+    dialog.addEventListener("click", onBackdropClick);
+    return () => {
+      cancelAnimationFrame(id);
+      dialog.removeEventListener("click", onBackdropClick);
+      if (dialog.open) dialog.close();
+    };
   }, []);
-
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) dialogRef.current?.close();
-  }
 
   function goToSettings() {
     onClose();
@@ -41,7 +47,6 @@ export function AskClaudeInfoModal({ onClose }: Props) {
       ref={dialogRef}
       className="ask-claude-modal"
       aria-labelledby="ask-claude-modal-title"
-      onClick={handleBackdropClick}
       onClose={onClose}
     >
       <div className="ask-claude-modal__panel">

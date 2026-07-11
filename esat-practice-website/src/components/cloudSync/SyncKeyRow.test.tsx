@@ -63,11 +63,10 @@ describe("SyncKeyRow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy" }));
     expect(handlers.onCopy).toHaveBeenCalledTimes(1);
 
-    // Clicking or keyboard-activating the key itself starts editing.
-    fireEvent.click(screen.getByText("amber-forest-4291"));
-    fireEvent.keyDown(screen.getByText("amber-forest-4291"), { key: "Enter" });
-    fireEvent.keyDown(screen.getByText("amber-forest-4291"), { key: " " });
-    expect(handlers.onStartEdit).toHaveBeenCalledTimes(3);
+    // The key is a real <button>, so clicking starts editing and the browser
+    // handles Enter/Space activation natively.
+    fireEvent.click(screen.getByRole("button", { name: "amber-forest-4291" }));
+    expect(handlers.onStartEdit).toHaveBeenCalledTimes(1);
   });
 
   it("shows Copied! feedback while copying", () => {
