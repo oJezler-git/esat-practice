@@ -6,12 +6,13 @@ import {
   clearOfflineImageCache,
   OFFLINE_IMAGES_CACHE,
 } from "./offlineDownload";
+import { makeQuestion as makeDbQuestion } from "../test-utils/factories";
 
 vi.mock("./questionStore");
 import { listQuestionsFromDb } from "./questionStore";
 
-function makeQuestion(imageUrl?: string) {
-  return { content: { text: "Q", image_url: imageUrl } };
+function makeQuestion(imageUrl?: string, id = imageUrl ?? "question-without-image") {
+  return makeDbQuestion({ id, content: { image_url: imageUrl } });
 }
 
 function makeCache(existingAbsoluteUrls: string[] = []) {
@@ -105,7 +106,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", makeFetch());
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
-    ] as any);
+    ]);
 
     const onProgress = vi.fn();
     const count = await downloadAllImagesForOffline(onProgress);
@@ -123,7 +124,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", mockFetch);
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
-    ] as any);
+    ]);
 
     const count = await downloadAllImagesForOffline(vi.fn());
 
@@ -139,7 +140,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", makeFetch());
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("https://cdn.example.com/img/q1.png"),
-    ] as any);
+    ]);
 
     const onProgress = vi.fn();
     await downloadAllImagesForOffline(onProgress);
@@ -153,7 +154,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", makeFetch());
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("https://cdn.example.com/img/q1.png"),
-    ] as any);
+    ]);
 
     const count = await downloadAllImagesForOffline(vi.fn());
 
@@ -168,7 +169,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
       makeQuestion("/img/q2.png"),
-    ] as any);
+    ]);
 
     const count = await downloadAllImagesForOffline(vi.fn());
 
@@ -191,7 +192,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", mockFetch);
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
-    ] as any);
+    ]);
 
     const count = await downloadAllImagesForOffline(vi.fn());
 
@@ -207,7 +208,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
       makeQuestion("/img/q2.png"),
-    ] as any);
+    ]);
 
     const calls: [number, number][] = [];
     const count = await downloadAllImagesForOffline((done, total) => calls.push([done, total]));
@@ -222,9 +223,9 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("caches", { open: vi.fn().mockResolvedValue(cache) });
     vi.stubGlobal("fetch", makeFetch());
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
-      makeQuestion("/img/shared.png"),
-      makeQuestion("/img/shared.png"),
-    ] as any);
+      makeQuestion("/img/shared.png", "q1"),
+      makeQuestion("/img/shared.png", "q2"),
+    ]);
 
     const count = await downloadAllImagesForOffline(vi.fn());
 
@@ -239,7 +240,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion(undefined),
       makeQuestion("/img/q1.png"),
-    ] as any);
+    ]);
 
     const count = await downloadAllImagesForOffline(vi.fn());
 
@@ -253,7 +254,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", makeFetch());
     // 8 questions forces 2 batches (BATCH_SIZE = 6)
     vi.mocked(listQuestionsFromDb).mockResolvedValue(
-      Array.from({ length: 8 }, (_, i) => makeQuestion(`/img/q${i}.png`)) as any,
+      Array.from({ length: 8 }, (_, i) => makeQuestion(`/img/q${i}.png`)),
     );
 
     const controller = new AbortController();
@@ -281,7 +282,7 @@ describe("downloadAllImagesForOffline", () => {
     });
     vi.stubGlobal("fetch", mockFetch);
     vi.mocked(listQuestionsFromDb).mockResolvedValue(
-      Array.from({ length: 8 }, (_, i) => makeQuestion(`/img/q${i}.png`)) as any,
+      Array.from({ length: 8 }, (_, i) => makeQuestion(`/img/q${i}.png`)),
     );
 
     const count = await downloadAllImagesForOffline(vi.fn(), controller.signal);
@@ -297,7 +298,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.stubGlobal("fetch", makeFetch("2026-05"));
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
-    ] as any);
+    ]);
 
     await downloadAllImagesForOffline(vi.fn());
 
@@ -314,7 +315,7 @@ describe("downloadAllImagesForOffline", () => {
     vi.mocked(listQuestionsFromDb).mockResolvedValue([
       makeQuestion("/img/q1.png"),
       makeQuestion("/img/q2.png"),
-    ] as any);
+    ]);
 
     const calls: [number, number][] = [];
     await downloadAllImagesForOffline((done, total) => calls.push([done, total]));
