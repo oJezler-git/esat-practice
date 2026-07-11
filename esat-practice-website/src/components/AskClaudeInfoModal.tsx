@@ -40,12 +40,13 @@ export function AskClaudeInfoModal({ onClose }: Props) {
     <dialog
       ref={dialogRef}
       className="ask-claude-modal"
+      aria-labelledby="ask-claude-modal-title"
       onClick={handleBackdropClick}
       onClose={onClose}
     >
       <div className="ask-claude-modal__panel">
         <div className="ask-claude-modal__header">
-          <h2 className="ask-claude-modal__title">Ask Claude</h2>
+          <h2 id="ask-claude-modal-title" className="ask-claude-modal__title">Ask Claude</h2>
           <button
             type="button"
             className="ask-claude-modal__close"

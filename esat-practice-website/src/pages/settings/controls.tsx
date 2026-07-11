@@ -70,14 +70,17 @@ export function Select({
   value,
   onChange,
   options,
+  ariaLabel,
 }: {
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
+  ariaLabel: string;
 }) {
   return (
     <select
       value={value}
+      aria-label={ariaLabel}
       onChange={(event) => onChange(event.target.value)}
       className="text-sm border border-subtle rounded-lg px-3 py-1.5 text-secondary focus:outline-none focus:border-accent"
     >
@@ -94,10 +97,12 @@ export function ShortcutInput({
   value,
   defaultValue,
   onChange,
+  ariaLabel,
 }: {
   value: string;
   defaultValue: string;
   onChange: (value: string) => void;
+  ariaLabel: string;
 }) {
   const [listening, setListening] = useState(false);
   const isModified = value !== defaultValue;
@@ -106,6 +111,7 @@ export function ShortcutInput({
     <div className="shortcut-input-row">
       <button
         type="button"
+        aria-label={ariaLabel}
         onFocus={() => setListening(true)}
         onBlur={() => setListening(false)}
         onKeyDown={(event) => {

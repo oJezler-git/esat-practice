@@ -105,6 +105,7 @@ export function SessionDefaultsSection({ settings, update }: SettingsSectionProp
       <Field label="Default mode">
         <Select
           value={settings.defaultMode}
+          ariaLabel="Default mode"
           onChange={(value) =>
             update({ defaultMode: value as UserSettings["defaultMode"] })
           }
@@ -313,10 +314,11 @@ export function KeyboardShortcutsSection({ settings, update }: SettingsSectionPr
       {SHORTCUT_FIELDS.map(({ action, label, description }) => (
         <Field key={action} label={label} description={description}>
           <ShortcutInput
-            value={settings.shortcuts[action]}
-            defaultValue={DEFAULT_SHORTCUTS[action]}
-            onChange={(value) => updateShortcut(action, value)}
-          />
+          value={settings.shortcuts[action]}
+          defaultValue={DEFAULT_SHORTCUTS[action]}
+          onChange={(value) => updateShortcut(action, value)}
+          ariaLabel={label}
+        />
         </Field>
       ))}
     </Section>
@@ -334,6 +336,7 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
       <Field label="Appearance">
         <Select
           value={settings.theme}
+          ariaLabel="Appearance"
           onChange={(value) =>
             update({ theme: value as UserSettings["theme"] })
           }
@@ -350,6 +353,7 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
       >
         <Select
           value={settings.fontPreset}
+          ariaLabel="Interface font"
           onChange={(value) =>
             update({ fontPreset: value as UserSettings["fontPreset"] })
           }
@@ -368,6 +372,7 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
       <Field label="Question font size">
         <Select
           value={settings.fontSize}
+          ariaLabel="Question font size"
           onChange={(value) =>
             update({ fontSize: value as UserSettings["fontSize"] })
           }
@@ -411,6 +416,7 @@ export function QuestionPoolSection({ settings, update, excludedQuestions, inclu
         >
           <Select
             value={settings.autoExcludeOn}
+            ariaLabel="Exclude when"
             onChange={(value) => update({ autoExcludeOn: value as AutoExcludeOn })}
             options={[
               { value: "attempted", label: "Attempted (correct or incorrect)" },
@@ -457,6 +463,7 @@ export function AskClaudeSection({ settings, update }: SettingsSectionProps) {
       >
         <Select
           value={settings.claudeMode ?? "auto"}
+          ariaLabel="Integration mode"
           onChange={(value) => update({ claudeMode: value as ClaudeMode })}
           options={[
             { value: "auto", label: "Detect automatically (default)" },
