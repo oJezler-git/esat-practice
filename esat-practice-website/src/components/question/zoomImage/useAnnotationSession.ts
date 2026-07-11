@@ -124,6 +124,7 @@ export function useAnnotationSession(enableDrawing: boolean, isExpanded: boolean
   const toolHintTimerRef = useRef<number | null>(null);
   const [savedPulse, setSavedPulse] = useState(false);
   const savedPulseTimerRef = useRef<number | null>(null);
+  const savedPulseFrameRef = useRef<number | null>(null);
   const lastPulseTimeRef = useRef(0);
 
   const widthPresets = useMemo(() => {
@@ -159,19 +160,18 @@ export function useAnnotationSession(enableDrawing: boolean, isExpanded: boolean
     setReplayNonce((n) => n + 1);
 
     // First-open hint: show once, dismiss automatically after 4 s.
+    let hintTimer: number | null = null;
     if (!localStorage.getItem(ANN_HINT_KEY)) {
       setShowHint(true);
-      const hintTimer = window.setTimeout(() => {
+      hintTimer = window.setTimeout(() => {
         setShowHint(false);
         localStorage.setItem(ANN_HINT_KEY, "true");
       }, 4000);
-      return () => {
-        window.clearTimeout(hintTimer);
-      };
     }
 
     const keyAtLoad = persistKey;
     return () => {
+      if (hintTimer !== null) window.clearTimeout(hintTimer);
       if (saveTimerRef.current !== null) {
         window.clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
@@ -179,6 +179,10 @@ export function useAnnotationSession(enableDrawing: boolean, isExpanded: boolean
       if (savedPulseTimerRef.current !== null) {
         window.clearTimeout(savedPulseTimerRef.current);
         savedPulseTimerRef.current = null;
+      }
+      if (savedPulseFrameRef.current !== null) {
+        window.cancelAnimationFrame(savedPulseFrameRef.current);
+        savedPulseFrameRef.current = null;
       }
       if (keyAtLoad) saveAnnotations(keyAtLoad, annotationsRef.current);
     };
@@ -202,7 +206,10 @@ export function useAnnotationSession(enableDrawing: boolean, isExpanded: boolean
       if (now - lastPulseTimeRef.current > 3000) {
         lastPulseTimeRef.current = now;
         setSavedPulse(false);   // force remount so the animation restarts
-        window.requestAnimationFrame(() => setSavedPulse(true));
+        savedPulseFrameRef.current = window.requestAnimationFrame(() => {
+          savedPulseFrameRef.current = null;
+          setSavedPulse(true);
+        });
         if (savedPulseTimerRef.current !== null) window.clearTimeout(savedPulseTimerRef.current);
         savedPulseTimerRef.current = window.setTimeout(() => {
           setSavedPulse(false);
@@ -231,6 +238,15 @@ export function useAnnotationSession(enableDrawing: boolean, isExpanded: boolean
         toolHintTimerRef.current = null;
       }, 3500);
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toolHintTimerRef.current !== null) {
+        window.clearTimeout(toolHintTimerRef.current);
+        toolHintTimerRef.current = null;
+      }
+    };
   }, []);
 
   const dismissHint = useCallback(() => {

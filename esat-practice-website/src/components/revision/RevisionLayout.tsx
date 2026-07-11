@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { getRevisionModule, prefetchRevisionContent } from "../../content/revision/manifest";
 import { ampersandize } from "../../content/revision/textFormat";
@@ -78,19 +78,34 @@ export function RevisionLayout({
   );
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileNavClosing, setMobileNavClosing] = useState(false);
+  const mobileNavCloseTimerRef = useRef<number | null>(null);
 
   const closeMobileNav = (animate = true) => {
+    if (mobileNavCloseTimerRef.current !== null) {
+      window.clearTimeout(mobileNavCloseTimerRef.current);
+      mobileNavCloseTimerRef.current = null;
+    }
+
     if (!animate) {
       setMobileNavOpen(false);
       setMobileNavClosing(false);
       return;
     }
     setMobileNavClosing(true);
-    window.setTimeout(() => {
+    mobileNavCloseTimerRef.current = window.setTimeout(() => {
       setMobileNavOpen(false);
       setMobileNavClosing(false);
+      mobileNavCloseTimerRef.current = null;
     }, 200); // matches rev-mobile-nav-out duration
   };
+
+  useEffect(() => {
+    return () => {
+      if (mobileNavCloseTimerRef.current !== null) {
+        window.clearTimeout(mobileNavCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   // Close the mobile topic drawer whenever the route settles on a new doc
   // (the page itself is transitioning, so no exit animation is needed here).

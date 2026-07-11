@@ -7,7 +7,11 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 // unpredictable) background check happens to fire.
 const UPDATE_CHECK_INTERVAL_MS = 60_000;
 
-export function UpdatePrompt() {
+interface UpdatePromptProps {
+  reloadPage?: () => void;
+}
+
+export function UpdatePrompt({ reloadPage = () => window.location.reload() }: UpdatePromptProps = {}) {
   const registrationRef = useRef<ServiceWorkerRegistration | undefined>(undefined);
 
   const {
@@ -66,7 +70,7 @@ export function UpdatePrompt() {
             // can auto-activate a waiting SW when the app is foregrounded), the
             // controllerchange event never fires. Force a reload after a short
             // delay so the user isn't left with a button that silently does nothing.
-            setTimeout(() => window.location.reload(), 1500);
+            setTimeout(() => reloadPage(), 1500);
           }}
         >
           Reload

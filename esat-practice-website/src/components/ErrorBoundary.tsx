@@ -3,6 +3,7 @@ import { Component, type ReactNode } from "react";
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  reloadPage?: () => void;
 }
 
 interface State {
@@ -24,6 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     const { error } = this.state;
+    const reloadPage = this.props.reloadPage ?? (() => window.location.reload());
     if (error) {
       if (this.props.fallback) return this.props.fallback;
       return (
@@ -51,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
             }}
           >
             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              <p
+              <h1
                 style={{
                   margin: 0,
                   fontSize: "1.1rem",
@@ -60,7 +62,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 }}
               >
                 Something went wrong
-              </p>
+              </h1>
               <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-muted)" }}>
                 An unexpected error occurred. You can try again or reload the page.
               </p>
@@ -88,7 +90,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 type="button"
                 className="btn-primary"
-                onClick={() => window.location.reload()}
+                onClick={reloadPage}
                 style={{
                   flex: 1,
                   background: "var(--surface-2)",

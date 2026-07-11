@@ -121,6 +121,15 @@ export function ZoomableImage({
     return () => window.removeEventListener("keydown", onKey);
   }, [enableDrawing, handleCloseImage, handleToolChange, isExpanded, isTextEditing, redo, setTool, setWidthIndex, tool, undo, widthPresets.length]);
 
+  useEffect(() => {
+    if (!isExpanded) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isExpanded]);
+
   return (
     <>
       <button

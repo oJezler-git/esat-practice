@@ -150,12 +150,14 @@ export function useCloudSync() {
   }));
   const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const newKeyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     void hasLocalBackup().then((has) => dispatch({ type: "set_backup_state", hasBackup: has }));
     return () => {
       if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
       if (newKeyTimerRef.current) clearTimeout(newKeyTimerRef.current);
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
     };
   }, []);
 
@@ -246,7 +248,8 @@ export function useCloudSync() {
       const ts = Date.now();
       dispatch({ type: "pull_done", ts });
       scheduleStatusClear();
-      setTimeout(() => window.location.reload(), 1200);
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+      reloadTimerRef.current = setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
       dispatch({ type: "pull_error", error: err instanceof Error ? err.message : "Pull failed." });
       scheduleStatusClear();
@@ -262,7 +265,8 @@ export function useCloudSync() {
       await restoreLastBackup();
       dispatch({ type: "restore_done" });
       scheduleStatusClear();
-      setTimeout(() => window.location.reload(), 1200);
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+      reloadTimerRef.current = setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
       dispatch({ type: "restore_error", error: err instanceof Error ? err.message : "Restore failed." });
       scheduleStatusClear();
