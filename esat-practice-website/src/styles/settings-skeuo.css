@@ -98,14 +98,25 @@
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
 }
 
+/* In light mode the neutral beige track read as neither on nor off. Use a clear
+   red (off) / green (on) affordance with a cream knob that reads on both. */
 :root[data-theme="light"] .sk-settings .settings-toggle {
-  background: rgba(90, 60, 20, 0.25);
-  box-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.35);
+  background: linear-gradient(180deg, #e08a7a, #c24634);
+  box-shadow: inset 0 2px 5px rgba(90, 30, 20, 0.4);
 }
 
 .sk-settings .settings-toggle--on {
   background: linear-gradient(180deg, #6fc24a, #2a8a44);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+}
+
+:root[data-theme="light"] .sk-settings .settings-toggle--on {
+  background: linear-gradient(180deg, #5cb23c, #2a8a44);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 1px rgba(255, 255, 255, 0.4);
+}
+
+:root[data-theme="light"] .sk-settings .settings-toggle__knob {
+  background: linear-gradient(160deg, #ffffff, #ede3cf);
 }
 
 .sk-settings .settings-toggle__knob {
