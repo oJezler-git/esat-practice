@@ -237,25 +237,43 @@
   padding: 8px 16px;
   border-radius: 999px;
   font-size: 0.78rem;
+  font-weight: 600;
   color: #e0c8a2;
-  background: rgba(0, 0, 0, 0.25);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--sk-prog-amber-ring);
+  background: linear-gradient(180deg, rgba(74, 52, 22, 0.55), rgba(28, 19, 8, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.45),
+    0 0 0 1px var(--sk-prog-amber-ring);
 }
 
 :root[data-theme="light"] .sk-progress-pill {
   color: #6a4a1e;
-  background: rgba(255, 255, 255, 0.4);
-  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.14), 0 0 0 1px var(--sk-prog-amber-ring);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(233, 205, 150, 0.45));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(90, 60, 20, 0.16),
+    0 1px 2px rgba(90, 60, 20, 0.15),
+    0 0 0 1px var(--sk-prog-amber-ring);
 }
 
 .sk-progress-pill--good {
   color: var(--sk-prog-good-text);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--sk-prog-good-ring);
+  background: linear-gradient(180deg, rgba(40, 74, 44, 0.5), rgba(14, 30, 18, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.45),
+    0 0 0 1px var(--sk-prog-good-ring);
 }
 
 :root[data-theme="light"] .sk-progress-pill--good {
-  background: rgba(255, 255, 255, 0.4);
-  box-shadow: inset 0 2px 4px rgba(90, 60, 20, 0.14), 0 0 0 1px var(--sk-prog-good-ring);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(190, 224, 180, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(90, 60, 20, 0.16),
+    0 1px 2px rgba(40, 90, 40, 0.15),
+    0 0 0 1px var(--sk-prog-good-ring);
 }
 
 /* ---- Trend sparkline (recessed inner well) ---- */
@@ -470,26 +488,46 @@
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.72rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .sk-progress-badge--completed {
   color: var(--sk-prog-good-text);
-  background: rgba(0, 0, 0, 0.25);
-  box-shadow: 0 0 0 1px var(--sk-prog-good-ring);
+  background: linear-gradient(180deg, rgba(40, 74, 44, 0.5), rgba(14, 30, 18, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 0 0 1px var(--sk-prog-good-ring);
 }
 
 :root[data-theme="light"] .sk-progress-badge--completed {
-  background: rgba(255, 255, 255, 0.4);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(190, 224, 180, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(90, 60, 20, 0.16),
+    0 1px 2px rgba(40, 90, 40, 0.15),
+    0 0 0 1px var(--sk-prog-good-ring);
 }
 
 .sk-progress-badge--idle {
   color: var(--sk-prog-label);
-  background: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(180deg, rgba(60, 48, 28, 0.5), rgba(24, 18, 8, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 :root[data-theme="light"] .sk-progress-badge--idle {
-  background: rgba(90, 60, 20, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(210, 190, 150, 0.4));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 4px rgba(90, 60, 20, 0.16),
+    0 1px 2px rgba(90, 60, 20, 0.12),
+    0 0 0 1px rgba(90, 60, 20, 0.12);
 }
 
 .sk-progress-session-view {

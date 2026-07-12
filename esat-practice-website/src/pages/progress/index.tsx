@@ -348,18 +348,16 @@ function TrendCard({ summaries }: { summaries: SessionSummary[] }) {
     <section className="prog-section card">
       <div className="prog-section-head">
         <h2 className="prog-section-title">Trend over sessions</h2>
-        <div className="prog-toggle" role="group">
-          {(["accuracy", "time"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setMetric(value)}
-              className={`prog-toggle__btn ${metric === value ? "prog-toggle__btn--active" : ""}`}
-            >
-              {value === "accuracy" ? "Accuracy" : "Avg time"}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          className="sk-seg--compact"
+          ariaLabel="Trend metric"
+          value={metric}
+          onChange={setMetric}
+          options={[
+            { value: "accuracy", label: "Accuracy" },
+            { value: "time", label: "Avg time" },
+          ]}
+        />
       </div>
 
       <div className="sk-progress-trend-well">
