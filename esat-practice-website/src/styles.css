@@ -150,6 +150,10 @@ html {
   scrollbar-gutter: stable;
 }
 
+html, body {
+  overscroll-behavior-y: none;
+}
+
 body {
   margin: 0;
   background: var(--bg-canvas);
