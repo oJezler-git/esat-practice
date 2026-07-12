@@ -636,6 +636,7 @@ p {
 @import "./styles/score-reference-skeuo.css";
 @import "./styles/settings-skeuo.css";
 @import "./styles/misc-skeuo.css";
+@import "./styles/segmented-control.css";
 
 .route-loading {
   min-height: 60vh;

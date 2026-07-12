@@ -11,6 +11,7 @@ import type { Question } from "../../types/schema";
 import type { CountItem, DataDump, SortKey } from "./useQuestionBankFilters";
 import { useQuestionBankFilters } from "./useQuestionBankFilters";
 import { useVirtualQuestionList } from "./useVirtualQuestionList";
+import { SegmentedControl } from "../../components/ui/SegmentedControl";
 
 export default function QuestionBank() {
   const navigate = useNavigate();
@@ -103,34 +104,19 @@ export default function QuestionBank() {
           </p>
         </div>
         <div className="question-bank-hero-actions">
-          <div
-            role="tablist"
-            aria-label="Question bank scope"
-            className="question-bank-scope-toggle"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={scope === "practice"}
-              onClick={() => setScope("practice")}
-              className={`question-bank-scope-tab ${
-                scope === "practice" ? "question-bank-scope-tab-active" : ""
-              }`}
-            >
-              Practice bank
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={scope === "excluded"}
-              onClick={() => setScope("excluded")}
-              className={`question-bank-scope-tab question-bank-scope-tab-danger ${
-                scope === "excluded" ? "question-bank-scope-tab-danger-active" : ""
-              }`}
-            >
-              Excluded ({excludedQuestions.length})
-            </button>
-          </div>
+          <SegmentedControl
+            ariaLabel="Question bank scope"
+            value={scope}
+            onChange={setScope}
+            options={[
+              { value: "practice", label: "Practice bank" },
+              {
+                value: "excluded",
+                label: `Excluded (${excludedQuestions.length})`,
+                tone: "danger",
+              },
+            ]}
+          />
           <div
             className={`question-bank-practice-cta-slot ${
               scope === "practice" && filtered.length > 0
