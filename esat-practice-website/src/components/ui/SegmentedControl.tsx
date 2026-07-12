@@ -162,12 +162,18 @@ export function SegmentedControl<T extends string>({
       window.removeEventListener("resize", handleResize);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [value, options]);
+    // Only the active `value` should re-run this. The effect measures the active
+    // tab from the DOM (not the `options` array), so keeping `options` out of the
+    // deps avoids tearing down a mid-flight spring on unrelated re-renders (e.g.
+    // scroll updates on the question bank) — which would otherwise cancel the RAF
+    // and leave the pill frozen partway.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return (
     <div
       ref={containerRef}
-      role="tablist"
+      role="group"
       aria-label={ariaLabel}
       data-tone={activeTone}
       className={`sk-seg ${className ?? ""}`}
@@ -192,8 +198,7 @@ export function SegmentedControl<T extends string>({
           <button
             key={option.value}
             type="button"
-            role="tab"
-            aria-selected={isActive}
+            aria-pressed={isActive}
             data-seg-active={isActive || undefined}
             onClick={() => onChange(option.value)}
             className={`sk-seg__btn ${isActive ? "sk-seg__btn--active" : ""}`}
