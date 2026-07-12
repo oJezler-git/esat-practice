@@ -109,6 +109,35 @@ export const MOTIVATIONAL_QUOTES = [
   "Anyone who stops learning is old, whether at twenty or eighty.",
   "An investment in knowledge always pays the best interest.",
   "Real knowledge is to know the extent of one's ignorance.",
+  "Discipline is choosing between what you want now and what you want most.",
+  "You don't have to be great to start, but you have to start to be great.",
+  "Small daily improvements are the key to staggering long-term results.",
+  "The pain of discipline weighs ounces; the pain of regret weighs tons.",
+  "Motivation gets you started. Habit keeps you going.",
+  "A little progress each day adds up to big results.",
+  "The obstacle is the way.",
+  "Do the hard things while they are easy, and the great things while they are small.",
+  "It's not about having time, it's about making time.",
+  "What seems like a problem to be solved may actually be a paradox to be lived with.",
+  "The only person you should try to be better than is who you were yesterday.",
+  "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.",
+  "You are what you do repeatedly.",
+  "Consistency is what transforms average into excellence.",
+  "The struggle you're in today is developing the strength you need for tomorrow.",
+  "A river cuts through rock not because of its power, but its persistence.",
+  "Focus on being productive instead of busy.",
+  "Nothing worth having comes easy.",
+  "Practice isn't the thing you do once you're good. It's the thing you do that makes you good.",
+  "Understanding is the substance of learning; memorisation is just its shadow.",
+  "A good question is worth more than a good answer.",
+  "The person who says it cannot be done should not interrupt the person doing it.",
+  "There are no shortcuts to any place worth going.",
+  "Curiosity is the engine of achievement.",
+  "The unexamined life is not worth living, but the unexamined problem set is a wasted afternoon.",
+  "You never really understand a topic until you can explain it simply.",
+  "Excellence is not an act, but a habit.",
+  "Effort is a choice you make hundreds of times a day.",
+  "The mind, once stretched by a new idea, never returns to its original dimensions.",
 ];
 
 export const GREETINGS_BY_TIME = {
@@ -127,6 +156,8 @@ export const GREETINGS_BY_TIME = {
     "Early start, unfair advantage",
     "Sun's not even up yet",
     "This is when toppers train",
+    "Early hours, clear head",
+    "The world is still asleep, get to work",
   ],
   morning: [
     "Good Morning",
@@ -140,6 +171,8 @@ export const GREETINGS_BY_TIME = {
     "Morning momentum",
     "Let's get ahead of the day",
     "Off to a good start already",
+    "Rise and revise",
+    "Set the tone for the day",
   ],
   midday: [
     "Keep the momentum going",
@@ -154,6 +187,8 @@ export const GREETINGS_BY_TIME = {
     "Keep the engine running",
     "A quick sharpen before the afternoon",
     "Halfway to a good day's work",
+    "Refuel, then refocus",
+    "Turn lunch into a launchpad",
   ],
   afternoon: [
     "Good Afternoon",
@@ -167,6 +202,8 @@ export const GREETINGS_BY_TIME = {
     "Onwards",
     "Second half starts now",
     "Still plenty of daylight left",
+    "Keep chipping away",
+    "The afternoon is still yours",
   ],
   lateAfternoon: [
     "Final stretch of the day",
@@ -181,6 +218,8 @@ export const GREETINGS_BY_TIME = {
     "The home stretch",
     "One good session before you clock off",
     "Making the afternoon count",
+    "Beat the sunset",
+    "Squeeze the last drops out of the day",
   ],
   evening: [
     "Good Evening",
@@ -195,6 +234,8 @@ export const GREETINGS_BY_TIME = {
     "Deep work hours",
     "The house has gone quiet, good",
     "Evening session, no distractions",
+    "Wind down with a win",
+    "The evening is a clean canvas",
   ],
   night: [
     "Late night sessions",
@@ -209,6 +250,8 @@ export const GREETINGS_BY_TIME = {
     "Late, but not wasted",
     "The grind has no curfew",
     "Making up for lost time",
+    "One more topic before lights out",
+    "Tomorrow's exam, tonight's prep",
   ],
   lateNight: [
     "Still going?",
@@ -225,6 +268,8 @@ export const GREETINGS_BY_TIME = {
     "The candle burns at both ends",
     "October will thank you for this",
     "Grindset or just can't sleep?",
+    "The clock's ticking, so are you",
+    "One more, then really, bed",
   ],
 };
 
