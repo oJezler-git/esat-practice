@@ -25,7 +25,7 @@ function virtualReducer(state: VirtualState, action: VirtualAction): VirtualStat
 // the fixed `height` of `.sk-history .hist-card` and the `.hist-list` gap in the
 // history stylesheets — the mobile row keeps the same 3-column layout, so it only
 // needs a little extra height for the meta line wrapping.
-const CARD_HEIGHT = 92;
+const CARD_HEIGHT = 96;
 const MOBILE_CARD_HEIGHT = 112;
 const ROW_GAP = 10;
 const NARROW_MEDIA_QUERY = "(max-width: 768px)";
