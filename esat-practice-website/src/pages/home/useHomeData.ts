@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
 import { getRandomQuote, getTimeBasedGreeting } from "../../lib/motivationalContent";
@@ -65,10 +65,18 @@ export function useHomeData() {
     );
   }, []);
 
+  const reload = useCallback(async () => {
+    const [sessions, stats] = await Promise.all([getRecentSessions(3), getAllStats()]);
+    dispatchData({
+      type: "set_data",
+      recentSessions: sessions,
+      weakTopics: stats.filter((stat) => stat.ewma_accuracy < 0.5 && stat.attempts >= 3).slice(0, 3),
+    });
+  }, [getAllStats, getRecentSessions]);
+
   useEffect(() => {
     let mounted = true;
-
-    async function load() {
+    void (async () => {
       const [sessions, stats] = await Promise.all([getRecentSessions(3), getAllStats()]);
       if (!mounted) {
         return;
@@ -78,13 +86,11 @@ export function useHomeData() {
         recentSessions: sessions,
         weakTopics: stats.filter((stat) => stat.ewma_accuracy < 0.5 && stat.attempts >= 3).slice(0, 3),
       });
-    }
-
-    void load();
+    })();
     return () => {
       mounted = false;
     };
   }, [getAllStats, getRecentSessions]);
 
-  return homeData;
+  return { ...homeData, reload };
 }

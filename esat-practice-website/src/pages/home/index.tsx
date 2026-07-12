@@ -8,14 +8,22 @@ import { DisclaimerFooter } from "./DisclaimerFooter";
 import { OfflineNudge } from "./OfflineNudge";
 import { useHomeData } from "./useHomeData";
 
+function formatElapsed(ms: number): string {
+  const minutes = Math.round(ms / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  return `${hours}h ago`;
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const { questions, isLoading, loaded } = useQuestionStore();
-  const { createSession } = useSessionStore();
+  const { createSession, abandonSession } = useSessionStore();
   const settings = useSettingsStore((state) => state.settings);
   const { excludedQuestionIds } = useExcludedQuestionStore();
 
-  const { recentSessions, weakTopics, greeting, quote } = useHomeData();
+  const { recentSessions, weakTopics, greeting, quote, reload } = useHomeData();
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
   const activeSession = recentSessions.find((session) => session.state === "active") ?? null;
@@ -45,6 +53,14 @@ export default function Home() {
     }
 
     navigate(`/session/${session.id}`);
+  }
+
+  async function handleDiscard() {
+    if (!activeSession) {
+      return;
+    }
+    await abandonSession(activeSession.id);
+    await reload();
   }
 
   async function drillTopic(topic: string) {
@@ -104,6 +120,39 @@ export default function Home() {
                 : "Quick start — 20 random questions"}
           </span>
         </button>
+
+        {activeSession && (
+          <div className="sk-resume">
+            <div>
+              <p className="sk-resume-title">
+                Unfinished session from {formatElapsed(Date.now() - activeSession.created_at)}
+              </p>
+              <p className="sk-resume-meta">
+                {activeSession.attempt_ids.length} of{" "}
+                {activeSession.config.question_count ?? activeSession.config.question_ids.length}{" "}
+                answered
+              </p>
+            </div>
+            <div className="sk-resume-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  void handleDiscard();
+                }}
+                className="sk-resume-discard"
+              >
+                Discard
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(`/session/${activeSession.id}`)}
+                className="sk-resume-resume"
+              >
+                Resume
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="sk-tiles">
           <Link to="/practice" className="sk-tile">
