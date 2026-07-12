@@ -4,6 +4,7 @@ import { getRevisionModule, prefetchRevisionContent } from "../../content/revisi
 import { ampersandize } from "../../content/revision/textFormat";
 import type { RevisionDocEntry, RevisionHeading, RevisionModule } from "../../content/revision/types";
 import { RevisionAsk } from "./RevisionAsk";
+import { TopicStatusAffix } from "./TopicStatusAffix";
 import { useActiveHeading } from "./useActiveHeading";
 import { useExitTransition } from "./useExitTransition";
 
@@ -41,7 +42,10 @@ function TopicNavLinks({
               }
             >
               <span>{ampersandize(doc.meta.title)}</span>
-              <span className="rev-sidebar-code">{doc.meta.topicCode}</span>
+              <span className="rev-sidebar-meta">
+                <TopicStatusAffix docId={doc.id} />
+                <span className="rev-sidebar-code">{doc.meta.topicCode}</span>
+              </span>
             </NavLink>
           ))}
         </nav>

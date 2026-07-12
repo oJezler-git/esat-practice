@@ -13,11 +13,17 @@ import { stripMdxExports } from "../../content/revision/mdxSource";
 import { buildUniqueHeadingId } from "../../content/revision/slug";
 import { ampersandize } from "../../content/revision/textFormat";
 import type { RevisionHeading } from "../../content/revision/types";
+import {
+  useRevisionProgress,
+  useTopicProgress,
+} from "../../store/revisionProgress";
 import { preloadKatexFonts } from "./katexFontPreload";
+import { RevisionConfidence } from "./RevisionConfidence";
 import { revisionMdxComponents } from "./RevisionMdxComponents";
 import { RevisionLayout } from "./RevisionLayout";
 import { useCopy } from "./useCopy";
 import { useExitTransition } from "./useExitTransition";
+import { useScrollProgress } from "./useScrollProgress";
 
 function collectHeadings(root: HTMLElement | null): RevisionHeading[] {
   if (!root) {
@@ -70,10 +76,24 @@ export function RevisionDocPage() {
   // visual swap, not any data fetch.
   const { display: displayedDoc, exiting: headerExiting } = useExitTransition(doc ?? null, docId, 150);
 
+  const recordVisit = useRevisionProgress((state) => state.recordVisit);
+  const markDone = useRevisionProgress((state) => state.markDone);
+  const { done } = useTopicProgress(docId ?? "");
+
   // Warm the KaTeX fonts as soon as a guide is opened so math never pops in.
   useEffect(() => {
     preloadKatexFonts();
   }, []);
+
+  // Stamp last-visited (and first-visited once) whenever a topic is opened.
+  useEffect(() => {
+    if (docId) {
+      recordVisit(docId);
+    }
+  }, [docId, recordVisit]);
+
+  // Track how far the guide has been read once its content has painted.
+  useScrollProgress(articleRef, docId, Boolean(displayedContent));
 
   // Fetch the compiled MDX guide for the current topic on demand.
   useEffect(() => {
@@ -167,9 +187,19 @@ export function RevisionDocPage() {
               <p className="rev-kicker">{headerDoc.meta.topicCode} · {headerModule.title}</p>
               <h1>{ampersandize(headerDoc.meta.title)}</h1>
             </div>
-            <button type="button" className="rev-copy-btn" onClick={copy}>
-              {copied ? "Copied" : "Copy page"}
-            </button>
+            <div className="rev-title-actions">
+              <button
+                type="button"
+                className={`rev-done-btn ${done ? "rev-done-btn--active" : ""}`}
+                onClick={() => docId && markDone(docId, !done)}
+                aria-pressed={done}
+              >
+                {done ? "Done ✓" : "Mark as done"}
+              </button>
+              <button type="button" className="rev-copy-btn" onClick={copy}>
+                {copied ? "Copied" : "Copy page"}
+              </button>
+            </div>
           </div>
           <p className="rev-subtitle">{headerDoc.meta.subtitle}</p>
           <div className="rev-meta-row">
@@ -197,6 +227,8 @@ export function RevisionDocPage() {
             </div>
           ) : null}
         </div>
+
+        {displayedContent && <RevisionConfidence docId={doc.id} />}
       </article>
     </RevisionLayout>
   );

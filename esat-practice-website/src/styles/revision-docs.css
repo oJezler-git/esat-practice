@@ -1449,3 +1449,265 @@
     transform: translateX(0);
   }
 }
+
+/* Progress tracking -------------------------------------------------------- */
+
+/* Confidence dot colors: amber = shaky, azure = okay, green = solid. Azure is
+   a literal because the earthy palette has no blue token; it's tuned to read
+   against both the dark and light revision surfaces. */
+:root {
+  --rev-confidence-shaky: var(--color-amber);
+  --rev-confidence-okay: #7ba7d0;
+  --rev-confidence-solid: var(--color-success-text);
+}
+
+.rev-status-affix {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* A compact wrapper on the right of each sidebar row for the status + code. */
+.rev-sidebar-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.rev-confidence-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--text-muted);
+}
+
+.rev-confidence-dot--shaky { background: var(--rev-confidence-shaky); }
+.rev-confidence-dot--okay { background: var(--rev-confidence-okay); }
+.rev-confidence-dot--solid { background: var(--rev-confidence-solid); }
+
+.rev-done-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rev-read-bar {
+  display: inline-block;
+  width: 1.9rem;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.rev-read-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-accent-strong);
+  transition: width 200ms var(--motion-smooth);
+}
+
+/* Doc-page "Mark as done" button, sits beside the Copy button. */
+.rev-title-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.rev-done-btn {
+  padding: 0.42rem 0.72rem;
+  border-radius: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+}
+
+.rev-done-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.rev-done-btn--active,
+.rev-done-btn--active:hover {
+  color: var(--color-accent-strong);
+  border-color: var(--color-accent-strong);
+  background: color-mix(in srgb, var(--color-accent-soft) 58%, transparent);
+}
+
+/* Confidence self-rating at the end of a guide. */
+.rev-confidence {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 2.25rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.rev-confidence-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.rev-confidence-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rev-confidence-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.rev-confidence-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.rev-confidence-btn--shaky .rev-confidence-dot { background: var(--rev-confidence-shaky); }
+.rev-confidence-btn--okay .rev-confidence-dot { background: var(--rev-confidence-okay); }
+.rev-confidence-btn--solid .rev-confidence-dot { background: var(--rev-confidence-solid); }
+
+.rev-confidence-btn--active {
+  color: var(--text-primary);
+  border-color: currentColor;
+  background: var(--surface-2);
+}
+
+.rev-confidence-btn--shaky.rev-confidence-btn--active {
+  border-color: var(--rev-confidence-shaky);
+  background: color-mix(in srgb, var(--rev-confidence-shaky) 16%, transparent);
+}
+
+.rev-confidence-btn--okay.rev-confidence-btn--active {
+  border-color: var(--rev-confidence-okay);
+  background: color-mix(in srgb, var(--rev-confidence-okay) 16%, transparent);
+}
+
+.rev-confidence-btn--solid.rev-confidence-btn--active {
+  border-color: var(--rev-confidence-solid);
+  background: color-mix(in srgb, var(--rev-confidence-solid) 16%, transparent);
+}
+
+/* Per-module progress bar on the home cards. */
+.rev-module-progress {
+  height: 4px;
+  margin: 0.1rem 0 0.55rem;
+  border-radius: 999px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.rev-module-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-accent-strong);
+  transition: width 240ms var(--motion-smooth);
+}
+
+/* "Continue where you left off" strip on the revision home. */
+.rev-recents {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.rev-recents-label {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.rev-recents-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.rev-recents-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--surface-1) 55%, transparent);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.rev-recents-link:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface-1);
+}
+
+.rev-recents-link-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rev-recents-link-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.rev-recents-link-code {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-read-bar-fill,
+  .rev-module-progress-fill {
+    transition: none;
+  }
+}
+
+@media (max-width: 780px) {
+  .rev-recents-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rev-title-actions {
+    width: 100%;
+  }
+
+  .rev-done-btn {
+    flex: 1;
+  }
+}

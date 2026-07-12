@@ -1,7 +1,8 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { revisionDocs } from "../../content/revision/manifest";
+import { useRevisionProgress } from "../../store/revisionProgress";
 import { RevisionLayout } from "./RevisionLayout";
 
 vi.mock("./RevisionAsk", () => ({
@@ -107,5 +108,32 @@ describe("RevisionLayout mobile drawer", () => {
     view.unmount();
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
+  });
+});
+
+describe("RevisionLayout sidebar status", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useRevisionProgress.getState().reset();
+  });
+
+  function sidebarLink(doc = firstDoc) {
+    const sidebar = screen.getByRole("complementary", {
+      name: /revision topics/i,
+    });
+    return within(sidebar).getByRole("link", { name: new RegExp(doc.meta.title, "i") });
+  }
+
+  it("shows a done check for a topic marked done", () => {
+    useRevisionProgress.getState().markDone(firstDoc.id, true);
+    renderLayout();
+    expect(within(sidebarLink()).getByRole("img", { name: "Done" })).toBeInTheDocument();
+  });
+
+  it("shows a read-progress bar reflecting scrollPct when not done", () => {
+    useRevisionProgress.getState().recordScroll(firstDoc.id, 40);
+    renderLayout();
+    const bar = within(sidebarLink()).getByRole("img", { name: /40% read/i });
+    expect(bar.querySelector(".rev-read-bar-fill")).toHaveStyle({ width: "40%" });
   });
 });
