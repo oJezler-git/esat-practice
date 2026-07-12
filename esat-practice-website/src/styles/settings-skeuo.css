@@ -305,8 +305,15 @@
 }
 
 :root[data-theme="light"] .sk-settings .prompt-template-textarea {
+  /* The box stays dark (terminal look) even in light mode, so the text must be
+     light — otherwise the dark tile-text is unreadable on the dark background. */
   background: #241d15;
+  color: #e9dcc0;
   box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .sk-settings .prompt-template-textarea::placeholder {
+  color: rgba(233, 220, 192, 0.5);
 }
 
 .sk-settings .prompt-var-chip {
