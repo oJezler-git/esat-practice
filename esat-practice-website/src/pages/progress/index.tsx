@@ -349,7 +349,7 @@ function TrendCard({ summaries }: { summaries: SessionSummary[] }) {
       <div className="prog-section-head">
         <h2 className="prog-section-title">Trend over sessions</h2>
         <SegmentedControl
-          className="sk-seg--compact"
+          className="sk-segctl--compact"
           ariaLabel="Trend metric"
           value={metric}
           onChange={setMetric}
@@ -442,7 +442,7 @@ function CategoryCard({ categories }: { categories: CategoryStat[] }) {
       <div className="prog-section-head">
         <h2 className="prog-section-title">Breakdown</h2>
         <SegmentedControl
-          className="sk-seg--compact"
+          className="sk-segctl--compact"
           ariaLabel="Breakdown dimension"
           value={activeDimension}
           onChange={setDimension}

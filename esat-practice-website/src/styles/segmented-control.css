@@ -2,9 +2,13 @@
  * Spring-animated segmented control (see components/ui/SegmentedControl.tsx).
  * The active pill is a single element that springs between options; buttons sit
  * above it and only carry text colour. Mirrors the nav's active-pill surface.
+ *
+ * NB: uses the `sk-segctl` namespace, NOT `sk-seg` — the latter is already
+ * claimed by the session timeline segment dots (session.css), whose global
+ * `height: 14px` would otherwise collapse this track.
  */
 
-.sk-seg {
+.sk-segctl {
   position: relative;
   display: inline-flex;
   max-width: 100%;
@@ -15,7 +19,7 @@
   box-shadow: var(--sk-nav-group-shadow);
 }
 
-.sk-seg__pill {
+.sk-segctl__pill {
   border-radius: 999px;
   background: var(--sk-nav-active-bg);
   box-shadow: var(--sk-nav-active-shadow);
@@ -23,12 +27,12 @@
   pointer-events: none;
 }
 
-.sk-seg[data-tone="danger"] .sk-seg__pill {
+.sk-segctl[data-tone="danger"] .sk-segctl__pill {
   background: linear-gradient(180deg, #c0492e, #7c2414);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.sk-seg__btn {
+.sk-segctl__btn {
   position: relative;
   z-index: 1;
   border: none;
@@ -43,21 +47,21 @@
   transition: color 160ms ease;
 }
 
-.sk-seg__btn:not(.sk-seg__btn--active):hover {
+.sk-segctl__btn:not(.sk-segctl__btn--active):hover {
   color: var(--sk-tile-text);
 }
 
-.sk-seg__btn--active {
+.sk-segctl__btn--active {
   font-weight: 600;
   color: var(--sk-nav-active-text);
 }
 
-.sk-seg[data-tone="danger"] .sk-seg__btn--active {
+.sk-segctl[data-tone="danger"] .sk-segctl__btn--active {
   color: #fbe6de;
 }
 
 /* Compact sizing for tighter headers (e.g. the progress breakdown switcher). */
-.sk-seg--compact .sk-seg__btn {
+.sk-segctl--compact .sk-segctl__btn {
   padding: 6px 14px;
   font-size: 0.78rem;
 }

@@ -176,11 +176,11 @@ export function SegmentedControl<T extends string>({
       role="group"
       aria-label={ariaLabel}
       data-tone={activeTone}
-      className={`sk-seg ${className ?? ""}`}
+      className={`sk-segctl ${className ?? ""}`}
     >
       <span
         ref={pillRef}
-        className="sk-seg__pill"
+        className="sk-segctl__pill"
         aria-hidden="true"
         style={{
           position: "absolute",
@@ -201,7 +201,7 @@ export function SegmentedControl<T extends string>({
             aria-pressed={isActive}
             data-seg-active={isActive || undefined}
             onClick={() => onChange(option.value)}
-            className={`sk-seg__btn ${isActive ? "sk-seg__btn--active" : ""}`}
+            className={`sk-segctl__btn ${isActive ? "sk-segctl__btn--active" : ""}`}
           >
             {option.label}
           </button>
