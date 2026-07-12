@@ -261,3 +261,202 @@
   box-shadow: var(--sk-cta-shadow);
   font-weight: 700;
 }
+
+/* ---- 404 "Escape the 404" mini-game ---- */
+
+.sk-misc .ng-frame {
+  padding: 26px clamp(20px, 4vw, 32px) 22px;
+}
+
+.ng-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  text-align: left;
+  margin-bottom: 14px;
+}
+
+.ng-head .ng-home {
+  flex: none;
+  white-space: nowrap;
+}
+
+.ng-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sk-accent);
+  margin: 0 0 6px;
+}
+
+.sk-misc .ng-title {
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  margin: 0 0 8px;
+}
+
+.ng-sub {
+  color: var(--sk-muted);
+  max-width: 30rem;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ng-sub strong {
+  color: var(--sk-accent);
+  font-weight: 700;
+}
+
+/* Game switcher pills */
+.ng-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.ng-tab {
+  border: none;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sk-muted);
+  background: var(--sk-pill-bg);
+  box-shadow: var(--sk-pill-shadow);
+  cursor: pointer;
+}
+
+.ng-tab:hover {
+  color: var(--sk-text);
+}
+
+.ng-tab--on {
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+}
+
+/* HUD strip above the well */
+.ng-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 10px;
+  padding: 0 2px;
+  font-size: 0.85rem;
+  color: var(--sk-muted);
+}
+
+.ng-hud__attempts b {
+  color: var(--sk-text);
+}
+
+.ng-hud__tip {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.ng-hud__replay {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 14px;
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-cta-shadow);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.ng-hud__replay:hover {
+  filter: brightness(1.06);
+}
+
+/* The recessed playfield well — fills the frame; the canvas is a fixed-height
+ * screen and just gets wider (more play area) as the frame grows. */
+.ng-well {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--sk-well-bg);
+  box-shadow: var(--sk-well-shadow);
+  line-height: 0;
+}
+
+.ng-canvas {
+  display: block;
+  width: 100%;
+  height: 400px;
+  touch-action: none; /* let pointer drags aim instead of scrolling */
+  cursor: grab;
+}
+
+.ng-canvas:active {
+  cursor: grabbing;
+}
+
+/* Win banner floats over the well */
+.ng-win {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  background: var(--sk-frame-bg);
+  border: 2px solid var(--sk-frame-border);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  line-height: 1.35;
+  animation: ng-pop 360ms var(--motion-smooth, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+}
+
+.ng-win__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--sk-accent);
+}
+
+.ng-win__sub {
+  font-size: 0.82rem;
+  color: var(--sk-muted);
+}
+
+@keyframes ng-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.ng-home--ready {
+  animation: ng-home-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes ng-home-glow {
+  0%,
+  100% {
+    box-shadow: var(--sk-cta-shadow);
+  }
+  50% {
+    box-shadow: var(--sk-cta-shadow), 0 0 18px 2px var(--sk-accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ng-win,
+  .ng-home--ready {
+    animation: none;
+  }
+}
