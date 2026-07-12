@@ -149,7 +149,12 @@ export function RevisionAsk({
         aria-hidden={!open}
       >
         <div className="rev-ask-drawer-header">
-          <span className="rev-ask-drawer-title">AI (free tier — highly rate limited)</span>
+          <div className="rev-ask-drawer-heading">
+            <span className="rev-ask-drawer-title">Ask AI about this page</span>
+            <span className="rev-ask-drawer-sub">
+              Answers use only this guide · free tier, rate limited
+            </span>
+          </div>
           <button
             type="button"
             className="rev-ask-drawer-close"
