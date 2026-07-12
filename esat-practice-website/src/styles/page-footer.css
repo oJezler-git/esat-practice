@@ -81,6 +81,23 @@
 .page-footer-close--confirming .page-footer-close__label {
   opacity: 1;
 }
+/* On narrow screens the disclaimer text spans the full width, so an
+   absolutely-positioned close button overlaps it (the "Confirm" label sat on
+   top of the copy). Stack the button below the text and center it instead. */
+@media (max-width: 640px) {
+  .page-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .page-footer-close {
+    position: static;
+    top: auto;
+    right: auto;
+  }
+}
+
 .page-footer-link {
   color: var(--accent);
   text-decoration: underline;
