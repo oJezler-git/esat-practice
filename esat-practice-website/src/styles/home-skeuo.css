@@ -36,6 +36,14 @@
   pointer-events: none;
 }
 
+/* On phones the tight frame padding crowds the stitch against the content and
+   it clips awkwardly at the edges — drop it there (it's only visible in light). */
+@media (max-width: 640px) {
+  .sk-frame::before {
+    display: none;
+  }
+}
+
 /* ---- Corner screws ---- */
 
 .sk-screw {
