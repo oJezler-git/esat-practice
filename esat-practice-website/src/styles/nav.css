@@ -232,6 +232,13 @@
     background: transparent;
     border: none;
     cursor: pointer;
+    /* Bigger tap target, and the right padding pulls the icon away from the
+       scroll-bar so taps near the edge don't land on the scrollbar instead. */
+    padding: 0.5rem 0.6rem;
+  }
+  /* Extra breathing room between the right cluster and the reserved scrollbar. */
+  .nav-inner {
+    padding-right: 1.25rem;
   }
 }
 @media (min-width: 769px) {
