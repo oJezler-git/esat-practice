@@ -14,7 +14,11 @@
 
 /* ---- Page-local tokens ---- */
 
-.sk-practice {
+/* .sk-home is included because the Home page reuses the .sk-resume "unfinished
+   session" block, which consumes the --sk-mode-* / --sk-chip-text / --sk-slider-tick
+   tokens defined here. Without this scope they'd resolve to nothing on Home. */
+.sk-practice,
+.sk-home {
   /* Selection ring (amber, shared by mode cards + chips) */
   --sk-select-ring: #c9922f;
 
@@ -55,7 +59,8 @@
   --sk-error-text: #f0b48c;
 }
 
-:root[data-theme="light"] .sk-practice {
+:root[data-theme="light"] .sk-practice,
+:root[data-theme="light"] .sk-home {
   --sk-select-ring: #b85c28;
 
   --sk-mode-bg: linear-gradient(180deg, #f9efd6, #e3d0a8);
