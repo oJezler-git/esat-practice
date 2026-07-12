@@ -399,6 +399,16 @@
   color: var(--sk-text);
 }
 
+.sk-confirm-panel--compact {
+  max-width: 26rem;
+}
+
+/* Header-then-footer with no body between would stack two hairlines into one
+   heavy line; drop the footer's so a single divider separates copy and actions. */
+.sk-confirm-panel--compact .sk-confirm-footer {
+  border-top: none;
+}
+
 .sk-confirm-header {
   padding: 1.1rem 1.5rem;
   border-bottom: 1px solid var(--sk-hairline-light);

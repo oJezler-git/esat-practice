@@ -284,23 +284,23 @@ export default function SessionPage() {
 
       {showQuitConfirm &&
         createPortal(
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface-2 rounded-xl shadow-lg max-w-sm w-full">
-              <div className="px-6 py-4 border-b border-subtle">
-                <h3 className="text-lg font-medium text-primary">
+          <div className="sk-confirm-backdrop">
+            <div className="sk-confirm-panel sk-confirm-panel--compact">
+              <div className="sk-confirm-header">
+                <h3 className="sk-confirm-title">
                   {isTimed ? "Quit this session?" : "Leave this session?"}
                 </h3>
-                <p className="text-sm text-muted mt-1">
+                <p className="sk-confirm-desc">
                   {isTimed
                     ? "Timed sessions can't be paused. Quitting will mark it abandoned and it won't appear in your results."
                     : "You can discard it, or keep it saved to resume later from the practice setup page."}
                 </p>
               </div>
-              <div className="px-6 py-3 flex gap-2 justify-end">
+              <div className="sk-confirm-footer">
                 <button
                   type="button"
                   onClick={() => setShowQuitConfirm(false)}
-                  className="px-4 py-2 text-sm border border-subtle rounded-lg text-secondary hover:bg-soft transition-colors"
+                  className="sk-confirm-cancel-btn"
                 >
                   Cancel
                 </button>
@@ -309,7 +309,7 @@ export default function SessionPage() {
                   onClick={() => {
                     void handleDiscard();
                   }}
-                  className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="sk-confirm-btn sk-confirm-btn--danger"
                 >
                   {isTimed ? "Quit session" : "Discard"}
                 </button>
@@ -319,7 +319,7 @@ export default function SessionPage() {
                     onClick={() => {
                       void handleKeep();
                     }}
-                    className="px-4 py-2 text-sm border border-strong rounded-lg text-primary hover:bg-soft transition-colors"
+                    className="sk-confirm-btn sk-confirm-btn--warning"
                   >
                     Keep &amp; exit
                   </button>
