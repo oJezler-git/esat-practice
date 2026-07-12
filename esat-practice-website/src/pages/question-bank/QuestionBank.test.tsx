@@ -274,7 +274,7 @@ describe("QuestionBank", () => {
     ];
 
     renderQuestionBank();
-    fireEvent.click(screen.getByRole("tab", { name: "Excluded (1)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Excluded (1)" }));
     fireEvent.click(
       screen.getByText(/Excluded calculus practice/).closest("button") as HTMLElement,
     );
@@ -326,7 +326,7 @@ describe("QuestionBank", () => {
     });
 
     renderQuestionBank();
-    fireEvent.click(screen.getByRole("tab", { name: "Excluded (1)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Excluded (1)" }));
     expect(await screen.findByText(/Excluded calculus practice/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Restore" }));
