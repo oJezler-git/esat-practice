@@ -170,8 +170,8 @@ export function RevisionAsk({
             <div className="rev-ask-empty">
               <p className="rev-ask-empty-title">What can I help you with?</p>
               <p className="rev-ask-empty-hint">
-                Answers are generated from this guide only — it will say so if a
-                question falls outside it.
+                If a question falls outside this guide, it'll tell you rather than
+                guess.
               </p>
               <div className="rev-ask-suggestions">
                 {SUGGESTIONS.map((suggestion) => (
