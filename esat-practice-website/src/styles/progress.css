@@ -44,6 +44,14 @@
   margin-bottom: 1rem;
 }
 
+/* On narrow screens the title + dimension switcher no longer fit on one line and
+   the switcher ran off the right edge — let it wrap onto its own line instead. */
+@media (max-width: 560px) {
+  .prog-section-head {
+    flex-wrap: wrap;
+  }
+}
+
 .prog-section-title {
   margin: 0;
   font-size: 0.875rem;

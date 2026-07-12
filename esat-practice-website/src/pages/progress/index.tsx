@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EsatAllTimePanel } from "../../components/score-viz/EsatAllTimePanel";
+import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
@@ -442,18 +443,16 @@ function CategoryCard({ categories }: { categories: CategoryStat[] }) {
     <section className="prog-section card">
       <div className="prog-section-head">
         <h2 className="prog-section-title">Breakdown</h2>
-        <div className="prog-toggle" role="group">
-          {dimensions.map((dim) => (
-            <button
-              key={dim}
-              type="button"
-              onClick={() => setDimension(dim)}
-              className={`prog-toggle__btn ${activeDimension === dim ? "prog-toggle__btn--active" : ""}`}
-            >
-              {DIMENSION_LABELS[dim]}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          className="sk-seg--compact"
+          ariaLabel="Breakdown dimension"
+          value={activeDimension}
+          onChange={setDimension}
+          options={dimensions.map((dim) => ({
+            value: dim,
+            label: DIMENSION_LABELS[dim],
+          }))}
+        />
       </div>
 
       <div className="prog-cat-list">
