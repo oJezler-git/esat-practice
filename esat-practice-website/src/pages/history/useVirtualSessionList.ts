@@ -103,8 +103,13 @@ export function useVirtualSessionList(count: number) {
     Math.floor(scrollTop / rowHeight) - VIRTUAL_OVERSCAN,
   );
   const visibleCount = Math.ceil(viewportHeight / rowHeight) + VIRTUAL_OVERSCAN * 2;
-  const endIndex = Math.min(virtualCount, count, startIndex + visibleCount);
-  const totalHeight = Math.min(virtualCount, count) * rowHeight;
+  // `virtualCount` is updated by an effect, so on the render where `count` first
+  // grows (e.g. 0 → N as data loads) it still holds the previous, smaller value.
+  // Floor it at the initial batch so that render still shows rows instead of an
+  // empty list for one frame; it only ever grows from here.
+  const effectiveCount = Math.max(virtualCount, Math.min(count, VIRTUAL_BATCH_SIZE));
+  const endIndex = Math.min(effectiveCount, count, startIndex + visibleCount);
+  const totalHeight = Math.min(effectiveCount, count) * rowHeight;
 
   return {
     listRef,
