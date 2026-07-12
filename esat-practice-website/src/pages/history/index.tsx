@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { Session, SessionSummary } from "../../types/schema";
 import { ActivityHeatmap } from "./ActivityHeatmap";
 import { useHistoryData } from "./useHistoryData";
+import { useVirtualSessionList } from "./useVirtualSessionList";
 
 function formatTime(ms: number): string {
   const s = Math.round(ms / 1000);
@@ -25,6 +26,9 @@ export default function HistoryPage() {
     selectedDate,
     setSelectedDate,
   } = useHistoryData();
+
+  const { listRef, rowHeight, startIndex, endIndex, totalHeight } =
+    useVirtualSessionList(filteredRows.length);
 
   if (isLoading) {
     return (
@@ -96,21 +100,35 @@ export default function HistoryPage() {
             <span className="text-xs text-muted">{filteredRows.length}</span>
           </div>
 
-          <div className="hist-list">
-            {filteredRows.map(({ session, summary }) => (
-              <SessionCard
-                key={session.id}
-                session={session}
-                summary={summary}
-                onNavigate={() =>
-                  navigate(
-                    session.state === "active"
-                      ? `/session/${session.id}`
-                      : `/results/${session.id}`,
-                  )
-                }
-              />
-            ))}
+          <div className="hist-list" ref={listRef}>
+            <div style={{ height: totalHeight, position: "relative" }}>
+              {filteredRows.slice(startIndex, endIndex).map(({ session, summary }, offset) => {
+                const index = startIndex + offset;
+                return (
+                  <div
+                    key={session.id}
+                    style={{
+                      position: "absolute",
+                      top: index * rowHeight,
+                      left: 0,
+                      right: 0,
+                    }}
+                  >
+                    <SessionCard
+                      session={session}
+                      summary={summary}
+                      onNavigate={() =>
+                        navigate(
+                          session.state === "active"
+                            ? `/session/${session.id}`
+                            : `/results/${session.id}`,
+                        )
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       </div>
