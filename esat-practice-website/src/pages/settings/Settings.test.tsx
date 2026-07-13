@@ -67,7 +67,7 @@ describe("Settings", () => {
     expect(screen.getByRole("switch", { name: "Maths" })).toBeChecked();
 
     expect(screen.getByRole("combobox", { name: "Default mode" })).toHaveValue("untimed");
-    expect(screen.getByRole("combobox", { name: "Appearance" })).toHaveValue("dark");
+    expect(screen.getByRole("combobox", { name: "Appearance" })).toHaveValue("auto");
     expect(screen.getByRole("combobox", { name: "Interface font" })).toHaveValue("academic");
     expect(screen.getByRole("combobox", { name: "Question font size" })).toHaveValue("md");
   });

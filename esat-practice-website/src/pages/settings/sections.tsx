@@ -341,8 +341,9 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
             update({ theme: value as UserSettings["theme"] })
           }
           options={[
-            { value: "dark", label: "Dark (default)" },
-            { value: "light", label: "Light (BETA)" },
+            { value: "auto", label: "Auto (match system)" },
+            { value: "dark", label: "Dark" },
+            { value: "light", label: "Light" },
           ]}
         />
       </Field>

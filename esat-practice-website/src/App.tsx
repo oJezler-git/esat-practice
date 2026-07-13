@@ -47,11 +47,20 @@ export default function App() {
   }, [fontPreset]);
 
   useEffect(() => {
-    if (theme === "light") {
-      document.documentElement.dataset.theme = "light";
-    } else {
-      delete document.documentElement.dataset.theme;
-    }
+    const media = window.matchMedia("(prefers-color-scheme: light)");
+    const apply = () => {
+      const light =
+        theme === "light" || (theme === "auto" && media.matches);
+      if (light) {
+        document.documentElement.dataset.theme = "light";
+      } else {
+        delete document.documentElement.dataset.theme;
+      }
+    };
+    apply();
+    if (theme !== "auto") return;
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
   }, [theme]);
 
   useEffect(() => {
