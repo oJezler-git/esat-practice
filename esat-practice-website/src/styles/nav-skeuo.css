@@ -117,7 +117,7 @@
 }
 
 :root[data-theme="light"] .mobile-menu-overlay {
-  background: rgba(38, 27, 12, 0.6);
+  background: rgba(38, 27, 12, 0.75);
 }
 
 .mobile-menu-content {
@@ -134,6 +134,16 @@
 
 .mobile-nav-link:hover {
   color: var(--sk-nav-idle-hover);
+}
+
+/* The light-theme idle/hover browns are authored for the light nav shell,
+   but the overlay scrim stays dark in both themes — force light ink here. */
+:root[data-theme="light"] .mobile-nav-link {
+  color: #d8c9a8;
+}
+
+:root[data-theme="light"] .mobile-nav-link:hover {
+  color: #f1e6cc;
 }
 
 /* Match the desktop active pill rather than a stray tap-highlight glow. */
