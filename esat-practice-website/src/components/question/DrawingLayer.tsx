@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type {
   Annotation,
@@ -8,6 +8,7 @@ import type {
   ShapeKind,
 } from "../../types/annotations";
 import { clientToUser } from "./annotationGeometry";
+import type { GetReplay } from "./drawing/annotationRenderers";
 import { MathContent, renderAnnotation, renderFreehand, renderShape } from "./drawing/annotationRenderers";
 import { useAnnotationReplay } from "./drawing/useAnnotationReplay";
 import { useLabelEditor } from "./drawing/useLabelEditor";
@@ -69,6 +70,34 @@ function shiftConstrain(start: AnnPoint, end: AnnPoint, kind: ShapeKind): AnnPoi
   const dist = Math.hypot(dx, dy);
   return { x: start.x + Math.cos(snapped) * dist, y: start.y + Math.sin(snapped) * dist };
 }
+
+// Committed annotations, isolated behind React.memo. During a live stroke only
+// the parent re-renders (via forceTick); this subtree is skipped because none of
+// its props change until an annotation is actually added/removed/edited — so the
+// full set of strokes isn't re-serialized on every frame.
+const CommittedAnnotations = memo(function CommittedAnnotations({
+  annotations,
+  getReplay,
+  naturalWidth,
+  editingId,
+  draggedLabelId,
+  eraserHoverId,
+}: {
+  annotations: Annotation[];
+  getReplay: GetReplay;
+  naturalWidth: number;
+  editingId: string | null;
+  draggedLabelId: string | null;
+  eraserHoverId: string | null;
+}) {
+  return (
+    <>
+      {annotations.map((ann) =>
+        renderAnnotation(ann, { getReplay, naturalWidth, editingId, draggedLabelId, eraserHoverId }),
+      )}
+    </>
+  );
+});
 
 export function DrawingLayer({
   naturalSize,
@@ -404,15 +433,14 @@ export function DrawingLayer({
         </>
       )}
 
-      {annotations.map((ann) =>
-        renderAnnotation(ann, {
-          getReplay,
-          naturalWidth: naturalSize.width,
-          editingId,
-          draggedLabelId: live?.mode === "label-move" ? live.ann.id : null,
-          eraserHoverId,
-        }),
-      )}
+      <CommittedAnnotations
+        annotations={annotations}
+        getReplay={getReplay}
+        naturalWidth={naturalSize.width}
+        editingId={editingId}
+        draggedLabelId={live?.mode === "label-move" ? live.ann.id : null}
+        eraserHoverId={eraserHoverId}
+      />
 
       {live?.mode === "free" &&
         renderFreehand(getReplay, "__live", live.kind, live.points, color, live.width)}
