@@ -168,6 +168,39 @@ export function DrawingLayer({
     }
   }, []);
 
+  // Cached inverse screen CTM for the current pointer interaction. getScreenCTM
+  // flushes pending layout, so calling it on every pointermove (while drawing
+  // also dirties the DOM each frame) means a forced synchronous reflow per
+  // event. The transform is constant for the duration of an interaction — pan is
+  // disabled while a draw tool is active and zoom needs a click that ends the
+  // interaction — so we capture it once and reuse it, refreshing per stroke.
+  const ctmRef = useRef<DOMMatrix | null>(null);
+  const svgPointRef = useRef<DOMPoint | null>(null);
+
+  const captureCtm = useCallback((svg: SVGSVGElement) => {
+    // getScreenCTM is absent in jsdom (and can be unavailable for a detached
+    // node); fall back to null so mapPoint uses clientToUser instead.
+    const ctm = typeof svg.getScreenCTM === "function" ? svg.getScreenCTM() : null;
+    ctmRef.current = ctm ? ctm.inverse() : null;
+  }, []);
+
+  const mapPoint = useCallback((svg: SVGSVGElement, clientX: number, clientY: number): AnnPoint => {
+    const inv = ctmRef.current;
+    if (inv) {
+      let p = svgPointRef.current;
+      if (!p) {
+        p = svg.createSVGPoint();
+        svgPointRef.current = p;
+      }
+      p.x = clientX;
+      p.y = clientY;
+      const mapped = p.matrixTransform(inv);
+      return { x: mapped.x, y: mapped.y };
+    }
+    // No cached matrix (or getScreenCTM unavailable, e.g. jsdom) — compute fresh.
+    return clientToUser(svg, clientX, clientY);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
@@ -202,7 +235,9 @@ export function DrawingLayer({
     if (!svg) return;
     event.stopPropagation();
 
-    const point = clientToUser(svg, event.clientX, event.clientY);
+    // Refresh the cached transform at the start of each interaction.
+    captureCtm(svg);
+    const point = mapPoint(svg, event.clientX, event.clientY);
 
     if (tool === "text" || tool === "math") {
       // Check if the pointer landed on an existing annotation of the same kind.
@@ -274,7 +309,10 @@ export function DrawingLayer({
   const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
     const svg = svgRef.current;
     if (!svg) return;
-    const point = clientToUser(svg, event.clientX, event.clientY);
+    // Hover moves have no preceding pointerdown to seed the cache; capture on
+    // the first move and reuse it for the rest of the hover (cleared on leave).
+    if (ctmRef.current === null) captureCtm(svg);
+    const point = mapPoint(svg, event.clientX, event.clientY);
 
     if (isCursorTool) {
       // Hide the preview mid-stroke; the live freehand path stands in for it.
@@ -329,6 +367,8 @@ export function DrawingLayer({
   const handlePointerLeave = () => {
     positionCursor(null);
     setEraserHoverId(null);
+    // Invalidate the cached transform; the next interaction re-captures it.
+    ctmRef.current = null;
   };
 
   const finishStroke = (event: ReactPointerEvent<SVGSVGElement>) => {
