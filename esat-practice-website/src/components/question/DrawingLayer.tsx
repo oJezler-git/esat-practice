@@ -90,7 +90,11 @@ export function DrawingLayer({
   const [, forceTick] = useState(0);
   const annotationsRef = useRef<Annotation[]>(annotations);
   annotationsRef.current = annotations;
-  const [cursorPos, setCursorPos] = useState<AnnPoint | null>(null);
+  // The pen/highlighter cursor preview is driven imperatively (see
+  // positionCursor) rather than via React state: a state update per pointermove
+  // forces a full re-render of the whole annotation SVG, which on low-end
+  // hardware makes the cursor visibly trail the real pointer.
+  const cursorRef = useRef<SVGCircleElement>(null);
   const [eraserHoverId, setEraserHoverId] = useState<string | null>(null);
 
   const isDrawTool = tool !== "pan";
@@ -120,6 +124,21 @@ export function DrawingLayer({
     });
   }, []);
 
+  // Move/show/hide the cursor preview circle by mutating the DOM directly.
+  // Passing null hides it (e.g. on pointer-leave or while a freehand stroke is
+  // in progress, when the live path stands in for the cursor).
+  const positionCursor = useCallback((point: AnnPoint | null) => {
+    const el = cursorRef.current;
+    if (!el) return;
+    if (point) {
+      el.setAttribute("cx", String(point.x));
+      el.setAttribute("cy", String(point.y));
+      el.style.visibility = "visible";
+    } else {
+      el.style.visibility = "hidden";
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
@@ -129,7 +148,7 @@ export function DrawingLayer({
   useEffect(() => {
     liveRef.current = null;
     erasingRef.current = false;
-    setCursorPos(null);
+    positionCursor(null);
     setEraserHoverId(null);
     if ((!LABEL_TOOLS.includes(tool) || tool !== editorKind) && editor) {
       cancelEditor();
@@ -210,6 +229,8 @@ export function DrawingLayer({
         points: [point],
         width: strokeWidth,
       };
+      // The live path takes over from the cursor preview for the stroke.
+      positionCursor(null);
     } else if (SHAPE_TOOLS.includes(tool)) {
       liveRef.current = {
         mode: "shape",
@@ -226,7 +247,10 @@ export function DrawingLayer({
     if (!svg) return;
     const point = clientToUser(svg, event.clientX, event.clientY);
 
-    if (isCursorTool) setCursorPos(point);
+    if (isCursorTool) {
+      // Hide the preview mid-stroke; the live freehand path stands in for it.
+      positionCursor(liveRef.current?.mode === "free" ? null : point);
+    }
 
     if (tool === "eraser") {
       if (erasingRef.current && event.buttons === 1) {
@@ -274,7 +298,7 @@ export function DrawingLayer({
   };
 
   const handlePointerLeave = () => {
-    setCursorPos(null);
+    positionCursor(null);
     setEraserHoverId(null);
   };
 
@@ -422,17 +446,18 @@ export function DrawingLayer({
         </foreignObject>
       )}
 
-      {isCursorTool && cursorPos && live?.mode !== "free" && (
+      {/* Cursor preview: mounted whenever a cursor tool is active, positioned and
+          shown/hidden imperatively via positionCursor (starts hidden). */}
+      {isCursorTool && (
         <circle
-          cx={cursorPos.x}
-          cy={cursorPos.y}
+          ref={cursorRef}
           r={tool === "highlighter" ? width * 2 : width * 0.5}
           fill={color}
           fillOpacity={tool === "highlighter" ? 0.2 : 0.4}
           stroke={tool === "highlighter" ? color : "white"}
           strokeWidth={Math.max(0.5, width * 0.07)}
           strokeOpacity={tool === "highlighter" ? 0.35 : 0.7}
-          style={{ pointerEvents: "none" }}
+          style={{ pointerEvents: "none", visibility: "hidden" }}
         />
       )}
 
