@@ -26,6 +26,17 @@
   --surface-1: var(--sk-well-bg);
   --surface-3: rgba(0, 0, 0, 0.5);
 
+  /* @theme colour remap — the expanded review card renders QuestionCard /
+     DiagramViewer, which are Tailwind-utility driven (bg-soft / bg-surface-1 /
+     border-subtle / text-primary / text-muted → var(--color-*)). Flip those
+     --color-* tokens here so the card adopts the skeuo palette instead of the
+     flat @theme defaults (mirrors the .sk-settings approach). */
+  --color-soft: transparent;
+  --color-surface-1: rgba(255, 255, 255, 0.06);
+  --color-subtle: var(--sk-hairline-light);
+  --color-primary: var(--sk-text);
+  --color-muted: var(--sk-muted);
+
   /* Results-local accents */
   --sk-res-label: #8a7c62;
   --sk-res-warn: #c9922f;
@@ -34,6 +45,7 @@
 
 :root[data-theme="light"] .sk-results {
   --surface-3: rgba(90, 60, 20, 0.14);
+  --color-surface-1: rgba(90, 60, 20, 0.08);
   --sk-res-label: #8a6a42;
   --sk-res-warn: #b06a1a;
   --sk-res-weak: #b05a1c;
