@@ -272,17 +272,6 @@ export function BehaviourSection({ settings, update }: SettingsSectionProps) {
           </div>
         </Field>
       )}
-
-      <Field
-        label="Show keyboard hints"
-        description="Display a shortcut reminder below each question."
-      >
-        <Toggle
-          ariaLabel="Show keyboard hints"
-          checked={settings.showKeyboardHints}
-          onChange={(value) => update({ showKeyboardHints: value })}
-        />
-      </Field>
     </Section>
   );
 }
@@ -311,6 +300,17 @@ export function KeyboardShortcutsSection({ settings, update }: SettingsSectionPr
       title="Keyboard shortcuts"
       description="These shortcuts are saved locally and used during practice sessions."
     >
+      <Field
+        label="Show keyboard hints"
+        description="Display a shortcut reminder below each question."
+      >
+        <Toggle
+          ariaLabel="Show keyboard hints"
+          checked={settings.showKeyboardHints}
+          onChange={(value) => update({ showKeyboardHints: value })}
+        />
+      </Field>
+
       {SHORTCUT_FIELDS.map(({ action, label, description }) => (
         <Field key={action} label={label} description={description}>
           <ShortcutInput

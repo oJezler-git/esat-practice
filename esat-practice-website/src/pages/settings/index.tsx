@@ -53,21 +53,20 @@ export default function Settings() {
         </button>
       </div>
 
-      <CloudSyncSection />
-
       <SessionDefaultsSection settings={settings} update={update} />
-      <SubjectsSection settings={settings} update={update} />
       <BehaviourSection settings={settings} update={update} />
       <KeyboardShortcutsSection settings={settings} update={update} />
-      <DisplaySection settings={settings} update={update} />
+      <SubjectsSection settings={settings} update={update} />
       <QuestionPoolSection
         settings={settings}
         update={update}
         excludedQuestions={excludedQuestions}
         includeQuestion={includeQuestion}
       />
+      <DisplaySection settings={settings} update={update} />
       <AskClaudeSection settings={settings} update={update} />
 
+      <CloudSyncSection />
       <OfflineSection />
       <DataManagementSection />
       </div>
