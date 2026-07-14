@@ -21,6 +21,14 @@ export function Section({
   );
 }
 
+export function GroupHeading({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="settings-group-heading text-xs font-semibold uppercase tracking-wider text-muted mt-10 mb-3 first:mt-0">
+      {children}
+    </h2>
+  );
+}
+
 export function Field({
   label,
   description,

@@ -20,6 +20,7 @@ import {
   SessionDefaultsSection,
   SubjectsSection,
 } from "./sections";
+import { GroupHeading } from "./controls";
 
 export default function Settings() {
   const { settings, update, reset } = useSettingsStore();
@@ -53,9 +54,12 @@ export default function Settings() {
         </button>
       </div>
 
+      <GroupHeading>Session</GroupHeading>
       <SessionDefaultsSection settings={settings} update={update} />
       <BehaviourSection settings={settings} update={update} />
       <KeyboardShortcutsSection settings={settings} update={update} />
+
+      <GroupHeading>Content</GroupHeading>
       <SubjectsSection settings={settings} update={update} />
       <QuestionPoolSection
         settings={settings}
@@ -63,9 +67,14 @@ export default function Settings() {
         excludedQuestions={excludedQuestions}
         includeQuestion={includeQuestion}
       />
+
+      <GroupHeading>Appearance</GroupHeading>
       <DisplaySection settings={settings} update={update} />
+
+      <GroupHeading>Integrations</GroupHeading>
       <AskClaudeSection settings={settings} update={update} />
 
+      <GroupHeading>Data &amp; account</GroupHeading>
       <CloudSyncSection />
       <OfflineSection />
       <DataManagementSection />
