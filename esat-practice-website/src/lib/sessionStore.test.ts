@@ -4,6 +4,7 @@ import {
   createSessionRecord,
   getRecentSessions,
   getActiveSessions,
+  getFlaggedQuestionIds,
   markSessionCompleted,
   markSessionAbandoned,
   sweepStaleActiveSessions,
@@ -151,6 +152,55 @@ describe("getAttemptsForSession — ordering", () => {
 
     const attempts = await getAttemptsForSession(SESSION_ID);
     expect(attempts.map((a) => a.id)).toEqual(["a2", "a1"]);
+  });
+});
+
+describe("getFlaggedQuestionIds", () => {
+  function makeAttemptsDb(attempts: unknown[]) {
+    return {
+      getAll: vi.fn(async (store: string) => (store === "attempts" ? attempts : [])),
+    };
+  }
+
+  it("returns question ids whose latest attempt is flagged", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: "a1", question_id: "q-1", flagged: true }),
+      makeRawAttempt({ id: "a2", question_id: "q-2", flagged: false }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const flagged = await getFlaggedQuestionIds();
+    expect([...flagged]).toEqual(["q-1"]);
+  });
+
+  it("lets the most recent attempt win when a question is re-attempted", async () => {
+    // Flagged in an old attempt, then unflagged in a newer one → not flagged.
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: "old", question_id: "q-1", flagged: true, timestamp: 1000 }),
+      makeRawAttempt({ id: "new", question_id: "q-1", flagged: false, timestamp: 2000 }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    expect([...(await getFlaggedQuestionIds())]).toEqual([]);
+  });
+
+  it("flags a question when the newest attempt re-flags it", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: "old", question_id: "q-1", flagged: false, timestamp: 1000 }),
+      makeRawAttempt({ id: "new", question_id: "q-1", flagged: true, timestamp: 2000 }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    expect([...(await getFlaggedQuestionIds())]).toEqual(["q-1"]);
+  });
+
+  it("skips malformed attempt records", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: undefined, question_id: "q-1", flagged: true }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    expect([...(await getFlaggedQuestionIds())]).toEqual([]);
   });
 });
 

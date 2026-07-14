@@ -182,6 +182,36 @@ export async function getAttemptsForSession(sessionId: string): Promise<Attempt[
   return attempts.sort((left, right) => left.timestamp - right.timestamp);
 }
 
+/**
+ * Returns the set of question IDs the user currently has flagged. A question
+ * can be attempted across several sessions and the flag toggled each time, so
+ * "currently flagged" is decided by the most recent attempt for that question.
+ */
+export async function getFlaggedQuestionIds(): Promise<Set<string>> {
+  const database = await getDb();
+  const attemptsRaw = await database.getAll("attempts");
+  const latestByQuestion = new Map<string, Attempt>();
+
+  for (const raw of attemptsRaw) {
+    const attempt = normalizeAttemptRecord(raw);
+    if (!attempt) {
+      continue;
+    }
+    const existing = latestByQuestion.get(attempt.question_id);
+    if (!existing || attempt.timestamp >= existing.timestamp) {
+      latestByQuestion.set(attempt.question_id, attempt);
+    }
+  }
+
+  const flagged = new Set<string>();
+  for (const [questionId, attempt] of latestByQuestion) {
+    if (attempt.flagged) {
+      flagged.add(questionId);
+    }
+  }
+  return flagged;
+}
+
 export async function upsertAttemptRecord(attempt: Attempt): Promise<void> {
   const database = await getDb();
   const transaction = database.transaction(["attempts", "sessions"], "readwrite");
@@ -271,6 +301,7 @@ const sessionStoreApi = {
   getRecentSessions,
   getActiveSessions,
   getAttempts: getAttemptsForSession,
+  getFlaggedQuestionIds,
   upsertAttempt: upsertAttemptRecord,
   saveAttempts: saveSessionAttempts,
   completeSession: markSessionCompleted,

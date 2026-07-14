@@ -21,6 +21,7 @@ type SetupState = {
   selectedTopics: string[];
   selectedYears: number[];
   questionCount: number;
+  flaggedOnly: boolean;
   setupError: string | null;
 };
 
@@ -30,6 +31,7 @@ type SetupAction =
   | { type: "toggle_year"; year: number }
   | { type: "set_count"; count: number }
   | { type: "set_count_exact"; count: number }
+  | { type: "set_flagged_only"; value: boolean }
   | { type: "set_error"; error: string | null };
 
 function setupReducer(state: SetupState, action: SetupAction): SetupState {
@@ -52,6 +54,8 @@ function setupReducer(state: SetupState, action: SetupAction): SetupState {
       return { ...state, questionCount: magnetizeCount(action.count) };
     case "set_count_exact":
       return { ...state, questionCount: clampExactCount(action.count) };
+    case "set_flagged_only":
+      return { ...state, flaggedOnly: action.value };
     case "set_error":
       return { ...state, setupError: action.error };
     default:
@@ -120,9 +124,11 @@ export default function PracticeSetup() {
   const { questions, availableTopics, availableYears, isLoading, loaded } =
     useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
-  const { createSession, getActiveSessions, abandonSession } = useSessionStore();
+  const { createSession, getActiveSessions, abandonSession, getFlaggedQuestionIds } =
+    useSessionStore();
   const { excludedQuestionIds } = useExcludedQuestionStore();
   const [activeSession, setActiveSession] = useState<Session | null>(null);
+  const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -135,6 +141,18 @@ export default function PracticeSetup() {
       cancelled = true;
     };
   }, [getActiveSessions]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getFlaggedQuestionIds().then((ids) => {
+      if (!cancelled) {
+        setFlaggedIds(ids);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [getFlaggedQuestionIds]);
 
   function handleResume() {
     if (activeSession) {
@@ -153,10 +171,12 @@ export default function PracticeSetup() {
     selectedTopics: [],
     selectedYears: [],
     questionCount: settings.defaultQuestionCount,
+    flaggedOnly: false,
     setupError: null,
   }));
 
-  const { mode, selectedTopics, selectedYears, questionCount, setupError } = state;
+  const { mode, selectedTopics, selectedYears, questionCount, flaggedOnly, setupError } =
+    state;
   // O(1) membership checks for the chip render loops below.
   const selectedTopicSet = useMemo(() => new Set(selectedTopics), [selectedTopics]);
   const selectedYearSet = useMemo(() => new Set(selectedYears), [selectedYears]);
@@ -166,6 +186,11 @@ export default function PracticeSetup() {
   const isQuestionBankReady = loaded && !isLoading && questions.length > 0;
   const isQuestionBankLoading = !loaded || isLoading;
   const availableQuestions = questions.filter((q) => !excludedQuestionIds.has(q.id));
+  // How many of the still-available questions are flagged — drives the toggle's
+  // count and lets us disable it when there's nothing to practise.
+  const flaggedAvailableCount = availableQuestions.filter((q) =>
+    flaggedIds.has(q.id),
+  ).length;
 
   async function handleStart() {
     if (!isQuestionBankReady) {
@@ -188,9 +213,18 @@ export default function PracticeSetup() {
           : undefined,
     };
 
-    const questionIds = buildSession(availableQuestions, config);
+    const pool = flaggedOnly
+      ? availableQuestions.filter((q) => flaggedIds.has(q.id))
+      : availableQuestions;
+
+    const questionIds = buildSession(pool, config);
     if (questionIds.length === 0) {
-      dispatch({ type: "set_error", error: "No questions match your filters. Try broadening your selection." });
+      dispatch({
+        type: "set_error",
+        error: flaggedOnly
+          ? "No flagged questions match your filters. Flag questions during a session, or turn off “Flagged only”."
+          : "No questions match your filters. Try broadening your selection.",
+      });
       return;
     }
 
@@ -277,6 +311,37 @@ export default function PracticeSetup() {
             ))}
           </div>
         </section>
+
+        <button
+          type="button"
+          role="switch"
+          aria-checked={flaggedOnly}
+          aria-label="Practise flagged questions only"
+          disabled={flaggedAvailableCount === 0}
+          onClick={() =>
+            dispatch({ type: "set_flagged_only", value: !flaggedOnly })
+          }
+          className={`sk-flag-row ${flaggedOnly ? "sk-flag-row--on" : ""}`}
+        >
+          <span className="sk-flag-row-text">
+            <span className="sk-flag-row-label">Flagged only</span>
+            <span className="sk-flag-row-count">
+              {flaggedAvailableCount === 0
+                ? "none flagged yet"
+                : `${flaggedAvailableCount} question${
+                    flaggedAvailableCount === 1 ? "" : "s"
+                  }`}
+            </span>
+          </span>
+          <span
+            className={`settings-toggle ${
+              flaggedOnly ? "settings-toggle--on" : ""
+            }`}
+            aria-hidden="true"
+          >
+            <span className="settings-toggle__knob" />
+          </span>
+        </button>
 
         <button
           type="button"

@@ -50,7 +50,9 @@ export default function ResultsPage() {
     isLoading: true,
     autoExcludedCount: null,
   });
-  const [reviewMode, setReviewMode] = useState<"all" | "incorrect">("all");
+  const [reviewMode, setReviewMode] = useState<"all" | "incorrect" | "flagged">(
+    "all",
+  );
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { session, items, isLoading, autoExcludedCount } = loadState;
@@ -130,10 +132,15 @@ export default function ResultsPage() {
     };
   }, [allQuestions, excludeQuestion, getAttempts, getQuestionsByIds, getSession, id, navigate, settings.autoExclude, settings.autoExcludeOn]);
 
+  const flaggedCount = items.filter((item) => item.attempt.flagged).length;
+  const reviewSegments: Array<"all" | "incorrect" | "flagged"> =
+    flaggedCount > 0 ? ["all", "incorrect", "flagged"] : ["all", "incorrect"];
   const displayItems =
     reviewMode === "incorrect"
       ? items.filter((item) => item.attempt.result === "incorrect")
-      : items;
+      : reviewMode === "flagged"
+        ? items.filter((item) => item.attempt.flagged)
+        : items;
 
   if (isLoading || !session) {
     return (
@@ -171,9 +178,16 @@ export default function ResultsPage() {
         <EsatScorePanel items={items} />
 
         <div className="sk-results-review-head">
-          <h2 className="sk-results-review-title">Review</h2>
+          <div className="sk-results-review-title-group">
+            <h2 className="sk-results-review-title">Review</h2>
+            {flaggedCount > 0 && (
+              <span className="sk-flag-badge">
+                {flaggedCount} flagged
+              </span>
+            )}
+          </div>
           <div className="sk-results-toggle">
-            {(["all", "incorrect"] as const).map((value) => (
+            {reviewSegments.map((value) => (
               <button
                 type="button"
                 key={value}
@@ -183,7 +197,11 @@ export default function ResultsPage() {
                   reviewMode === value ? "sk-results-seg--active" : ""
                 }`}
               >
-                {value === "all" ? "All" : "Incorrect only"}
+                {value === "all"
+                  ? "All"
+                  : value === "incorrect"
+                    ? "Incorrect only"
+                    : "Flagged"}
               </button>
             ))}
           </div>

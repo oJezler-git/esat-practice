@@ -109,6 +109,12 @@
   margin-bottom: 14px;
 }
 
+.sk-results-review-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .sk-results-review-title {
   margin: 0;
   font-size: 0.9375rem;

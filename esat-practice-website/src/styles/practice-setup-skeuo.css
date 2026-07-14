@@ -193,6 +193,51 @@
   color: var(--sk-chip-text);
 }
 
+/* ---- Flagged-only toggle (slim inline row) ---- */
+
+.sk-flag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--sk-mode-bg);
+  border: 1px solid var(--sk-mode-border);
+  box-shadow: var(--sk-mode-shadow);
+  cursor: pointer;
+  text-align: left;
+}
+
+.sk-flag-row:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.sk-flag-row:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sk-flag-row-text {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sk-flag-row-label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sk-chip-text);
+}
+
+.sk-flag-row-count {
+  font-size: 0.8125rem;
+  color: var(--sk-mode-desc);
+}
+
 /* ---- Inline error ---- */
 
 .sk-error {

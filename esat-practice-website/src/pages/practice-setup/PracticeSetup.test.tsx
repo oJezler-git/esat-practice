@@ -18,6 +18,7 @@ const storeMocks = vi.hoisted(() => ({
     createSession: vi.fn(),
     getActiveSessions: vi.fn(),
     abandonSession: vi.fn(),
+    getFlaggedQuestionIds: vi.fn(),
   },
   excludedState: {
     excludedQuestionIds: new Set<string>(),
@@ -115,6 +116,7 @@ describe("PracticeSetup", () => {
     storeMocks.excludedState.excludedQuestionIds = new Set();
     storeMocks.sessionState.createSession.mockResolvedValue(makeSession("new-session"));
     storeMocks.sessionState.getActiveSessions.mockResolvedValue([]);
+    storeMocks.sessionState.getFlaggedQuestionIds.mockResolvedValue(new Set<string>());
     storeMocks.sessionState.abandonSession.mockResolvedValue(undefined);
     storeMocks.sessionState.createSession.mockClear();
     storeMocks.sessionState.getActiveSessions.mockClear();
