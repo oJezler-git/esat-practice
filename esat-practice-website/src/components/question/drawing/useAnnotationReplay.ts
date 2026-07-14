@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Annotation } from "../../../types/annotations";
 import { replayTiming } from "../annotationGeometry";
 
@@ -50,12 +50,17 @@ export function useAnnotationReplay(annotations: Annotation[], replayNonce = 0) 
     }, total);
   }, [replayNonce]);
 
-  const getReplay = (id: string): { delay: number; dur: number } | null => {
-    if (!replay) return null;
-    const index = replay.order.get(id);
-    if (index === undefined) return null;
-    return { delay: index * replay.step, dur: replay.dur };
-  };
+  // Stable identity so consumers (e.g. a memoized annotation layer) aren't
+  // re-rendered every frame; only changes when the replay state itself does.
+  const getReplay = useCallback(
+    (id: string): { delay: number; dur: number } | null => {
+      if (!replay) return null;
+      const index = replay.order.get(id);
+      if (index === undefined) return null;
+      return { delay: index * replay.step, dur: replay.dur };
+    },
+    [replay],
+  );
 
   return { getReplay };
 }

@@ -204,6 +204,7 @@ export function ZoomableImage({
                     onUpdate={handleUpdateAnnotation}
                     onTextEditingChange={setIsTextEditing}
                     replayNonce={replayNonce}
+                    viewTransform={scanTransform}
                   />
                 )}
               </div>

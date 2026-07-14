@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type {
   Annotation,
@@ -8,6 +8,7 @@ import type {
   ShapeKind,
 } from "../../types/annotations";
 import { clientToUser } from "./annotationGeometry";
+import type { GetReplay } from "./drawing/annotationRenderers";
 import { MathContent, renderAnnotation, renderFreehand, renderShape } from "./drawing/annotationRenderers";
 import { useAnnotationReplay } from "./drawing/useAnnotationReplay";
 import { useLabelEditor } from "./drawing/useLabelEditor";
@@ -28,6 +29,12 @@ interface Props {
    * (which don't change the nonce) appear instantly.
    */
   replayNonce?: number;
+  /**
+   * Current pan/zoom transform of the parent scan viewport. A change invalidates
+   * the cached screen CTM so pointer→image mapping stays correct after a
+   * zoom/pan (including wheel-zoom, which never fires pointer-leave).
+   */
+  viewTransform?: { x: number; y: number; scale: number };
 }
 
 type LiveFree = { mode: "free"; kind: FreehandKind; points: AnnPoint[]; width: number };
@@ -70,6 +77,34 @@ function shiftConstrain(start: AnnPoint, end: AnnPoint, kind: ShapeKind): AnnPoi
   return { x: start.x + Math.cos(snapped) * dist, y: start.y + Math.sin(snapped) * dist };
 }
 
+// Committed annotations, isolated behind React.memo. During a live stroke only
+// the parent re-renders (via forceTick); this subtree is skipped because none of
+// its props change until an annotation is actually added/removed/edited — so the
+// full set of strokes isn't re-serialized on every frame.
+const CommittedAnnotations = memo(function CommittedAnnotations({
+  annotations,
+  getReplay,
+  naturalWidth,
+  editingId,
+  draggedLabelId,
+  eraserHoverId,
+}: {
+  annotations: Annotation[];
+  getReplay: GetReplay;
+  naturalWidth: number;
+  editingId: string | null;
+  draggedLabelId: string | null;
+  eraserHoverId: string | null;
+}) {
+  return (
+    <>
+      {annotations.map((ann) =>
+        renderAnnotation(ann, { getReplay, naturalWidth, editingId, draggedLabelId, eraserHoverId }),
+      )}
+    </>
+  );
+});
+
 export function DrawingLayer({
   naturalSize,
   tool,
@@ -81,6 +116,7 @@ export function DrawingLayer({
   onUpdate,
   onTextEditingChange,
   replayNonce = 0,
+  viewTransform,
 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const liveRef = useRef<Live>(null);
@@ -90,7 +126,11 @@ export function DrawingLayer({
   const [, forceTick] = useState(0);
   const annotationsRef = useRef<Annotation[]>(annotations);
   annotationsRef.current = annotations;
-  const [cursorPos, setCursorPos] = useState<AnnPoint | null>(null);
+  // The pen/highlighter cursor preview is driven imperatively (see
+  // positionCursor) rather than via React state: a state update per pointermove
+  // forces a full re-render of the whole annotation SVG, which on low-end
+  // hardware makes the cursor visibly trail the real pointer.
+  const cursorRef = useRef<SVGCircleElement>(null);
   const [eraserHoverId, setEraserHoverId] = useState<string | null>(null);
 
   const isDrawTool = tool !== "pan";
@@ -120,16 +160,71 @@ export function DrawingLayer({
     });
   }, []);
 
+  // Move/show/hide the cursor preview circle by mutating the DOM directly.
+  // Passing null hides it (e.g. on pointer-leave or while a freehand stroke is
+  // in progress, when the live path stands in for the cursor).
+  const positionCursor = useCallback((point: AnnPoint | null) => {
+    const el = cursorRef.current;
+    if (!el) return;
+    if (point) {
+      el.setAttribute("cx", String(point.x));
+      el.setAttribute("cy", String(point.y));
+      el.style.visibility = "visible";
+    } else {
+      el.style.visibility = "hidden";
+    }
+  }, []);
+
+  // Cached inverse screen CTM. getScreenCTM flushes pending layout, so calling it
+  // on every pointermove (while drawing also dirties the DOM each frame) means a
+  // forced synchronous reflow per event. We capture it once and reuse it, but it
+  // is only valid while the parent transform is static, so it is invalidated on
+  // pointer-leave/up and whenever viewTransform changes (see effect below) —
+  // wheel-zoom in particular mutates the transform without any pointer event.
+  const ctmRef = useRef<DOMMatrix | null>(null);
+  const svgPointRef = useRef<DOMPoint | null>(null);
+
+  const captureCtm = useCallback((svg: SVGSVGElement) => {
+    // getScreenCTM is absent in jsdom (and can be unavailable for a detached
+    // node); fall back to null so mapPoint uses clientToUser instead.
+    const ctm = typeof svg.getScreenCTM === "function" ? svg.getScreenCTM() : null;
+    ctmRef.current = ctm ? ctm.inverse() : null;
+  }, []);
+
+  const mapPoint = useCallback((svg: SVGSVGElement, clientX: number, clientY: number): AnnPoint => {
+    const inv = ctmRef.current;
+    if (inv) {
+      let p = svgPointRef.current;
+      if (!p) {
+        p = svg.createSVGPoint();
+        svgPointRef.current = p;
+      }
+      p.x = clientX;
+      p.y = clientY;
+      const mapped = p.matrixTransform(inv);
+      return { x: mapped.x, y: mapped.y };
+    }
+    // No cached matrix (or getScreenCTM unavailable, e.g. jsdom) — compute fresh.
+    return clientToUser(svg, clientX, clientY);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
     };
   }, []);
 
+  // The parent pan/zoom transform changed (button/reset, pan settle, or the
+  // wheel-zoom animation frame) — the cached CTM no longer maps correctly, so
+  // drop it. The next pointer event recaptures a fresh matrix.
+  useEffect(() => {
+    ctmRef.current = null;
+  }, [viewTransform]);
+
   useEffect(() => {
     liveRef.current = null;
     erasingRef.current = false;
-    setCursorPos(null);
+    positionCursor(null);
     setEraserHoverId(null);
     if ((!LABEL_TOOLS.includes(tool) || tool !== editorKind) && editor) {
       cancelEditor();
@@ -154,7 +249,9 @@ export function DrawingLayer({
     if (!svg) return;
     event.stopPropagation();
 
-    const point = clientToUser(svg, event.clientX, event.clientY);
+    // Refresh the cached transform at the start of each interaction.
+    captureCtm(svg);
+    const point = mapPoint(svg, event.clientX, event.clientY);
 
     if (tool === "text" || tool === "math") {
       // Check if the pointer landed on an existing annotation of the same kind.
@@ -210,6 +307,8 @@ export function DrawingLayer({
         points: [point],
         width: strokeWidth,
       };
+      // The live path takes over from the cursor preview for the stroke.
+      positionCursor(null);
     } else if (SHAPE_TOOLS.includes(tool)) {
       liveRef.current = {
         mode: "shape",
@@ -224,9 +323,15 @@ export function DrawingLayer({
   const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
     const svg = svgRef.current;
     if (!svg) return;
-    const point = clientToUser(svg, event.clientX, event.clientY);
+    // Hover moves have no preceding pointerdown to seed the cache; capture on
+    // the first move and reuse it for the rest of the hover (cleared on leave).
+    if (ctmRef.current === null) captureCtm(svg);
+    const point = mapPoint(svg, event.clientX, event.clientY);
 
-    if (isCursorTool) setCursorPos(point);
+    if (isCursorTool) {
+      // Hide the preview mid-stroke; the live freehand path stands in for it.
+      positionCursor(liveRef.current?.mode === "free" ? null : point);
+    }
 
     if (tool === "eraser") {
       if (erasingRef.current && event.buttons === 1) {
@@ -274,8 +379,10 @@ export function DrawingLayer({
   };
 
   const handlePointerLeave = () => {
-    setCursorPos(null);
+    positionCursor(null);
     setEraserHoverId(null);
+    // Invalidate the cached transform; the next interaction re-captures it.
+    ctmRef.current = null;
   };
 
   const finishStroke = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -293,6 +400,9 @@ export function DrawingLayer({
       }
     }
     activePointerRef.current = null;
+    // Drop the cached CTM at the end of the stroke; a later hover/stroke
+    // recaptures it (guards against a zoom/pan between interactions).
+    ctmRef.current = null;
 
     if (live) {
       if (live.mode === "label-move") {
@@ -380,15 +490,14 @@ export function DrawingLayer({
         </>
       )}
 
-      {annotations.map((ann) =>
-        renderAnnotation(ann, {
-          getReplay,
-          naturalWidth: naturalSize.width,
-          editingId,
-          draggedLabelId: live?.mode === "label-move" ? live.ann.id : null,
-          eraserHoverId,
-        }),
-      )}
+      <CommittedAnnotations
+        annotations={annotations}
+        getReplay={getReplay}
+        naturalWidth={naturalSize.width}
+        editingId={editingId}
+        draggedLabelId={live?.mode === "label-move" ? live.ann.id : null}
+        eraserHoverId={eraserHoverId}
+      />
 
       {live?.mode === "free" &&
         renderFreehand(getReplay, "__live", live.kind, live.points, color, live.width)}
@@ -422,17 +531,18 @@ export function DrawingLayer({
         </foreignObject>
       )}
 
-      {isCursorTool && cursorPos && live?.mode !== "free" && (
+      {/* Cursor preview: mounted whenever a cursor tool is active, positioned and
+          shown/hidden imperatively via positionCursor (starts hidden). */}
+      {isCursorTool && (
         <circle
-          cx={cursorPos.x}
-          cy={cursorPos.y}
+          ref={cursorRef}
           r={tool === "highlighter" ? width * 2 : width * 0.5}
           fill={color}
           fillOpacity={tool === "highlighter" ? 0.2 : 0.4}
           stroke={tool === "highlighter" ? color : "white"}
           strokeWidth={Math.max(0.5, width * 0.07)}
           strokeOpacity={tool === "highlighter" ? 0.35 : 0.7}
-          style={{ pointerEvents: "none" }}
+          style={{ pointerEvents: "none", visibility: "hidden" }}
         />
       )}
 
