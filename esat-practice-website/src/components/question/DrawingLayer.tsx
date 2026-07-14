@@ -29,6 +29,12 @@ interface Props {
    * (which don't change the nonce) appear instantly.
    */
   replayNonce?: number;
+  /**
+   * Current pan/zoom transform of the parent scan viewport. A change invalidates
+   * the cached screen CTM so pointer→image mapping stays correct after a
+   * zoom/pan (including wheel-zoom, which never fires pointer-leave).
+   */
+  viewTransform?: { x: number; y: number; scale: number };
 }
 
 type LiveFree = { mode: "free"; kind: FreehandKind; points: AnnPoint[]; width: number };
@@ -110,6 +116,7 @@ export function DrawingLayer({
   onUpdate,
   onTextEditingChange,
   replayNonce = 0,
+  viewTransform,
 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const liveRef = useRef<Live>(null);
@@ -168,12 +175,12 @@ export function DrawingLayer({
     }
   }, []);
 
-  // Cached inverse screen CTM for the current pointer interaction. getScreenCTM
-  // flushes pending layout, so calling it on every pointermove (while drawing
-  // also dirties the DOM each frame) means a forced synchronous reflow per
-  // event. The transform is constant for the duration of an interaction — pan is
-  // disabled while a draw tool is active and zoom needs a click that ends the
-  // interaction — so we capture it once and reuse it, refreshing per stroke.
+  // Cached inverse screen CTM. getScreenCTM flushes pending layout, so calling it
+  // on every pointermove (while drawing also dirties the DOM each frame) means a
+  // forced synchronous reflow per event. We capture it once and reuse it, but it
+  // is only valid while the parent transform is static, so it is invalidated on
+  // pointer-leave/up and whenever viewTransform changes (see effect below) —
+  // wheel-zoom in particular mutates the transform without any pointer event.
   const ctmRef = useRef<DOMMatrix | null>(null);
   const svgPointRef = useRef<DOMPoint | null>(null);
 
@@ -206,6 +213,13 @@ export function DrawingLayer({
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
     };
   }, []);
+
+  // The parent pan/zoom transform changed (button/reset, pan settle, or the
+  // wheel-zoom animation frame) — the cached CTM no longer maps correctly, so
+  // drop it. The next pointer event recaptures a fresh matrix.
+  useEffect(() => {
+    ctmRef.current = null;
+  }, [viewTransform]);
 
   useEffect(() => {
     liveRef.current = null;
@@ -386,6 +400,9 @@ export function DrawingLayer({
       }
     }
     activePointerRef.current = null;
+    // Drop the cached CTM at the end of the stroke; a later hover/stroke
+    // recaptures it (guards against a zoom/pan between interactions).
+    ctmRef.current = null;
 
     if (live) {
       if (live.mode === "label-move") {
