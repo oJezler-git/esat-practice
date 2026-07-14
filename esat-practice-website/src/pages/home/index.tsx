@@ -6,6 +6,7 @@ import { useSettingsStore } from "../../lib/settingsStore";
 import { shuffle } from "../../lib/shuffle";
 import { DisclaimerFooter } from "./DisclaimerFooter";
 import { OfflineNudge } from "./OfflineNudge";
+import { SkeuoFrame } from "./SkeuoFrame";
 import { useHomeData } from "./useHomeData";
 
 function formatElapsed(ms: number): string {
@@ -84,12 +85,7 @@ export default function Home() {
 
   return (
     <div className="sk-home">
-      <div className="sk-frame">
-        <span className="sk-screw sk-screw--tl" aria-hidden="true" />
-        <span className="sk-screw sk-screw--tr" aria-hidden="true" />
-        <span className="sk-screw sk-screw--bl" aria-hidden="true" />
-        <span className="sk-screw sk-screw--br" aria-hidden="true" />
-
+      <SkeuoFrame>
         <header className="sk-head">
           <div>
             <h1 className="sk-greeting">{greeting}</h1>
@@ -230,7 +226,7 @@ export default function Home() {
         )}
 
         <span className="sk-dial" aria-hidden="true" />
-      </div>
+      </SkeuoFrame>
 
       <DisclaimerFooter />
     </div>
