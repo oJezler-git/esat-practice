@@ -536,6 +536,7 @@ export function DrawingLayer({
       {isCursorTool && (
         <circle
           ref={cursorRef}
+          data-export-ignore
           r={tool === "highlighter" ? width * 2 : width * 0.5}
           fill={color}
           fillOpacity={tool === "highlighter" ? 0.2 : 0.4}
@@ -548,6 +549,7 @@ export function DrawingLayer({
 
       {editor && (
         <foreignObject
+          data-export-ignore
           x={editor.x}
           y={editor.y}
           width={editorWidth}

@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import type { AnnTool } from "../../types/annotations";
 import { DrawingLayer } from "./DrawingLayer";
+import { exportAnnotatedScan } from "./drawing/exportAnnotatedScan";
 import { AnnotationToolbar } from "./AnnotationToolbar";
 import { TOOL_HINTS, useAnnotationSession } from "./zoomImage/useAnnotationSession";
 import { useScanViewport } from "./zoomImage/useScanViewport";
@@ -53,6 +54,25 @@ export function ZoomableImage({
     handleCommitAnnotation, handleEraseAnnotation, handleUpdateAnnotation,
     setTool, setWidthIndex, undo, redo, clear,
   } = session;
+
+  const handleSaveImage = useCallback(async () => {
+    const root = scanViewportRef.current;
+    if (!root) return;
+    const image = root.querySelector<HTMLImageElement>(".source-scan-image");
+    if (!image) return;
+    const svg = root.querySelector<SVGSVGElement>(".drawing-svg");
+    const safeKey = (persistKey ?? "scan").replace(/[^a-z0-9-]+/gi, "-");
+    try {
+      await exportAnnotatedScan({
+        image,
+        svg,
+        naturalSize: scanNaturalSize,
+        fileName: `esat-${safeKey}-annotated.png`,
+      });
+    } catch (error) {
+      console.error("Failed to save annotated scan", error);
+    }
+  }, [persistKey, scanNaturalSize, scanViewportRef]);
 
   const handleBackdropClick = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) {
@@ -224,6 +244,7 @@ export function ZoomableImage({
                 onUndo={undo}
                 onRedo={redo}
                 onClear={clear}
+                onSave={handleSaveImage}
               />
             )}
             <div className="zoom-button-group source-scan-controls">

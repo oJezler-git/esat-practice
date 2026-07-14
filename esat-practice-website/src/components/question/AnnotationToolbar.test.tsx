@@ -17,6 +17,7 @@ function renderToolbar(overrides: Partial<React.ComponentProps<typeof Annotation
     onUndo: vi.fn(),
     onRedo: vi.fn(),
     onClear: vi.fn(),
+    onSave: vi.fn(),
     ...overrides,
   };
   return { ...render(<AnnotationToolbar {...props} />), props };

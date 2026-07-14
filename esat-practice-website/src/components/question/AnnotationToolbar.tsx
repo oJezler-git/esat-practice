@@ -16,6 +16,7 @@ interface Props {
   onUndo: () => void;
   onRedo: () => void;
   onClear: () => void;
+  onSave: () => void;
 }
 
 type ToolDef = { id: AnnTool; label: string; icon: ReactNode };
@@ -170,6 +171,7 @@ export function AnnotationToolbar({
   onUndo,
   onRedo,
   onClear,
+  onSave,
 }: Props) {
   const [confirmingClear, setConfirmingClear] = useState(false);
   const confirmTimerRef = useRef<number | null>(null);
@@ -312,6 +314,24 @@ export function AnnotationToolbar({
               <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13" />
             </svg>
           )}
+        </button>
+      </div>
+
+      <div className="annotation-divider" />
+
+      <div className="annotation-tool-group">
+        <button
+          type="button"
+          className="annotation-tool-btn"
+          onClick={onSave}
+          title="Save image (with annotations)"
+          aria-label="Save image with annotations"
+        >
+          <svg {...iconProps}>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M7 10l5 5 5-5" />
+            <path d="M12 15V3" />
+          </svg>
         </button>
       </div>
     </div>
