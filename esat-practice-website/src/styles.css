@@ -642,6 +642,11 @@ p {
 @import "./styles/misc-skeuo.css";
 @import "./styles/segmented-control.css";
 
+/* Plain skin — flat override layer, gated on :root[data-skin="plain"]. Imported
+ * LAST so it wins the cascade over every *-skeuo.css. Inert until the attribute
+ * is present (default is skeuo). */
+@import "./styles/plain-skin.css";
+
 .route-loading {
   min-height: 60vh;
 }

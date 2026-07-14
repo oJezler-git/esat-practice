@@ -331,6 +331,23 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
       title="Display"
       description="Choose your reading comfort preferences."
     >
+      <Field
+        label="Interface style"
+        description="Skeuomorphic uses tactile panels and hardware; Plain is a flatter, standard look."
+      >
+        <Select
+          value={settings.skin}
+          ariaLabel="Interface style"
+          onChange={(value) =>
+            update({ skin: value as UserSettings["skin"] })
+          }
+          options={[
+            { value: "skeuo", label: "Skeuomorphic" },
+            { value: "plain", label: "Plain" },
+          ]}
+        />
+      </Field>
+
       <ColourThemePicker settings={settings} update={update} />
 
       <Field label="Appearance">

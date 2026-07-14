@@ -26,6 +26,7 @@ export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
   const theme = useSettingsStore((state) => state.settings.theme);
   const colorTheme = useSettingsStore((state) => state.settings.colorTheme);
+  const skin = useSettingsStore((state) => state.settings.skin);
   const location = useLocation();
   const isSession = location.pathname.startsWith("/session/");
 
@@ -71,6 +72,16 @@ export default function App() {
       delete document.documentElement.dataset.colorTheme;
     }
   }, [colorTheme]);
+
+  useEffect(() => {
+    // Skeuo is the default design authored unconditionally, so it needs no
+    // attribute; "plain" opts into the flat override layer (plain-skin.css).
+    if (skin === "plain") {
+      document.documentElement.dataset.skin = "plain";
+    } else {
+      delete document.documentElement.dataset.skin;
+    }
+  }, [skin]);
 
   return (
     <>

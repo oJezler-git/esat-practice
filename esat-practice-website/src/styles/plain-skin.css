@@ -1,0 +1,452 @@
+/*
+ * Plain skin — flat override layer.
+ *
+ * Gated on :root[data-skin="plain"] (set in src/App.tsx from settings.skin).
+ * Imported LAST in styles.css so it wins the cascade over every *-skeuo.css.
+ * Absent attribute → this file is inert and the app renders skeuo as before.
+ *
+ * Design source: Claude Design project 3e0badc5-…, file "ESAT Skeuomorphic
+ * Redesign.dc.html", turn 12 — "plain professional redesign" (Linear / Vercel /
+ * Stripe / Raycast). Option 12a = light, 12b = dark. Palette transcribed below.
+ *
+ * ACCENT: intentionally NOT overridden here. --sk-accent keeps flowing from the
+ * base :root (amber) and the per-hue data-color-theme blocks in skeuo-tokens.css,
+ * so the 6-hue picker drives plain's accent (orange/amber by default). The
+ * design's indigo is dropped; every accent spot maps to var(--sk-accent).
+ *
+ * SPECIFICITY: the dark/light selectors below mirror the hue blocks' form
+ * (b=3) and, being imported last, win ties — so plain's flat material tokens
+ * override the hue blocks' glow/gradient material tokens, while --sk-accent
+ * (which plain never sets) is still driven by the hue cascade.
+ *
+ * STATUS: Phase 2 (token flat-override) + core Phase 3 (structural
+ * neutralization). The per-page long-tail audit (Phase 4 — ~390 hardcoded
+ * gradients/shadows in the *-skeuo.css files) is NOT done yet, so individual
+ * pages may still show residual skeuo depth until audited. See PLAIN_SKIN_PLAN.md.
+ */
+
+/* ======================================================================== *
+ * Dark (design 12b) — near-black Linear/Raycast surface, inverted primary
+ * ======================================================================== */
+:root[data-skin="plain"]:not([data-theme="light"]) {
+  --color-canvas: #0b0b0d;
+
+  /* Frame → flat card (one border + one soft shadow, no gradient/glow) */
+  --sk-frame-bg: #0b0b0d;
+  --sk-frame-border: rgba(255, 255, 255, 0.08);
+  --sk-frame-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 48px rgba(0, 0, 0, 0.35);
+  --sk-stitch-color: transparent;
+
+  /* Hardware — screws hidden structurally; dial flattened */
+  --sk-screw-bg: transparent;
+  --sk-screw-shadow: none;
+  --sk-screw-slot: transparent;
+  --sk-dial-bg: rgba(255, 255, 255, 0.06);
+  --sk-dial-shadow: none;
+  --sk-dial-indicator: var(--sk-accent);
+
+  /* Text */
+  --sk-text: #ededed;
+  --sk-muted: #8b8b93;
+  --sk-title-shadow: none;
+
+  /* Hairline dividers */
+  --sk-hairline-light: rgba(255, 255, 255, 0.07);
+  --sk-hairline-dark: rgba(255, 255, 255, 0.07);
+
+  /* Inset pill → flat chip */
+  --sk-pill-bg: rgba(255, 255, 255, 0.06);
+  --sk-pill-shadow: none;
+
+  /* Primary CTA → solid accent (hue-driven; orange by default) */
+  --sk-cta-bg: var(--sk-accent);
+  --sk-cta-shadow: none;
+  --sk-cta-text: #0b0b0d;
+
+  /* Secondary tiles → bordered flat */
+  --sk-tile-bg: rgba(255, 255, 255, 0.04);
+  --sk-tile-shadow: none;
+  --sk-tile-border: rgba(255, 255, 255, 0.08);
+  --sk-tile-text: #ededed;
+
+  /* Recessed wells → flat surface */
+  --sk-well-bg: rgba(255, 255, 255, 0.035);
+  --sk-well-shadow: none;
+
+  /* Weak-topic pills → subtle tint (Phase 4 converts these to plain rows) */
+  --sk-topic-crit-bg: rgba(248, 113, 113, 0.12);
+  --sk-topic-crit-text: #ededed;
+  --sk-topic-crit-sub: #8b8b93;
+  --sk-topic-crit-shadow: none;
+  --sk-topic-warn-bg: rgba(251, 191, 36, 0.12);
+  --sk-topic-warn-text: #ededed;
+  --sk-topic-warn-sub: #8b8b93;
+  --sk-topic-warn-shadow: none;
+
+  /* Recent rows → flat, hairline-separated */
+  --sk-recent-active-bg: rgba(255, 255, 255, 0.04);
+  --sk-recent-active-shadow: none;
+  --sk-recent-active-border: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+  --sk-recent-idle-bg: transparent;
+  --sk-recent-idle-shadow: none;
+  --sk-recent-idle-text: rgba(139, 139, 147, 0.5);
+
+  /* Nav → flat hairline chrome, subtle active pill (no recessed track) */
+  --sk-nav-shell-bg: color-mix(in srgb, var(--color-canvas) 85%, transparent);
+  --sk-nav-shell-border: rgba(255, 255, 255, 0.07);
+  --sk-nav-group-bg: transparent;
+  --sk-nav-group-shadow: none;
+  --sk-nav-active-bg: rgba(255, 255, 255, 0.08);
+  --sk-nav-active-text: #ededed;
+  --sk-nav-active-shadow: none;
+  --sk-nav-idle: #8b8b93;
+  --sk-nav-idle-hover: #ededed;
+
+  /* Brand → flat inverted tile, solid letter */
+  --sk-logo-bg: #ededed;
+  --sk-logo-shadow: none;
+  --sk-logo-letter: #0b0b0d;
+  --sk-wordmark: #ededed;
+  --sk-wordmark-shadow: none;
+
+  /* Semantic tier text (accuracy %, status) — fixed, not hue-driven (design 12b) */
+  --sk-plain-crit: #f87171;
+  --sk-plain-warn: #fbbf24;
+  --sk-plain-good: #4ade80;
+}
+
+/* ======================================================================== *
+ * Light (design 12a) — white card, hairline structure, solid dark primary
+ * ======================================================================== */
+:root[data-skin="plain"][data-theme="light"] {
+  --color-canvas: #fafafa;
+
+  --sk-frame-bg: #ffffff;
+  --sk-frame-border: #e9e9e9;
+  --sk-frame-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.05);
+  --sk-stitch-color: transparent;
+
+  --sk-screw-bg: transparent;
+  --sk-screw-shadow: none;
+  --sk-screw-slot: transparent;
+  --sk-dial-bg: #f4f4f5;
+  --sk-dial-shadow: none;
+  --sk-dial-indicator: var(--sk-accent);
+
+  --sk-text: #18181b;
+  --sk-muted: #71717a;
+  --sk-title-shadow: none;
+
+  --sk-hairline-light: #f0f0f0;
+  --sk-hairline-dark: #f0f0f0;
+
+  --sk-pill-bg: #f4f4f5;
+  --sk-pill-shadow: none;
+
+  /* Primary CTA → solid accent (hue-driven); white text on the deeper light hue */
+  --sk-cta-bg: var(--sk-accent);
+  --sk-cta-shadow: none;
+  --sk-cta-text: #ffffff;
+
+  --sk-tile-bg: #ffffff;
+  --sk-tile-shadow: none;
+  --sk-tile-border: #e9e9e9;
+  --sk-tile-text: #18181b;
+
+  --sk-well-bg: #f7f7f8;
+  --sk-well-shadow: none;
+
+  --sk-topic-crit-bg: rgba(220, 38, 38, 0.08);
+  --sk-topic-crit-text: #18181b;
+  --sk-topic-crit-sub: #71717a;
+  --sk-topic-crit-shadow: none;
+  --sk-topic-warn-bg: rgba(217, 119, 6, 0.1);
+  --sk-topic-warn-text: #18181b;
+  --sk-topic-warn-sub: #71717a;
+  --sk-topic-warn-shadow: none;
+
+  --sk-recent-active-bg: #f7f7f8;
+  --sk-recent-active-shadow: none;
+  --sk-recent-active-border: linear-gradient(#e9e9e9, #e9e9e9);
+  --sk-recent-idle-bg: transparent;
+  --sk-recent-idle-shadow: none;
+  --sk-recent-idle-text: rgba(113, 113, 122, 0.5);
+
+  --sk-nav-shell-bg: color-mix(in srgb, var(--color-canvas) 85%, transparent);
+  --sk-nav-shell-border: #f0f0f0;
+  --sk-nav-group-bg: transparent;
+  --sk-nav-group-shadow: none;
+  --sk-nav-active-bg: #f4f4f5;
+  --sk-nav-active-text: #18181b;
+  --sk-nav-active-shadow: none;
+  --sk-nav-idle: #71717a;
+  --sk-nav-idle-hover: #18181b;
+
+  --sk-logo-bg: #18181b;
+  --sk-logo-shadow: none;
+  --sk-logo-letter: #ffffff;
+  --sk-wordmark: #18181b;
+  --sk-wordmark-shadow: none;
+
+  /* Semantic tier text (accuracy %, status) — fixed, not hue-driven (design 12a) */
+  --sk-plain-crit: #dc2626;
+  --sk-plain-warn: #d97706;
+  --sk-plain-good: #16a34a;
+}
+
+/* ======================================================================== *
+ * Structural neutralization (Phase 3) — applies in both themes.
+ * ======================================================================== */
+
+/* Decorative corner hardware: hidden (the SkeuoFrame easter-egg DOM stays
+ * intact, just invisible — no component change needed). */
+:root[data-skin="plain"] .sk-screw {
+  display: none;
+}
+
+/* Shared frame: skeuo's 30px radius + 3px border → design's 14px + 1px hairline. */
+:root[data-skin="plain"] .sk-frame {
+  border-radius: 14px;
+  border-width: 1px;
+}
+:root[data-skin="plain"] .sk-frame::before {
+  display: none; /* stitched inner border — gone in plain */
+}
+
+/* Decorative dial (bottom-right of the frame) — not in the plain design. */
+:root[data-skin="plain"] .sk-dial {
+  display: none;
+}
+
+/* Glossy CTA highlight + pressed inset — flatten to a clean solid button. */
+:root[data-skin="plain"] .sk-cta::before {
+  display: none;
+}
+:root[data-skin="plain"] .sk-cta:not(:disabled):active {
+  box-shadow: none;
+}
+
+/* ======================================================================== *
+ * Phase 4 — per-page overrides (page-scoped; do NOT edit the *-skeuo.css).
+ * Each page flattened per the "Plain design language" in PLAIN_SKIN_PLAN.md.
+ * ======================================================================== */
+
+/* ---- Home (reference page — matches design 12a/12b) --------------------- */
+
+/* Greeting: skeuo uses the display serif; the design uses the sans body face. */
+:root[data-skin="plain"] .sk-home .sk-greeting {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Quote: skeuo italicises it; the design keeps it upright. */
+:root[data-skin="plain"] .sk-home .sk-quote {
+  font-style: normal;
+}
+
+/* "N questions ready": de-pill into quiet muted text (design's right-aligned meta). */
+:root[data-skin="plain"] .sk-home .sk-badge {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  color: var(--sk-muted);
+}
+
+/* Header divider: drop the second embossed line, keep one faint hairline. */
+:root[data-skin="plain"] .sk-home .sk-divider::after {
+  display: none;
+}
+
+/* Sections: skeuo wraps "Needs work"/"Recent" in recessed wells; the design uses
+ * borderless groups of hairline-divided rows. Strip the card. */
+:root[data-skin="plain"] .sk-home .sk-well {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 34px;
+}
+
+/* Weak-topic & recent items: filled pills → hairline rows. */
+:root[data-skin="plain"] .sk-home .sk-topic,
+:root[data-skin="plain"] .sk-home .sk-recent {
+  border-radius: 0;
+  padding: 15px 0;
+  border-top: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-home .sk-topic + .sk-topic,
+:root[data-skin="plain"] .sk-home .sk-recent + .sk-recent {
+  margin-top: 0;
+}
+:root[data-skin="plain"] .sk-home .sk-topic--crit,
+:root[data-skin="plain"] .sk-home .sk-topic--warn,
+:root[data-skin="plain"] .sk-home .sk-recent--active,
+:root[data-skin="plain"] .sk-home .sk-recent--idle {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Topic name reads neutral; the accuracy % carries the tier colour (design). */
+:root[data-skin="plain"] .sk-home .sk-topic-name {
+  font-weight: 500;
+  color: var(--sk-text);
+}
+:root[data-skin="plain"] .sk-home .sk-topic--crit .sk-topic-meta {
+  color: var(--sk-plain-crit);
+}
+:root[data-skin="plain"] .sk-home .sk-topic--warn .sk-topic-meta {
+  color: var(--sk-plain-warn);
+}
+
+/* Recent rows: quiet, muted trailing date (accent used sparingly per the spec). */
+:root[data-skin="plain"] .sk-home .sk-recent-label {
+  font-weight: 500;
+}
+:root[data-skin="plain"] .sk-home .sk-recent-date {
+  color: var(--sk-muted);
+}
+
+/* Subtle hover feedback on the now-flat rows (replaces skeuo's brightness lift). */
+:root[data-skin="plain"] .sk-home .sk-topic:not(:disabled):hover,
+:root[data-skin="plain"] .sk-home .sk-recent--active:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+  transform: none;
+}
+
+/* ---- Session (active practice screen) ---------------------------------- *
+ * The session carries its own token set (--sk-sess-*, --sk-seg-*, --sk-answer-*,
+ * --sk-correct/incorrect-*, --sk-reveal-*, --sk-exclude-*, --sk-key-*) defined
+ * inside .sk-session with hardcoded gradients + inset "recessed" shadows. Phase 2
+ * doesn't reach these, so re-flatten them here per the plain spec: gradients →
+ * solid, insets → none, semantic states → the fixed tier colours, one hairline
+ * border where a shadow ring used to carry structure. */
+
+:root[data-skin="plain"] .sk-session {
+  /* Recessed bars → flat, separated by a hairline (added on the elements below). */
+  --sk-sess-bar-bg: transparent;
+  --sk-sess-bar-shadow: none;
+  --sk-sess-bottom-shadow: none;
+
+  /* Progress segments: flat track; states carry the solid tier colour, no gloss. */
+  --sk-seg-empty-bg: rgba(255, 255, 255, 0.08);
+  --sk-seg-empty-shadow: none;
+  --sk-seg-raised-shadow: none;
+  --sk-seg-correct: var(--sk-plain-good);
+  --sk-seg-incorrect: var(--sk-plain-crit);
+  --sk-seg-skipped: var(--sk-plain-warn);
+  --sk-seg-dot: var(--sk-accent);
+  --sk-seg-dot-glow: none;
+
+  /* Hardware tiles (fullscreen / flag) → bordered flat tiles. */
+  --sk-sess-icon-bg: rgba(255, 255, 255, 0.04);
+  --sk-sess-icon-shadow: none;
+  --sk-sess-icon-text: var(--sk-muted);
+  --sk-sess-icon-active: var(--sk-accent);
+
+  --sk-sess-divider: var(--sk-hairline-light);
+  --sk-sess-paper: #ffffff;
+  --sk-sess-paper-shadow: none;
+  --sk-sess-danger: var(--sk-plain-crit);
+  --sk-hint-text: var(--sk-muted);
+
+  /* Reveal affordance → flat surface, subtle hairline. */
+  --sk-reveal-bg: rgba(255, 255, 255, 0.04);
+  --sk-reveal-shadow: none;
+  --sk-reveal-border: var(--sk-hairline-light);
+  --sk-reveal-text: var(--sk-text);
+  --sk-key-bg: rgba(255, 255, 255, 0.06);
+  --sk-key-shadow: none;
+
+  /* Answer hero + self-mark panels → subtle semantic tints, no bevel. */
+  --sk-answer-bg: color-mix(in srgb, var(--sk-plain-good) 12%, transparent);
+  --sk-answer-shadow: none;
+  --sk-answer-label: var(--sk-plain-good);
+  --sk-answer-tile-bg: var(--sk-plain-good);
+  --sk-answer-tile-shadow: none;
+  --sk-answer-tile-text: #0b0b0d;
+
+  --sk-correct-bg: color-mix(in srgb, var(--sk-plain-good) 12%, transparent);
+  --sk-correct-shadow: none;
+  --sk-correct-text: var(--sk-plain-good);
+  --sk-incorrect-bg: color-mix(in srgb, var(--sk-plain-crit) 12%, transparent);
+  --sk-incorrect-shadow: none;
+  --sk-incorrect-text: var(--sk-plain-crit);
+
+  /* Exclude notice + button → quiet tint / ghost. */
+  --sk-exclude-bg: color-mix(in srgb, var(--sk-plain-crit) 8%, transparent);
+  --sk-exclude-shadow: none;
+  --sk-exclude-text: var(--sk-muted);
+  --sk-exclude-btn-bg: transparent;
+  --sk-exclude-btn-shadow: none;
+  --sk-exclude-btn-text: var(--sk-plain-crit);
+}
+
+/* Question body: skeuo sets the display serif; the plain design uses the sans
+ * body face (matches Home's greeting flatten). */
+:root[data-skin="plain"] .sk-session .session-question-preview {
+  font-family: inherit;
+}
+
+/* Frame: skeuo 24px/3px → design 14px hairline (this page uses its own frame
+ * class, not the shared .sk-frame). */
+:root[data-skin="plain"] .sk-session-frame {
+  border-radius: 14px;
+  border-width: 1px;
+}
+
+/* Recessed bars lost their inset shadow above; restore separation with hairlines. */
+:root[data-skin="plain"] .sk-session-topbar {
+  border-bottom: 1px solid var(--sk-hairline-light);
+}
+
+/* Hardware tiles, key hints, reveal, source paper: one hairline instead of a bevel. */
+:root[data-skin="plain"] .sk-session-icon-btn,
+:root[data-skin="plain"] .selfmark-shortcut-hint,
+:root[data-skin="plain"] .session-image-scroll,
+:root[data-skin="plain"] .session-image-empty {
+  border: 1px solid var(--sk-hairline-light);
+}
+
+/* Reveal affordances: skeuo dashes them; the plain design uses a solid hairline. */
+:root[data-skin="plain"] .selfmark-reveal-button,
+:root[data-skin="plain"] .sk-navbtn-reveal {
+  border-style: solid;
+}
+
+/* Semantic self-mark surfaces: the skeuo ring was a box-shadow (flattened to none
+ * above) — give each a matching subtle border so it stays legible. */
+:root[data-skin="plain"] .selfmark-answer-hero,
+:root[data-skin="plain"] .selfmark-result-correct,
+:root[data-skin="plain"] .selfmark-action-button-correct {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-good) 30%, transparent);
+}
+:root[data-skin="plain"] .selfmark-result-incorrect,
+:root[data-skin="plain"] .selfmark-action-button-incorrect {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 30%, transparent);
+}
+:root[data-skin="plain"] .selfmark-result-skipped {
+  border: 1px solid var(--sk-hairline-light);
+}
+:root[data-skin="plain"] .session-exclude-notice {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 22%, transparent);
+}
+
+/* Exclude buttons → ghost: bordered, no fill. */
+:root[data-skin="plain"] .session-exclude-btn,
+:root[data-skin="plain"] .sk-navbtn-exclude {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 40%, transparent);
+}
+
+/* Primary nav button: drop the glossy top-half highlight (matches Home's CTA). */
+:root[data-skin="plain"] .sk-navbtn-primary::before {
+  display: none;
+}
+
+/* Mobile self-mark popup uses the frame idiom too. */
+:root[data-skin="plain"] .selfmark-mobile-popup-content {
+  border-radius: 14px;
+  border-width: 1px;
+}

@@ -27,6 +27,7 @@ export interface UserSettings {
   fontPreset: "academic" | "premium" | "readable" | "modern" | "technical" | "inter" | "monospace";
   theme: "auto" | "dark" | "light";
   colorTheme: "amber" | "rose" | "emerald" | "teal" | "azure" | "indigo";
+  skin: "skeuo" | "plain";
   fontSize: "sm" | "md" | "lg";
   shortcuts: ShortcutMap;
   autoExclude: boolean;
@@ -58,6 +59,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   fontPreset: "academic",
   theme: "auto",
   colorTheme: "amber",
+  skin: "skeuo",
   fontSize: "md",
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,
