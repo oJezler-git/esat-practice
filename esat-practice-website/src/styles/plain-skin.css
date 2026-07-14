@@ -19,10 +19,10 @@
  * override the hue blocks' glow/gradient material tokens, while --sk-accent
  * (which plain never sets) is still driven by the hue cascade.
  *
- * STATUS: Phase 2 (token flat-override) + core Phase 3 (structural
- * neutralization). The per-page long-tail audit (Phase 4 — ~390 hardcoded
- * gradients/shadows in the *-skeuo.css files) is NOT done yet, so individual
- * pages may still show residual skeuo depth until audited. See PLAIN_SKIN_PLAN.md.
+ * STATUS: Phases 2–4 complete: token overrides, structural neutralization, and
+ * the per-page long-tail audit are implemented. Phase 5 verification passed
+ * across 24 dark/light production-route captures, all 6 accent hues, the full
+ * test suite, and a production build. See PLAIN_SKIN_PLAN.md.
  */
 
 /* ======================================================================== *
@@ -449,4 +449,1409 @@
 :root[data-skin="plain"] .selfmark-mobile-popup-content {
   border-radius: 14px;
   border-width: 1px;
+}
+
+/* ---- Practice setup ---------------------------------------------------- *
+ * Page-local tokens (--sk-mode-*, --sk-chip-*, --sk-slider-*, --sk-error-*,
+ * --sk-select-ring) are scoped to `.sk-practice, .sk-home` with gradients, inset
+ * bevels and amber selection glows — unreached by Phase 2. Flatten them: cards/
+ * chips → bordered flat tiles, selection → accent border + subtle accent tint,
+ * slider → flat track + solid accent fill, error → crit tint. These tokens are
+ * also consumed by Home's `.sk-resume` banner, so this flattens that too. */
+:root[data-skin="plain"] .sk-practice,
+:root[data-skin="plain"] .sk-home {
+  --sk-select-ring: var(--sk-accent);
+
+  --sk-mode-bg: var(--sk-tile-bg);
+  --sk-mode-shadow: none;
+  --sk-mode-border: var(--sk-tile-border);
+  --sk-mode-desc: var(--sk-muted);
+  --sk-mode-sel-bg: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  --sk-mode-sel-shadow: none;
+
+  --sk-chip-bg: var(--sk-pill-bg);
+  --sk-chip-shadow: none;
+  --sk-chip-border: var(--sk-tile-border);
+  --sk-chip-text: var(--sk-text);
+  --sk-chip-sel-bg: color-mix(in srgb, var(--sk-accent) 12%, transparent);
+  --sk-chip-sel-shadow: none;
+  --sk-chip-sel-text: var(--sk-text);
+
+  --sk-slider-track: var(--sk-pill-bg);
+  --sk-slider-track-shadow: none;
+  --sk-slider-fill: var(--sk-accent);
+  --sk-slider-knob: #ffffff;
+  --sk-slider-knob-shadow: none;
+  --sk-slider-tick: var(--sk-muted);
+  --sk-slider-tick-major: var(--sk-text);
+
+  --sk-error-bg: color-mix(in srgb, var(--sk-plain-crit) 10%, transparent);
+  --sk-error-shadow: none;
+  --sk-error-border: color-mix(in srgb, var(--sk-plain-crit) 35%, transparent);
+  --sk-error-text: var(--sk-plain-crit);
+}
+
+/* Title: skeuo display serif → the plain sans face (matches other headings). */
+:root[data-skin="plain"] .sk-practice-title {
+  font-family: inherit;
+}
+
+/* Sections: strip the recessed well card (matches Home) — the uppercase muted
+ * section labels carry the hierarchy, so the controls sit directly on the frame
+ * rather than in nested boxes. */
+:root[data-skin="plain"] .sk-practice .sk-well {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Selected card / chip: the skeuo ring was the box-shadow glow (now none) — mark
+ * the active state with a solid accent border on top of the subtle accent tint. */
+:root[data-skin="plain"] .sk-mode--active,
+:root[data-skin="plain"] .sk-chip--active {
+  border-color: var(--sk-accent);
+}
+
+/* Slider knob: solid white handle with a hairline ring (no bevel), so it detaches
+ * from the accent fill in both themes. */
+:root[data-skin="plain"] .sk-slider-knob {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+/* Resume banner: drop the hardcoded amber ring baked into its box-shadow; the
+ * hairline border (--sk-mode-border) now carries it. */
+:root[data-skin="plain"] .sk-resume {
+  box-shadow: none;
+}
+
+/* ---- Results ----------------------------------------------------------- *
+ * Results has three local layers that bypass the shared flat tokens: semantic
+ * status gradients, recessed review/score wells, and glowing topic bars. Keep
+ * the useful grouping, but express it with hairlines, whitespace, and solid
+ * semantic colours instead of bevels or inset depth. */
+:root[data-skin="plain"] .sk-results {
+  --surface-1: transparent;
+  --surface-3: var(--sk-pill-bg);
+  --color-surface-1: var(--sk-pill-bg);
+  --sk-res-label: var(--sk-muted);
+  --sk-res-warn: var(--sk-plain-warn);
+  --sk-res-weak: var(--sk-plain-crit);
+}
+
+/* The completion notice is informational, so retain a quiet accent tint and a
+ * hairline instead of the recessed pill treatment. */
+:root[data-skin="plain"] .sk-results .auto-exclude-notice {
+  background: color-mix(in srgb, var(--sk-accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 24%, transparent);
+  box-shadow: none;
+}
+
+/* Section hierarchy comes from the small label rather than a heavy heading. */
+:root[data-skin="plain"] .sk-results-review-title {
+  font-size: 0.71875rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sk-muted);
+}
+
+/* Review filter: flat segmented controls with an explicit selected border. */
+:root[data-skin="plain"] .sk-results-seg {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-seg:not(.sk-results-seg--active):hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+  transform: none;
+}
+:root[data-skin="plain"] .sk-results-seg--active {
+  color: var(--sk-text);
+  background: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  border-color: var(--sk-accent);
+  box-shadow: none;
+}
+
+/* Review items are rows, not a recessed container. The top rule completes the
+ * divider rhythm because the skeuo stylesheet only rules adjacent rows. */
+:root[data-skin="plain"] .sk-results-list {
+  overflow: visible;
+  border-top: 1px solid var(--sk-hairline-light);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-row:hover {
+  background: var(--sk-pill-bg);
+}
+
+/* Status markers: solid semantic swatches, with no bevel or glow. */
+:root[data-skin="plain"] .sk-results-dot {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-dot--correct {
+  background: var(--sk-plain-good);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-dot--incorrect {
+  background: var(--sk-plain-crit);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-dot--skipped {
+  background: var(--sk-plain-warn);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-row-status,
+:root[data-skin="plain"] .sk-results-detail-meta {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Expanded verdicts use low-key semantic tints and matching hairlines. */
+:root[data-skin="plain"] .sk-results-verdict--correct {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-good) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-verdict--incorrect {
+  color: var(--sk-plain-crit);
+  background: color-mix(in srgb, var(--sk-plain-crit) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results-verdict--skipped {
+  color: var(--sk-muted);
+  background: transparent;
+  border: 1px solid var(--sk-hairline-light);
+  box-shadow: none;
+}
+
+/* Score summary: module comparisons remain discrete cards, but the broader
+ * breakdown/history sections become borderless content groups. */
+:root[data-skin="plain"] .sk-results .sv-card {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results .sv-breakdown,
+:root[data-skin="plain"] .sk-results .sv-history {
+  padding: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--sk-hairline-light);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Accuracy tracks: flat neutral rails and solid tier fills. */
+:root[data-skin="plain"] .sk-results .sv-topic-bar {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results .sv-topic-bar-fill--green {
+  background: var(--sk-plain-good);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results .sv-topic-bar-fill--amber {
+  background: var(--sk-plain-warn);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-results .sv-topic-bar-fill--red {
+  background: var(--sk-plain-crit);
+  box-shadow: none;
+}
+
+/* Tooltips are the one transient elevated surface; use the shared soft frame
+ * shadow rather than score-viz.css's hard black drop shadow. */
+:root[data-skin="plain"] .sk-results .sv-tooltip,
+:root[data-skin="plain"] .sk-results .sv-chart-tooltip {
+  background: var(--sk-frame-bg);
+  border-color: var(--sk-frame-border);
+  box-shadow: var(--sk-frame-shadow);
+}
+
+/* ---- Progress ---------------------------------------------------------- *
+ * Progress repeats the Results score surfaces, then adds local statistic wells,
+ * topic pills, trend tracks, and session badges. Flatten the containers into a
+ * mix of comparison tiles and hairline sections; keep colour only for meaning. */
+:root[data-skin="plain"] .sk-progress {
+  --surface-1: transparent;
+  --surface-2: var(--sk-pill-bg);
+  --surface-3: var(--sk-pill-bg);
+  --sk-prog-label: var(--sk-muted);
+  --sk-prog-warn: var(--sk-plain-warn);
+  --sk-prog-good-text: var(--sk-plain-good);
+  --sk-prog-good-ring: color-mix(in srgb, var(--sk-plain-good) 30%, transparent);
+  --sk-prog-amber-ring: color-mix(in srgb, var(--sk-plain-warn) 30%, transparent);
+  --sk-prog-track: var(--sk-pill-bg);
+  --sk-prog-track-shadow: none;
+}
+
+:root[data-skin="plain"] .sk-progress-title {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* The four headline metrics are a comparison set, so retain discrete flat tiles. */
+:root[data-skin="plain"] .sk-progress .prog-card {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress .prog-card__value,
+:root[data-skin="plain"] .sk-progress .prog-card__label {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Larger content blocks become whitespace-led sections with a single top rule. */
+:root[data-skin="plain"] .sk-progress .prog-section {
+  padding: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--sk-hairline-light);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress .prog-section-title {
+  font-size: 0.71875rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sk-muted);
+}
+
+/* Support the older local toggle class if it reappears; current controls use
+ * the shared token-driven segmented control and are already flat. */
+:root[data-skin="plain"] .sk-progress .prog-toggle {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress .prog-toggle__btn:not(.prog-toggle__btn--active):hover {
+  filter: none;
+  transform: none;
+}
+:root[data-skin="plain"] .sk-progress .prog-toggle__btn--active,
+:root[data-skin="plain"] .sk-progress .prog-toggle__btn--active:hover {
+  box-shadow: none;
+}
+
+/* Weak-area callout: subtle semantic surface, one hairline, no recessed ring. */
+:root[data-skin="plain"] .sk-progress-weak {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-warn) 28%, transparent);
+  background: color-mix(in srgb, var(--sk-plain-warn) 8%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-drill {
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-drill::before {
+  display: none;
+}
+:root[data-skin="plain"] .sk-progress-drill:hover {
+  filter: brightness(1.05);
+}
+
+/* Topic pills and session badges are flat semantic chips. */
+:root[data-skin="plain"] .sk-progress-pill {
+  color: var(--sk-plain-warn);
+  background: color-mix(in srgb, var(--sk-plain-warn) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-warn) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-pill--good {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+  border-color: color-mix(in srgb, var(--sk-plain-good) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-badge--completed {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-good) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-badge--idle {
+  color: var(--sk-muted);
+  background: transparent;
+  border: 1px solid var(--sk-hairline-light);
+  box-shadow: none;
+}
+
+/* Trend and accuracy rails: flat neutral backgrounds and solid semantic fills. */
+:root[data-skin="plain"] .sk-progress-trend-well {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-bar,
+:root[data-skin="plain"] .sk-progress .prog-bar {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-fill--green {
+  background: var(--sk-plain-good);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-fill--amber {
+  background: var(--sk-plain-warn);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-fill--red {
+  background: var(--sk-plain-crit);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress-session--clickable:hover {
+  background: var(--sk-pill-bg);
+}
+
+/* Scaled-score module cards remain comparison tiles, now flat and hairlined. */
+:root[data-skin="plain"] .sk-progress .sv-card {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-progress .sv-tooltip,
+:root[data-skin="plain"] .sk-progress .sv-chart-tooltip {
+  background: var(--sk-frame-bg);
+  border-color: var(--sk-frame-border);
+  box-shadow: var(--sk-frame-shadow);
+}
+
+/* ---- Settings ---------------------------------------------------------- *
+ * Settings remaps Tailwind's --color-* variables inside the page and also owns
+ * body-portaled confirm dialogs. Restore standard flat form controls, outlined
+ * groups, and explicit semantic states without changing the utility markup. */
+:root[data-skin="plain"] .sk-settings {
+  --color-soft: transparent;
+  --color-surface-1: var(--sk-pill-bg);
+  --color-surface-2: var(--sk-tile-bg);
+  --color-surface-3: var(--sk-pill-bg);
+  --color-subtle: var(--sk-hairline-light);
+  --color-strong: var(--sk-tile-border);
+  --color-primary: var(--sk-text);
+  --color-secondary: var(--sk-text);
+  --color-muted: var(--sk-muted);
+  --color-accent: var(--sk-accent);
+  --color-accent-strong: var(--sk-accent);
+  --color-accent-soft: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  --color-success-soft: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+  --color-success: color-mix(in srgb, var(--sk-plain-good) 32%, transparent);
+  --color-success-text: var(--sk-plain-good);
+  --color-danger-soft: color-mix(in srgb, var(--sk-plain-crit) 9%, transparent);
+  --color-danger: color-mix(in srgb, var(--sk-plain-crit) 32%, transparent);
+  --color-danger-text: var(--sk-plain-crit);
+  --color-warning-soft: color-mix(in srgb, var(--sk-plain-warn) 9%, transparent);
+  --color-warning: color-mix(in srgb, var(--sk-plain-warn) 32%, transparent);
+  --color-amber: var(--sk-plain-warn);
+  --color-amber-soft: color-mix(in srgb, var(--sk-plain-warn) 9%, transparent);
+}
+
+:root[data-skin="plain"] .sk-settings h1 {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Settings sections remain grouped for form comprehension, but use only a flat
+ * outline; divided child rows already provide the internal hierarchy. */
+:root[data-skin="plain"] .sk-settings section {
+  border: 1px solid var(--sk-hairline-light) !important;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings section > div:first-child h2 {
+  font-size: 0.71875rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sk-muted);
+}
+
+/* Standard flat switch: neutral off track, accent on track, solid knob. */
+:root[data-skin="plain"] .sk-settings .settings-toggle {
+  border: 1px solid var(--sk-tile-border);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings .settings-toggle--on {
+  border-color: var(--sk-accent);
+  background: var(--sk-accent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings .settings-toggle__knob,
+:root[data-skin="plain"] .sk-settings .settings-toggle--on .settings-toggle__knob {
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+/* Inputs: one fill + one hairline. Focus is an explicit accent border/ring. */
+:root[data-skin="plain"] .sk-settings select,
+:root[data-skin="plain"] .sk-settings input[type="number"],
+:root[data-skin="plain"] .sk-settings .prompt-template-textarea {
+  border: 1px solid var(--sk-tile-border);
+  color: var(--sk-text);
+  background-color: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings select:focus-visible,
+:root[data-skin="plain"] .sk-settings input[type="number"]:focus-visible,
+:root[data-skin="plain"] .sk-settings .prompt-template-textarea:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--sk-accent) 36%, transparent);
+  outline-offset: 1px;
+  border-color: var(--sk-accent);
+}
+:root[data-skin="plain"] .sk-settings input[type="range"] {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings input[type="range"]::-webkit-slider-thumb {
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: #ffffff;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings input[type="range"]::-moz-range-thumb {
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: #ffffff;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings input[type="range"]::-moz-range-progress {
+  background: var(--sk-accent);
+}
+
+/* Keyboard and action controls: flat tiles with visible borders. */
+:root[data-skin="plain"] .sk-settings .shortcut-key-btn,
+:root[data-skin="plain"] .sk-settings .settings-reset-btn {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings .shortcut-key-btn:hover,
+:root[data-skin="plain"] .sk-settings .settings-reset-btn:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+:root[data-skin="plain"] .sk-settings .shortcut-key-btn:focus-visible,
+:root[data-skin="plain"] .sk-settings .shortcut-key-btn--listening {
+  border-color: var(--sk-accent);
+  background: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost):not(.theme-swatch) {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings section button:not(.settings-toggle):not(.shortcut-key-btn):not(.shortcut-reset-btn):not(.prompt-var-chip):not(.settings-text-link):not(.storage-btn-ghost):not(.theme-swatch):hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+:root[data-skin="plain"] .sk-settings .storage-btn-enable {
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  border-color: var(--sk-accent);
+  box-shadow: none;
+}
+
+/* Prompt chips and notices: tinted, hairlined, and never recessed. */
+:root[data-skin="plain"] .sk-settings .prompt-var-chip {
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 28%, transparent);
+  color: var(--sk-accent);
+  background: color-mix(in srgb, var(--sk-accent) 9%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings .prompt-var-chip:hover {
+  filter: none;
+  background: color-mix(in srgb, var(--sk-accent) 14%, transparent);
+}
+:root[data-skin="plain"] .sk-settings .auto-exclude-notice {
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--sk-accent) 8%, transparent);
+  box-shadow: none;
+}
+
+/* Colour swatches stay circular, but lose the inset hardware treatment. */
+:root[data-skin="plain"] .sk-settings .theme-swatch {
+  border: 1px solid var(--sk-tile-border);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-settings .theme-swatch--active {
+  box-shadow: 0 0 0 2px var(--color-canvas), 0 0 0 4px var(--sk-accent);
+}
+
+/* Portaled confirmation dialogs are keyed directly from :root because they sit
+ * outside .sk-settings. They use the same flat frame/form vocabulary. */
+:root[data-skin="plain"] .sk-confirm-panel {
+  border-width: 1px;
+  border-radius: 14px;
+}
+:root[data-skin="plain"] .sk-confirm-title {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .sk-confirm-input {
+  border: 1px solid var(--sk-tile-border);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-confirm-input:focus {
+  border-color: var(--sk-plain-crit);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sk-plain-crit) 22%, transparent);
+}
+:root[data-skin="plain"] .sk-confirm-message--success {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-good) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-confirm-message--error {
+  color: var(--sk-plain-crit);
+  background: color-mix(in srgb, var(--sk-plain-crit) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-confirm-cancel-btn {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-confirm-btn--danger {
+  color: #ffffff;
+  background: var(--sk-plain-crit);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-confirm-btn--warning {
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+
+/* ---- Question bank ----------------------------------------------------- *
+ * Unlike most migrated pages, the bank's skeuo rules and local tokens live in
+ * question-bank.css itself. Override the token set first, then neutralise the
+ * remaining hardcoded controls while preserving the virtual-row dimensions. */
+:root[data-skin="plain"] .sk-bank {
+  --surface-1: transparent;
+  --sk-bank-label: var(--sk-muted);
+  --sk-bank-tag-text: var(--sk-muted);
+
+  --sk-bank-green-bg: var(--sk-cta-bg);
+  --sk-bank-green-shadow: none;
+  --sk-bank-green-text: var(--sk-cta-text);
+
+  --sk-bank-search-bg: var(--sk-pill-bg);
+  --sk-bank-search-shadow: none;
+  --sk-bank-search-border: var(--sk-tile-border);
+  --sk-bank-search-placeholder: var(--sk-muted);
+
+  --sk-bank-chip-bg: transparent;
+  --sk-bank-chip-shadow: none;
+  --sk-bank-chip-border: var(--sk-tile-border);
+  --sk-bank-chip-text: var(--sk-muted);
+  --sk-bank-chip-sel-bg: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  --sk-bank-chip-sel-shadow: none;
+  --sk-bank-chip-sel-text: var(--sk-text);
+
+  --sk-bank-row-sel-bg: color-mix(in srgb, var(--sk-accent) 7%, transparent);
+  --sk-bank-row-sel-shadow: none;
+  --sk-bank-detail-bg: transparent;
+  --sk-bank-detail-shadow: none;
+
+  --sk-bank-metapill-bg: var(--sk-pill-bg);
+  --sk-bank-metapill-shadow: none;
+  --sk-bank-metapill-text: var(--sk-muted);
+  --sk-bank-answer-bg: var(--sk-accent);
+  --sk-bank-answer-text: var(--sk-cta-text);
+  --sk-bank-conf-text: var(--sk-plain-good);
+  --sk-bank-escalated-bg: color-mix(in srgb, var(--sk-plain-crit) 10%, transparent);
+  --sk-bank-escalated-text: var(--sk-plain-crit);
+
+  --sk-bank-danger-bg: color-mix(in srgb, var(--sk-plain-crit) 10%, transparent);
+  --sk-bank-danger-shadow: none;
+  --sk-bank-danger-text: var(--sk-plain-crit);
+}
+
+:root[data-skin="plain"] .sk-bank .page-title {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Scope controls and excluded-mode callout: flat selection and semantic tint. */
+:root[data-skin="plain"] .question-bank-scope-tab-danger-active {
+  color: var(--sk-plain-crit);
+  background: color-mix(in srgb, var(--sk-plain-crit) 10%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-scope-hint {
+  color: var(--sk-plain-crit);
+  background: color-mix(in srgb, var(--sk-plain-crit) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 26%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-practice-cta::before {
+  display: none;
+}
+
+/* Data/debug disclosures retain an outline because they are optional nested
+ * tools, but all internal statistic/list surfaces lose their recesses. */
+:root[data-skin="plain"] .sk-bank-datadump {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-datadump-badge {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-stat,
+:root[data-skin="plain"] .sk-bank-list,
+:root[data-skin="plain"] .sk-bank-dedupe-card {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Filter controls sit directly on the frame; individual inputs/chips carry the
+ * necessary boundaries. */
+:root[data-skin="plain"] .question-bank-controls {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-search {
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-search:focus-visible,
+:root[data-skin="plain"] .question-bank-sort:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--sk-accent) 34%, transparent);
+  outline-offset: 1px;
+  border-color: var(--sk-accent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-chip-idle:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+  transform: none;
+}
+:root[data-skin="plain"] .question-bank-chip-active {
+  border-color: var(--sk-accent);
+  box-shadow: none;
+}
+
+/* Native-sized custom checkbox, now a standard flat accent control. */
+:root[data-skin="plain"] .question-bank-toggle input[type="checkbox"] {
+  border: 1px solid var(--sk-tile-border);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-toggle input[type="checkbox"]:checked {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.4 6.4l2.4 2.4 4.7-5.2' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / 11px no-repeat,
+    var(--sk-accent);
+  border-color: var(--sk-accent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-toggle input[type="checkbox"]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--sk-accent) 34%, transparent);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-sort {
+  background-color: var(--sk-pill-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b8b93' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  box-shadow: none;
+}
+
+/* The virtual list remains exactly 90/152px per row. Dividers live on the
+ * fixed-height button so they do not alter the JS-coupled outer measurements. */
+:root[data-skin="plain"] .question-bank-list {
+  padding: 0;
+  border-top: 1px solid var(--sk-hairline-light);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-row {
+  border-radius: 0;
+}
+:root[data-skin="plain"] .question-bank-row-button {
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--sk-hairline-light);
+}
+:root[data-skin="plain"] .question-bank-row-idle .question-bank-row-button:hover {
+  background: var(--sk-pill-bg);
+}
+:root[data-skin="plain"] .question-bank-row-selected {
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-row-tag {
+  color: var(--sk-muted);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-row-warning {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .question-bank-row-restore {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+  border-color: color-mix(in srgb, var(--sk-plain-good) 28%, transparent);
+  box-shadow: none;
+}
+
+/* Expanded question: one outlined panel, flat metadata and action controls. */
+:root[data-skin="plain"] .sk-bank-detail {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-metapill,
+:root[data-skin="plain"] .sk-bank-detail-secondary span {
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-metapill--answer {
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-metapill--escalated,
+:root[data-skin="plain"] .sk-bank-metapill--excluded {
+  color: var(--sk-plain-crit);
+  background: color-mix(in srgb, var(--sk-plain-crit) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 26%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-btn,
+:root[data-skin="plain"] .sk-bank-btn-ghost {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-btn-danger {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 30%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-btn-success {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-good) 30%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-bank-detail-paper {
+  border: 1px solid var(--sk-hairline-light);
+  box-shadow: none;
+}
+
+/* ---- History ----------------------------------------------------------- *
+ * Stat comparisons stay as flat tiles; the heatmap and virtualized session log
+ * become hairline sections/rows. Heights remain unchanged for virtualization. */
+:root[data-skin="plain"] .sk-history {
+  --accent-soft: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  --surface-1: transparent;
+  --surface-2: var(--sk-pill-bg);
+  --surface-3: var(--sk-pill-bg);
+  --color-success-text: var(--sk-plain-good);
+  --color-amber: var(--sk-plain-warn);
+  --color-danger-text: var(--sk-plain-crit);
+  --hist-cell-0: var(--sk-pill-bg);
+  --hist-cell-1: color-mix(in srgb, var(--sk-plain-good) 24%, var(--sk-pill-bg));
+  --hist-cell-2: color-mix(in srgb, var(--sk-plain-good) 46%, var(--sk-pill-bg));
+  --hist-cell-3: color-mix(in srgb, var(--sk-plain-good) 70%, var(--sk-pill-bg));
+  --hist-cell-4: var(--sk-plain-good);
+  --sk-hist-label: var(--sk-muted);
+  --sk-hist-card-bg: transparent;
+  --sk-hist-track: var(--sk-pill-bg);
+}
+
+:root[data-skin="plain"] .sk-history-title {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+:root[data-skin="plain"] .sk-history .hist-stat {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-history .hist-stat--highlight {
+  border-color: color-mix(in srgb, var(--sk-accent) 42%, transparent);
+  background: color-mix(in srgb, var(--sk-accent) 7%, transparent);
+  box-shadow: none;
+}
+
+:root[data-skin="plain"] .sk-history .hist-heatmap-section,
+:root[data-skin="plain"] .sk-history-sessions {
+  padding: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--sk-hairline-light);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-history .prog-section-title {
+  font-size: 0.71875rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sk-muted);
+}
+:root[data-skin="plain"] .sk-history .hist-clear-btn {
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 30%, transparent);
+  color: var(--sk-accent);
+  background: color-mix(in srgb, var(--sk-accent) 8%, transparent);
+  box-shadow: none;
+}
+
+/* Virtualized session cards become gapless rows; keep their authored heights. */
+:root[data-skin="plain"] .sk-history .hist-list {
+  gap: 0;
+  border-top: 1px solid var(--sk-hairline-light);
+}
+:root[data-skin="plain"] .sk-history .hist-card {
+  border: 0;
+  border-bottom: 1px solid var(--sk-hairline-light);
+  border-left: 3px solid var(--hist-border, var(--sk-hairline-light));
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-history .hist-card--clickable:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+  transform: none;
+}
+:root[data-skin="plain"] .sk-history .hist-badge {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-history .hist-badge--mixed,
+:root[data-skin="plain"] .sk-history .hist-badge--timed,
+:root[data-skin="plain"] .sk-history .hist-badge--topic {
+  color: var(--sk-accent);
+  background: color-mix(in srgb, var(--sk-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--sk-accent) 28%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-history .hist-score-bar {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-history .hist-score-bar__correct {
+  background: var(--sk-plain-good);
+}
+:root[data-skin="plain"] .sk-history .hist-score-bar__incorrect {
+  background: var(--sk-plain-crit);
+}
+
+/* ---- Revision ---------------------------------------------------------- *
+ * Covers both the subject index and long-form document shell. The document's
+ * structural grid stays intact; material depth becomes flat outlines, rows,
+ * and low-key active tints. Ask AI surfaces are portaled and therefore global. */
+:root[data-skin="plain"] .sk-revision {
+  --color-accent-strong: var(--sk-accent);
+  --color-accent-soft: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  --surface-1: transparent;
+}
+
+:root[data-skin="plain"] .sk-revision.rev-home h1,
+:root[data-skin="plain"] .sk-revision .rev-article h1,
+:root[data-skin="plain"] .sk-revision .rev-mdx h2,
+:root[data-skin="plain"] .sk-revision .rev-mdx h3 {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .sk-revision.rev-home h1,
+:root[data-skin="plain"] .sk-revision .rev-article h1 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Subject columns are comparison/navigation groups, so retain flat outlines. */
+:root[data-skin="plain"] .sk-revision .rev-subject-column {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-module-dot {
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-subject-tree a:hover,
+:root[data-skin="plain"] .sk-revision .rev-subject-tree a:focus-visible {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+
+/* Reading shell: one shared flat frame around the three-column document view. */
+:root[data-skin="plain"] .sk-revision.rev-shell--doc {
+  border-width: 1px;
+  border-radius: 14px;
+}
+:root[data-skin="plain"] .sk-revision .rev-sidebar-home {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-sidebar-home:hover,
+:root[data-skin="plain"] .sk-revision .rev-sidebar-home--active {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-sidebar-link:hover {
+  background: var(--sk-pill-bg);
+}
+:root[data-skin="plain"] .sk-revision .rev-sidebar-link--active {
+  color: var(--sk-text);
+  background: color-mix(in srgb, var(--sk-accent) 9%, transparent);
+  border-left: 2px solid var(--sk-accent);
+  box-shadow: none;
+}
+
+:root[data-skin="plain"] .sk-revision .rev-copy-btn {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-copy-btn:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-meta-row span {
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+
+/* Callouts/formulae keep a boundary because it carries document semantics, but
+ * lose every recessed well. */
+:root[data-skin="plain"] .sk-revision .rev-callout,
+:root[data-skin="plain"] .sk-revision .rev-worked-example,
+:root[data-skin="plain"] .sk-revision .rev-formula-card,
+:root[data-skin="plain"] .sk-revision .rev-practice-link {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-callout {
+  border-left-width: 3px;
+  border-left-color: var(--sk-accent);
+}
+:root[data-skin="plain"] .sk-revision .rev-callout--tip {
+  border-left-color: var(--sk-plain-good);
+}
+:root[data-skin="plain"] .sk-revision .rev-callout--trap {
+  border-left-color: var(--sk-plain-crit);
+}
+:root[data-skin="plain"] .sk-revision .rev-callout--note {
+  border-left-color: var(--sk-muted);
+}
+:root[data-skin="plain"] .sk-revision .rev-practice-link-button,
+:root[data-skin="plain"] .sk-revision .rev-primary-link {
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-revision .rev-secondary-link,
+:root[data-skin="plain"] .sk-revision .rev-empty-link {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Sidebar/TOC active rails use a solid tint, never a gradient wash or glow. */
+:root[data-skin="plain"] .sk-revision .rev-toc-link:hover,
+:root[data-skin="plain"] .sk-revision .rev-toc-link--active {
+  background: color-mix(in srgb, var(--sk-accent) 9%, transparent);
+}
+:root[data-skin="plain"] .sk-revision .rev-toc-link--h3:hover::before,
+:root[data-skin="plain"] .sk-revision .rev-toc-link--h3:hover::after,
+:root[data-skin="plain"] .sk-revision .rev-toc-link--h3.rev-toc-link--active::before,
+:root[data-skin="plain"] .sk-revision .rev-toc-link--h3.rev-toc-link--active::after {
+  box-shadow: none;
+}
+
+/* Mobile document navigation is a transient flat panel with the shared soft
+ * elevation; its close control is a normal bordered tile. */
+:root[data-skin="plain"] .sk-revision .rev-mobile-nav-panel {
+  border-width: 1px;
+  border-radius: 14px;
+}
+:root[data-skin="plain"] .sk-revision .rev-mobile-nav-close {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Portaled Ask AI button/drawer. Accent is hue-driven; green is reserved for
+ * semantic success elsewhere. */
+:root[data-skin="plain"] .rev-ask-fab {
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: var(--sk-frame-shadow);
+}
+:root[data-skin="plain"] .rev-ask-drawer {
+  border-width: 1px;
+  border-radius: 14px;
+  box-shadow: var(--sk-frame-shadow);
+}
+:root[data-skin="plain"] .rev-ask-drawer-close,
+:root[data-skin="plain"] .rev-ask-suggestion {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .rev-ask-suggestion:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+:root[data-skin="plain"] .rev-ask-empty-title {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .rev-ask-form textarea {
+  border: 1px solid var(--sk-tile-border);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .rev-ask-form textarea:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--sk-accent) 34%, transparent);
+  border-color: var(--sk-accent);
+}
+:root[data-skin="plain"] .rev-ask-form button {
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .rev-ask-turn--user p {
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 28%, transparent);
+  box-shadow: none;
+}
+
+/* Ask Claude extension button: remove the standalone glow/gradient treatment so
+ * it participates in the same plain control system. */
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="idle"],
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="working"] {
+  border: 1px solid var(--sk-tile-border);
+  color: var(--sk-text);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="idle"] .ask-claude-btn__label,
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="working"] .ask-claude-btn__label,
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="idle"]:hover:not(:disabled) .ask-claude-btn__label,
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="working"]:hover:not(:disabled) .ask-claude-btn__label {
+  background: none;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="idle"]:hover:not(:disabled),
+:root[data-skin="plain"] .ask-claude-btn[data-extension="true"][data-state="working"]:hover:not(:disabled) {
+  color: var(--sk-text);
+  background: var(--sk-pill-bg);
+  outline: none;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Portaled Ask Claude info modal: one flat frame and outlined content groups. */
+:root[data-skin="plain"] .ask-claude-modal__panel {
+  border-width: 1px;
+  border-radius: 14px;
+}
+:root[data-skin="plain"] .ask-claude-modal__title {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .ask-claude-modal__close {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ask-claude-modal__why,
+:root[data-skin="plain"] .ask-claude-modal__option {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ask-claude-modal__option--featured {
+  border-color: color-mix(in srgb, var(--sk-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--sk-accent) 7%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ask-claude-modal__badge {
+  background: var(--sk-pill-bg);
+}
+:root[data-skin="plain"] .ask-claude-modal__badge--green {
+  color: var(--sk-plain-good);
+  background: color-mix(in srgb, var(--sk-plain-good) 9%, transparent);
+}
+:root[data-skin="plain"] .ask-claude-modal__steps li kbd,
+:root[data-skin="plain"] .ask-claude-modal__step-num {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ask-claude-modal__install-btn {
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+
+/* ---- Score reference --------------------------------------------------- *
+ * Long-form reference content follows the same plain document vocabulary as
+ * Revision: flat tables/callouts, solid semantic badges, and an accent rail. */
+:root[data-skin="plain"] .sk-scoreref {
+  --surface-1: transparent;
+  --surface-2: var(--sk-pill-bg);
+  --color-accent-strong: var(--sk-accent);
+  --color-accent-soft: color-mix(in srgb, var(--sk-accent) 9%, transparent);
+  --sk-ref-code-bg: var(--sk-pill-bg);
+  --sk-ref-code-text: var(--sk-text);
+}
+
+:root[data-skin="plain"] .sk-scoreref .ref-page-title,
+:root[data-skin="plain"] .sk-scoreref .ref-h2 {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .sk-scoreref .ref-page-title {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+:root[data-skin="plain"] .sk-scoreref .ref-copy-btn {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-scoreref .ref-copy-btn:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+
+:root[data-skin="plain"] .sk-scoreref .ref-tldr,
+:root[data-skin="plain"] .sk-scoreref .ref-table-wrap {
+  border: 1px solid var(--sk-hairline-light);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-scoreref .ref-callout--warning {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-warn) 28%, transparent);
+  color: var(--sk-text);
+  background: color-mix(in srgb, var(--sk-plain-warn) 8%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-scoreref .ref-formula {
+  border: 1px solid var(--sk-hairline-light);
+  color: var(--sk-text);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+  font-family: var(--font-mono);
+}
+:root[data-skin="plain"] .sk-scoreref .ref-table tbody tr:hover td {
+  background: var(--sk-pill-bg);
+}
+:root[data-skin="plain"] .sk-scoreref .ref-row--highlight td {
+  background: color-mix(in srgb, var(--sk-accent) 7%, transparent);
+}
+
+/* Semantic badges/chips retain hue but use real borders rather than inset rings. */
+:root[data-skin="plain"] .sk-scoreref .ref-badge,
+:root[data-skin="plain"] .sk-scoreref .ref-band-chip {
+  border: 1px solid currentColor;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-scoreref .ref-steps li::before {
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 30%, transparent);
+  color: var(--sk-accent);
+  background: color-mix(in srgb, var(--sk-accent) 9%, transparent);
+  box-shadow: none;
+}
+
+:root[data-skin="plain"] .sk-scoreref .ref-toc-link:hover,
+:root[data-skin="plain"] .sk-scoreref .ref-toc-link--active {
+  background: color-mix(in srgb, var(--sk-accent) 9%, transparent);
+}
+
+/* ---- Navigation -------------------------------------------------------- *
+ * Shared token values already flatten most desktop chrome. Finish the brand,
+ * clock, and mobile overlay without changing the animated active-pill geometry. */
+:root[data-skin="plain"] .nav-wordmark {
+  font-family: inherit;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+:root[data-skin="plain"] .nav-time {
+  padding-inline: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .mobile-menu-overlay {
+  background: color-mix(in srgb, var(--color-canvas) 96%, transparent);
+}
+:root[data-skin="plain"] .mobile-nav-link {
+  color: var(--sk-nav-idle);
+}
+:root[data-skin="plain"] .mobile-nav-link:hover {
+  color: var(--sk-nav-idle-hover);
+}
+:root[data-skin="plain"] .mobile-nav-link-active,
+:root[data-skin="plain"] .mobile-nav-link-active:hover {
+  color: var(--sk-nav-active-text);
+  background: var(--sk-nav-active-bg);
+  box-shadow: none;
+}
+
+/* Shared danger segmented controls (for destructive filters/actions) use a flat
+ * semantic tint rather than the one remaining hardcoded red gradient. */
+:root[data-skin="plain"] .sk-segctl[data-tone="danger"] .sk-segctl__pill {
+  background: color-mix(in srgb, var(--sk-plain-crit) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 34%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .sk-segctl[data-tone="danger"] .sk-segctl__btn--active {
+  color: var(--sk-plain-crit);
+}
+
+/* ---- Miscellaneous shared surfaces ------------------------------------ *
+ * Boot/update prompts, keyboard help, offline nudges, and the 404 game are the
+ * remaining global surfaces. Transient overlays keep one soft frame elevation;
+ * nested controls and progress tracks stay fully flat. */
+:root[data-skin="plain"] .overlay-card {
+  border-width: 1px;
+  border-radius: 14px;
+}
+:root[data-skin="plain"] .overlay-card-title {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .progress-track {
+  border: 1px solid var(--sk-hairline-light);
+  background: var(--sk-pill-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .progress-fill {
+  background: var(--sk-accent);
+}
+:root[data-skin="plain"] .pack-info {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-skin="plain"] .offline-nudge {
+  border: 1px solid color-mix(in srgb, var(--sk-accent) 26%, transparent);
+  background: color-mix(in srgb, var(--sk-accent) 7%, transparent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .offline-nudge__cta {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .offline-nudge__cta:hover {
+  background: var(--sk-pill-bg);
+  filter: none;
+}
+:root[data-skin="plain"] .offline-section--highlight {
+  background: color-mix(in srgb, var(--sk-accent) 7%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sk-accent) 34%, transparent) !important;
+}
+
+:root[data-skin="plain"] .update-prompt {
+  border-width: 1px;
+  border-radius: 14px;
+  box-shadow: var(--sk-frame-shadow);
+}
+:root[data-skin="plain"] .update-prompt__reload {
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+
+/* Scrollbars are quiet, narrow tracks with a solid hue-driven thumb. */
+:root[data-skin="plain"] * {
+  scrollbar-color: var(--sk-accent) transparent;
+}
+:root[data-skin="plain"] ::-webkit-scrollbar-track {
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] ::-webkit-scrollbar-thumb {
+  background-color: var(--sk-accent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sk-accent);
+}
+
+:root[data-skin="plain"] .sk-kbd-overlay {
+  border-width: 1px !important;
+  border-radius: 14px !important;
+}
+:root[data-skin="plain"] .sk-kbd-overlay h2 {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .sk-kbd-overlay kbd {
+  border: 1px solid var(--sk-tile-border) !important;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+/* 404 shell: preserve the playable canvas, flatten only its surrounding UI. */
+:root[data-skin="plain"] .sk-misc h1,
+:root[data-skin="plain"] .ng-win__title {
+  font-family: inherit;
+}
+:root[data-skin="plain"] .sk-misc .btn-primary,
+:root[data-skin="plain"] .ng-hud__replay {
+  background: var(--sk-cta-bg);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ng-tab {
+  border: 1px solid var(--sk-tile-border);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ng-tab--on {
+  color: var(--sk-text);
+  background: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+  border-color: var(--sk-accent);
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ng-well {
+  border: 1px solid var(--sk-hairline-light);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-skin="plain"] .ng-win {
+  border-width: 1px;
+  box-shadow: var(--sk-frame-shadow);
+}
+:root[data-skin="plain"] .ng-home--ready {
+  animation: none;
+}
+
+/* Annotation toolbar is a floating utility: one soft outer elevation, then flat
+ * buttons and solid selected states. Literal pen-colour swatches stay untouched. */
+:root[data-skin="plain"] .annotation-toolbar {
+  border-width: 1px;
+  box-shadow: var(--sk-frame-shadow);
+}
+:root[data-skin="plain"] .annotation-divider {
+  box-shadow: none;
+}
+:root[data-skin="plain"] .annotation-tool-btn:hover:not(:disabled),
+:root[data-skin="plain"] .annotation-width-btn:hover {
+  background: var(--sk-pill-bg);
+}
+:root[data-skin="plain"] .annotation-tool-btn-active,
+:root[data-skin="plain"] .annotation-tool-btn-active:hover:not(:disabled),
+:root[data-skin="plain"] .annotation-width-btn-active {
+  color: var(--sk-cta-text);
+  background: var(--sk-cta-bg);
+  border-color: var(--sk-accent);
+  box-shadow: none;
 }
