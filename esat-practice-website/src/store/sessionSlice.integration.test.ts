@@ -247,6 +247,67 @@ describe("excludeCurrentQuestion", () => {
     expect(persisted?.config.question_ids).toEqual(["q2", "q3"]);
   });
 
+  it("appends a replacement question so the session keeps its length", async () => {
+    const spare = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", spare);
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion([...questions, spare]);
+
+    const state = useSessionSlice.getState();
+    expect(state.questions.map((question) => question.id)).toEqual(["q2", "q3", "q4"]);
+    // The cursor stays on the slot the excluded question vacated.
+    expect(state.currentIndex).toBe(0);
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.config.question_ids).toEqual(["q2", "q3", "q4"]);
+    expect(persisted?.config.question_count).toBe(3);
+  });
+
+  it("does not reuse an already-excluded question as a replacement", async () => {
+    const spare = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", spare);
+    await excludeQuestionInDb("q4");
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion([...questions, spare]);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q2",
+      "q3",
+    ]);
+  });
+
+  it("keeps the replacement within the session's topic filter", async () => {
+    const offTopic = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Mechanics" } });
+    const onTopic = makeQuestion({ id: "q5", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", offTopic);
+    await database.put("questions", onTopic);
+    const session = await createSessionRecord({
+      mode: "untimed",
+      question_ids: ["q1", "q3"],
+      question_count: 2,
+      topic_filter: ["Algebra"],
+    });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice
+      .getState()
+      .excludeCurrentQuestion([...questions, offTopic, onTopic]);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q3",
+      "q5",
+    ]);
+  });
+
   it("submits automatically when the last question is excluded", async () => {
     const only = makeQuestion({ id: "solo" });
     const database = await getDb();
