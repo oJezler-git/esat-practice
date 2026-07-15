@@ -9,7 +9,8 @@ import {
 import { pickReplacementQuestions } from "../engine/sessionBuilder";
 import { scoreSession } from "../engine/scorer";
 import { createSessionTicker } from "../engine/timer";
-import { getQuestionsByIdsFromDb } from "../lib/questionStore";
+import { getDerivedStoreState, getQuestionsByIdsFromDb } from "../lib/questionStore";
+import { useSettingsStore } from "../lib/settingsStore";
 import {
   excludeQuestionInDb,
   getExcludedQuestionIdsFromDb,
@@ -340,10 +341,22 @@ return {
       ...latest.questions.map((candidate) => candidate.id),
       ...excludedQuestionIds,
     ]);
+    // `allQuestions` is the raw bank, which the duplicate analysis above needs
+    // but the top-up must not draw from: it still holds the NSAA duplicates the
+    // bank hides and the subjects the user has switched off, neither of which
+    // could have been in the session to begin with. Derive the same pool
+    // practice-setup builds from, which also propagates exclusions across
+    // duplicate pairs.
+    let pool = allQuestions
+      ? getDerivedStoreState(
+          allQuestions,
+          excludedQuestionIds,
+          useSettingsStore.getState().settings.enabledSubjects,
+        ).questions
+      : [];
     // A flagged-only session must top up from flagged questions; the topic/year
     // filters alone would let an unflagged one in. Flags are read fresh rather
     // than snapshotted at session start, so anything flagged since is fair game.
-    let pool = allQuestions ?? [];
     if (pool.length > 0 && state.session.config.flagged_only) {
       const flaggedIds = await getFlaggedQuestionIds();
       pool = pool.filter((candidate) => flaggedIds.has(candidate.id));

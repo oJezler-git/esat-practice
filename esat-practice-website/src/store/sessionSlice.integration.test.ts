@@ -14,6 +14,7 @@ import { clearAllStores, getDb } from "../lib/db";
 import { createSessionRecord, getAttemptsForSession, getSessionById } from "../lib/sessionStore";
 import { excludeQuestionInDb, getExcludedQuestionIdsFromDb } from "../lib/excludedQuestionStore";
 import { getTopicStats } from "../lib/statsStore";
+import { useSettingsStore } from "../lib/settingsStore";
 import { makeAttempt, makeQuestion } from "../test-utils/factories";
 import type { Question, Session } from "../types/schema";
 
@@ -50,6 +51,7 @@ async function seedSession(
 beforeEach(async () => {
   await clearAllStores();
   useSessionSlice.setState({ ...createInitialSessionState(), notFound: false });
+  useSettingsStore.getState().reset();
 });
 
 describe("load", () => {
@@ -377,6 +379,66 @@ describe("excludeCurrentQuestion", () => {
     expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
       "q3",
       "q5",
+    ]);
+  });
+
+  it("does not top up from a subject the user has disabled", async () => {
+    // Sorts before "q2" by id, so an unfiltered pool would reach for it first.
+    const biology = makeQuestion({ id: "b4", taxonomy: { primary_topic: "B1 Cells" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", biology);
+    useSettingsStore.getState().update({
+      enabledSubjects: ["maths1", "maths2", "physics", "chemistry"],
+    });
+    const session = await createSessionRecord({
+      mode: "untimed",
+      question_ids: ["q1", "q3"],
+      question_count: 2,
+    });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion([...questions, biology]);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q3",
+      "q2",
+    ]);
+  });
+
+  it("does not top up with an NSAA duplicate the bank hides", async () => {
+    // Same year, part and text, so the dedup analysis pairs them and hides the
+    // NSAA side. Its id sorts first, so an unfiltered pool would pick it.
+    const duplicateText = "A particle moves with constant acceleration. Find v.";
+    const nsaaTwin = makeQuestion({
+      id: "d-twin",
+      source: { paper: "NSAA 2022" },
+      content: { text: duplicateText },
+    });
+    const engaaTwin = makeQuestion({
+      id: "e-twin",
+      source: { paper: "ENGAA 2022" },
+      content: { text: duplicateText },
+    });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", nsaaTwin);
+    await database.put("questions", engaaTwin);
+    const session = await createSessionRecord({
+      mode: "untimed",
+      question_ids: ["q1", "q3"],
+      question_count: 2,
+      topic_filter: ["Algebra"],
+    });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice
+      .getState()
+      .excludeCurrentQuestion([...questions, nsaaTwin, engaaTwin]);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q3",
+      "e-twin",
     ]);
   });
 
