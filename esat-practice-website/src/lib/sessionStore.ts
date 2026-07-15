@@ -296,6 +296,27 @@ export async function updateSessionQuestionIds(
   });
 }
 
+/**
+ * Records the user's position so a resume returns them to it. Written on every
+ * navigation, so it stays deliberately cheap: a single session put, no attempt
+ * or stats work.
+ */
+export async function updateSessionCurrentIndex(
+  sessionId: string,
+  currentIndex: number,
+): Promise<void> {
+  const database = await getDb();
+  const session = await database.get("sessions", sessionId);
+  if (!session || session.current_index === currentIndex) {
+    return;
+  }
+
+  await database.put("sessions", {
+    ...session,
+    current_index: currentIndex,
+  });
+}
+
 const sessionStoreApi = {
   createSession: createSessionRecord,
   getSession: getSessionById,

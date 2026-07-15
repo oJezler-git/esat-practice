@@ -72,7 +72,9 @@ export function hydrateSessionState(
     status: deriveStatus(session),
     session,
     questions,
-    currentIndex: 0,
+    // Clamped, not trusted: the recorded position can outrun the list when
+    // questions are excluded or dropped between sessions.
+    currentIndex: clampIndex(session.current_index ?? 0, questions.length),
     responses,
     timeRemaining: initialTime,
     questionElapsed: 0,

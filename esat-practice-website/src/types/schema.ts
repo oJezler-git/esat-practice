@@ -85,6 +85,12 @@ export interface Session {
   config: SessionConfig;
   attempt_ids: string[];
   state: "active" | "completed" | "abandoned";
+  /**
+   * Which question the user was on, so resuming returns them there rather than
+   * to the start. Absent on sessions created before this was recorded, and on
+   * any session that was never navigated; both resume at 0.
+   */
+  current_index?: number;
 }
 
 export interface TopicStat {

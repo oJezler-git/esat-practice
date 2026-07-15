@@ -161,6 +161,66 @@ describe("load", () => {
     ]);
   });
 
+  it("resumes on the question the user left off on", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().nav("next");
+    await useSessionSlice.getState().nav("next");
+
+    // Fresh hydrate, as if the page reloaded.
+    useSessionSlice.setState({ ...createInitialSessionState(), notFound: false });
+    await useSessionSlice.getState().load(session.id);
+
+    expect(useSessionSlice.getState().currentIndex).toBe(2);
+  });
+
+  it("shifts the resumed position past questions that dropped out ahead of it", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+    await useSessionSlice.getState().jumpTo(2);
+
+    // q2 sat before the cursor, so q3 slides down into index 1.
+    await excludeQuestionInDb("q2");
+    useSessionSlice.setState({ ...createInitialSessionState(), notFound: false });
+    await useSessionSlice.getState().load(session.id);
+
+    const state = useSessionSlice.getState();
+    expect(state.currentIndex).toBe(1);
+    expect(state.questions[state.currentIndex].id).toBe("q3");
+  });
+
+  it("clamps a recorded position that outruns a shortened session", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+    await useSessionSlice.getState().jumpTo(2);
+
+    // Both later questions go, leaving only q1 for the stored index of 2.
+    await excludeQuestionInDb("q2");
+    await excludeQuestionInDb("q3");
+    useSessionSlice.setState({ ...createInitialSessionState(), notFound: false });
+    await useSessionSlice.getState().load(session.id);
+
+    const state = useSessionSlice.getState();
+    expect(state.questions.map((question) => question.id)).toEqual(["q1"]);
+    expect(state.currentIndex).toBe(0);
+  });
+
+  it("resumes at the start for a session recorded before positions were kept", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    const database = await getDb();
+    const stored = await database.get("sessions", session.id);
+    expect(stored?.current_index).toBeUndefined();
+
+    await useSessionSlice.getState().load(session.id);
+
+    expect(useSessionSlice.getState().currentIndex).toBe(0);
+  });
+
   it("restores prior attempts, flags, and remaining time on rehydrate", async () => {
     await seedQuestions();
     const session = await seedSession({ mode: "timed", time_limit_ms: 60_000 });

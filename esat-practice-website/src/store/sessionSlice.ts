@@ -27,6 +27,7 @@ import {
   markSessionAbandoned,
   markSessionCompleted,
   saveSessionAttempts,
+  updateSessionCurrentIndex,
   updateSessionQuestionIds,
   upsertAttemptRecord,
 } from "../lib/sessionStore";
@@ -140,6 +141,13 @@ function excludeQuestionsFromState(
     flagged: nextFlagged,
     questionElapsed: 0,
   };
+}
+
+async function persistCurrentIndex(state: SessionEngineState): Promise<void> {
+  if (!state.session) {
+    return;
+  }
+  await updateSessionCurrentIndex(state.session.id, state.currentIndex);
 }
 
 /**
@@ -258,11 +266,19 @@ return {
     }
 
     const finalQuestions = [...includedQuestions, ...replacements];
+    // The recorded position indexes the list as it was before anything dropped
+    // out of it, so it has to shift back past whatever was removed ahead of it.
+    const includedIds = new Set(includedQuestions.map((question) => question.id));
+    const storedIndex = session.current_index ?? 0;
+    const droppedBeforeCursor = session.config.question_ids.filter(
+      (questionId, index) => index < storedIndex && !includedIds.has(questionId),
+    ).length;
     const hydratedSession =
       droppedCount === 0
         ? session
         : {
             ...session,
+            current_index: Math.max(0, storedIndex - droppedBeforeCursor),
             config: {
               ...session.config,
               question_ids: finalQuestions.map((question) => question.id),
@@ -376,6 +392,7 @@ return {
       await upsertAttemptRecord(committed);
     }
     await upsertAttemptRecord(skippedAttempt);
+    await persistCurrentIndex(finalState);
   },
   excludeCurrentQuestion: async (allQuestions?: Question[]) => {
     const state = get();
@@ -431,6 +448,9 @@ return {
       state.session.id,
       nextState.questions.map((candidate) => candidate.id),
     );
+    // The removal shifts the cursor, so the recorded position has to move with
+    // it or a resume would land on whatever slid into the old slot.
+    await persistCurrentIndex(nextState);
 
     if (nextState.questions.length === 0) {
       await get().submit();
@@ -452,6 +472,7 @@ return {
     if (committed) {
       await upsertAttemptRecord(committed);
     }
+    await persistCurrentIndex(navigated);
   },
   jumpTo: async (index: number) => {
     const state = get();
@@ -473,6 +494,7 @@ return {
     if (committed) {
       await upsertAttemptRecord(committed);
     }
+    await persistCurrentIndex(jumped);
   },
   submit: async () => {
     const state = get();
