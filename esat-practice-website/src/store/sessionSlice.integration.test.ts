@@ -14,7 +14,7 @@ import { clearAllStores, getDb } from "../lib/db";
 import { createSessionRecord, getAttemptsForSession, getSessionById } from "../lib/sessionStore";
 import { excludeQuestionInDb, getExcludedQuestionIdsFromDb } from "../lib/excludedQuestionStore";
 import { getTopicStats } from "../lib/statsStore";
-import { makeQuestion } from "../test-utils/factories";
+import { makeAttempt, makeQuestion } from "../test-utils/factories";
 import type { Question, Session } from "../types/schema";
 
 // The only mock: question reads normally trigger the bundled-data fetch
@@ -301,6 +301,36 @@ describe("excludeCurrentQuestion", () => {
     await useSessionSlice
       .getState()
       .excludeCurrentQuestion([...questions, offTopic, onTopic]);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q3",
+      "q5",
+    ]);
+  });
+
+  it("tops a flagged-only session up from flagged questions only", async () => {
+    const unflagged = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const flagged = makeQuestion({ id: "q5", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", unflagged);
+    await database.put("questions", flagged);
+    // q5 carries a flagged attempt from an earlier session; q4 does not.
+    await database.put(
+      "attempts",
+      makeAttempt({ id: "a-q5", question_id: "q5", session_id: "old", flagged: true }),
+    );
+    const session = await createSessionRecord({
+      mode: "untimed",
+      question_ids: ["q1", "q3"],
+      question_count: 2,
+      flagged_only: true,
+    });
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice
+      .getState()
+      .excludeCurrentQuestion([...questions, unflagged, flagged]);
 
     expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
       "q3",

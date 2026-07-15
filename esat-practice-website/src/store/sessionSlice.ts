@@ -17,6 +17,7 @@ import {
 } from "../lib/excludedQuestionStore";
 import {
   getAttemptsForSession,
+  getFlaggedQuestionIds,
   getSessionById,
   markSessionAbandoned,
   markSessionCompleted,
@@ -329,14 +330,20 @@ return {
       ...latest.questions.map((candidate) => candidate.id),
       ...excludedQuestionIds,
     ]);
-    const replacements = allQuestions
-      ? pickReplacementQuestions(
-          allQuestions,
-          { ...latest.session?.config, mode: latest.session?.mode },
-          usedIds,
-          removedCount,
-        )
-      : [];
+    // A flagged-only session must top up from flagged questions; the topic/year
+    // filters alone would let an unflagged one in. Flags are read fresh rather
+    // than snapshotted at session start, so anything flagged since is fair game.
+    let pool = allQuestions ?? [];
+    if (pool.length > 0 && state.session.config.flagged_only) {
+      const flaggedIds = await getFlaggedQuestionIds();
+      pool = pool.filter((candidate) => flaggedIds.has(candidate.id));
+    }
+    const replacements = pickReplacementQuestions(
+      pool,
+      { ...state.session.config, mode: state.session.mode },
+      usedIds,
+      removedCount,
+    );
 
     const nextState = excludeQuestionsFromState(latest, idsToExclude, replacements);
     set({ ...latest, ...nextState });
