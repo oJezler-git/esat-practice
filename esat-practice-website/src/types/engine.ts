@@ -1,4 +1,10 @@
-import type { Attempt, Question, SelfMarkResult, Session } from "./schema";
+import type {
+  Attempt,
+  Question,
+  ScoredAttempt,
+  SelfMarkResult,
+  Session,
+} from "./schema";
 
 export type SessionMode = Session["mode"];
 
@@ -48,6 +54,6 @@ export interface TopicBreakdownRow {
 }
 
 export interface ScoringResult {
-  attempts: Attempt[];
+  attempts: ScoredAttempt[];
   topicBreakdown: TopicBreakdownRow[];
 }

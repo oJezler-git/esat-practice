@@ -7,11 +7,11 @@ import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
-import type { Attempt, Question, Session } from "../../types/schema";
+import type { Question, ScoredAttempt, Session } from "../../types/schema";
 
 interface ReviewItem {
   question: Question;
-  attempt: Attempt;
+  attempt: ScoredAttempt;
 }
 
 type LoadState = {

@@ -102,9 +102,32 @@ describe("getAttemptsForSession — result normalisation", () => {
     expect(attempts[0].result).toBe("skipped");
   });
 
-  it("defaults unknown/missing result to 'skipped'", async () => {
+  // A missing result means the user never marked the question, which is distinct
+  // from deliberately skipping it — reads keep it "unanswered" so a rehydrated
+  // session can be returned to. Scoring is what folds it into "skipped".
+  it("defaults a missing result to 'unanswered'", async () => {
     const { db } = createMockDb({
       attemptsForSession: [makeRawAttempt({ result: undefined })],
+      session: { id: SESSION_ID, attempt_ids: [] },
+    });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+    const attempts = await getAttemptsForSession(SESSION_ID);
+    expect(attempts[0].result).toBe("unanswered");
+  });
+
+  it("preserves a persisted 'unanswered' result", async () => {
+    const { db } = createMockDb({
+      attemptsForSession: [makeRawAttempt({ result: "unanswered" })],
+      session: { id: SESSION_ID, attempt_ids: [] },
+    });
+    vi.mocked(getDb).mockResolvedValue(db as any);
+    const attempts = await getAttemptsForSession(SESSION_ID);
+    expect(attempts[0].result).toBe("unanswered");
+  });
+
+  it("defaults an unrecognised result to 'skipped'", async () => {
+    const { db } = createMockDb({
+      attemptsForSession: [makeRawAttempt({ result: "banana" })],
       session: { id: SESSION_ID, attempt_ids: [] },
     });
     vi.mocked(getDb).mockResolvedValue(db as any);

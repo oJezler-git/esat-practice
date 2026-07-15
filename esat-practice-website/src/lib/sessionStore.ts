@@ -6,7 +6,7 @@ import type {
 } from "../types/schema";
 import { getDb } from "./db";
 import { generateId } from "./ids";
-import { normalizeResult } from "../engine/result";
+import { normalizeAttemptResult } from "../engine/result";
 
 export function normalizeAttemptRecord(value: unknown): Attempt | null {
   if (typeof value !== "object" || value === null) {
@@ -27,7 +27,7 @@ export function normalizeAttemptRecord(value: unknown): Attempt | null {
   const legacyCorrect =
     typeof record.correct === "boolean" ? record.correct : undefined;
 
-  const result = normalizeResult(
+  const result = normalizeAttemptResult(
     record.result ??
       (legacySelected === "skipped"
         ? "skipped"

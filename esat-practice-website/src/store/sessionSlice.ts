@@ -28,7 +28,7 @@ import {
 import { recomputeAllStats } from "../lib/statsStore";
 import { analyseNsaaDuplicates } from "../lib/questionDedup";
 import { generateId } from "../lib/ids";
-import { normalizeResult } from "../engine/result";
+import { normalizeAttemptResult } from "../engine/result";
 import type { SessionEngineState } from "../types/engine";
 import type { Attempt, Question, SelfMarkResult } from "../types/schema";
 
@@ -38,7 +38,9 @@ function ensureAttempt(
   overrides: Partial<Attempt> = {},
 ): Attempt {
   const existing = state.responses[question.id];
-  const result = normalizeResult(overrides.result ?? existing?.result);
+  // Not normalizeResult: an attempt with no result yet stays "unanswered" rather
+  // than becoming "skipped", so committing elapsed time on nav marks nothing.
+  const result = normalizeAttemptResult(overrides.result ?? existing?.result);
 
   return {
     id: overrides.id ?? existing?.id ?? generateId(),
@@ -519,9 +521,13 @@ export function useSessionEngine(sessionId: string) {
   const pause = useSessionSlice((state) => state.pause);
 
   const currentQuestion = questions[currentIndex] ?? null;
-  const currentAttemptResult = currentQuestion
+  // "unanswered" surfaces as undefined: consumers treat a result as "the user has
+  // marked this", which drives answer reveal and auto-advance.
+  const storedResult = currentQuestion
     ? responses[currentQuestion.id]?.result
     : undefined;
+  const currentAttemptResult: SelfMarkResult | undefined =
+    storedResult === "unanswered" ? undefined : storedResult;
   const isFlagged = currentQuestion ? flagged.has(currentQuestion.id) : false;
 
   useEffect(() => {

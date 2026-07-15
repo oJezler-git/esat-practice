@@ -1,4 +1,13 @@
+/** The results a user can self-mark a question with, and what a session scores to. */
 export type SelfMarkResult = "correct" | "incorrect" | "skipped";
+
+/**
+ * What an attempt can hold while a session is in progress. "unanswered" means the
+ * user has seen the question but not acted on it — distinct from "skipped", which
+ * is a deliberate choice to pass. Navigating away leaves a question unanswered so
+ * it can be returned to; scoring folds anything still unanswered into "skipped".
+ */
+export type AttemptResult = SelfMarkResult | "unanswered";
 
 export interface Question {
   id: string;
@@ -37,10 +46,18 @@ export interface Attempt {
   id: string;
   question_id: string;
   session_id: string;
-  result: SelfMarkResult;
+  result: AttemptResult;
   time_ms: number;
   flagged: boolean;
   timestamp: number;
+}
+
+/**
+ * An attempt that has been through scoring, where "unanswered" has been folded
+ * into "skipped". Everything downstream of submit (results, stats) sees these.
+ */
+export interface ScoredAttempt extends Attempt {
+  result: SelfMarkResult;
 }
 
 export type SessionMode = "timed" | "untimed" | "topic" | "mixed";

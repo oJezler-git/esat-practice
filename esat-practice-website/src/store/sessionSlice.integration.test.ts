@@ -173,6 +173,48 @@ describe("navigation", () => {
     expect(first?.time_ms).toBe(4_000);
   });
 
+  it("leaves a question unanswered when navigating past it", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().tick(2_500);
+    await useSessionSlice.getState().nav("next");
+
+    // Time is banked, but passing over a question must not mark it: it stays
+    // unanswered so the user can come back and mark it themselves.
+    const attempts = await getAttemptsForSession(session.id);
+    const first = attempts.find((attempt) => attempt.question_id === "q1");
+    expect(first?.result).toBe("unanswered");
+    expect(first?.time_ms).toBe(2_500);
+
+    // And the answer stays hidden on return: the engine reports no result, which
+    // is what drives the reveal.
+    const { result } = renderHook(() => useSessionEngine(session.id));
+    await waitFor(() => {
+      expect(result.current.status).toBe("active");
+    });
+    expect(result.current.currentAttemptResult).toBeUndefined();
+  });
+
+  it("still scores an unanswered question as skipped on submit", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().nav("next");
+    await useSessionSlice.getState().mark("correct");
+    await useSessionSlice.getState().submit();
+
+    const attempts = await getAttemptsForSession(session.id);
+    expect(attempts.find((attempt) => attempt.question_id === "q1")?.result).toBe(
+      "skipped",
+    );
+    expect(attempts.find((attempt) => attempt.question_id === "q2")?.result).toBe(
+      "correct",
+    );
+  });
+
   it("jumpTo clamps out-of-range targets", async () => {
     await seedQuestions();
     const session = await seedSession();

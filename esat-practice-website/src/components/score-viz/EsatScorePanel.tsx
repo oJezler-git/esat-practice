@@ -1,12 +1,12 @@
 import { computeModuleResult, detectModuleGroups } from "../../lib/esatScaling";
-import type { Attempt, Question } from "../../types/schema";
+import type { Question, ScoredAttempt } from "../../types/schema";
 import { AccuracyHistoryChart } from "./AccuracyHistoryChart";
 import { ModuleScoreCard } from "./ModuleScoreCard";
 import { TopicModuleBreakdown } from "./TopicModuleBreakdown";
 
 export interface ReviewItem {
   question: Question;
-  attempt: Attempt;
+  attempt: ScoredAttempt;
 }
 
 interface EsatScorePanelProps {

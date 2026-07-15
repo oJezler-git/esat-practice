@@ -31,7 +31,7 @@ function createDraftAttempt(state: SessionEngineState, questionId: string): Atte
     id: `draft-${questionId}`,
     question_id: questionId,
     session_id: state.session?.id ?? "",
-    result: "skipped",
+    result: "unanswered",
     time_ms: 0,
     flagged: state.flagged.has(questionId),
     timestamp: Date.now(),

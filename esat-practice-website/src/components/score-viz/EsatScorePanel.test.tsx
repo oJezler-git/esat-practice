@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { Attempt, Question } from "../../types/schema";
+import type { Question, ScoredAttempt } from "../../types/schema";
 import { EsatScorePanel, type ReviewItem } from "./EsatScorePanel";
 
 vi.mock("./AccuracyHistoryChart", () => ({
@@ -34,8 +34,8 @@ function makeQuestion(id: string, topic: string): Question {
 function makeAttempt(
   id: string,
   questionId: string,
-  result: Attempt["result"],
-): Attempt {
+  result: ScoredAttempt["result"],
+): ScoredAttempt {
   return {
     id,
     question_id: questionId,
@@ -47,7 +47,7 @@ function makeAttempt(
   };
 }
 
-function item(id: string, topic: string, result: Attempt["result"]): ReviewItem {
+function item(id: string, topic: string, result: ScoredAttempt["result"]): ReviewItem {
   return {
     question: makeQuestion(id, topic),
     attempt: makeAttempt(`a-${id}`, id, result),

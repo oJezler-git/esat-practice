@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import type { Attempt, SelfMarkResult } from "../../types/schema";
+import type { Attempt, AttemptResult } from "../../types/schema";
 
 interface Props {
   currentIndex: number;
@@ -26,7 +26,8 @@ function toggleFullscreen() {
   }
 }
 
-function getStatusClass(result?: SelfMarkResult) {
+// "unanswered" (and a question never visited) falls through to the blank dot.
+function getStatusClass(result?: AttemptResult) {
   switch (result) {
     case "correct":
       return "sk-seg--correct";
