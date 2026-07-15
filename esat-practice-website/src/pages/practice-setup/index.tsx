@@ -211,6 +211,7 @@ export default function PracticeSetup() {
         mode === "timed"
           ? questionCount * settings.timedSecondsPerQ * 1000
           : undefined,
+      flagged_only: flaggedOnly ? true : undefined,
     };
 
     const pool = flaggedOnly

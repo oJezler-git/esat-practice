@@ -57,6 +57,7 @@ export interface CreateSessionInput {
   topic_filter?: string[];
   paper_filter?: string[];
   year_filter?: number[];
+  flagged_only?: boolean;
 }
 
 function buildSessionConfig(input: CreateSessionInput): SessionConfig {
@@ -67,6 +68,7 @@ function buildSessionConfig(input: CreateSessionInput): SessionConfig {
     topic_filter: input.topic_filter,
     paper_filter: input.paper_filter,
     year_filter: input.year_filter,
+    flagged_only: input.flagged_only,
   };
 }
 

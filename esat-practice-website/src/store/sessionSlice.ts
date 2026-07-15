@@ -6,6 +6,7 @@ import {
   hydrateSessionState,
   reduceSessionState,
 } from "../engine/sessionEngine";
+import { pickReplacementQuestions } from "../engine/sessionBuilder";
 import { scoreSession } from "../engine/scorer";
 import { createSessionTicker } from "../engine/timer";
 import { getQuestionsByIdsFromDb } from "../lib/questionStore";
@@ -16,6 +17,7 @@ import {
 } from "../lib/excludedQuestionStore";
 import {
   getAttemptsForSession,
+  getFlaggedQuestionIds,
   getSessionById,
   markSessionAbandoned,
   markSessionCompleted,
@@ -77,21 +79,41 @@ function commitQuestionElapsed(
   };
 }
 
-function removeQuestionFromState(
+/**
+ * Drops the excluded questions and appends `replacements` so the session keeps
+ * its configured length. The cursor follows the slot the excluded question left
+ * behind, which is why the index is rebuilt from how many removals sat before it
+ * rather than clamped after the fact.
+ */
+function excludeQuestionsFromState(
   state: SessionEngineState,
-  questionId: string,
+  questionIds: string[],
+  replacements: Question[],
 ): SessionEngineState {
-  const nextQuestions = state.questions.filter((question) => question.id !== questionId);
+  const removedIds = new Set(questionIds);
+  const removedBeforeCursor = state.questions.filter(
+    (question, index) => index < state.currentIndex && removedIds.has(question.id),
+  ).length;
+
+  const nextQuestions = [
+    ...state.questions.filter((question) => !removedIds.has(question.id)),
+    ...replacements,
+  ];
   const nextResponses = { ...state.responses };
   const nextFlagged = new Set(state.flagged);
 
-  delete nextResponses[questionId];
-  nextFlagged.delete(questionId);
+  for (const questionId of removedIds) {
+    delete nextResponses[questionId];
+    nextFlagged.delete(questionId);
+  }
 
   const nextCurrentIndex =
     nextQuestions.length === 0
       ? 0
-      : Math.min(state.currentIndex, nextQuestions.length - 1);
+      : Math.min(
+          Math.max(0, state.currentIndex - removedBeforeCursor),
+          nextQuestions.length - 1,
+        );
 
   return {
     ...state,
@@ -296,14 +318,34 @@ return {
     // Sync the in-memory exclusion store, or the practice-setup page keeps
     // offering the excluded question until a full reload.
     await refreshExcludedQuestionsStore();
+    const excludedQuestionIds = await getExcludedQuestionIdsFromDb();
 
     // Re-read after the awaits: a mark/flag/tick that landed while the DB
     // writes were in flight must not be clobbered by the stale snapshot.
     const latest = get();
-    let nextState: SessionEngineState = latest;
-    for (const id of idsToExclude) {
-      nextState = removeQuestionFromState(nextState, id);
+    const removedCount = idsToExclude.filter((id) =>
+      latest.questions.some((candidate) => candidate.id === id),
+    ).length;
+    const usedIds = new Set([
+      ...latest.questions.map((candidate) => candidate.id),
+      ...excludedQuestionIds,
+    ]);
+    // A flagged-only session must top up from flagged questions; the topic/year
+    // filters alone would let an unflagged one in. Flags are read fresh rather
+    // than snapshotted at session start, so anything flagged since is fair game.
+    let pool = allQuestions ?? [];
+    if (pool.length > 0 && state.session.config.flagged_only) {
+      const flaggedIds = await getFlaggedQuestionIds();
+      pool = pool.filter((candidate) => flaggedIds.has(candidate.id));
     }
+    const replacements = pickReplacementQuestions(
+      pool,
+      { ...state.session.config, mode: state.session.mode },
+      usedIds,
+      removedCount,
+    );
+
+    const nextState = excludeQuestionsFromState(latest, idsToExclude, replacements);
     set({ ...latest, ...nextState });
 
     await updateSessionQuestionIds(

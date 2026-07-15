@@ -52,6 +52,12 @@ export interface SessionConfig {
   topic_filter?: string[];
   paper_filter?: string[];
   year_filter?: number[];
+  /**
+   * Session was built from flagged questions only. Recorded so mid-session
+   * top-ups (after an exclusion) can honour the same constraint; the other
+   * filters alone would let an unflagged question in.
+   */
+  flagged_only?: boolean;
 }
 
 export interface Session {
