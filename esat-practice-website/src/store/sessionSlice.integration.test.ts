@@ -380,6 +380,44 @@ describe("excludeCurrentQuestion", () => {
     ]);
   });
 
+  it("records a shortfall when the bank has no replacement left", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    // Every question in the bank is already in the session, so the top-up has
+    // nothing to draw on and the session simply gets shorter.
+    await useSessionSlice.getState().excludeCurrentQuestion(questions);
+
+    const state = useSessionSlice.getState();
+    expect(state.questions.map((question) => question.id)).toEqual(["q2", "q3"]);
+    expect(state.topUpShortfall).toBe(1);
+  });
+
+  it("accumulates the shortfall across repeated exclusions", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion(questions);
+    await useSessionSlice.getState().excludeCurrentQuestion(questions);
+
+    expect(useSessionSlice.getState().topUpShortfall).toBe(2);
+  });
+
+  it("leaves the shortfall at zero when a replacement is found", async () => {
+    const spare = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", spare);
+    const session = await seedSession();
+    await useSessionSlice.getState().load(session.id);
+
+    await useSessionSlice.getState().excludeCurrentQuestion([...questions, spare]);
+
+    expect(useSessionSlice.getState().topUpShortfall).toBe(0);
+  });
+
   it("submits automatically when the last question is excluded", async () => {
     const only = makeQuestion({ id: "solo" });
     const database = await getDb();

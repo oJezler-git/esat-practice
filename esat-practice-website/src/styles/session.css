@@ -380,6 +380,19 @@ html:has(.sk-session) {
   justify-content: center;
 }
 
+/* Shown when an exclusion could not be topped up, so a session that is running
+   short explains itself rather than looking like the top-up misfired. */
+.session-topup-notice {
+  margin: 0 0 0.75rem;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--sk-exclude-text);
+  background: var(--sk-exclude-bg);
+  box-shadow: var(--sk-exclude-shadow);
+}
+
 .session-exclude-notice {
   margin-top: 1.25rem;
   display: flex;

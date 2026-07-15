@@ -28,6 +28,7 @@ export default function SessionPage() {
 
   const {
     notFound,
+    topUpShortfall,
     status,
     session,
     currentQuestion,
@@ -182,6 +183,13 @@ export default function SessionPage() {
               Question {currentIndex + 1} of {totalCount}
               {isFlagged && <span className="sk-flag-badge">Flagged</span>}
             </div>
+            {topUpShortfall > 0 && (
+              <p className="session-topup-notice" role="status">
+                No unseen questions left that match this session's filters, so it is{" "}
+                {topUpShortfall} question{topUpShortfall !== 1 ? "s" : ""} shorter than
+                you asked for.
+              </p>
+            )}
             <p className={`session-question-preview ${fontClass}`}>{questionPreview}</p>
             <p className="session-ocr-note">
               OCR is inaccurate. Use the image for the question.

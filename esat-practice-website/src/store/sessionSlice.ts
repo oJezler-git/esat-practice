@@ -139,6 +139,13 @@ function excludeQuestionsFromState(
 
 interface SessionSlice extends SessionEngineState {
   notFound: boolean;
+  /**
+   * How many excluded questions this session could not replace, because the
+   * question bank ran out of candidates matching its filters. Cumulative, so a
+   * session that ends up short can say by how much rather than leaving the user
+   * to wonder whether the top-up broke.
+   */
+  topUpShortfall: number;
   load: (sessionId: string) => Promise<void>;
   mark: (result: SelfMarkResult) => Promise<void>;
   flag: () => Promise<void>;
@@ -160,8 +167,9 @@ let submitting = false;
 return {
   ...createInitialSessionState(),
   notFound: false,
+  topUpShortfall: 0,
   load: async (sessionId: string) => {
-    set({ ...createInitialSessionState(), notFound: false });
+    set({ ...createInitialSessionState(), notFound: false, topUpShortfall: 0 });
     const session = await getSessionById(sessionId);
     if (!session) {
       set({ ...createInitialSessionState(), notFound: true });
@@ -348,7 +356,11 @@ return {
     );
 
     const nextState = excludeQuestionsFromState(latest, idsToExclude, replacements);
-    set({ ...latest, ...nextState });
+    set({
+      ...latest,
+      ...nextState,
+      topUpShortfall: latest.topUpShortfall + (removedCount - replacements.length),
+    });
 
     await updateSessionQuestionIds(
       state.session.id,
@@ -500,6 +512,7 @@ return {
 
 export function useSessionEngine(sessionId: string) {
   const notFound = useSessionSlice((state) => state.notFound);
+  const topUpShortfall = useSessionSlice((state) => state.topUpShortfall);
   const status = useSessionSlice((state) => state.status);
   const session = useSessionSlice((state) => state.session);
   const questions = useSessionSlice((state) => state.questions);
@@ -554,6 +567,7 @@ export function useSessionEngine(sessionId: string) {
   return useMemo(
     () => ({
       notFound,
+      topUpShortfall,
       status,
       session,
       currentQuestion,
@@ -578,6 +592,7 @@ export function useSessionEngine(sessionId: string) {
     }),
     [
       notFound,
+      topUpShortfall,
       currentAttemptResult,
       currentIndex,
       currentQuestion,
