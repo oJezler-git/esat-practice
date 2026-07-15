@@ -11,7 +11,12 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useSessionEngine, useSessionSlice } from "./sessionSlice";
 import { createInitialSessionState } from "../engine/sessionEngine";
 import { clearAllStores, getDb } from "../lib/db";
-import { createSessionRecord, getAttemptsForSession, getSessionById } from "../lib/sessionStore";
+import {
+  createSessionRecord,
+  getAttemptsForSession,
+  getSessionById,
+  markSessionCompleted,
+} from "../lib/sessionStore";
 import { excludeQuestionInDb, getExcludedQuestionIdsFromDb } from "../lib/excludedQuestionStore";
 import { getTopicStats } from "../lib/statsStore";
 import { useSettingsStore } from "../lib/settingsStore";
@@ -86,6 +91,74 @@ describe("load", () => {
     const persisted = await getSessionById(session.id);
     expect(persisted?.config.question_ids).toEqual(["q1", "q3"]);
     expect(persisted?.config.question_count).toBe(2);
+  });
+
+  it("tops up a question excluded while the session sat unfinished", async () => {
+    const spare = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", spare);
+    const session = await seedSession();
+    // As if another session's results auto-excluded q2 in the meantime.
+    await excludeQuestionInDb("q2");
+
+    await useSessionSlice.getState().load(session.id);
+
+    const state = useSessionSlice.getState();
+    expect(state.questions.map((question) => question.id)).toEqual(["q1", "q3", "q4"]);
+    expect(state.topUpShortfall).toBe(0);
+    const persisted = await getSessionById(session.id);
+    expect(persisted?.config.question_ids).toEqual(["q1", "q3", "q4"]);
+    expect(persisted?.config.question_count).toBe(3);
+  });
+
+  it("records a shortfall when a resumed session cannot be topped up", async () => {
+    await seedQuestions();
+    const session = await seedSession();
+    await excludeQuestionInDb("q2");
+
+    await useSessionSlice.getState().load(session.id);
+
+    const state = useSessionSlice.getState();
+    expect(state.questions.map((question) => question.id)).toEqual(["q1", "q3"]);
+    expect(state.topUpShortfall).toBe(1);
+  });
+
+  it("tops up a question that has vanished from the bank entirely", async () => {
+    const spare = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", spare);
+    // A dataset version bump renumbered q2 out of existence.
+    const session = await seedSession();
+    await database.delete("questions", "q2");
+
+    await useSessionSlice.getState().load(session.id);
+
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q1",
+      "q3",
+      "q4",
+    ]);
+  });
+
+  it("leaves a completed session short rather than topping it up", async () => {
+    const spare = makeQuestion({ id: "q4", taxonomy: { primary_topic: "Algebra" } });
+    const database = await getDb();
+    await seedQuestions();
+    await database.put("questions", spare);
+    const session = await seedSession();
+    await markSessionCompleted(session.id);
+    await excludeQuestionInDb("q2");
+
+    await useSessionSlice.getState().load(session.id);
+
+    // A finished session is a record of what happened; adding a question the
+    // user never saw would rewrite history.
+    expect(useSessionSlice.getState().questions.map((question) => question.id)).toEqual([
+      "q1",
+      "q3",
+    ]);
   });
 
   it("restores prior attempts, flags, and remaining time on rehydrate", async () => {

@@ -9,7 +9,11 @@ import {
 import { pickReplacementQuestions } from "../engine/sessionBuilder";
 import { scoreSession } from "../engine/scorer";
 import { createSessionTicker } from "../engine/timer";
-import { getDerivedStoreState, getQuestionsByIdsFromDb } from "../lib/questionStore";
+import {
+  getDerivedStoreState,
+  getQuestionsByIdsFromDb,
+  listQuestionsFromDb,
+} from "../lib/questionStore";
 import { useSettingsStore } from "../lib/settingsStore";
 import {
   excludeQuestionInDb,
@@ -31,7 +35,7 @@ import { analyseNsaaDuplicates } from "../lib/questionDedup";
 import { generateId } from "../lib/ids";
 import { normalizeAttemptResult } from "../engine/result";
 import type { SessionEngineState } from "../types/engine";
-import type { Attempt, Question, SelfMarkResult } from "../types/schema";
+import type { Attempt, Question, SelfMarkResult, Session } from "../types/schema";
 
 function ensureAttempt(
   state: SessionEngineState,
@@ -138,6 +142,49 @@ function excludeQuestionsFromState(
   };
 }
 
+/**
+ * Picks questions to bring a session back up to its configured length, shared by
+ * the two paths that can leave it short: excluding a question mid-session, and
+ * resuming one whose questions went missing while it was unfinished.
+ *
+ * `rawQuestions` is the unfiltered bank. It gets narrowed to the pool
+ * practice-setup builds from — the raw list still holds the NSAA duplicates the
+ * bank hides and the subjects the user has switched off, neither of which could
+ * have been in the session to begin with.
+ */
+async function pickTopUpQuestions(
+  session: Session,
+  rawQuestions: Question[],
+  excludedQuestionIds: Set<string>,
+  usedIds: Set<string>,
+  count: number,
+): Promise<Question[]> {
+  if (count <= 0 || rawQuestions.length === 0) {
+    return [];
+  }
+
+  let pool = getDerivedStoreState(
+    rawQuestions,
+    excludedQuestionIds,
+    useSettingsStore.getState().settings.enabledSubjects,
+  ).questions;
+
+  // A flagged-only session must top up from flagged questions; the topic/year
+  // filters alone would let an unflagged one in. Flags are read fresh rather
+  // than snapshotted at session start, so anything flagged since is fair game.
+  if (pool.length > 0 && session.config.flagged_only) {
+    const flaggedIds = await getFlaggedQuestionIds();
+    pool = pool.filter((candidate) => flaggedIds.has(candidate.id));
+  }
+
+  return pickReplacementQuestions(
+    pool,
+    { ...session.config, mode: session.mode },
+    usedIds,
+    count,
+  );
+}
+
 interface SessionSlice extends SessionEngineState {
   notFound: boolean;
   /**
@@ -190,26 +237,50 @@ return {
       (attempt) => !excludedQuestionIds.has(attempt.question_id),
     );
 
+    // Questions can go missing while a session sits unfinished: excluded from
+    // the question bank, auto-excluded by another session's results, or dropped
+    // by a dataset version bump that changes ids. Top the session back up rather
+    // than resuming it silently short. Only the bank read is deferred to this
+    // path, since the common case drops nothing and should not pay for it.
+    const droppedCount = session.config.question_ids.length - includedQuestions.length;
+    let replacements: Question[] = [];
+    if (droppedCount > 0 && session.state === "active") {
+      replacements = await pickTopUpQuestions(
+        session,
+        await listQuestionsFromDb(),
+        excludedQuestionIds,
+        new Set([
+          ...includedQuestions.map((question) => question.id),
+          ...excludedQuestionIds,
+        ]),
+        droppedCount,
+      );
+    }
+
+    const finalQuestions = [...includedQuestions, ...replacements];
     const hydratedSession =
-      includedQuestions.length === session.config.question_ids.length
+      droppedCount === 0
         ? session
         : {
             ...session,
             config: {
               ...session.config,
-              question_ids: includedQuestions.map((question) => question.id),
-              question_count: includedQuestions.length,
+              question_ids: finalQuestions.map((question) => question.id),
+              question_count: finalQuestions.length,
             },
           };
 
-    if (includedQuestions.length !== session.config.question_ids.length) {
+    if (droppedCount > 0) {
       await updateSessionQuestionIds(
         session.id,
-        includedQuestions.map((question) => question.id),
+        finalQuestions.map((question) => question.id),
       );
     }
 
-    set(hydrateSessionState(hydratedSession, includedQuestions, includedAttempts));
+    set({
+      ...hydrateSessionState(hydratedSession, finalQuestions, includedAttempts),
+      topUpShortfall: droppedCount - replacements.length,
+    });
   },
   mark: async (result: SelfMarkResult) => {
     const state = get();
@@ -341,29 +412,10 @@ return {
       ...latest.questions.map((candidate) => candidate.id),
       ...excludedQuestionIds,
     ]);
-    // `allQuestions` is the raw bank, which the duplicate analysis above needs
-    // but the top-up must not draw from: it still holds the NSAA duplicates the
-    // bank hides and the subjects the user has switched off, neither of which
-    // could have been in the session to begin with. Derive the same pool
-    // practice-setup builds from, which also propagates exclusions across
-    // duplicate pairs.
-    let pool = allQuestions
-      ? getDerivedStoreState(
-          allQuestions,
-          excludedQuestionIds,
-          useSettingsStore.getState().settings.enabledSubjects,
-        ).questions
-      : [];
-    // A flagged-only session must top up from flagged questions; the topic/year
-    // filters alone would let an unflagged one in. Flags are read fresh rather
-    // than snapshotted at session start, so anything flagged since is fair game.
-    if (pool.length > 0 && state.session.config.flagged_only) {
-      const flaggedIds = await getFlaggedQuestionIds();
-      pool = pool.filter((candidate) => flaggedIds.has(candidate.id));
-    }
-    const replacements = pickReplacementQuestions(
-      pool,
-      { ...state.session.config, mode: state.session.mode },
+    const replacements = await pickTopUpQuestions(
+      state.session,
+      allQuestions ?? [],
+      excludedQuestionIds,
       usedIds,
       removedCount,
     );
