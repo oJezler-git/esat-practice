@@ -20,6 +20,12 @@ export interface UserSettings {
   defaultQuestionCount: number;
   timedSecondsPerQ: number;
   examMode: boolean;
+  /**
+   * Untimed sessions only. Replaces self-marking (reveal → "did you get it
+   * right?") with typing the answer letter and being told correct/incorrect,
+   * with unlimited retries. The first guess is what scores.
+   */
+  answerInputMode: boolean;
   showKeyboardHints: boolean;
   autoAdvance: boolean;
   autoAdvanceDelayMs: number;
@@ -52,6 +58,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   defaultQuestionCount: 27,
   timedSecondsPerQ: 90,
   examMode: true,
+  answerInputMode: false,
   showKeyboardHints: true,
   autoAdvance: true,
   autoAdvanceDelayMs: 600,

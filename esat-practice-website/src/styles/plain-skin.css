@@ -430,6 +430,18 @@
 :root[data-skin="plain"] .selfmark-result-skipped {
   border: 1px solid var(--sk-hairline-light);
 }
+
+/* Answer-input mode surfaces share the same semantic border treatment. */
+:root[data-skin="plain"] .answer-input-field {
+  border: 1px solid var(--sk-hairline-light);
+}
+:root[data-skin="plain"] .answer-input-outcome-correct,
+:root[data-skin="plain"] .answer-input-check {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-good) 30%, transparent);
+}
+:root[data-skin="plain"] .answer-input-outcome-incorrect {
+  border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 30%, transparent);
+}
 :root[data-skin="plain"] .session-exclude-notice {
   border: 1px solid color-mix(in srgb, var(--sk-plain-crit) 22%, transparent);
 }

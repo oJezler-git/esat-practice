@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { ZoomableImage } from "../../components/question/ZoomableImage";
 import { SelfMarkPanel } from "../../components/question/SelfMarkPanel";
+import { AnswerInputPanel } from "../../components/question/AnswerInputPanel";
 import { NavControls } from "../../components/session/NavControls";
 import { SessionHeader } from "../../components/session/SessionHeader";
 import { useQuestionStore } from "../../lib/questionStore";
@@ -24,6 +25,13 @@ export default function SessionPage() {
   const { allQuestions } = useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
   const [manuallyRevealedId, setManuallyRevealedId] = useState<string | null>(null);
+  // Input mode: questions resolved (answered correctly, or given up on). Unlike
+  // the single manuallyRevealedId, this persists per-question so navigating back
+  // to any resolved question restores its answer view — and a bare recorded
+  // result (a wrong guess still being retried) is deliberately not in the set.
+  const [resolvedInputIds, setResolvedInputIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   const {
@@ -51,9 +59,16 @@ export default function SessionPage() {
   } = useSessionEngine(id ?? "");
 
   const isTimed = session?.mode === "timed";
-  const isAnswerRevealed =
-    Boolean(currentAttemptResult) ||
-    (currentQuestion !== null && manuallyRevealedId === currentQuestion.id);
+  // Answer-input mode replaces self-marking on untimed sessions only.
+  const inputMode = settings.answerInputMode && !isTimed;
+  const isManuallyRevealed =
+    currentQuestion !== null && manuallyRevealedId === currentQuestion.id;
+  // In input mode a recorded result alone must not reveal the answer: a wrong
+  // first guess records "incorrect" while the user keeps retrying. Resolution is
+  // tracked explicitly (a correct guess or giving up) in resolvedInputIds.
+  const isAnswerRevealed = inputMode
+    ? currentQuestion !== null && resolvedInputIds.has(currentQuestion.id)
+    : Boolean(currentAttemptResult) || isManuallyRevealed;
 
   const fontClass = {
     sm: "text-sm",
@@ -77,7 +92,6 @@ export default function SessionPage() {
     enabled: settings.autoAdvance,
     delayMs: settings.autoAdvanceDelayMs,
     currentQuestionId: currentQuestion?.id,
-    currentAttemptResult,
     nav,
   });
 
@@ -91,11 +105,51 @@ export default function SessionPage() {
     [armForCurrentQuestion, currentQuestion, mark],
   );
 
+  const markInputResolved = useCallback((questionId: string) => {
+    setResolvedInputIds((prev) => {
+      if (prev.has(questionId)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(questionId);
+      return next;
+    });
+  }, []);
+
   const revealAnswer = useCallback(() => {
-    if (currentQuestion) {
-      setManuallyRevealedId(currentQuestion.id);
+    if (!currentQuestion) {
+      return;
     }
-  }, [currentQuestion]);
+    // In input mode, revealing is "giving up": score the unanswered question
+    // incorrect (the first guess would have counted anyway), mark it resolved,
+    // and let auto-advance move on, mirroring what a correct answer does.
+    if (inputMode) {
+      if (!currentAttemptResult) {
+        void mark("incorrect");
+      }
+      markInputResolved(currentQuestion.id);
+      armForCurrentQuestion(currentQuestion.id);
+      return;
+    }
+    setManuallyRevealedId(currentQuestion.id);
+  }, [
+    armForCurrentQuestion,
+    currentAttemptResult,
+    currentQuestion,
+    inputMode,
+    mark,
+    markInputResolved,
+  ]);
+
+  // A correct guess resolves the question without recording again (its first
+  // guess already scored) and arms auto-advance like a self-mark would.
+  const handleInputResolve = useCallback(() => {
+    if (!currentQuestion) {
+      return;
+    }
+    markInputResolved(currentQuestion.id);
+    armForCurrentQuestion(currentQuestion.id);
+  }, [armForCurrentQuestion, currentQuestion, markInputResolved]);
 
   const handleDiscard = useCallback(async () => {
     await quit();
@@ -111,6 +165,9 @@ export default function SessionPage() {
     shortcuts: settings.shortcuts,
     currentAttemptResult,
     isAnswerRevealed,
+    // In input mode the reveal/correct/incorrect keys don't apply — the user
+    // types answers into the field — so only nav/flag/skip stay wired.
+    selfMarkEnabled: !inputMode,
     revealAnswer,
     handleMark,
     nav,
@@ -129,6 +186,14 @@ export default function SessionPage() {
       navigate("/", { replace: true });
     }
   }, [notFound, navigate]);
+
+  // Session-scope the per-question reveal state. SessionPage isn't remounted on
+  // a /session/:id param change, so without this a session→session route change
+  // could carry resolved/revealed ids across and render a question pre-answered.
+  useEffect(() => {
+    setResolvedInputIds(new Set());
+    setManuallyRevealedId(null);
+  }, [id]);
 
   if (notFound) {
     return null;
@@ -152,11 +217,15 @@ export default function SessionPage() {
 
   const imageSrc = getQuestionImageSrc(currentQuestion);
   const questionPreview = truncateQuestionText(currentQuestion.content.text.replace(/\s+/g, " "), 130);
-  const showMetadata = !settings.examMode && (isAnswerRevealed || Boolean(currentAttemptResult));
+  // isAnswerRevealed already folds in a recorded result for self-mark mode; in
+  // input mode it deliberately does not, so a wrong guess mid-retry stays hidden.
+  const showMetadata = !settings.examMode && isAnswerRevealed;
   const confidence = Math.round(currentQuestion.taxonomy.confidence * 100);
   const metadataLine = `${currentQuestion.taxonomy.primary_topic} (${confidence}% confidence)`;
   const sourceLine = `${currentQuestion.source.paper} ${currentQuestion.source.year} · Page ${currentQuestion.source.page}`;
-  const hintText = `${shortcutLabels.revealCorrect} = reveal/correct | ${shortcutLabels.incorrect} = wrong | ${shortcutLabels.prev}/${shortcutLabels.next} = navigate | ${shortcutLabels.flag} = flag | ${shortcutLabels.skip} = skip`;
+  const hintText = inputMode
+    ? `Type your answer and press Enter | ${shortcutLabels.prev}/${shortcutLabels.next} = navigate | ${shortcutLabels.flag} = flag | ${shortcutLabels.skip} = skip`
+    : `${shortcutLabels.revealCorrect} = reveal/correct | ${shortcutLabels.incorrect} = wrong | ${shortcutLabels.prev}/${shortcutLabels.next} = navigate | ${shortcutLabels.flag} = flag | ${shortcutLabels.skip} = skip`;
 
   return (
     <div className="sk-session">
@@ -202,16 +271,30 @@ export default function SessionPage() {
             )}
 
             <div className="mt-4">
-              <SelfMarkPanel
-                correctAnswer={currentQuestion.answer.correct}
-                onMark={handleMark}
-                onReveal={revealAnswer}
-                revealed={isAnswerRevealed}
-                result={currentAttemptResult}
-                revealShortcutLabel={shortcutLabels.revealCorrect}
-                incorrectShortcutLabel={shortcutLabels.incorrect}
-                hideRevealOnMobile={true}
-              />
+              {inputMode ? (
+                <AnswerInputPanel
+                  key={currentQuestion.id}
+                  correctAnswer={currentQuestion.answer.correct}
+                  result={currentAttemptResult}
+                  revealed={isAnswerRevealed}
+                  onRecordFirst={(result) => {
+                    void mark(result);
+                  }}
+                  onResolve={handleInputResolve}
+                  onGiveUp={revealAnswer}
+                />
+              ) : (
+                <SelfMarkPanel
+                  correctAnswer={currentQuestion.answer.correct}
+                  onMark={handleMark}
+                  onReveal={revealAnswer}
+                  revealed={isAnswerRevealed}
+                  result={currentAttemptResult}
+                  revealShortcutLabel={shortcutLabels.revealCorrect}
+                  incorrectShortcutLabel={shortcutLabels.incorrect}
+                  hideRevealOnMobile={true}
+                />
+              )}
             </div>
 
             <div className="session-ask-slot">
@@ -281,7 +364,7 @@ export default function SessionPage() {
       />
       </div>
 
-      {isAnswerRevealed && (
+      {isAnswerRevealed && !inputMode && (
         <MobileRevealPopup
           correctAnswer={currentQuestion.answer.correct}
           onClose={() => setManuallyRevealedId(null)}

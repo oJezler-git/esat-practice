@@ -225,6 +225,17 @@ export function BehaviourSection({ settings, update }: SettingsSectionProps) {
       </Field>
 
       <Field
+        label="Answer input mode"
+        description="On untimed sessions, type the answer letter and get told if it's right, with retries — instead of self-marking."
+      >
+        <Toggle
+          ariaLabel="Answer input mode"
+          checked={settings.answerInputMode}
+          onChange={(value) => update({ answerInputMode: value })}
+        />
+      </Field>
+
+      <Field
         label="Auto-advance"
         description="Move to the next question automatically after marking your answer."
       >

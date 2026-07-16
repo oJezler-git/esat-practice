@@ -24,6 +24,11 @@ interface Args {
   shortcuts: Record<ShortcutAction, string>;
   currentAttemptResult: SelfMarkResult | null | undefined;
   isAnswerRevealed: boolean;
+  /**
+   * Whether the reveal/correct/incorrect self-mark keys are active. Off in
+   * answer-input mode, where those actions don't exist. Defaults to on.
+   */
+  selfMarkEnabled?: boolean;
   revealAnswer: () => void;
   handleMark: (result: SelfMarkResult) => void;
   nav: (direction: "next" | "prev") => Promise<void>;
@@ -36,6 +41,7 @@ export function useSessionKeyboardShortcuts({
   shortcuts,
   currentAttemptResult,
   isAnswerRevealed,
+  selfMarkEnabled = true,
   revealAnswer,
   handleMark,
   nav,
@@ -70,7 +76,7 @@ export function useSessionKeyboardShortcuts({
       event.preventDefault();
 
       if (action === "revealCorrect") {
-        if (currentAttemptResult) {
+        if (!selfMarkEnabled || currentAttemptResult) {
           return;
         }
 
@@ -81,6 +87,9 @@ export function useSessionKeyboardShortcuts({
 
         handleMark("correct");
       } else if (action === "incorrect") {
+        if (!selfMarkEnabled) {
+          return;
+        }
         handleMark("incorrect");
       } else if (action === "next") {
         void nav("next");
@@ -99,6 +108,7 @@ export function useSessionKeyboardShortcuts({
       isAnswerRevealed,
       nav,
       revealAnswer,
+      selfMarkEnabled,
       shortcuts,
       skip,
     ],
