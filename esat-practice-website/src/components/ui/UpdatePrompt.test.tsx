@@ -2,10 +2,16 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { UpdatePrompt } from "./UpdatePrompt";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { fetchRecentCommits } from "./recentCommits";
 
 vi.mock("virtual:pwa-register/react", () => ({
   useRegisterSW: vi.fn(),
 }));
+
+vi.mock("./recentCommits", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./recentCommits")>();
+  return { ...actual, fetchRecentCommits: vi.fn() };
+});
 
 const setNeedRefresh = vi.fn();
 const setOfflineReady = vi.fn();
@@ -112,6 +118,38 @@ describe("UpdatePrompt", () => {
 
     vi.advanceTimersByTime(1);
     expect(setOfflineReady).toHaveBeenCalledWith(false);
+  });
+
+  it("loads and shows recent commits when 'What's new' is expanded", async () => {
+    vi.useRealTimers();
+    vi.mocked(fetchRecentCommits).mockResolvedValue([
+      {
+        sha: "abc123",
+        subject: "feat: shiny new thing",
+        url: "https://github.com/x/y/commit/abc123",
+        date: new Date().toISOString(),
+      },
+    ]);
+    mockRegisterState({ needRefresh: true });
+    render(<UpdatePrompt />);
+
+    fireEvent.click(screen.getByRole("button", { name: /What.s new/ }));
+
+    const link = await screen.findByRole("link", { name: "feat: shiny new thing" });
+    expect(link).toHaveAttribute("href", "https://github.com/x/y/commit/abc123");
+    expect(fetchRecentCommits).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows an error note when the changelog fails to load", async () => {
+    vi.useRealTimers();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(fetchRecentCommits).mockRejectedValue(new Error("boom"));
+    mockRegisterState({ needRefresh: true });
+    render(<UpdatePrompt />);
+
+    fireEvent.click(screen.getByRole("button", { name: /What.s new/ }));
+
+    expect(await screen.findByText(/Couldn.t load the changelog/)).toBeInTheDocument();
   });
 
   it("checks the registration for updates on visibility changes and intervals", () => {

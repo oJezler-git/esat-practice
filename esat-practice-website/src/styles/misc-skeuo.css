@@ -139,6 +139,27 @@
   color: var(--sk-text);
 }
 
+.update-prompt__whatsnew {
+  color: var(--sk-muted);
+}
+
+.update-prompt__whatsnew:hover {
+  color: var(--sk-text);
+}
+
+.update-prompt__changes {
+  border-top: 1px solid var(--sk-hairline-light);
+}
+
+.update-prompt__changes-note,
+.update-prompt__commit-date {
+  color: var(--sk-muted);
+}
+
+.update-prompt__commit-subject {
+  color: var(--sk-text);
+}
+
 /* ---- Disclaimer footer ---- */
 
 .page-footer {

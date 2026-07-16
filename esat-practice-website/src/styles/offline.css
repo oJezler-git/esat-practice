@@ -80,14 +80,21 @@
   right: 1.25rem;
   z-index: 9999;
   display: flex;
-  align-items: center;
-  gap: 0.625rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(22rem, calc(100vw - 2.5rem));
   padding: 0.625rem 0.875rem;
   background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   border-radius: 0.625rem;
   box-shadow: var(--motion-soft-shadow);
   animation: update-prompt-in 220ms var(--motion-smooth) both;
+}
+
+.update-prompt__row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
 }
 
 @keyframes update-prompt-in {
@@ -139,4 +146,76 @@
 
 .update-prompt__close:hover {
   color: var(--text-secondary);
+}
+
+.update-prompt__whatsnew {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+.update-prompt__whatsnew:hover {
+  color: var(--text-secondary);
+}
+
+.update-prompt__chevron {
+  display: inline-block;
+  transition: transform 150ms ease;
+}
+
+.update-prompt__whatsnew[aria-expanded="true"] .update-prompt__chevron {
+  transform: rotate(90deg);
+}
+
+.update-prompt__changes {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.5rem;
+}
+
+.update-prompt__changes-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.update-prompt__commits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.update-prompt__commit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.update-prompt__commit-subject {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.update-prompt__commit-subject:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
+.update-prompt__commit-date {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
 }
