@@ -40,76 +40,85 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+// CloudSyncSection's hook checks hasLocalBackup() in a mount effect; flush
+// that resolved promise inside act() so its state update doesn't land after
+// the test has already exited (which logs a spurious "not wrapped in act").
+async function renderSection() {
+  const utils = render(<CloudSyncSection />);
+  await act(async () => {});
+  return utils;
+}
+
 describe("CloudSyncSection — last push display", () => {
-  it("shows 'Never pushed' when there is no last push timestamp", () => {
+  it("shows 'Never pushed' when there is no last push timestamp", async () => {
     vi.mocked(getLastPush).mockReturnValue(null);
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText("Never pushed")).toBeInTheDocument();
   });
 
-  it("shows 'just now' for a push within the last minute", () => {
+  it("shows 'just now' for a push within the last minute", async () => {
     vi.useFakeTimers();
     const now = 1_700_000_000_000;
     vi.setSystemTime(now);
     vi.mocked(getLastPush).mockReturnValue(now - 30_000);
 
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText(/Last pushed just now/)).toBeInTheDocument();
   });
 
-  it("shows minute count for pushes between 1 and 59 minutes ago", () => {
+  it("shows minute count for pushes between 1 and 59 minutes ago", async () => {
     vi.useFakeTimers();
     const now = 1_700_000_000_000;
     vi.setSystemTime(now);
     vi.mocked(getLastPush).mockReturnValue(now - 2 * 60_000);
 
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText(/Last pushed 2 minutes ago/)).toBeInTheDocument();
   });
 
-  it("uses singular 'minute' for exactly 1 minute ago", () => {
+  it("uses singular 'minute' for exactly 1 minute ago", async () => {
     vi.useFakeTimers();
     const now = 1_700_000_000_000;
     vi.setSystemTime(now);
     vi.mocked(getLastPush).mockReturnValue(now - 60_001);
 
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText(/1 minute ago/)).toBeInTheDocument();
   });
 
-  it("shows hour count for pushes 1–23 hours ago", () => {
+  it("shows hour count for pushes 1–23 hours ago", async () => {
     vi.useFakeTimers();
     const now = 1_700_000_000_000;
     vi.setSystemTime(now);
     vi.mocked(getLastPush).mockReturnValue(now - 3 * 60 * 60_000);
 
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText(/Last pushed 3 hours ago/)).toBeInTheDocument();
   });
 
-  it("shows day count for pushes 24+ hours ago", () => {
+  it("shows day count for pushes 24+ hours ago", async () => {
     vi.useFakeTimers();
     const now = 1_700_000_000_000;
     vi.setSystemTime(now);
     vi.mocked(getLastPush).mockReturnValue(now - 2 * 24 * 60 * 60_000);
 
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText(/Last pushed 2 days ago/)).toBeInTheDocument();
   });
 });
 
 describe("CloudSyncSection — push/pull button state", () => {
-  it("disables push and pull buttons when there is no key", () => {
+  it("disables push and pull buttons when there is no key", async () => {
     vi.mocked(getSyncKey).mockReturnValue(null);
-    render(<CloudSyncSection />);
+    await renderSection();
 
     expect(screen.getByRole("button", { name: /^Push$/ })).toBeDisabled();
     expect(screen.getByRole("button", { name: /^Pull$/ })).toBeDisabled();
   });
 
-  it("enables push and pull buttons when a key is set", () => {
+  it("enables push and pull buttons when a key is set", async () => {
     vi.mocked(getSyncKey).mockReturnValue("amber-lake-1234");
-    render(<CloudSyncSection />);
+    await renderSection();
 
     expect(screen.getByRole("button", { name: /^Push$/ })).not.toBeDisabled();
     expect(screen.getByRole("button", { name: /^Pull$/ })).not.toBeDisabled();
@@ -117,7 +126,7 @@ describe("CloudSyncSection — push/pull button state", () => {
 
   it("shows success status after a successful push", async () => {
     vi.mocked(getSyncKey).mockReturnValue("amber-lake-1234");
-    render(<CloudSyncSection />);
+    await renderSection();
 
     fireEvent.click(screen.getByRole("button", { name: /^Push$/ }));
 
@@ -129,7 +138,7 @@ describe("CloudSyncSection — push/pull button state", () => {
   it("shows error status when push fails", async () => {
     vi.mocked(getSyncKey).mockReturnValue("amber-lake-1234");
     vi.mocked(pushToCloud).mockRejectedValue(new Error("Server error"));
-    render(<CloudSyncSection />);
+    await renderSection();
 
     fireEvent.click(screen.getByRole("button", { name: /^Push$/ }));
 
@@ -140,15 +149,15 @@ describe("CloudSyncSection — push/pull button state", () => {
 });
 
 describe("CloudSyncSection — key display", () => {
-  it("renders the key as code when one is set", () => {
+  it("renders the key as code when one is set", async () => {
     vi.mocked(getSyncKey).mockReturnValue("amber-lake-1234");
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByText("amber-lake-1234")).toBeInTheDocument();
   });
 
-  it("shows Copy button when a key is set", () => {
+  it("shows Copy button when a key is set", async () => {
     vi.mocked(getSyncKey).mockReturnValue("amber-lake-1234");
-    render(<CloudSyncSection />);
+    await renderSection();
     expect(screen.getByRole("button", { name: /Copy/ })).toBeInTheDocument();
   });
 });
@@ -157,7 +166,7 @@ describe("CloudSyncSection — word picker validation", () => {
   it("shows word error when validateWordPair returns invalid", async () => {
     vi.mocked(getSyncKey).mockReturnValue(null);
     vi.mocked(validateWordPair).mockReturnValue({ valid: false, error: "Invalid word pair." });
-    render(<CloudSyncSection />);
+    await renderSection();
 
     fireEvent.click(screen.getByRole("button", { name: /Choose your words/ }));
 
@@ -176,7 +185,7 @@ describe("CloudSyncSection — status auto-clear", () => {
   it("clears the status banner after 5 seconds", async () => {
     vi.useFakeTimers();
     vi.mocked(getSyncKey).mockReturnValue("amber-lake-1234");
-    render(<CloudSyncSection />);
+    await renderSection();
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /^Push$/ }));

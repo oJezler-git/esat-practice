@@ -90,9 +90,10 @@ describe("useCloudSync", () => {
     vi.restoreAllMocks();
   });
 
-  it("guards key replacement behind confirmation", () => {
+  it("guards key replacement behind confirmation", async () => {
     vi.mocked(window.confirm).mockReturnValue(false);
     render(<Harness />);
+    await act(async () => {});
 
     act(() => {
       screen.getByRole("button", { name: "generate" }).click();
@@ -102,8 +103,9 @@ describe("useCloudSync", () => {
     expect(screen.getByTestId("key")).toHaveTextContent("amber-lake-1234");
   });
 
-  it("edits, saves, and cancels sync keys", () => {
+  it("edits, saves, and cancels sync keys", async () => {
     render(<Harness />);
+    await act(async () => {});
 
     act(() => {
       screen.getByRole("button", { name: "edit" }).click();
