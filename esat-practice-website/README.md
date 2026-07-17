@@ -102,6 +102,43 @@ npm run build
 
 The version stamp causes the loader to re-fetch and re-import packs on next visit. Without a changed version, returning users keep their cached data.
 
+## Push reminders
+
+Opt-in daily practice reminders are delivered via the Web Push protocol. The
+Cloudflare Worker (`cloudflare-worker/`) stores each device's subscription and
+chosen local time in KV and runs a cron trigger every 15 minutes to send the
+notifications. No third-party push service is used — the worker signs VAPID JWTs
+and encrypts payloads with the WebCrypto API directly.
+
+Setup:
+
+1. Generate a VAPID key pair (base64url). Any web-push VAPID generator works,
+   e.g. with the `web-push` CLI:
+
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+
+2. Give the worker the keys (from `cloudflare-worker/`):
+
+   ```bash
+   npx wrangler secret put VAPID_PUBLIC_KEY    # the public key
+   npx wrangler secret put VAPID_PRIVATE_KEY   # the private key
+   ```
+
+   Set `VAPID_SUBJECT` in `wrangler.toml` to a `mailto:` or `https:` you control,
+   then `npx wrangler deploy`. The `[triggers] crons` entry registers the sweep.
+
+3. Expose the **same public key** to the frontend so browsers can subscribe:
+
+   ```bash
+   VITE_VAPID_PUBLIC_KEY=<public key>
+   ```
+
+Users enable reminders under **Settings → Notifications**. Reminders are
+best-effort: on Chrome/Edge/Android and installed PWAs they fire even when the
+app is closed; on iOS the app must be added to the Home Screen first.
+
 ## Disclaimer
 
 This project is an independent, community-built study tool and is **not affiliated with, endorsed by, or associated with** the Engineering and Science Admissions Test (ESAT), Cambridge Assessment Admissions Testing, or the University of Cambridge in any way. All question content is used for educational purposes only.

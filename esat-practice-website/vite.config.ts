@@ -103,6 +103,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Pull our push/notification handlers into the generated service worker.
+        importScripts: ["/push-sw.js"],
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "*.png"],
         globIgnores: ["data/**"],
         navigateFallback: "/index.html",

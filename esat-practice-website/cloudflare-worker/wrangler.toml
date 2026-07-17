@@ -3,6 +3,18 @@ main = "sync-worker.js"
 compatibility_date = "2024-01-01"
 workers_dev = true
 
+# Daily practice reminders. Every 15 minutes the worker checks which subscribers
+# have reached their chosen local reminder time and sends a web push.
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Push reminder config is all held as secrets (not committed vars). Generate a
+# P-256 VAPID key pair with `node scripts/gen-vapid.mjs`, then:
+#   npx wrangler secret put VAPID_PUBLIC_KEY    # base64url, 65-byte uncompressed point
+#   npx wrangler secret put VAPID_PRIVATE_KEY   # base64url, 32-byte raw scalar
+#   npx wrangler secret put VAPID_SUBJECT       # the `sub` claim: a mailto: or https: you own
+# The same public key must be exposed to the frontend as VITE_VAPID_PUBLIC_KEY.
+
 [[kv_namespaces]]
 binding = "KV"
 id = "795bdd0dc9d047b5a214d80a10188f06"

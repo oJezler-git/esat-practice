@@ -1,4 +1,11 @@
 import revisionContext from "./revision-context.json";
+import { sendPushNotification } from "./web-push.js";
+import {
+  PUSH_KEY_PREFIX,
+  normalizeSubscription,
+  pushKeyForEndpoint,
+  reminderOccurrence,
+} from "./reminders.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +16,17 @@ const CORS = {
 const GEMINI_MODEL = "gemini-2.5-flash";
 const MAX_QUESTION_LENGTH = 400;
 const MAX_HISTORY_TURNS = 4;
+
+// Wider than the 15-minute cron interval (wrangler.toml) so a delayed or skipped
+// tick still catches the reminder on the next run. Per-day dedupe (lastSent)
+// prevents the overlap from sending twice.
+const REMINDER_WINDOW_MINUTES = 20;
+
+const REMINDER_PAYLOAD = JSON.stringify({
+  title: "Time to practise",
+  body: "A few ESAT questions now keeps you sharp. Jump back in →",
+  url: "/practice",
+});
 
 function buildSystemInstruction(title, content) {
   return [
@@ -197,6 +215,104 @@ async function handleCreate(request, env) {
   });
 }
 
+// POST /push/subscribe — store or update a device's daily reminder.
+async function handlePushSubscribe(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response("Invalid JSON body.", { status: 400, headers: CORS });
+  }
+
+  const { record, error } = normalizeSubscription(body);
+  if (error) {
+    return new Response(error, { status: 400, headers: CORS });
+  }
+
+  const key = await pushKeyForEndpoint(record.subscription.endpoint);
+  // Preserve lastSent if this device already has a record, so changing the
+  // reminder time mid-day doesn't cause a duplicate notification.
+  const existingRaw = await env.KV.get(key);
+  if (existingRaw) {
+    try {
+      record.lastSent = JSON.parse(existingRaw).lastSent ?? null;
+    } catch {
+      // Corrupt record — overwrite it fresh.
+    }
+  }
+  await env.KV.put(key, JSON.stringify(record), { expirationTtl: 31_536_000 });
+  return new Response("ok", { status: 200, headers: CORS });
+}
+
+// POST /push/unsubscribe — remove a device's reminder.
+async function handlePushUnsubscribe(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response("Invalid JSON body.", { status: 400, headers: CORS });
+  }
+  const endpoint = body?.endpoint ?? body?.subscription?.endpoint;
+  if (typeof endpoint !== "string") {
+    return new Response("Missing endpoint.", { status: 400, headers: CORS });
+  }
+  await env.KV.delete(await pushKeyForEndpoint(endpoint));
+  return new Response("ok", { status: 200, headers: CORS });
+}
+
+// Cron entry point: send reminders that are due this window and prune dead subs.
+async function runReminderSweep(env, nowMs = Date.now()) {
+  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+    console.error("VAPID keys not configured; skipping reminder sweep.");
+    return;
+  }
+  const vapid = {
+    publicKey: env.VAPID_PUBLIC_KEY,
+    privateKey: env.VAPID_PRIVATE_KEY,
+    subject: env.VAPID_SUBJECT ?? "mailto:admin@example.com",
+  };
+
+  let cursor;
+  do {
+    const list = await env.KV.list({ prefix: PUSH_KEY_PREFIX, cursor });
+    cursor = list.list_complete ? undefined : list.cursor;
+
+    for (const { name } of list.keys) {
+      const raw = await env.KV.get(name);
+      if (!raw) continue;
+      let record;
+      try {
+        record = JSON.parse(raw);
+      } catch {
+        await env.KV.delete(name);
+        continue;
+      }
+      const occurrence = reminderOccurrence(record, nowMs, REMINDER_WINDOW_MINUTES);
+      if (!occurrence) continue;
+
+      try {
+        const response = await sendPushNotification(
+          record.subscription,
+          REMINDER_PAYLOAD,
+          vapid,
+        );
+        if (response.status === 404 || response.status === 410) {
+          await env.KV.delete(name);
+          continue;
+        }
+        if (response.ok) {
+          record.lastSent = occurrence.dateStr;
+          await env.KV.put(name, JSON.stringify(record), {
+            expirationTtl: 31_536_000,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to send reminder", err);
+      }
+    }
+  } while (cursor);
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -205,6 +321,18 @@ export default {
 
     const url = new URL(request.url);
     const parts = url.pathname.split("/").filter(Boolean);
+
+    // POST /push/subscribe | /push/unsubscribe — daily practice reminders
+    if (parts[0] === "push" && request.method === "POST") {
+      const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
+      const { success } = await env.RATE_LIMITER.limit({ key: ip });
+      if (!success) {
+        return new Response("Too many requests", { status: 429, headers: CORS });
+      }
+      if (parts[1] === "subscribe") return handlePushSubscribe(request, env);
+      if (parts[1] === "unsubscribe") return handlePushUnsubscribe(request, env);
+      return new Response("Not found", { status: 404, headers: CORS });
+    }
 
     // POST /revision/ask — AI Q&A scoped to a single revision topic
     if (parts[0] === "revision" && parts[1] === "ask" && request.method === "POST") {
@@ -269,4 +397,11 @@ export default {
 
     return new Response("Method not allowed", { status: 405, headers: CORS });
   },
+
+  async scheduled(_event, env, ctx) {
+    ctx.waitUntil(runReminderSweep(env));
+  },
 };
+
+// Exported for unit tests.
+export { runReminderSweep };

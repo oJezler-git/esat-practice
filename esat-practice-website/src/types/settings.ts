@@ -43,6 +43,10 @@ export interface UserSettings {
   claudeOnboarded: boolean;
   claudePromptTemplate: string;
   enabledSubjects: Subject[];
+  /** Opt-in daily practice reminder via web push. */
+  remindersEnabled: boolean;
+  /** Local time for the daily reminder, "HH:MM" 24-hour. */
+  reminderTime: string;
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
@@ -77,6 +81,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   claudeOnboarded: false,
   claudePromptTemplate: DEFAULT_PROMPT_TEMPLATE,
   enabledSubjects: ["maths1", "maths2", "physics"],
+  remindersEnabled: false,
+  reminderTime: "18:00",
 };
 
 export function normalizeShortcutKey(key: string): string | null {

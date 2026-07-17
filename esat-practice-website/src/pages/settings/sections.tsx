@@ -1,5 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ExcludedQuestion } from "../../types/schema";
+import {
+  disableReminders,
+  enableReminders,
+  getPermissionState,
+  isPushSupported,
+  requestPermission,
+  type PushPermission,
+} from "../../lib/pushNotifications";
 import {
   DEFAULT_SHORTCUTS,
   type AutoExcludeOn,
@@ -585,6 +593,113 @@ export function AskClaudeSection({ settings, update }: SettingsSectionProps) {
       </div>
 
       {showClaudeModal && <AskClaudeInfoModal onClose={() => setShowClaudeModal(false)} />}
+    </Section>
+  );
+}
+
+export function RemindersSection({ settings, update }: SettingsSectionProps) {
+  const [permission, setPermission] = useState<PushPermission>("default");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPermission(getPermissionState());
+  }, []);
+
+  const supported = isPushSupported();
+  const enabled = settings.remindersEnabled;
+
+  async function handleToggle(next: boolean) {
+    setError(null);
+    setBusy(true);
+    try {
+      if (next) {
+        const result = await requestPermission();
+        setPermission(result);
+        if (result !== "granted") {
+          setError(
+            result === "denied"
+              ? "Notifications are blocked. Enable them for this site in your browser settings, then try again."
+              : "Notification permission was not granted.",
+          );
+          return;
+        }
+        await enableReminders(settings.reminderTime);
+        update({ remindersEnabled: true });
+      } else {
+        await disableReminders();
+        update({ remindersEnabled: false });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleTimeChange(time: string) {
+    update({ reminderTime: time });
+    if (!enabled || permission !== "granted") return;
+    setError(null);
+    try {
+      await enableReminders(time);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't update the reminder time.");
+    }
+  }
+
+  return (
+    <Section
+      title="Practice reminders"
+      description="Get a daily push notification nudging you to practise at a time you choose."
+    >
+      {!supported ? (
+        <div className="px-4 py-3.5 text-sm text-muted">
+          Push notifications aren't supported in this browser. On iPhone/iPad, add
+          this app to your Home Screen first, then reminders become available.
+        </div>
+      ) : (
+        <>
+          <Field
+            label="Daily reminder"
+            description="A single notification each day at your chosen time. You can turn it off anytime."
+          >
+            <Toggle
+              ariaLabel="Daily reminder"
+              checked={enabled && permission === "granted"}
+              onChange={(value) => {
+                if (!busy) void handleToggle(value);
+              }}
+            />
+          </Field>
+
+          {enabled && permission === "granted" && (
+            <Field
+              label="Reminder time"
+              description="Uses this device's local time. Reminders may arrive up to 15 minutes late."
+            >
+              <input
+                type="time"
+                aria-label="Reminder time"
+                value={settings.reminderTime}
+                onChange={(event) => void handleTimeChange(event.target.value)}
+                className="text-sm border border-subtle rounded-lg px-3 py-1.5 text-secondary focus:outline-none focus:border-accent"
+              />
+            </Field>
+          )}
+
+          {error && (
+            <div className="px-4 py-3 text-xs text-danger-text bg-danger-soft">
+              {error}
+            </div>
+          )}
+
+          <div className="px-4 py-3 text-xs text-muted">
+            Reminders are best-effort and depend on your device and browser. Keep the
+            app installed for the most reliable delivery.
+          </div>
+        </>
+      )}
     </Section>
   );
 }

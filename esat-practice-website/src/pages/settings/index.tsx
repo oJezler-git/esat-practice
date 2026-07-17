@@ -17,6 +17,7 @@ import {
   DisplaySection,
   KeyboardShortcutsSection,
   QuestionPoolSection,
+  RemindersSection,
   SessionDefaultsSection,
   SubjectsSection,
 } from "./sections";
@@ -70,6 +71,9 @@ export default function Settings() {
 
       <GroupHeading>Appearance</GroupHeading>
       <DisplaySection settings={settings} update={update} />
+
+      <GroupHeading>Notifications</GroupHeading>
+      <RemindersSection settings={settings} update={update} />
 
       <GroupHeading>Integrations</GroupHeading>
       <AskClaudeSection settings={settings} update={update} />
