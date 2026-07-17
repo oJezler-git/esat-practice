@@ -53,7 +53,7 @@ function createMockDb() {
 
 function createNamedMockDb(records: Record<string, unknown[]> = {}) {
   const stores = new Map(
-    ["sessions", "attempts", "stats", "excludedQuestions"].map((name) => [
+    ["sessions", "attempts", "excludedQuestions"].map((name) => [
       name,
       {
         getAll: vi.fn().mockResolvedValue(records[name] ?? []),
@@ -244,7 +244,6 @@ describe("pushToCloud", () => {
     expect(typeof body.exported_at).toBe("number");
     expect(Array.isArray(body.sessions)).toBe(true);
     expect(Array.isArray(body.attempts)).toBe(true);
-    expect(Array.isArray(body.stats)).toBe(true);
     expect(Array.isArray(body.excludedQuestions)).toBe(true);
   });
 
@@ -278,12 +277,11 @@ describe("pushToCloud", () => {
     await pushToCloud("amber-forest-1234");
 
     expect(db.transaction).toHaveBeenCalledWith(
-      expect.arrayContaining(["sessions", "attempts", "stats", "excludedQuestions"]),
+      expect.arrayContaining(["sessions", "attempts", "excludedQuestions"]),
       "readonly"
     );
     expect(tx.objectStore).toHaveBeenCalledWith("sessions");
     expect(tx.objectStore).toHaveBeenCalledWith("attempts");
-    expect(tx.objectStore).toHaveBeenCalledWith("stats");
     expect(tx.objectStore).toHaveBeenCalledWith("excludedQuestions");
   });
 });
@@ -294,7 +292,6 @@ describe("pullFromCloud", () => {
     exported_at: Date.now(),
     sessions: [{ id: "s1" }],
     attempts: [{ id: "a1" }],
-    stats: [{ topic: "Math" }],
     excludedQuestions: [],
   };
 
@@ -327,13 +324,12 @@ describe("pullFromCloud", () => {
     await pullFromCloud("amber-forest-1234");
 
     expect(db.transaction).toHaveBeenCalledWith(
-      expect.arrayContaining(["sessions", "attempts", "stats", "excludedQuestions"]),
+      expect.arrayContaining(["sessions", "attempts", "excludedQuestions"]),
       "readwrite"
     );
     expect(store.clear).not.toHaveBeenCalled();
     expect(store.put).toHaveBeenCalledWith(validPayload.sessions[0]);
     expect(store.put).toHaveBeenCalledWith(validPayload.attempts[0]);
-    expect(store.put).toHaveBeenCalledWith(validPayload.stats[0]);
   });
 
   it("throws a descriptive error on 404", async () => {
@@ -367,7 +363,6 @@ describe("local pull backup helpers", () => {
   const localRecords = {
     sessions: [{ id: "local-session" }],
     attempts: [{ id: "local-attempt", session_id: "local-session" }],
-    stats: [{ topic: "Algebra", last_attempted: 1 }],
     excludedQuestions: [{ question_id: "q1", excluded_at: 1 }],
   };
 
@@ -394,7 +389,6 @@ describe("local pull backup helpers", () => {
         version: 1,
         sessions: localRecords.sessions,
         attempts: localRecords.attempts,
-        stats: localRecords.stats,
         excludedQuestions: localRecords.excludedQuestions,
       }),
     });
@@ -423,11 +417,9 @@ describe("local pull backup helpers", () => {
 
     expect(stores.get("sessions")?.clear).toHaveBeenCalled();
     expect(stores.get("attempts")?.clear).toHaveBeenCalled();
-    expect(stores.get("stats")?.clear).toHaveBeenCalled();
     expect(stores.get("excludedQuestions")?.clear).toHaveBeenCalled();
     expect(stores.get("sessions")?.put).toHaveBeenCalledWith(localRecords.sessions[0]);
     expect(stores.get("attempts")?.put).toHaveBeenCalledWith(localRecords.attempts[0]);
-    expect(stores.get("stats")?.put).toHaveBeenCalledWith(localRecords.stats[0]);
     expect(stores.get("excludedQuestions")?.put).toHaveBeenCalledWith(localRecords.excludedQuestions[0]);
     expect(getLastPull()).toBeNull();
     expect(backupDbMock.delete).toHaveBeenCalledWith("backups", "last-pull");

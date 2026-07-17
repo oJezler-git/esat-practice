@@ -93,19 +93,64 @@ describe("GET /sync/:key", () => {
 });
 
 describe("PUT /sync/:key", () => {
+  const validPayload = JSON.stringify({
+    version: 1,
+    exported_at: Date.now(),
+    sessions: [],
+    attempts: [],
+    excludedQuestions: [],
+  });
+
   it("stores the body with a 1-year TTL and returns 200", async () => {
     const env = makeEnv();
-    const payload = '{"sessions":[],"attempts":[]}';
     const res = await worker.fetch(
-      makeRequest("/sync/my-key-5678", { method: "PUT", body: payload }),
+      makeRequest("/sync/my-key-5678", { method: "PUT", body: validPayload }),
       env,
     );
     expect(res.status).toBe(200);
     expect(env.KV.put).toHaveBeenCalledWith(
       "my-key-5678",
-      payload,
+      validPayload,
       { expirationTtl: 31_536_000 },
     );
+  });
+
+  it("returns 400 for a body that isn't valid JSON", async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      makeRequest("/sync/my-key-5678", { method: "PUT", body: "not json" }),
+      env,
+    );
+    expect(res.status).toBe(400);
+    expect(env.KV.put).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for JSON that doesn't match the sync payload shape", async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      makeRequest("/sync/my-key-5678", { method: "PUT", body: '{"hello":"world"}' }),
+      env,
+    );
+    expect(res.status).toBe(400);
+    expect(env.KV.put).not.toHaveBeenCalled();
+  });
+
+  it("returns 413 for an oversized payload", async () => {
+    const env = makeEnv();
+    const huge = JSON.stringify({
+      version: 1,
+      exported_at: Date.now(),
+      sessions: [],
+      attempts: [],
+      excludedQuestions: [],
+      padding: "x".repeat(2_000_001),
+    });
+    const res = await worker.fetch(
+      makeRequest("/sync/my-key-5678", { method: "PUT", body: huge }),
+      env,
+    );
+    expect(res.status).toBe(413);
+    expect(env.KV.put).not.toHaveBeenCalled();
   });
 });
 

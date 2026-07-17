@@ -19,6 +19,11 @@ const GEMINI_MODEL = "gemini-2.5-flash";
 const MAX_QUESTION_LENGTH = 400;
 const MAX_HISTORY_TURNS = 4;
 
+// KV values cap at 25MB, but a legitimate sync payload (sessions/attempts/
+// excludedQuestions for one user) is nowhere near that. Cap well below the KV
+// limit so a bad-faith PUT to a guessed key can't be used to squat on storage.
+const MAX_SYNC_PAYLOAD_BYTES = 2_000_000;
+
 // Wider than the 15-minute cron interval (wrangler.toml) so a delayed or skipped
 // tick still catches the reminder on the next run. Per-day dedupe (lastSent)
 // prevents the overlap from sending twice.
@@ -559,6 +564,18 @@ export default {
 
     if (request.method === "PUT") {
       const body = await request.text();
+      if (body.length > MAX_SYNC_PAYLOAD_BYTES) {
+        return new Response("Payload too large.", { status: 413, headers: CORS });
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        return new Response("Invalid JSON body.", { status: 400, headers: CORS });
+      }
+      if (parsed.version !== 1 || !Array.isArray(parsed.sessions) || !Array.isArray(parsed.attempts) || !Array.isArray(parsed.excludedQuestions)) {
+        return new Response("Invalid sync payload shape.", { status: 400, headers: CORS });
+      }
       await env.KV.put(key, body, { expirationTtl: 31_536_000 });
       return new Response("ok", { status: 200, headers: CORS });
     }

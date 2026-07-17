@@ -1,4 +1,4 @@
-import type { Attempt, ExcludedQuestion, Session, TopicStat } from "../types/schema";
+import type { Attempt, ExcludedQuestion, Session } from "../types/schema";
 import { openDB } from "idb";
 import { getDb } from "./db";
 import { ADJECTIVES, NOUNS } from "./syncWordList";
@@ -45,7 +45,6 @@ interface SyncPayload {
   exported_at: number;
   sessions: Session[];
   attempts: Attempt[];
-  stats: TopicStat[];
   excludedQuestions: ExcludedQuestion[];
 }
 
@@ -96,17 +95,15 @@ export async function restoreLastBackup(): Promise<void> {
   const payload = await loadLocalBackup();
   if (!payload) throw new Error("No backup found.");
   const db = await getDb();
-  const tx = db.transaction(["sessions", "attempts", "stats", "excludedQuestions"], "readwrite");
+  const tx = db.transaction(["sessions", "attempts", "excludedQuestions"], "readwrite");
   await Promise.all([
     tx.objectStore("sessions").clear(),
     tx.objectStore("attempts").clear(),
-    tx.objectStore("stats").clear(),
     tx.objectStore("excludedQuestions").clear(),
   ]);
   await Promise.all([
     ...payload.sessions.map((r) => tx.objectStore("sessions").put(r)),
     ...payload.attempts.map((r) => tx.objectStore("attempts").put(r)),
-    ...payload.stats.map((r) => tx.objectStore("stats").put(r)),
     ...payload.excludedQuestions.map((r) => tx.objectStore("excludedQuestions").put(r)),
   ]);
   await tx.done;
@@ -120,14 +117,13 @@ export async function restoreLastBackup(): Promise<void> {
 
 async function exportData(): Promise<SyncPayload> {
   const db = await getDb();
-  const tx = db.transaction(["sessions", "attempts", "stats", "excludedQuestions"], "readonly");
-  const [sessions, attempts, stats, excludedQuestions] = await Promise.all([
+  const tx = db.transaction(["sessions", "attempts", "excludedQuestions"], "readonly");
+  const [sessions, attempts, excludedQuestions] = await Promise.all([
     tx.objectStore("sessions").getAll(),
     tx.objectStore("attempts").getAll(),
-    tx.objectStore("stats").getAll(),
     tx.objectStore("excludedQuestions").getAll(),
   ]);
-  return { version: 1, exported_at: Date.now(), sessions, attempts, stats, excludedQuestions };
+  return { version: 1, exported_at: Date.now(), sessions, attempts, excludedQuestions };
 }
 
 /**
@@ -135,22 +131,23 @@ async function exportData(): Promise<SyncPayload> {
  *
  * sessions / attempts : add cloud records missing locally; local wins on ID conflict.
  * excludedQuestions   : union — excluded on either side stays excluded.
- * stats               : per topic, keep whichever has the newer last_attempted.
+ *
+ * `stats`/`categoryStats`/`sessionSummaries` are intentionally not synced: they're
+ * derived stores rebuilt from `attempts` on every app start (see statsAggregator),
+ * so syncing attempts is sufficient.
  */
 async function importData(payload: SyncPayload): Promise<void> {
   if (payload.version !== 1) throw new Error(`Unsupported sync payload version: ${payload.version}`);
   const db = await getDb();
-  const tx = db.transaction(["sessions", "attempts", "stats", "excludedQuestions"], "readwrite");
+  const tx = db.transaction(["sessions", "attempts", "excludedQuestions"], "readwrite");
 
-  const [localSessions, localAttempts, localStats] = await Promise.all([
+  const [localSessions, localAttempts] = await Promise.all([
     tx.objectStore("sessions").getAll(),
     tx.objectStore("attempts").getAll(),
-    tx.objectStore("stats").getAll(),
   ]);
 
   const sessionIds = new Set(localSessions.map((s) => s.id));
   const attemptIds = new Set(localAttempts.map((a) => a.id));
-  const statsByTopic = new Map(localStats.map((s) => [s.topic, s]));
 
   const puts: Promise<unknown>[] = [];
 
@@ -162,12 +159,6 @@ async function importData(payload: SyncPayload): Promise<void> {
   }
   for (const eq of payload.excludedQuestions) {
     puts.push(tx.objectStore("excludedQuestions").put(eq));
-  }
-  for (const cs of payload.stats) {
-    const local = statsByTopic.get(cs.topic);
-    if (!local || cs.last_attempted > local.last_attempted) {
-      puts.push(tx.objectStore("stats").put(cs));
-    }
   }
 
   await Promise.all(puts);
