@@ -5,6 +5,7 @@ import {
   getPermissionState,
   isPushSupported,
   requestPermission,
+  sendTestNotification,
 } from "./pushNotifications";
 
 vi.mock("./cloudSync", () => ({ getApiUrl: () => "https://api.test" }));
@@ -110,5 +111,25 @@ describe("when push is supported", () => {
       requestPermission: vi.fn().mockResolvedValue("granted"),
     };
     await expect(requestPermission()).resolves.toBe("granted");
+  });
+
+  it("sends a test notification to the current subscription", async () => {
+    getSubscription.mockResolvedValue(fakeSubscription);
+    await sendTestNotification();
+    const [url, init] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(url).toBe("https://api.test/push/test");
+    const body = JSON.parse((init as RequestInit).body as string);
+    expect(body.subscription.endpoint).toBe(fakeSubscription.endpoint);
+  });
+
+  it("throws when sending a test notification without permission", async () => {
+    (globalThis as Record<string, unknown>).Notification = { permission: "denied" };
+    await expect(sendTestNotification()).rejects.toThrow(/permission/i);
+  });
+
+  it("surfaces the server error message on a failed test send", async () => {
+    getSubscription.mockResolvedValue(fakeSubscription);
+    global.fetch = vi.fn().mockResolvedValue(new Response("Push service rejected it", { status: 502 }));
+    await expect(sendTestNotification()).rejects.toThrow(/rejected/i);
   });
 });

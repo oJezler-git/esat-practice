@@ -92,6 +92,24 @@ export async function enableReminders(time: string): Promise<void> {
   if (!response.ok) throw new Error(await response.text());
 }
 
+// Sends an immediate one-off push to this device to verify the setup works,
+// bypassing the daily reminder schedule entirely. Requires an existing
+// subscription (i.e. reminders already enabled and permission granted).
+export async function sendTestNotification(): Promise<void> {
+  if (!isPushSupported()) throw new Error("Push notifications are not supported here.");
+  if (Notification.permission !== "granted") {
+    throw new Error("Notification permission has not been granted.");
+  }
+
+  const subscription = await getOrCreateSubscription();
+  const response = await fetch(`${getApiUrl()}/push/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subscription: subscription.toJSON() }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+}
+
 // Unregisters the reminder on the server and drops the local subscription.
 export async function disableReminders(): Promise<void> {
   if (!isPushSupported()) return;

@@ -99,6 +99,51 @@ describe("POST /push/unsubscribe", () => {
   });
 });
 
+describe("POST /push/test", () => {
+  it("sends immediately without touching KV", async () => {
+    const { env, kvStore } = makeEnv({ vapid: false });
+    const v = await realVapid();
+    env.VAPID_PUBLIC_KEY = v.publicKey;
+    env.VAPID_PRIVATE_KEY = v.privateKey;
+    const sub = await realSubscription();
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 201 }));
+    global.fetch = fetchMock;
+
+    const res = await worker.fetch(req("/push/test", { subscription: sub }), env);
+    expect(res.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(kvStore.size).toBe(0);
+  });
+
+  it("rejects an invalid subscription", async () => {
+    const { env } = makeEnv();
+    const v = await realVapid();
+    env.VAPID_PUBLIC_KEY = v.publicKey;
+    env.VAPID_PRIVATE_KEY = v.privateKey;
+    const res = await worker.fetch(req("/push/test", { subscription: { endpoint: "x" } }), env);
+    expect(res.status).toBe(400);
+  });
+
+  it("503s when VAPID keys are not configured", async () => {
+    const { env } = makeEnv({ vapid: false });
+    const sub = await realSubscription();
+    const res = await worker.fetch(req("/push/test", { subscription: sub }), env);
+    expect(res.status).toBe(503);
+  });
+
+  it("surfaces a 502 when the push service rejects the request", async () => {
+    const { env } = makeEnv({ vapid: false });
+    const v = await realVapid();
+    env.VAPID_PUBLIC_KEY = v.publicKey;
+    env.VAPID_PRIVATE_KEY = v.privateKey;
+    const sub = await realSubscription();
+    global.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 410 }));
+
+    const res = await worker.fetch(req("/push/test", { subscription: sub }), env);
+    expect(res.status).toBe(502);
+  });
+});
+
 describe("runReminderSweep", () => {
   it("sends a due reminder and records lastSent", async () => {
     const { env, kvStore } = makeEnv();

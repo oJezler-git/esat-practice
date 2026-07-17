@@ -28,6 +28,12 @@ const REMINDER_PAYLOAD = JSON.stringify({
   url: "/practice",
 });
 
+const TEST_PAYLOAD = JSON.stringify({
+  title: "Test notification",
+  body: "If you can see this, your reminders are set up correctly.",
+  url: "/settings",
+});
+
 function buildSystemInstruction(title, content) {
   return [
     "You are a revision assistant embedded in an ESAT (Engineering and Science Admissions Test) practice site.",
@@ -260,6 +266,56 @@ async function handlePushUnsubscribe(request, env) {
   return new Response("ok", { status: 200, headers: CORS });
 }
 
+// POST /push/test — send an immediate one-off push to the caller's own
+// subscription, bypassing the daily lastSent dedupe. Lets a user verify their
+// setup works without waiting for the next cron window.
+async function handlePushTest(request, env) {
+  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+    return new Response("Push notifications are not configured on the server.", {
+      status: 503,
+      headers: CORS,
+    });
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response("Invalid JSON body.", { status: 400, headers: CORS });
+  }
+
+  const subscription = body?.subscription;
+  if (
+    !subscription ||
+    typeof subscription.endpoint !== "string" ||
+    !subscription.keys ||
+    typeof subscription.keys.p256dh !== "string" ||
+    typeof subscription.keys.auth !== "string"
+  ) {
+    return new Response("Invalid or missing push subscription.", { status: 400, headers: CORS });
+  }
+
+  const vapid = {
+    publicKey: env.VAPID_PUBLIC_KEY,
+    privateKey: env.VAPID_PRIVATE_KEY,
+    subject: env.VAPID_SUBJECT ?? "mailto:admin@example.com",
+  };
+
+  try {
+    const response = await sendPushNotification(subscription, TEST_PAYLOAD, vapid);
+    if (!response.ok) {
+      return new Response(`Push service rejected the notification (HTTP ${response.status}).`, {
+        status: 502,
+        headers: CORS,
+      });
+    }
+    return new Response("ok", { status: 200, headers: CORS });
+  } catch (err) {
+    console.error("Failed to send test push", err);
+    return new Response("Failed to send test notification.", { status: 502, headers: CORS });
+  }
+}
+
 // Cron entry point: send reminders that are due this window and prune dead subs.
 async function runReminderSweep(env, nowMs = Date.now()) {
   if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
@@ -331,6 +387,7 @@ export default {
       }
       if (parts[1] === "subscribe") return handlePushSubscribe(request, env);
       if (parts[1] === "unsubscribe") return handlePushUnsubscribe(request, env);
+      if (parts[1] === "test") return handlePushTest(request, env);
       return new Response("Not found", { status: 404, headers: CORS });
     }
 

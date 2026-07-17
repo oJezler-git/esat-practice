@@ -6,6 +6,7 @@ import {
   getPermissionState,
   isPushSupported,
   requestPermission,
+  sendTestNotification,
   type PushPermission,
 } from "../../lib/pushNotifications";
 import {
@@ -601,6 +602,7 @@ export function RemindersSection({ settings, update }: SettingsSectionProps) {
   const [permission, setPermission] = useState<PushPermission>("default");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [testState, setTestState] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     setPermission(getPermissionState());
@@ -648,6 +650,19 @@ export function RemindersSection({ settings, update }: SettingsSectionProps) {
     }
   }
 
+  async function handleTestNotification() {
+    setError(null);
+    setTestState("sending");
+    try {
+      await sendTestNotification();
+      setTestState("sent");
+      setTimeout(() => setTestState("idle"), 4000);
+    } catch (err) {
+      setTestState("error");
+      setError(err instanceof Error ? err.message : "Couldn't send the test notification.");
+    }
+  }
+
   return (
     <Section
       title="Practice reminders"
@@ -685,6 +700,26 @@ export function RemindersSection({ settings, update }: SettingsSectionProps) {
                 onChange={(event) => void handleTimeChange(event.target.value)}
                 className="text-sm border border-subtle rounded-lg px-3 py-1.5 text-secondary focus:outline-none focus:border-accent"
               />
+            </Field>
+          )}
+
+          {enabled && permission === "granted" && (
+            <Field
+              label="Test notification"
+              description={
+                testState === "sent"
+                  ? "Sent — it should arrive within a few seconds."
+                  : "Send yourself one now to confirm notifications are working."
+              }
+            >
+              <button
+                type="button"
+                onClick={() => void handleTestNotification()}
+                disabled={testState === "sending"}
+                className="px-3 py-1.5 text-sm border border-subtle rounded-lg text-secondary hover:border-strong transition-colors disabled:opacity-60"
+              >
+                {testState === "sending" ? "Sending…" : testState === "sent" ? "Sent ✓" : "Send test"}
+              </button>
             </Field>
           )}
 
