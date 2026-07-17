@@ -34,6 +34,7 @@ export interface UserSettings {
   theme: "auto" | "dark" | "light";
   colorTheme: "amber" | "rose" | "emerald" | "teal" | "azure" | "indigo";
   skin: "skeuo" | "plain";
+  soundEffects: boolean;
   fontSize: "sm" | "md" | "lg";
   shortcuts: ShortcutMap;
   autoExclude: boolean;
@@ -67,6 +68,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   theme: "auto",
   colorTheme: "amber",
   skin: "skeuo",
+  soundEffects: false,
   fontSize: "md",
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,

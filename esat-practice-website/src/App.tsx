@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Nav } from "./components/ui/Nav";
+import { InteractionSounds } from "./components/ui/InteractionSounds";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
 import { UpdatePrompt } from "./components/ui/UpdatePrompt";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
@@ -89,6 +90,7 @@ export default function App() {
         Skip to content
       </a>
       <Nav isHidden={isSession} />
+      <InteractionSounds />
       <KeyboardShortcutOverlay />
       <LoadingProgressDisplay />
       <UpdatePrompt />

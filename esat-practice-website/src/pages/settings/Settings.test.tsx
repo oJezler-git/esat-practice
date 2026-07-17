@@ -51,6 +51,7 @@ describe("Settings", () => {
     vi.clearAllMocks();
     localStorage.clear();
     useSettingsStore.setState({ settings: DEFAULT_SETTINGS });
+    delete document.documentElement.dataset.soundEffects;
   });
 
   it("renders high-use switches, buttons, and select controls by role and name", () => {
@@ -64,6 +65,7 @@ describe("Settings", () => {
     expect(screen.getByRole("switch", { name: "Auto-advance" })).toBeChecked();
     expect(screen.getByRole("switch", { name: "Fullscreen on start" })).toBeChecked();
     expect(screen.getByRole("switch", { name: "Show keyboard hints" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Interaction sounds" })).not.toBeChecked();
     expect(screen.getByRole("switch", { name: "Maths" })).toBeChecked();
 
     expect(screen.getByRole("combobox", { name: "Default mode" })).toHaveValue("untimed");
@@ -149,6 +151,9 @@ describe("Settings", () => {
       target: { value: "lg" },
     });
     expect(useSettingsStore.getState().settings.fontSize).toBe("lg");
+
+    fireEvent.click(screen.getByRole("switch", { name: "Interaction sounds" }));
+    expect(useSettingsStore.getState().settings.soundEffects).toBe(true);
   });
 
   it("changes the auto-exclude predicate once enabled", () => {

@@ -6,6 +6,15 @@ import { useSettingsStore } from "./lib/settingsStore";
 import { DEFAULT_SETTINGS } from "./types/settings";
 import { sweepStaleActiveSessions } from "./lib/sessionStore";
 
+const interactionSoundMocks = vi.hoisted(() => {
+  const cleanup = vi.fn();
+  return {
+    cleanup,
+    installInteractionSounds: vi.fn(() => cleanup),
+    setInteractionSoundsEnabled: vi.fn(),
+  };
+});
+
 vi.mock("@vercel/analytics/react", () => ({
   Analytics: () => <div data-testid="analytics" />,
 }));
@@ -33,6 +42,11 @@ vi.mock("./lib/sessionStore", async (importOriginal) => {
     sweepStaleActiveSessions: vi.fn().mockResolvedValue(undefined),
   };
 });
+
+vi.mock("./lib/interactionSounds", () => ({
+  installInteractionSounds: interactionSoundMocks.installInteractionSounds,
+  setInteractionSoundsEnabled: interactionSoundMocks.setInteractionSoundsEnabled,
+}));
 
 vi.mock("./pages/home", () => ({
   default: () => <div>Home page stub</div>,
@@ -106,6 +120,9 @@ describe("App routes and shell", () => {
     document.documentElement.removeAttribute("data-font-preset");
     document.documentElement.removeAttribute("data-theme");
     document.documentElement.removeAttribute("data-color-theme");
+    interactionSoundMocks.cleanup.mockClear();
+    interactionSoundMocks.installInteractionSounds.mockClear();
+    interactionSoundMocks.setInteractionSoundsEnabled.mockClear();
     Object.defineProperty(window, "scrollTo", {
       configurable: true,
       writable: true,
@@ -203,5 +220,19 @@ describe("App routes and shell", () => {
 
     expect(document.documentElement.dataset.theme).toBeUndefined();
     expect(document.documentElement.dataset.colorTheme).toBeUndefined();
+  });
+
+  it("keeps interaction sounds disabled by default and follows the saved setting", async () => {
+    renderApp("/");
+
+    expect(await screen.findByText("Home page stub")).toBeInTheDocument();
+    expect(interactionSoundMocks.installInteractionSounds).toHaveBeenCalledTimes(1);
+    expect(interactionSoundMocks.setInteractionSoundsEnabled).toHaveBeenCalledWith(false);
+
+    act(() => {
+      useSettingsStore.getState().update({ soundEffects: true });
+    });
+
+    expect(interactionSoundMocks.setInteractionSoundsEnabled).toHaveBeenLastCalledWith(true);
   });
 });

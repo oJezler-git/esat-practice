@@ -10,6 +10,7 @@ import {
 import { DEFAULT_PROMPT_TEMPLATE } from "../../lib/askClaude";
 import { AskClaudeInfoModal } from "../../components/AskClaudeInfoModal";
 import { ALL_SUBJECTS, SUBJECT_LABELS } from "../../lib/subjects";
+import { previewInteractionSounds } from "../../lib/interactionSounds";
 import { Field, Section, Select, ShortcutInput, Toggle } from "./controls";
 
 const SHORTCUT_FIELDS: Array<{
@@ -360,6 +361,22 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
       </Field>
 
       <ColourThemePicker settings={settings} update={update} />
+
+      <Field
+        label="Interaction sounds"
+        description="Play tiny Cuelume cues for navigation, toggles, and button presses."
+      >
+        <Toggle
+          ariaLabel="Interaction sounds"
+          checked={settings.soundEffects}
+          onChange={(value) => {
+            update({ soundEffects: value });
+            if (value) {
+              previewInteractionSounds();
+            }
+          }}
+        />
+      </Field>
 
       <Field label="Appearance">
         <Select
