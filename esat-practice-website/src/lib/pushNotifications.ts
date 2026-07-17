@@ -110,6 +110,27 @@ export async function sendTestNotification(): Promise<void> {
   if (!response.ok) throw new Error(await response.text());
 }
 
+// Best-effort ping on session completion so the reminder sweep can skip
+// nudging a device that already practiced today. Never throws — this must
+// not interfere with session submission if it fails or push isn't set up.
+export async function markPracticedToday(): Promise<void> {
+  try {
+    if (!isPushSupported() || Notification.permission !== "granted") return;
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) return;
+
+    await fetch(`${getApiUrl()}/push/mark-practiced`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: subscription.endpoint }),
+    });
+  } catch {
+    // Best-effort only — reminders still work fine without this signal, the
+    // user just might see one they'd already earned by practicing.
+  }
+}
+
 // Unregisters the reminder on the server and drops the local subscription.
 export async function disableReminders(): Promise<void> {
   if (!isPushSupported()) return;

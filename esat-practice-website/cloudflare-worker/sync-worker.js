@@ -3,6 +3,7 @@ import { sendPushNotification } from "./web-push.js";
 import {
   PUSH_KEY_PREFIX,
   isValidSubscription,
+  localParts,
   normalizeSubscription,
   pushKeyForEndpoint,
   reminderOccurrence,
@@ -314,16 +315,53 @@ async function handlePushSubscribe(request, env) {
   }
 
   const key = await pushKeyForEndpoint(record.subscription.endpoint);
-  // Preserve lastSent if this device already has a record, so changing the
-  // reminder time mid-day doesn't cause a duplicate notification.
+  // Preserve lastSent/practicedDate if this device already has a record, so
+  // changing the reminder time mid-day doesn't cause a duplicate notification
+  // or forget that today's session is already done.
   const existingRaw = await env.KV.get(key);
   if (existingRaw) {
     try {
-      record.lastSent = JSON.parse(existingRaw).lastSent ?? null;
+      const existing = JSON.parse(existingRaw);
+      record.lastSent = existing.lastSent ?? null;
+      record.practicedDate = existing.practicedDate ?? null;
     } catch {
       // Corrupt record — overwrite it fresh.
     }
   }
+  await env.KV.put(key, JSON.stringify(record), { expirationTtl: 31_536_000 });
+  return new Response("ok", { status: 200, headers: CORS });
+}
+
+// POST /push/mark-practiced — best-effort ping from the client on session
+// completion so the reminder sweep can skip nudging someone who already
+// practiced today. Silently no-ops if the device has no reminder subscribed
+// (nothing to update) rather than erroring — the caller doesn't need to know
+// or care whether reminders are enabled.
+async function handleMarkPracticed(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response("Invalid JSON body.", { status: 400, headers: CORS });
+  }
+  const endpoint = body?.endpoint;
+  if (typeof endpoint !== "string") {
+    return new Response("Missing endpoint.", { status: 400, headers: CORS });
+  }
+
+  const key = await pushKeyForEndpoint(endpoint);
+  const raw = await env.KV.get(key);
+  if (!raw) return new Response("ok", { status: 200, headers: CORS });
+
+  let record;
+  try {
+    record = JSON.parse(raw);
+  } catch {
+    return new Response("ok", { status: 200, headers: CORS });
+  }
+
+  const { dateStr } = localParts(Date.now(), record.tzOffsetMinutes, record.timeZone);
+  record.practicedDate = dateStr;
   await env.KV.put(key, JSON.stringify(record), { expirationTtl: 31_536_000 });
   return new Response("ok", { status: 200, headers: CORS });
 }
@@ -460,6 +498,7 @@ export default {
       if (parts[1] === "subscribe") return handlePushSubscribe(request, env);
       if (parts[1] === "unsubscribe") return handlePushUnsubscribe(request, env);
       if (parts[1] === "test") return handlePushTest(request, env);
+      if (parts[1] === "mark-practiced") return handleMarkPracticed(request, env);
       return new Response("Not found", { status: 404, headers: CORS });
     }
 

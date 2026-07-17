@@ -67,6 +67,9 @@ export function reminderOccurrence(record, nowMs, windowMinutes) {
     record.timeZone,
   );
   if (record.lastSent === dateStr) return null;
+  // The client pings /push/mark-practiced on session completion; skip the nudge
+  // entirely (don't send, don't touch lastSent) if that already happened today.
+  if (record.practicedDate === dateStr) return null;
   return { dateStr };
 }
 

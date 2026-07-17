@@ -32,6 +32,7 @@ import {
   upsertAttemptRecord,
 } from "../lib/sessionStore";
 import { recomputeAllStats } from "../lib/statsStore";
+import { markPracticedToday } from "../lib/pushNotifications";
 import { analyseNsaaDuplicates } from "../lib/questionDedup";
 import { generateId } from "../lib/ids";
 import { normalizeAttemptResult } from "../engine/result";
@@ -526,6 +527,7 @@ return {
       // Persist the durable source of truth first, then derive stats from it.
       await saveSessionAttempts(state.session.id, scored.attempts);
       await markSessionCompleted(state.session.id);
+      void markPracticedToday();
 
       // Stats are recomputable from attempts, so a failure here must not block
       // completion — log and move on; the next recompute will self-heal.

@@ -89,6 +89,18 @@ describe("isReminderDue", () => {
   });
 });
 
+describe("reminderOccurrence — already practiced today", () => {
+  it("skips the reminder if practicedDate matches the occurrence's date", () => {
+    const record = { time: "13:00", tzOffsetMinutes: -60, lastSent: null, practicedDate: "2024-01-01" };
+    expect(reminderOccurrence(record, UTC_NOON, 15)).toBeNull();
+  });
+
+  it("still fires if practicedDate is a different day", () => {
+    const record = { time: "13:00", tzOffsetMinutes: -60, lastSent: null, practicedDate: "2023-12-31" };
+    expect(reminderOccurrence(record, UTC_NOON, 15)).toEqual({ dateStr: "2024-01-01" });
+  });
+});
+
 describe("reminderOccurrence — midnight boundary", () => {
   // A 23:50 reminder is only covered by the 00:00 cron tick, which is the next
   // local day. The occurrence must still fire and be attributed to the day the

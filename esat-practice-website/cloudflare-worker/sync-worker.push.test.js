@@ -84,17 +84,21 @@ describe("POST /push/subscribe", () => {
     expect(kvStore.size).toBe(0);
   });
 
-  it("preserves lastSent when updating an existing device", async () => {
+  it("preserves lastSent and practicedDate when updating an existing device", async () => {
     const { env, kvStore } = makeEnv();
     const sub = await realSubscription();
     await worker.fetch(req("/push/subscribe", { subscription: sub, time: "18:00", tzOffsetMinutes: 0 }), env);
     const key = [...kvStore.keys()][0];
-    kvStore.set(key, JSON.stringify({ ...JSON.parse(kvStore.get(key)), lastSent: "2024-01-01" }));
+    kvStore.set(
+      key,
+      JSON.stringify({ ...JSON.parse(kvStore.get(key)), lastSent: "2024-01-01", practicedDate: "2024-01-01" }),
+    );
 
     await worker.fetch(req("/push/subscribe", { subscription: sub, time: "07:30", tzOffsetMinutes: 0 }), env);
     const record = JSON.parse(kvStore.get(key));
     expect(record.time).toBe("07:30");
     expect(record.lastSent).toBe("2024-01-01");
+    expect(record.practicedDate).toBe("2024-01-01");
   });
 });
 
@@ -152,6 +156,32 @@ describe("POST /push/test", () => {
 
     const res = await worker.fetch(req("/push/test", { subscription: sub }), env);
     expect(res.status).toBe(502);
+  });
+});
+
+describe("POST /push/mark-practiced", () => {
+  it("stamps today's local date onto the matching subscription", async () => {
+    const { env, kvStore } = makeEnv();
+    const sub = await realSubscription();
+    await worker.fetch(req("/push/subscribe", { subscription: sub, time: "18:00", tzOffsetMinutes: 0 }), env);
+    const key = [...kvStore.keys()][0];
+
+    const res = await worker.fetch(req("/push/mark-practiced", { endpoint: sub.endpoint }), env);
+    expect(res.status).toBe(200);
+    const record = JSON.parse(kvStore.get(key));
+    expect(record.practicedDate).toBe(new Date().toISOString().slice(0, 10));
+  });
+
+  it("no-ops for an endpoint with no stored subscription", async () => {
+    const { env } = makeEnv();
+    const res = await worker.fetch(req("/push/mark-practiced", { endpoint: "https://push.example.com/unknown" }), env);
+    expect(res.status).toBe(200);
+  });
+
+  it("rejects a missing endpoint", async () => {
+    const { env } = makeEnv();
+    const res = await worker.fetch(req("/push/mark-practiced", {}), env);
+    expect(res.status).toBe(400);
   });
 });
 
@@ -222,6 +252,24 @@ describe("runReminderSweep", () => {
 
     await runReminderSweep(env, Date.parse("2024-01-01T12:00:00Z"));
     expect(kvStore.has("push:abc")).toBe(true);
+    expect(JSON.parse(kvStore.get("push:abc")).lastSent).toBeNull();
+  });
+
+  it("skips sending when the subscription already practiced today", async () => {
+    const { env, kvStore } = makeEnv();
+    const v = await realVapid();
+    env.VAPID_PUBLIC_KEY = v.publicKey;
+    env.VAPID_PRIVATE_KEY = v.privateKey;
+    const sub = await realSubscription();
+    kvStore.set(
+      "push:abc",
+      JSON.stringify({ subscription: sub, time: "13:00", tzOffsetMinutes: -60, lastSent: null, practicedDate: "2024-01-01" }),
+    );
+    const fetchMock = vi.fn();
+    global.fetch = fetchMock;
+
+    await runReminderSweep(env, Date.parse("2024-01-01T12:00:00Z")); // local 13:00
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(JSON.parse(kvStore.get("push:abc")).lastSent).toBeNull();
   });
 
