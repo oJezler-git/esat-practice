@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
+import { bytesToBase64Url } from "./web-push.js";
 import {
   PUSH_KEY_PREFIX,
   isReminderDue,
+  isValidSubscription,
   localParts,
   normalizeSubscription,
   parseReminderMinutes,
@@ -11,10 +13,19 @@ import {
 
 const UTC_NOON = Date.parse("2024-01-01T12:00:00Z");
 
-const VALID_SUB = {
-  endpoint: "https://push.example.com/abc",
-  keys: { p256dh: "BPk", auth: "c2VjcmV0" },
-};
+async function realKeys() {
+  const pair = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+  const rawPublic = new Uint8Array(await crypto.subtle.exportKey("raw", pair.publicKey));
+  const auth = crypto.getRandomValues(new Uint8Array(16));
+  return { p256dh: bytesToBase64Url(rawPublic), auth: bytesToBase64Url(auth) };
+}
+
+async function validSub() {
+  return {
+    endpoint: "https://push.example.com/abc",
+    keys: await realKeys(),
+  };
+}
 
 describe("parseReminderMinutes", () => {
   it("parses valid HH:MM", () => {
@@ -112,9 +123,10 @@ describe("localParts / reminderOccurrence — IANA zone beats stale offset (DST)
 });
 
 describe("normalizeSubscription", () => {
-  it("accepts a valid body and defaults lastSent to null", () => {
+  it("accepts a valid body and defaults lastSent to null", async () => {
+    const sub = await validSub();
     const { record, error } = normalizeSubscription({
-      subscription: VALID_SUB,
+      subscription: sub,
       time: "18:00",
       tzOffsetMinutes: 0,
     });
@@ -122,7 +134,7 @@ describe("normalizeSubscription", () => {
     expect(record.time).toBe("18:00");
     expect(record.tzOffsetMinutes).toBe(0);
     expect(record.lastSent).toBeNull();
-    expect(record.subscription.endpoint).toBe(VALID_SUB.endpoint);
+    expect(record.subscription.endpoint).toBe(sub.endpoint);
   });
 
   it("rejects a missing or malformed subscription", () => {
@@ -132,13 +144,54 @@ describe("normalizeSubscription", () => {
     ).toMatch(/subscription/i);
   });
 
-  it("rejects a bad time", () => {
-    expect(normalizeSubscription({ subscription: VALID_SUB, time: "9pm", tzOffsetMinutes: 0 }).error).toMatch(/time/i);
+  it("rejects a bad time", async () => {
+    const sub = await validSub();
+    expect(normalizeSubscription({ subscription: sub, time: "9pm", tzOffsetMinutes: 0 }).error).toMatch(/time/i);
   });
 
-  it("rejects an out-of-range timezone offset", () => {
-    expect(normalizeSubscription({ subscription: VALID_SUB, time: "18:00", tzOffsetMinutes: 9999 }).error).toMatch(/timezone/i);
-    expect(normalizeSubscription({ subscription: VALID_SUB, time: "18:00", tzOffsetMinutes: "x" }).error).toMatch(/timezone/i);
+  it("rejects an out-of-range timezone offset", async () => {
+    const sub = await validSub();
+    expect(normalizeSubscription({ subscription: sub, time: "18:00", tzOffsetMinutes: 9999 }).error).toMatch(/timezone/i);
+    expect(normalizeSubscription({ subscription: sub, time: "18:00", tzOffsetMinutes: "x" }).error).toMatch(/timezone/i);
+  });
+
+  it("rejects keys with the wrong decoded byte length", async () => {
+    const sub = await validSub();
+    expect(
+      normalizeSubscription({
+        subscription: { ...sub, keys: { ...sub.keys, p256dh: "BPk" } },
+        time: "18:00",
+        tzOffsetMinutes: 0,
+      }).error,
+    ).toMatch(/subscription/i);
+    expect(
+      normalizeSubscription({
+        subscription: { ...sub, keys: { ...sub.keys, auth: "c2VjcmV0" } },
+        time: "18:00",
+        tzOffsetMinutes: 0,
+      }).error,
+    ).toMatch(/subscription/i);
+  });
+
+  it("rejects a non-https endpoint", async () => {
+    const sub = await validSub();
+    expect(
+      normalizeSubscription({
+        subscription: { ...sub, endpoint: "http://push.example.com/abc" },
+        time: "18:00",
+        tzOffsetMinutes: 0,
+      }).error,
+    ).toMatch(/subscription/i);
+  });
+});
+
+describe("isValidSubscription", () => {
+  it("accepts a well-formed subscription", async () => {
+    expect(isValidSubscription(await validSub())).toBe(true);
+  });
+
+  it("rejects undefined", () => {
+    expect(isValidSubscription(undefined)).toBe(false);
   });
 });
 

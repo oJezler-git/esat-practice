@@ -15,7 +15,7 @@ self.addEventListener("push", (event) => {
     body: data.body || "Time for a quick practice session.",
     icon: "/icon-512.png",
     badge: "/icon-512.png",
-    tag: "esat-reminder",
+    tag: data.tag || "esat-notification",
     data: { url: data.url || "/practice" },
   };
 

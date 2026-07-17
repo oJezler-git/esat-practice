@@ -6,6 +6,8 @@
 // is a fallback for records saved before timeZone existed. Using the IANA zone lets
 // the offset be recomputed per run so reminders stay correct across DST changes.
 
+import { base64UrlToBytes } from "./web-push.js";
+
 export const PUSH_KEY_PREFIX = "push:";
 
 // Local minute-of-day and calendar date at `nowMs`. Prefers the IANA zone;
@@ -73,16 +75,55 @@ export function isReminderDue(record, nowMs, windowMinutes) {
   return reminderOccurrence(record, nowMs, windowMinutes) !== null;
 }
 
+// Decoded byte lengths WebCrypto requires: p256dh is an uncompressed P-256
+// point (0x04 || X(32) || Y(32)), auth is a 16-byte secret. A record that
+// fails this never encrypts successfully, so validating it now means it's
+// rejected at subscribe time instead of erroring on every cron sweep forever.
+function isValidP256dh(b64url) {
+  try {
+    const bytes = base64UrlToBytes(b64url);
+    return bytes.length === 65 && bytes[0] === 0x04;
+  } catch {
+    return false;
+  }
+}
+
+function isValidAuthSecret(b64url) {
+  try {
+    return base64UrlToBytes(b64url).length === 16;
+  } catch {
+    return false;
+  }
+}
+
+function isValidEndpoint(endpoint) {
+  try {
+    return new URL(endpoint).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+// Shared shape/byte-length check used both when storing a reminder and when
+// sending an immediate test push, so a malformed subscription is rejected in
+// both paths rather than only being caught (repeatedly) by the cron sweep.
+export function isValidSubscription(subscription) {
+  return (
+    !!subscription &&
+    typeof subscription.endpoint === "string" &&
+    !!subscription.keys &&
+    typeof subscription.keys.p256dh === "string" &&
+    typeof subscription.keys.auth === "string" &&
+    isValidEndpoint(subscription.endpoint) &&
+    isValidP256dh(subscription.keys.p256dh) &&
+    isValidAuthSecret(subscription.keys.auth)
+  );
+}
+
 // Validate + normalise a subscribe request body. Returns { record } or { error }.
 export function normalizeSubscription(body) {
   const subscription = body?.subscription;
-  if (
-    !subscription ||
-    typeof subscription.endpoint !== "string" ||
-    !subscription.keys ||
-    typeof subscription.keys.p256dh !== "string" ||
-    typeof subscription.keys.auth !== "string"
-  ) {
+  if (!isValidSubscription(subscription)) {
     return { error: "Invalid or missing push subscription." };
   }
   if (parseReminderMinutes(body.time) === null) {

@@ -73,6 +73,17 @@ describe("POST /push/subscribe", () => {
     expect(res.status).toBe(400);
   });
 
+  it("rejects a subscription with a malformed key instead of storing it", async () => {
+    const { env, kvStore } = makeEnv();
+    const sub = await realSubscription();
+    const res = await worker.fetch(
+      req("/push/subscribe", { subscription: { ...sub, keys: { ...sub.keys, p256dh: "not-a-real-key" } }, time: "18:00", tzOffsetMinutes: 0 }),
+      env,
+    );
+    expect(res.status).toBe(400);
+    expect(kvStore.size).toBe(0);
+  });
+
   it("preserves lastSent when updating an existing device", async () => {
     const { env, kvStore } = makeEnv();
     const sub = await realSubscription();
@@ -185,6 +196,33 @@ describe("runReminderSweep", () => {
 
     await runReminderSweep(env, Date.parse("2024-01-01T12:00:00Z"));
     expect(kvStore.has("push:abc")).toBe(false);
+  });
+
+  it("prunes a subscription on a permanent 4xx (e.g. 403 from a rejected VAPID audience)", async () => {
+    const { env, kvStore } = makeEnv();
+    const v = await realVapid();
+    env.VAPID_PUBLIC_KEY = v.publicKey;
+    env.VAPID_PRIVATE_KEY = v.privateKey;
+    const sub = await realSubscription();
+    kvStore.set("push:abc", JSON.stringify({ subscription: sub, time: "13:00", tzOffsetMinutes: -60, lastSent: null }));
+    global.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 403 }));
+
+    await runReminderSweep(env, Date.parse("2024-01-01T12:00:00Z"));
+    expect(kvStore.has("push:abc")).toBe(false);
+  });
+
+  it("keeps and retries a subscription on a transient failure (e.g. 503 or 429)", async () => {
+    const { env, kvStore } = makeEnv();
+    const v = await realVapid();
+    env.VAPID_PUBLIC_KEY = v.publicKey;
+    env.VAPID_PRIVATE_KEY = v.privateKey;
+    const sub = await realSubscription();
+    kvStore.set("push:abc", JSON.stringify({ subscription: sub, time: "13:00", tzOffsetMinutes: -60, lastSent: null }));
+    global.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 503 }));
+
+    await runReminderSweep(env, Date.parse("2024-01-01T12:00:00Z"));
+    expect(kvStore.has("push:abc")).toBe(true);
+    expect(JSON.parse(kvStore.get("push:abc")).lastSent).toBeNull();
   });
 
   it("skips the sweep entirely when VAPID keys are missing", async () => {

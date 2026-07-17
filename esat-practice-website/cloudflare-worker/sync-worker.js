@@ -2,6 +2,7 @@ import revisionContext from "./revision-context.json";
 import { sendPushNotification } from "./web-push.js";
 import {
   PUSH_KEY_PREFIX,
+  isValidSubscription,
   normalizeSubscription,
   pushKeyForEndpoint,
   reminderOccurrence,
@@ -22,16 +23,24 @@ const MAX_HISTORY_TURNS = 4;
 // prevents the overlap from sending twice.
 const REMINDER_WINDOW_MINUTES = 20;
 
+// Statuses the push service returns for a request that will never succeed no
+// matter how many times it's retried (bad/expired subscription, malformed
+// request, oversized payload). Anything else (429, 5xx, network errors) is
+// treated as transient and left to retry on the next cron tick.
+const PERMANENT_FAILURE_STATUSES = new Set([400, 401, 403, 404, 410, 413]);
+
 const REMINDER_PAYLOAD = JSON.stringify({
   title: "Time to practise",
   body: "A few ESAT questions now keeps you sharp. Jump back in →",
   url: "/practice",
+  tag: "esat-reminder",
 });
 
 const TEST_PAYLOAD = JSON.stringify({
   title: "Test notification",
   body: "If you can see this, your reminders are set up correctly.",
   url: "/settings",
+  tag: "esat-test",
 });
 
 function buildSystemInstruction(title, content) {
@@ -285,13 +294,7 @@ async function handlePushTest(request, env) {
   }
 
   const subscription = body?.subscription;
-  if (
-    !subscription ||
-    typeof subscription.endpoint !== "string" ||
-    !subscription.keys ||
-    typeof subscription.keys.p256dh !== "string" ||
-    typeof subscription.keys.auth !== "string"
-  ) {
+  if (!isValidSubscription(subscription)) {
     return new Response("Invalid or missing push subscription.", { status: 400, headers: CORS });
   }
 
@@ -352,7 +355,7 @@ async function runReminderSweep(env, nowMs = Date.now()) {
           REMINDER_PAYLOAD,
           vapid,
         );
-        if (response.status === 404 || response.status === 410) {
+        if (PERMANENT_FAILURE_STATUSES.has(response.status)) {
           await env.KV.delete(name);
           continue;
         }
