@@ -55,7 +55,7 @@ export function SyncKeyRow({
         <div>
           <div className="text-sm text-secondary">Sync key</div>
           <div className="text-xs text-muted mt-0.5">
-            Write this down — anyone with this key can overwrite your data.
+            Write this down — anyone with this key can overwrite your data, and if you lose it there is no way to recover your cloud copy.
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">

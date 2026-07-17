@@ -10,7 +10,7 @@ export function CloudSyncSection() {
       <div className="px-4 py-3.5 border-b border-subtle">
         <h2 className="text-sm font-medium text-muted">Cloud Sync</h2>
         <p className="text-xs text-muted mt-1">
-          Sync your progress across devices using a personal sync key. No account needed.
+          Sync your progress across devices using a personal sync key. No account needed. Cloud copies that go untouched for a year are automatically deleted.
         </p>
       </div>
 
