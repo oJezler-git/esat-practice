@@ -16,6 +16,9 @@ self.addEventListener("push", (event) => {
     icon: "/icon-512.png",
     badge: "/icon-512.png",
     tag: data.tag || "esat-notification",
+    requireInteraction: !!data.requireInteraction,
+    vibrate: Array.isArray(data.vibrate) ? data.vibrate : undefined,
+    actions: Array.isArray(data.actions) ? data.actions : undefined,
     data: { url: data.url || "/practice" },
   };
 
@@ -24,6 +27,8 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  if (event.action === "dismiss") return;
+
   const targetUrl = (event.notification.data && event.notification.data.url) || "/practice";
 
   event.waitUntil(

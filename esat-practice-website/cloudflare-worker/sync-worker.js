@@ -29,18 +29,87 @@ const REMINDER_WINDOW_MINUTES = 20;
 // treated as transient and left to retry on the next cron tick.
 const PERMANENT_FAILURE_STATUSES = new Set([400, 401, 403, 404, 410, 413]);
 
-const REMINDER_PAYLOAD = JSON.stringify({
-  title: "Time to practise",
-  body: "A few ESAT questions now keeps you sharp. Jump back in →",
-  url: "/practice",
-  tag: "esat-reminder",
-});
+// Vibration pattern echoing the 4 syllables of "e-SAT prac-tice": short,
+// long/stressed, medium, short, each separated by a pause (ms).
+const PRACTICE_VIBRATE_PATTERN = [100, 80, 220, 80, 140, 80, 100];
+
+const REMINDER_ACTIONS = [
+  { action: "start", title: "Start practice" },
+  { action: "dismiss", title: "Later" },
+];
+
+// Rotated so the daily reminder doesn't read identically forever. The server
+// has no access to a user's practice stats (those live only in client-side
+// IndexedDB and are never synced), so these are generic-but-varied rather
+// than personalized. Selection is a deterministic hash of (subscription key,
+// local date) — same user won't see the same line two days running, and two
+// users can land on different lines on the same day.
+const REMINDER_MESSAGES = [
+  { title: "Time to practise", body: "A few ESAT questions now keeps you sharp. Jump back in →" },
+  { title: "Ready for a quick round?", body: "Even 10 minutes of practice adds up. Let's go →" },
+  { title: "Your questions are waiting", body: "Pick up where you left off and keep the momentum going." },
+  { title: "Sharpen up", body: "A short session now beats a long cram later." },
+  { title: "Quick brain check", body: "See how many you can get right in the next few minutes." },
+  { title: "Practice o'clock", body: "Consistency beats intensity — a few questions a day goes a long way." },
+  { title: "Still got it?", body: "Test yourself with a fresh set of ESAT questions." },
+  { title: "Small steps, steady gains", body: "Jump into a quick practice session and keep building." },
+  { title: "Don't break the streak", body: "One quick session keeps today on the board." },
+  { title: "Brain warm-up time", body: "Get a few questions in before the day gets away from you." },
+  { title: "Five minutes to spare?", body: "That's enough for a solid round of questions." },
+  { title: "Level up", body: "Every session moves the needle, even a short one." },
+  { title: "Your future self says thanks", body: "Practice now, thank yourself on exam day." },
+  { title: "Reps make it stick", body: "Come get a few more reps in on ESAT questions." },
+  { title: "Session check-in", body: "Haven't practised today — want to fix that now?" },
+  { title: "Keep the streak alive", body: "A quick round is all it takes to keep going." },
+  { title: "Question time", body: "Fresh questions, ready when you are." },
+  { title: "Progress loves consistency", body: "Small, regular sessions beat rare marathon ones." },
+  { title: "Exam-day confidence starts here", body: "Build it one practice session at a time." },
+  { title: "A little goes a long way", body: "Even a short round keeps your skills warm." },
+  { title: "Back at it?", body: "Your next set of ESAT questions is ready to go." },
+  { title: "Stay sharp", body: "Don't let the day slip by without a quick round." },
+  { title: "Momentum check", body: "Keep it going with a few more questions today." },
+  { title: "Quick win available", body: "A short session now is an easy win for today." },
+  { title: "Practice makes progress", body: "Jump in for a few questions and keep the habit going." },
+  { title: "Today's the day", body: "Squeeze in a round before you close the laptop." },
+  { title: "Keep your edge", body: "Regular practice is what separates good from great." },
+  { title: "A few more questions?", body: "Your practice set is ready whenever you are." },
+  { title: "Don't skip today", body: "Consistency beats cramming — jump back in." },
+  { title: "Test yourself", body: "See where you stand with a quick round of questions." },
+  { title: "Little and often", body: "A short session today keeps the knowledge fresh." },
+  { title: "Ready when you are", body: "Your next batch of ESAT questions is waiting." },
+];
+
+// Cheap synchronous string hash (FNV-1a) — no crypto strength needed, this
+// only picks an index into REMINDER_MESSAGES.
+function hashString(str) {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+}
+
+function buildReminderPayload(seed) {
+  const message = REMINDER_MESSAGES[hashString(seed) % REMINDER_MESSAGES.length];
+  return JSON.stringify({
+    ...message,
+    url: "/practice",
+    tag: "esat-reminder",
+    requireInteraction: true,
+    vibrate: PRACTICE_VIBRATE_PATTERN,
+    actions: REMINDER_ACTIONS,
+  });
+}
 
 const TEST_PAYLOAD = JSON.stringify({
   title: "Test notification",
   body: "If you can see this, your reminders are set up correctly.",
   url: "/settings",
   tag: "esat-test",
+  requireInteraction: true,
+  vibrate: PRACTICE_VIBRATE_PATTERN,
+  actions: REMINDER_ACTIONS,
 });
 
 function buildSystemInstruction(title, content) {
@@ -352,7 +421,7 @@ async function runReminderSweep(env, nowMs = Date.now()) {
       try {
         const response = await sendPushNotification(
           record.subscription,
-          REMINDER_PAYLOAD,
+          buildReminderPayload(name + occurrence.dateStr),
           vapid,
         );
         if (PERMANENT_FAILURE_STATUSES.has(response.status)) {
