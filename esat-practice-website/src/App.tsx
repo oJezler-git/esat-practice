@@ -23,6 +23,45 @@ const ScoreReference = lazy(() => import("./pages/score-reference"));
 const RevisionHome = lazy(() => import("./pages/revision"));
 const RevisionDocPage = lazy(() => import("./pages/revision/doc"));
 
+function AppReadyMarker({ routeKey }: { routeKey: string }) {
+  useEffect(() => {
+    let cancelled = false;
+    let timeoutId: number | undefined;
+    let frameId: number | undefined;
+    let secondFrameId: number | undefined;
+
+    const fontSettled =
+      "fonts" in document
+        ? Promise.race([
+            document.fonts.ready,
+            new Promise((resolve) => {
+              timeoutId = window.setTimeout(resolve, 700);
+            }),
+          ])
+        : Promise.resolve();
+
+    void fontSettled.then(() => {
+      if (cancelled) return;
+      frameId = requestAnimationFrame(() => {
+        secondFrameId = requestAnimationFrame(() => {
+          if (!cancelled) {
+            document.documentElement.dataset.appReady = "true";
+          }
+        });
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      if (frameId !== undefined) cancelAnimationFrame(frameId);
+      if (secondFrameId !== undefined) cancelAnimationFrame(secondFrameId);
+    };
+  }, [routeKey]);
+
+  return null;
+}
+
 export default function App() {
   const fontPreset = useSettingsStore((state) => state.settings.fontPreset);
   const theme = useSettingsStore((state) => state.settings.theme);
@@ -96,6 +135,7 @@ export default function App() {
       <UpdatePrompt />
       <main id="app-main" className={`app-main ${isSession ? "app-main-session" : ""}`}>
         <Suspense fallback={<div className="route-loading" aria-busy="true" />}>
+        <AppReadyMarker routeKey={location.pathname} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/practice" element={<PracticeSetup />} />

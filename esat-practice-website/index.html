@@ -8,22 +8,49 @@
     <meta name="theme-color" content="#101412" />
     <meta name="color-scheme" content="dark light" />
     <script>
-      // Resolve the theme before first paint so system-light users don't
-      // flash the dark shell while React hydrates.
+      // Resolve visual settings before first paint so React doesn't briefly
+      // show the default shell while the persisted settings hydrate.
       (function () {
         try {
           var stored = JSON.parse(localStorage.getItem("esat-settings"));
-          var theme =
+          var settings =
             stored && stored.state && stored.state.settings
-              ? stored.state.settings.theme
-              : undefined;
+              ? stored.state.settings
+              : {};
+          var theme = settings.theme;
           var light =
             theme === "light" ||
             ((theme === "auto" || theme === undefined) &&
               window.matchMedia("(prefers-color-scheme: light)").matches);
           if (light) document.documentElement.dataset.theme = "light";
+
+          if (settings.skin === "plain") {
+            document.documentElement.dataset.skin = "plain";
+          }
+
+          if (
+            ["rose", "emerald", "teal", "azure", "indigo"].indexOf(
+              settings.colorTheme,
+            ) !== -1
+          ) {
+            document.documentElement.dataset.colorTheme = settings.colorTheme;
+          }
+
+          if (
+            [
+              "academic",
+              "premium",
+              "readable",
+              "modern",
+              "technical",
+              "inter",
+              "monospace",
+            ].indexOf(settings.fontPreset) !== -1
+          ) {
+            document.documentElement.dataset.fontPreset = settings.fontPreset;
+          }
         } catch (e) {
-          /* fall through to the dark default */
+          /* fall through to the dark/default shell */
         }
       })();
     </script>

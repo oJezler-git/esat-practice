@@ -145,6 +145,10 @@ body,
   min-height: 100%;
 }
 
+#root {
+  min-height: 100dvh;
+}
+
 html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
@@ -164,26 +168,30 @@ body {
   overflow-x: hidden;
 }
 
-/* Single fixed decorative layer: corner glows painted over a faint dot grain.
-   Merged from two pseudo-elements into one to halve the full-viewport compositor
-   layers / paint passes. The dot grid's old element opacity (0.02) is baked into
-   its colour alpha (0.55 x 0.02 ~= 0.011) so it can share this background stack.
-   First-listed layers paint on top, so glows precede the grain (original order).
-   Corner glows derive from --sk-accent so they follow the light/dark axis AND the
-   data-color-theme hue (the old hardcoded greens were vestigial flat-era colour
-   the canvas-warming pass missed). Kept subtle + asymmetric so it reads as a
-   gentle vignette, not two hotspots. */
+:root:not([data-app-ready="true"]) body {
+  background: #0e0d0b;
+}
+
+/* Single fixed decorative layer: very soft corner glows over a faint dot grain.
+   It stays hidden until React has mounted so first paint is a quiet canvas,
+   avoiding a brief full-viewport glow flash while lazy route chunks settle. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  opacity: 0;
+  transition: opacity 360ms ease;
   background-image:
-    radial-gradient(circle at 14% -10%, color-mix(in srgb, var(--sk-accent) 10%, transparent) 0, transparent 34%),
-    radial-gradient(circle at 86% 112%, color-mix(in srgb, var(--sk-accent) 6%, transparent) 0, transparent 40%),
+    radial-gradient(circle at 14% -10%, color-mix(in srgb, var(--sk-accent, var(--accent)) 3%, transparent) 0, transparent 30%),
+    radial-gradient(circle at 86% 112%, color-mix(in srgb, var(--sk-accent, var(--accent)) 2%, transparent) 0, transparent 34%),
     radial-gradient(rgb(255 255 255 / 0.011) 0.5px, transparent 0.5px);
   background-size: auto, auto, 4px 4px;
+}
+
+:root[data-app-ready="true"] body::before {
+  opacity: 1;
 }
 
 a {
@@ -654,7 +662,8 @@ p {
 @import "./styles/plain-skin.css";
 
 .route-loading {
-  min-height: 60vh;
+  min-height: calc(100dvh - 4.5rem);
+  background: var(--bg-canvas);
 }
 
 .rev-mdx-skeleton {

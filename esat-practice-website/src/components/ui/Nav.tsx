@@ -202,10 +202,25 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
       }
     };
 
-    updateTarget();
-    
-    // Tiny delay to allow React Router DOM update to paint the active class
-    const timeoutId = setTimeout(updateTarget, 0);
+    let timeoutId: number | undefined;
+    let loadFrameId: number | undefined;
+    let removeDeferredInitialUpdate = () => {};
+
+    const syncAfterRouterPaint = () => {
+      updateTarget();
+      // Tiny delay to allow React Router DOM update to paint the active class.
+      timeoutId = window.setTimeout(updateTarget, 0);
+    };
+
+    if (isFirstRender.current && document.readyState !== "complete") {
+      const onLoad = () => {
+        loadFrameId = requestAnimationFrame(syncAfterRouterPaint);
+      };
+      window.addEventListener("load", onLoad, { once: true });
+      removeDeferredInitialUpdate = () => window.removeEventListener("load", onLoad);
+    } else {
+      syncAfterRouterPaint();
+    }
 
     const handleResize = () => {
       isFirstRender.current = true;
@@ -215,7 +230,13 @@ export function Nav({ isHidden }: { isHidden?: boolean }) {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      clearTimeout(timeoutId);
+      removeDeferredInitialUpdate();
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+      if (loadFrameId !== undefined) {
+        cancelAnimationFrame(loadFrameId);
+      }
       window.removeEventListener("resize", handleResize);
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
