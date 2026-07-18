@@ -249,13 +249,17 @@
     display: none !important;
   }
   .nav-mobile-hamburger-button {
-    display: block !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
     background: transparent;
     border: none;
     cursor: pointer;
     /* Bigger tap target, and the right padding pulls the icon away from the
        scroll-bar so taps near the edge don't land on the scrollbar instead. */
-    padding: 0.5rem 0.6rem;
+    padding: 0;
   }
   /* Extra breathing room between the right cluster and the reserved scrollbar. */
   .nav-inner {

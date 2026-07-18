@@ -31,8 +31,8 @@
   position: absolute;
   right: 0;
   top: 1.5rem;
-  min-width: 1.5rem;
-  height: 1.5rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -40,6 +40,7 @@
   font-size: 1rem;
   line-height: 1;
   border: none;
+  border-radius: 999px;
   background: transparent;
   cursor: pointer;
   overflow: hidden;
@@ -88,7 +89,7 @@
   .page-footer {
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   /* Keep `relative` (not `static`) so the absolutely-positioned icon/label
@@ -97,6 +98,24 @@
     position: relative;
     top: auto;
     right: auto;
+  }
+}
+
+:root[data-update-prompt] .page-footer {
+  margin-bottom: 6rem;
+}
+
+:root[data-update-prompt="expanded"] .page-footer {
+  margin-bottom: 16rem;
+}
+
+@media (max-width: 640px) {
+  :root[data-update-prompt] .page-footer {
+    margin-bottom: 0;
+  }
+
+  :root[data-update-prompt="expanded"] .page-footer {
+    margin-bottom: 0;
   }
 }
 

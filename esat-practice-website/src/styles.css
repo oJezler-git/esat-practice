@@ -592,6 +592,7 @@ p {
 }
 
 .pack-info {
+  min-height: 2.25rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border-subtle);
@@ -599,6 +600,10 @@ p {
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
+}
+
+.pack-info--reserved {
+  visibility: hidden;
 }
 
 .pack-info-name {

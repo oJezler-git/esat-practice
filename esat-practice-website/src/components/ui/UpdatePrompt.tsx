@@ -77,6 +77,19 @@ export function UpdatePrompt({ reloadPage = () => window.location.reload() }: Up
 
   const isVisible = needRefresh || offlineReady;
 
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isVisible) {
+      root.dataset.updatePrompt = needRefresh && expanded ? "expanded" : "visible";
+    } else {
+      delete root.dataset.updatePrompt;
+    }
+
+    return () => {
+      delete root.dataset.updatePrompt;
+    };
+  }, [expanded, isVisible, needRefresh]);
+
   if (!isVisible) return null;
 
   function dismiss() {
@@ -85,7 +98,11 @@ export function UpdatePrompt({ reloadPage = () => window.location.reload() }: Up
   }
 
   return (
-    <div className="update-prompt" role="status" aria-live="polite">
+    <div
+      className={`update-prompt ${needRefresh ? "update-prompt--update" : "update-prompt--offline"}`}
+      role="status"
+      aria-live="polite"
+    >
       <div className="update-prompt__row">
         <span className="update-prompt__message">
           {needRefresh ? "Update available" : "Ready to work offline"}

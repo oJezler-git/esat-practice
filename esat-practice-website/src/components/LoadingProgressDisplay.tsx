@@ -19,12 +19,17 @@ export function LoadingProgressDisplay() {
           <div className="progress-fill" style={{ width: `${progress.percentComplete}%` }} />
         </div>
 
-        {progress.stage === "packs" && progress.currentPack && (
+        {progress.stage === "packs" && progress.currentPack ? (
           <div className="pack-info">
             <span className="pack-info-name">{progress.currentPack}</span>
             <span className="pack-info-count">
               {progress.packIndex + 1} / {progress.totalPacks}
             </span>
+          </div>
+        ) : (
+          <div className="pack-info pack-info--reserved" aria-hidden="true">
+            <span className="pack-info-name">Question pack</span>
+            <span className="pack-info-count">0 / 0</span>
           </div>
         )}
 
