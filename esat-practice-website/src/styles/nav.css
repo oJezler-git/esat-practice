@@ -3,6 +3,7 @@
   background: var(--sk-nav-shell-bg, rgb(14 13 11 / 0.84));
   position: sticky;
   top: 0;
+  padding-top: env(safe-area-inset-top, 0px);
   z-index: 20;
   /* Persistent (sticky, always on-screen) blur re-evaluates every scroll frame —
      the main continuous GPU cost. Kept modest; disabled for reduced-motion below. */
