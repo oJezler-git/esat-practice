@@ -171,7 +171,7 @@ describe("App routes and shell", () => {
 
     expect(await screen.findByText("Session page stub")).toBeInTheDocument();
     expect(screen.getByRole("navigation")).toHaveClass("nav-shell-hidden");
-    expect(document.querySelector("#app-main")).toHaveClass("h-screen", "overflow-hidden");
+    expect(document.querySelector("#app-main")).toHaveClass("app-main-session");
   });
 
   it("scrolls to the top when the pathname changes", async () => {
