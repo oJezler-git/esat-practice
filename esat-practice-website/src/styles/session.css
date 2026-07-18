@@ -68,6 +68,11 @@
   --sk-exclude-btn-bg: linear-gradient(180deg, #7a2e20, #4c150e);
   --sk-exclude-btn-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 3px 6px rgba(0, 0, 0, 0.4);
   --sk-exclude-btn-text: #f0c8ba;
+  --sk-session-edge-gap: 14px;
+  --sk-session-safe-top: max(var(--sk-session-edge-gap), calc(env(safe-area-inset-top, 0px) + var(--sk-session-edge-gap)));
+  --sk-session-safe-right: max(var(--sk-session-edge-gap), calc(env(safe-area-inset-right, 0px) + var(--sk-session-edge-gap)));
+  --sk-session-safe-bottom: max(var(--sk-session-edge-gap), calc(env(safe-area-inset-bottom, 0px) + var(--sk-session-edge-gap)));
+  --sk-session-safe-left: max(var(--sk-session-edge-gap), calc(env(safe-area-inset-left, 0px) + var(--sk-session-edge-gap)));
 
   /* ---- layout shell ---- */
   height: 100vh;
@@ -75,7 +80,8 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  padding: 14px;
+  padding: var(--sk-session-edge-gap);
+  padding: var(--sk-session-safe-top) var(--sk-session-safe-right) var(--sk-session-safe-bottom) var(--sk-session-safe-left);
   background: var(--color-canvas);
 }
 
@@ -957,7 +963,7 @@ html:has(.sk-session) {
 
 @media (max-width: 768px) {
   .sk-session {
-    padding: 8px;
+    --sk-session-edge-gap: 12px;
   }
 
   .sk-session-frame {

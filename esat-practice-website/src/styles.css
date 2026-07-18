@@ -261,6 +261,12 @@ p {
   z-index: 1;
 }
 
+.app-main-session {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
 .page-shell {
   max-width: 72rem;
   margin: 0 auto;

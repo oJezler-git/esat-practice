@@ -94,7 +94,7 @@ export default function App() {
       <KeyboardShortcutOverlay />
       <LoadingProgressDisplay />
       <UpdatePrompt />
-      <main id="app-main" className={`app-main ${isSession ? "h-screen overflow-hidden" : ""}`}>
+      <main id="app-main" className={`app-main ${isSession ? "app-main-session" : ""}`}>
         <Suspense fallback={<div className="route-loading" aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />
