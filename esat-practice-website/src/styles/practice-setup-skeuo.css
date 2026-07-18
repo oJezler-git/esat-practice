@@ -100,8 +100,12 @@
 .sk-practice {
   max-width: 62rem;
   margin: 0 auto;
-  padding: 2.25rem 1rem 3rem;
+  padding: clamp(2rem, 4vw, 2.5rem) 1rem 3rem;
   animation: sk-enter 460ms var(--motion-smooth) both;
+}
+
+.sk-practice .sk-frame {
+  padding-top: 36px;
 }
 
 /* Tighten inter-well spacing to the mockup's 20px */
@@ -201,6 +205,7 @@
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+  min-height: 64px;
   margin-bottom: 20px;
   padding: 12px 18px;
   border-radius: 12px;
@@ -231,6 +236,7 @@
   font-size: 0.9375rem;
   font-weight: 700;
   color: var(--sk-chip-text);
+  white-space: nowrap;
 }
 
 .sk-flag-row-count {
@@ -254,6 +260,9 @@
 /* ---- Question-count slider ---- */
 
 .sk-q-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.8125rem;
   color: var(--sk-muted);
   margin: 0 0 20px;
@@ -268,8 +277,9 @@
    and typeable. Width tracks its content via a ch-based min so 2- and 3-digit
    values both sit snugly after the label. */
 .sk-q-count-input {
-  width: 3.5ch;
-  padding: 1px 4px;
+  width: 4.25ch;
+  min-height: 44px;
+  padding: 0 8px;
   border: 1px solid transparent;
   border-radius: 5px;
   background: transparent;
@@ -304,7 +314,7 @@
 
 .sk-slider {
   position: relative;
-  height: 22px;
+  height: 44px;
   display: flex;
   align-items: center;
   margin: 0 4px;
@@ -390,10 +400,14 @@
 .sk-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .sk-chip {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 9px 16px;
   border-radius: 999px;
   font-size: 0.8125rem;
@@ -457,6 +471,7 @@
 }
 
 .sk-resume-discard {
+  min-height: 44px;
   padding: 10px 18px;
   border-radius: 10px;
   font-size: 0.8125rem;
@@ -473,6 +488,7 @@
 }
 
 .sk-resume-resume {
+  min-height: 44px;
   padding: 10px 22px;
   border-radius: 10px;
   font-size: 0.8125rem;
@@ -495,7 +511,37 @@
 /* ---- Responsive ---- */
 
 @media (max-width: 640px) {
+  .sk-practice {
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  .sk-practice .sk-frame {
+    padding: 36px 18px 24px;
+  }
+
   .sk-mode-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sk-flag-row-text {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .sk-resume {
+    align-items: stretch;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .sk-resume-actions {
+    width: 100%;
+  }
+
+  .sk-resume-discard,
+  .sk-resume-resume {
+    flex: 1;
+    padding: 10px 14px;
   }
 }
