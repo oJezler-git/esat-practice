@@ -172,7 +172,7 @@ body {
   background: #0e0d0b;
 }
 
-/* Single fixed decorative layer: very soft corner glows over a faint dot grain.
+/* Single fixed decorative layer: a very soft top-left glow over faint dot grain.
    It stays hidden until React has mounted so first paint is a quiet canvas,
    avoiding a brief full-viewport glow flash while lazy route chunks settle. */
 body::before {
@@ -185,9 +185,8 @@ body::before {
   transition: opacity 360ms ease;
   background-image:
     radial-gradient(circle at 14% -10%, color-mix(in srgb, var(--sk-accent, var(--accent)) 3%, transparent) 0, transparent 30%),
-    radial-gradient(circle at 86% 112%, color-mix(in srgb, var(--sk-accent, var(--accent)) 2%, transparent) 0, transparent 34%),
     radial-gradient(rgb(255 255 255 / 0.011) 0.5px, transparent 0.5px);
-  background-size: auto, auto, 4px 4px;
+  background-size: auto, 4px 4px;
 }
 
 :root[data-app-ready="true"] body::before {
