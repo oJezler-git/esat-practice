@@ -11,7 +11,7 @@
 .sk-home {
   max-width: 62rem;
   margin: 0 auto;
-  padding: 2.25rem 1rem 3rem;
+  padding: clamp(2rem, 4vw, 2.5rem) 1rem 3rem;
   animation: sk-enter 460ms var(--motion-smooth) both;
 }
 
@@ -24,6 +24,10 @@
   border: 3px solid var(--sk-frame-border);
   box-shadow: var(--sk-frame-shadow);
   color: var(--sk-text);
+}
+
+.sk-home .sk-frame {
+  padding-top: 36px;
 }
 
 /* Light-mode stitched inner border (transparent in dark) */
@@ -137,11 +141,15 @@ button.sk-screw:focus-visible {
 /* ---- Header (greeting + questions-ready) ---- */
 
 .sk-head {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: flex-start;
-  gap: 1.25rem;
-  margin-bottom: 22px;
+  gap: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.sk-head > div {
+  min-width: 0;
 }
 
 .sk-greeting {
@@ -158,18 +166,21 @@ button.sk-screw:focus-visible {
   margin: 0;
   font-size: 0.9375rem;
   font-style: italic;
+  line-height: 1.6;
   color: var(--sk-muted);
   max-width: 60ch;
+  text-wrap: pretty;
 }
 
 .sk-badge {
-  flex: none;
-  margin-top: 4px;
-  padding: 9px 16px;
+  justify-self: end;
+  margin: 3px 0 0;
+  padding: 10px 16px;
   border-radius: 10px;
   background: var(--sk-pill-bg);
   box-shadow: var(--sk-pill-shadow);
   font-size: 0.8125rem;
+  line-height: 1.45;
   font-weight: 600;
   color: var(--sk-accent);
   white-space: nowrap;
@@ -178,7 +189,7 @@ button.sk-screw:focus-visible {
 /* ---- Engraved divider ---- */
 
 .sk-divider {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .sk-divider::before,
@@ -200,13 +211,17 @@ button.sk-screw:focus-visible {
 
 .sk-cta {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  min-height: 72px;
   border-radius: 16px;
-  padding: 22px;
-  margin-bottom: 18px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
   text-align: center;
   font-size: 1.125rem;
+  line-height: 1.35;
   font-weight: 700;
   color: var(--sk-cta-text);
   background: var(--sk-cta-bg);
@@ -250,15 +265,19 @@ button.sk-screw:focus-visible {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
 }
 
 .sk-tile {
-  display: block;
-  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 16px 20px;
   border-radius: 14px;
   text-align: center;
   font-size: 0.9375rem;
+  line-height: 1.35;
   font-weight: 500;
   color: var(--sk-tile-text);
   background: var(--sk-tile-bg);
@@ -279,11 +298,13 @@ button.sk-screw:focus-visible {
 /* ---- Recessed wells ---- */
 
 .sk-well {
+  display: grid;
+  gap: 12px;
   border-radius: 18px;
   padding: 20px;
   background: var(--sk-well-bg);
   box-shadow: var(--sk-well-shadow);
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .sk-well:last-of-type {
@@ -296,7 +317,7 @@ button.sk-screw:focus-visible {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--sk-muted);
-  margin: 0 0 14px;
+  margin: 0;
 }
 
 /* ---- Weak-topic pills ---- */
@@ -307,14 +328,15 @@ button.sk-screw:focus-visible {
   align-items: center;
   gap: 1rem;
   width: 100%;
+  min-height: 56px;
   text-align: left;
-  padding: 16px 20px;
+  padding: 14px 20px;
   border-radius: 12px;
   transition: transform 140ms var(--motion-snappy), filter 180ms ease;
 }
 
 .sk-topic + .sk-topic {
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .sk-topic:not(:disabled):hover {
@@ -349,6 +371,7 @@ button.sk-screw:focus-visible {
 .sk-topic-meta {
   font-size: 0.875rem;
   font-weight: 600;
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -365,13 +388,14 @@ button.sk-screw:focus-visible {
   align-items: center;
   gap: 1rem;
   width: 100%;
+  min-height: 56px;
   text-align: left;
-  padding: 14px 18px;
+  padding: 14px 20px;
   border-radius: 12px;
 }
 
 .sk-recent + .sk-recent {
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .sk-recent--idle {
@@ -410,6 +434,7 @@ button.sk-screw:focus-visible {
 .sk-recent-date {
   font-size: 0.8125rem;
   color: var(--sk-accent);
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -427,6 +452,10 @@ button.sk-screw:focus-visible {
   pointer-events: none;
 }
 
+.sk-home .sk-dial {
+  display: none;
+}
+
 .sk-dial::after {
   content: "";
   position: absolute;
@@ -442,7 +471,7 @@ button.sk-screw:focus-visible {
 /* ---- Offline nudge spacing when present ---- */
 
 .sk-home .offline-nudge {
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 @keyframes sk-enter {
@@ -453,18 +482,63 @@ button.sk-screw:focus-visible {
 /* ---- Responsive ---- */
 
 @media (max-width: 640px) {
+  .sk-home {
+    padding: 2rem 1rem 2.5rem;
+  }
+
   .sk-frame {
     padding: 24px 18px;
     border-radius: 22px;
   }
 
+  .sk-home .sk-frame {
+    padding: 36px 18px 24px;
+  }
+
   .sk-head {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 0.75rem;
+    margin-bottom: 24px;
+  }
+
+  .sk-badge {
+    justify-self: start;
+    margin-top: 0;
+  }
+
+  .sk-cta {
+    padding: 18px 20px;
+    font-size: 1rem;
+  }
+
+  .sk-tile {
+    min-height: 60px;
   }
 
   .sk-tiles {
     grid-template-columns: 1fr;
+  }
+
+  .sk-topic,
+  .sk-recent {
+    padding: 14px 16px;
+  }
+
+  .sk-home .sk-resume {
+    align-items: stretch;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .sk-home .sk-resume-actions {
+    width: 100%;
+  }
+
+  .sk-home .sk-resume-discard,
+  .sk-home .sk-resume-resume {
+    flex: 1;
+    min-height: 44px;
+    padding: 10px 14px;
   }
 
   .sk-dial {

@@ -112,7 +112,7 @@ export default function Home() {
             {isQuestionBankLoading
               ? "Loading question bank…"
               : activeSession
-                ? "Resume or discard your unfinished session first"
+                ? "Session in progress"
                 : "Quick start — 20 random questions"}
           </span>
         </button>
