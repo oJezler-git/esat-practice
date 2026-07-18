@@ -10,7 +10,10 @@ import {
   type PushPermission,
 } from "../../lib/pushNotifications";
 import {
+  DEFAULT_SOUND_VOLUME,
   DEFAULT_SHORTCUTS,
+  MAX_SOUND_VOLUME,
+  MIN_SOUND_VOLUME,
   type AutoExcludeOn,
   type ClaudeMode,
   type ShortcutAction,
@@ -373,7 +376,7 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
 
       <Field
         label="Interaction sounds"
-        description="Play tiny Cuelume cues for navigation, toggles, and button presses."
+        description="Play tiny cues for navigation, toggles, sliders, typing, and drawing."
       >
         <Toggle
           ariaLabel="Interaction sounds"
@@ -386,6 +389,34 @@ export function DisplaySection({ settings, update }: SettingsSectionProps) {
           }}
         />
       </Field>
+
+      {settings.soundEffects && (
+        <Field
+          label="Sound volume"
+          description="Boost or soften the interaction sound layer."
+        >
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              aria-label="Sound volume"
+              min={MIN_SOUND_VOLUME}
+              max={MAX_SOUND_VOLUME}
+              step={5}
+              value={settings.soundVolume ?? DEFAULT_SOUND_VOLUME}
+              onChange={(event) =>
+                update({ soundVolume: Number(event.target.value) })
+              }
+              className="w-40 accent-accent"
+            />
+            <span
+              className="text-sm text-secondary text-right tabular-nums"
+              style={{ minWidth: "3.5rem", textAlign: "right" }}
+            >
+              {settings.soundVolume ?? DEFAULT_SOUND_VOLUME}%
+            </span>
+          </div>
+        </Field>
+      )}
 
       <Field label="Appearance">
         <Select

@@ -62,6 +62,14 @@ describe("update", () => {
     useSettingsStore.getState().update({ defaultQuestionCount: 25 });
     expect(useSettingsStore.getState().settings.shortcuts.flag).toBe("g");
   });
+
+  it("clamps the sound volume preference", () => {
+    useSettingsStore.getState().update({ soundVolume: 250 });
+    expect(useSettingsStore.getState().settings.soundVolume).toBe(200);
+
+    useSettingsStore.getState().update({ soundVolume: -10 });
+    expect(useSettingsStore.getState().settings.soundVolume).toBe(0);
+  });
 });
 
 describe("reset", () => {

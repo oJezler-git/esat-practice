@@ -72,6 +72,7 @@ describe("Settings", () => {
     expect(screen.getByRole("combobox", { name: "Appearance" })).toHaveValue("auto");
     expect(screen.getByRole("combobox", { name: "Interface font" })).toHaveValue("academic");
     expect(screen.getByRole("combobox", { name: "Question font size" })).toHaveValue("md");
+    expect(screen.queryByRole("slider", { name: "Sound volume" })).not.toBeInTheDocument();
   });
 
   it("updates numeric controls and conditional defaults by accessible name", () => {
@@ -154,6 +155,13 @@ describe("Settings", () => {
 
     fireEvent.click(screen.getByRole("switch", { name: "Interaction sounds" }));
     expect(useSettingsStore.getState().settings.soundEffects).toBe(true);
+    const volumeSlider = screen.getByRole("slider", { name: "Sound volume" }) as HTMLInputElement;
+    expect(volumeSlider.value).toBe(DEFAULT_SETTINGS.soundVolume.toString());
+
+    fireEvent.change(volumeSlider, {
+      target: { value: "165" },
+    });
+    expect(useSettingsStore.getState().settings.soundVolume).toBe(165);
   });
 
   it("changes the auto-exclude predicate once enabled", () => {

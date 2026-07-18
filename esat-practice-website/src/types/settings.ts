@@ -15,6 +15,10 @@ export type AutoExcludeOn = "any" | "attempted" | "correct";
 
 export type ClaudeMode = "auto" | "extension" | "manual";
 
+export const DEFAULT_SOUND_VOLUME = 125;
+export const MIN_SOUND_VOLUME = 0;
+export const MAX_SOUND_VOLUME = 200;
+
 export interface UserSettings {
   defaultMode: "timed" | "untimed" | "topic" | "mixed";
   defaultQuestionCount: number;
@@ -35,6 +39,7 @@ export interface UserSettings {
   colorTheme: "amber" | "rose" | "emerald" | "teal" | "azure" | "indigo";
   skin: "skeuo" | "plain";
   soundEffects: boolean;
+  soundVolume: number;
   fontSize: "sm" | "md" | "lg";
   shortcuts: ShortcutMap;
   autoExclude: boolean;
@@ -73,6 +78,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   colorTheme: "amber",
   skin: "skeuo",
   soundEffects: false,
+  soundVolume: DEFAULT_SOUND_VOLUME,
   fontSize: "md",
   shortcuts: DEFAULT_SHORTCUTS,
   autoExclude: false,

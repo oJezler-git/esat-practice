@@ -3,6 +3,9 @@ import { persist } from "zustand/middleware";
 import {
   DEFAULT_SETTINGS,
   DEFAULT_SHORTCUTS,
+  DEFAULT_SOUND_VOLUME,
+  MAX_SOUND_VOLUME,
+  MIN_SOUND_VOLUME,
   normalizeShortcutKey,
 } from "../types/settings";
 import type { ShortcutMap, UserSettings } from "../types/settings";
@@ -32,6 +35,14 @@ function sanitizeShortcuts(shortcuts?: Partial<ShortcutMap>): ShortcutMap {
   };
 }
 
+function sanitizeSoundVolume(value: unknown): number {
+  const volume = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(volume)) {
+    return DEFAULT_SOUND_VOLUME;
+  }
+  return Math.min(MAX_SOUND_VOLUME, Math.max(MIN_SOUND_VOLUME, Math.round(volume)));
+}
+
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
@@ -41,6 +52,9 @@ export const useSettingsStore = create<SettingsStore>()(
           settings: {
             ...state.settings,
             ...patch,
+            soundVolume: sanitizeSoundVolume(
+              patch.soundVolume ?? state.settings.soundVolume,
+            ),
             shortcuts: sanitizeShortcuts(
               patch.shortcuts ?? state.settings.shortcuts,
             ),
@@ -58,6 +72,7 @@ export const useSettingsStore = create<SettingsStore>()(
           settings: {
             ...DEFAULT_SETTINGS,
             ...(persisted?.settings ?? {}),
+            soundVolume: sanitizeSoundVolume(persisted?.settings?.soundVolume),
             shortcuts: sanitizeShortcuts(persisted?.settings?.shortcuts),
             claudePromptTemplate:
               typeof persisted?.settings?.claudePromptTemplate === 'string'

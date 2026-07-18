@@ -11,6 +11,7 @@ const interactionSoundMocks = vi.hoisted(() => {
   return {
     cleanup,
     installInteractionSounds: vi.fn(() => cleanup),
+    setInteractionSoundVolume: vi.fn(),
     setInteractionSoundsEnabled: vi.fn(),
   };
 });
@@ -45,6 +46,7 @@ vi.mock("./lib/sessionStore", async (importOriginal) => {
 
 vi.mock("./lib/interactionSounds", () => ({
   installInteractionSounds: interactionSoundMocks.installInteractionSounds,
+  setInteractionSoundVolume: interactionSoundMocks.setInteractionSoundVolume,
   setInteractionSoundsEnabled: interactionSoundMocks.setInteractionSoundsEnabled,
 }));
 
@@ -122,6 +124,7 @@ describe("App routes and shell", () => {
     document.documentElement.removeAttribute("data-color-theme");
     interactionSoundMocks.cleanup.mockClear();
     interactionSoundMocks.installInteractionSounds.mockClear();
+    interactionSoundMocks.setInteractionSoundVolume.mockClear();
     interactionSoundMocks.setInteractionSoundsEnabled.mockClear();
     Object.defineProperty(window, "scrollTo", {
       configurable: true,
@@ -228,11 +231,15 @@ describe("App routes and shell", () => {
     expect(await screen.findByText("Home page stub")).toBeInTheDocument();
     expect(interactionSoundMocks.installInteractionSounds).toHaveBeenCalledTimes(1);
     expect(interactionSoundMocks.setInteractionSoundsEnabled).toHaveBeenCalledWith(false);
+    expect(interactionSoundMocks.setInteractionSoundVolume).toHaveBeenCalledWith(
+      DEFAULT_SETTINGS.soundVolume,
+    );
 
     act(() => {
-      useSettingsStore.getState().update({ soundEffects: true });
+      useSettingsStore.getState().update({ soundEffects: true, soundVolume: 160 });
     });
 
     expect(interactionSoundMocks.setInteractionSoundsEnabled).toHaveBeenLastCalledWith(true);
+    expect(interactionSoundMocks.setInteractionSoundVolume).toHaveBeenLastCalledWith(160);
   });
 });
