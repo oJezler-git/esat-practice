@@ -3,10 +3,16 @@ import { analyseNsaaDuplicates, DEFAULT_DUPLICATE_MATCH_OPTIONS } from "./questi
 import type { Question } from "../types/schema";
 
 describe("questionDedup", () => {
-  const createMockQuestion = (id: string, text: string, paper: string, year: number): Question => ({
+  const createMockQuestion = (
+    id: string,
+    text: string,
+    paper: string,
+    year: number,
+    part = "Part A",
+  ): Question => ({
     id,
     content: { text },
-    source: { paper, year, part: "Part A", subject: "Math", page: 1 },
+    source: { paper, year, part, subject: "Math", page: 1 },
     taxonomy: { primary_topic: "Math", secondary_topics: [], confidence: 1, model_used: "human" },
     answer: { correct: "A", verified: true },
     meta: { times_attempted: 0, accuracy_rate: 0 },
@@ -33,6 +39,24 @@ describe("questionDedup", () => {
     const result = analyseNsaaDuplicates(questions);
     expect(result.hiddenNsaaIds.has("NSAA_1")).toBe(true);
     expect(result.excludedPairs[0].similarity).toBeGreaterThan(0.95);
+  });
+
+  it("should identify duplicates when ENGAA and NSAA use different part labels", () => {
+    const engaaText =
+      "The straight line with equation y = mx+3, where m > 0, is perpendicular to the line " +
+      "with equation y = px+2. The lines cut the x-axis at L and M. The length of LM is 5 units. " +
+      "What is the value of m + p given that m > 1?";
+    const nsaaText = `${engaaText} 71 -1`;
+    const questions: Question[] = [
+      createMockQuestion("ENGAA_2016_PART_B_41", engaaText, "ENGAA 2016", 2016, "Part B"),
+      createMockQuestion("NSAA_2016_PART_E_85", nsaaText, "NSAA 2016", 2016, "Part E"),
+    ];
+
+    const result = analyseNsaaDuplicates(questions);
+
+    expect(result.hiddenNsaaIds.has("NSAA_2016_PART_E_85")).toBe(true);
+    expect(result.excludedPairs).toHaveLength(1);
+    expect(result.excludedPairs[0].similarity).toBeGreaterThan(0.9);
   });
 
   it("should not mark questions from different years as duplicates", () => {
@@ -83,5 +107,34 @@ describe("questionDedup", () => {
     expect(result.hiddenNsaaIds.has("NSAA_1")).toBe(false);
     expect(result.nearMissPairs).toHaveLength(1);
     expect(result.nearMissPairs[0].nsaaQuestion.id).toBe("NSAA_1");
+  });
+
+  it("should not reuse a cached analysis when match options change", () => {
+    const questions: Question[] = [
+      createMockQuestion(
+        "ENGAA_1",
+        "The quick brown fox jumps over the lazy dog many times.",
+        "ENGAA 2016",
+        2016,
+      ),
+      createMockQuestion(
+        "NSAA_1",
+        "The quick brown cat jumps over the lazy dog many times.",
+        "NSAA 2016",
+        2016,
+      ),
+    ];
+
+    const strict = analyseNsaaDuplicates(questions, {
+      ...DEFAULT_DUPLICATE_MATCH_OPTIONS,
+      similarityThreshold: 0.95,
+    });
+    const permissive = analyseNsaaDuplicates(questions, {
+      ...DEFAULT_DUPLICATE_MATCH_OPTIONS,
+      similarityThreshold: 0.8,
+    });
+
+    expect(strict.hiddenNsaaIds.has("NSAA_1")).toBe(false);
+    expect(permissive.hiddenNsaaIds.has("NSAA_1")).toBe(true);
   });
 });

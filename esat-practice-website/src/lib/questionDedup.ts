@@ -115,12 +115,31 @@ function trigramDiceSimilarity(
 
 let cachedAnalysis: NsaaDuplicateAnalysis | null = null;
 let cachedAnalysisInput: Question[] | null = null;
+let cachedAnalysisOptions: DuplicateMatchOptions | null = null;
+
+function matchOptionsEqual(
+  left: DuplicateMatchOptions,
+  right: DuplicateMatchOptions,
+): boolean {
+  return (
+    left.similarityThreshold === right.similarityThreshold &&
+    left.minTextLength === right.minTextLength &&
+    left.minLengthRatio === right.minLengthRatio &&
+    left.nearMissSimilarityFloor === right.nearMissSimilarityFloor &&
+    left.nearMissLimit === right.nearMissLimit
+  );
+}
 
 export function analyseNsaaDuplicates(
   questions: Question[],
   options: DuplicateMatchOptions = DEFAULT_DUPLICATE_MATCH_OPTIONS,
 ): NsaaDuplicateAnalysis {
-  if (cachedAnalysis && cachedAnalysisInput === questions) {
+  if (
+    cachedAnalysis &&
+    cachedAnalysisInput === questions &&
+    cachedAnalysisOptions &&
+    matchOptionsEqual(cachedAnalysisOptions, options)
+  ) {
     return cachedAnalysis;
   }
 
@@ -132,7 +151,13 @@ export function analyseNsaaDuplicates(
     profile: { counts: Map<string, number>; total: number };
   };
 
-  const engaaByYearAndPart = new Map<string, PreparedQuestion[]>();
+  // ENGAA and NSAA use different part labels for shared question sets (for
+  // example, NSAA Part B maps to ENGAA Part A and NSAA Part E maps to ENGAA
+  // Part B). Restricting candidates by the raw part label therefore prevents
+  // genuine duplicates from ever reaching the similarity check. Year remains
+  // a useful and reliable boundary, while the text and length thresholds do
+  // the actual duplicate identification.
+  const engaaByYear = new Map<number, PreparedQuestion[]>();
   const nsaaQuestions: PreparedQuestion[] = [];
 
   questions.forEach((question) => {
@@ -155,10 +180,9 @@ export function analyseNsaaDuplicates(
     };
 
     if (examFamily === "ENGAA") {
-      const key = `${preparedQuestion.year}|${preparedQuestion.partKey}`;
-      const current = engaaByYearAndPart.get(key) ?? [];
+      const current = engaaByYear.get(preparedQuestion.year) ?? [];
       current.push(preparedQuestion);
-      engaaByYearAndPart.set(key, current);
+      engaaByYear.set(preparedQuestion.year, current);
       return;
     }
 
@@ -170,9 +194,7 @@ export function analyseNsaaDuplicates(
   const nearMissPairs: DuplicateNearMissDebug[] = [];
 
   nsaaQuestions.forEach((nsaaQuestion) => {
-    const candidates =
-      engaaByYearAndPart.get(`${nsaaQuestion.year}|${nsaaQuestion.partKey}`) ??
-      [];
+    const candidates = engaaByYear.get(nsaaQuestion.year) ?? [];
 
     let bestOverall: DuplicatePairDebug | null = null;
     let bestEligible: DuplicatePairDebug | null = null;
@@ -262,6 +284,7 @@ export function analyseNsaaDuplicates(
 
   cachedAnalysis = result;
   cachedAnalysisInput = questions;
+  cachedAnalysisOptions = { ...options };
   return result;
 }
 
