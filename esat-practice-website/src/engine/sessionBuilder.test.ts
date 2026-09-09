@@ -68,12 +68,30 @@ describe("sessionBuilder", () => {
     expect(result).toHaveLength(2);
   });
 
-  it("should sort by year and page in untimed mode", () => {
-    const result = buildSession(mockQuestions, { mode: "untimed" });
-    // q1: 2020, p1
-    // q3: 2020, p5
-    // q2: 2021, p2
-    expect(result).toEqual(["q1", "q3", "q2"]);
+  it("randomly samples an untimed session before ordering it chronologically", () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    const multiYearQuestions = [
+      ...mockQuestions,
+      makeQuestion({
+        id: "q4",
+        taxonomy: { primary_topic: "Math", secondary_topics: [] },
+        source: { paper: "Paper C", year: 2019, page: 1 },
+      }),
+    ];
+
+    try {
+      const result = buildSession(multiYearQuestions, {
+        mode: "untimed",
+        question_count: 2,
+      });
+
+      // A zero-valued Fisher-Yates draw picks q2 and q3, rather than the first
+      // two chronological questions (q4 and q1). The selected sample is still
+      // shown in chronological order for an untimed session.
+      expect(result).toEqual(["q3", "q2"]);
+    } finally {
+      random.mockRestore();
+    }
   });
 
   it("should respect question_count limit", () => {

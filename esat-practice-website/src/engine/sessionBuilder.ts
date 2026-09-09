@@ -39,17 +39,33 @@ function matchesFilters(question: Question, config: SessionBuildConfig): boolean
 }
 
 function orderQuestions(questions: Question[], mode: SessionMode): Question[] {
-  return mode === "untimed"
-    ? [...questions].sort((left, right) => {
-        if (left.source.year !== right.source.year) {
-          return left.source.year - right.source.year;
-        }
-        if (left.source.page !== right.source.page) {
-          return left.source.page - right.source.page;
-        }
-        return left.id.localeCompare(right.id);
-      })
-    : shuffle(questions);
+  if (mode !== "untimed") {
+    return questions;
+  }
+
+  return [...questions].sort((left, right) => {
+    if (left.source.year !== right.source.year) {
+      return left.source.year - right.source.year;
+    }
+    if (left.source.page !== right.source.page) {
+      return left.source.page - right.source.page;
+    }
+    return left.id.localeCompare(right.id);
+  });
+}
+
+/**
+ * A session should always draw a random sample from its eligible bank. Untimed
+ * sessions retain their calm chronological question order only after the sample
+ * has been chosen, so an unfiltered session cannot always exhaust the oldest
+ * paper first.
+ */
+function selectQuestions(
+  questions: Question[],
+  count: number,
+  mode: SessionMode,
+): Question[] {
+  return orderQuestions(shuffle(questions).slice(0, count), mode);
 }
 
 export function buildSession(
@@ -65,9 +81,7 @@ export function buildSession(
     DEFAULT_SETTINGS.defaultQuestionCount;
 
   const filtered = questions.filter((question) => matchesFilters(question, config));
-  const ordered = orderQuestions(filtered, mode);
-
-  return ordered.slice(0, questionCount).map((question) => question.id);
+  return selectQuestions(filtered, questionCount, mode).map((question) => question.id);
 }
 
 /**
@@ -93,5 +107,5 @@ export function pickReplacementQuestions(
     (question) => !usedIds.has(question.id) && matchesFilters(question, config),
   );
 
-  return orderQuestions(candidates, mode).slice(0, count);
+  return selectQuestions(candidates, count, mode);
 }
