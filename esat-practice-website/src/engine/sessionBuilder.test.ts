@@ -68,7 +68,7 @@ describe("sessionBuilder", () => {
     expect(result).toHaveLength(2);
   });
 
-  it("randomly samples an untimed session before ordering it chronologically", () => {
+  it("randomly samples and orders an untimed session", () => {
     const random = vi.spyOn(Math, "random").mockReturnValue(0);
     const multiYearQuestions = [
       ...mockQuestions,
@@ -86,9 +86,9 @@ describe("sessionBuilder", () => {
       });
 
       // A zero-valued Fisher-Yates draw picks q2 and q3, rather than the first
-      // two chronological questions (q4 and q1). The selected sample is still
-      // shown in chronological order for an untimed session.
-      expect(result).toEqual(["q3", "q2"]);
+      // two chronological questions (q4 and q1), and preserves the random
+      // order for the untimed session.
+      expect(result).toEqual(["q2", "q3"]);
     } finally {
       random.mockRestore();
     }
