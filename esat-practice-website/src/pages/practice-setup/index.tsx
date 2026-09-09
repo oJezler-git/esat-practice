@@ -5,6 +5,12 @@ import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
 import { useSessionStore } from "../../lib/sessionStore";
+import {
+  ALL_SUBJECTS,
+  SUBJECT_LABELS,
+  subjectForTopic,
+} from "../../lib/subjects";
+import type { Subject } from "../../lib/subjects";
 import type { Session } from "../../types/schema";
 import type { SessionMode } from "../../types/engine";
 
@@ -27,6 +33,7 @@ type SetupState = {
 
 type SetupAction =
   | { type: "set_mode"; mode: SessionMode }
+  | { type: "set_topics"; topics: string[] }
   | { type: "toggle_topic"; topic: string }
   | { type: "toggle_year"; year: number }
   | { type: "set_count"; count: number }
@@ -38,6 +45,8 @@ function setupReducer(state: SetupState, action: SetupAction): SetupState {
   switch (action.type) {
     case "set_mode":
       return { ...state, mode: action.mode };
+    case "set_topics":
+      return { ...state, selectedTopics: action.topics };
     case "toggle_topic": {
       const topics = state.selectedTopics.includes(action.topic)
         ? state.selectedTopics.filter((t) => t !== action.topic)
@@ -75,6 +84,11 @@ const MODES: { value: SessionMode; label: string; description: string }[] = [
     description: "No time pressure, focus on accuracy",
   },
 ];
+
+const SUBJECT_PRESETS = ALL_SUBJECTS.map((subject) => ({
+  subject,
+  label: SUBJECT_LABELS[subject],
+}));
 
 const QUESTION_COUNT_MIN = 1;
 const QUESTION_COUNT_MAX = 81;
@@ -180,6 +194,28 @@ export default function PracticeSetup() {
   // O(1) membership checks for the chip render loops below.
   const selectedTopicSet = useMemo(() => new Set(selectedTopics), [selectedTopics]);
   const selectedYearSet = useMemo(() => new Set(selectedYears), [selectedYears]);
+  const availableTopicsBySubject = useMemo(() => {
+    const topicsBySubject = new Map<Subject, string[]>();
+    for (const subject of ALL_SUBJECTS) {
+      topicsBySubject.set(subject, []);
+    }
+    for (const topic of availableTopics) {
+      const subject = subjectForTopic(topic);
+      if (subject) {
+        topicsBySubject.get(subject)?.push(topic);
+      }
+    }
+    return topicsBySubject;
+  }, [availableTopics]);
+  const availableSubjectPresets = useMemo(
+    () =>
+      SUBJECT_PRESETS.filter(
+        ({ subject }) =>
+          settings.enabledSubjects.includes(subject) &&
+          (availableTopicsBySubject.get(subject)?.length ?? 0) > 0,
+      ),
+    [availableTopicsBySubject, settings.enabledSubjects],
+  );
   // While the count field is focused we track the raw text so the user can clear
   // it and type freely; null means "not editing", so show the committed count.
   const [countDraft, setCountDraft] = useState<string | null>(null);
@@ -442,6 +478,34 @@ export default function PracticeSetup() {
         <section className="sk-well">
           <h2 className="sk-well-title">Topics</h2>
           <p className="sk-hint">leave empty for all</p>
+          {availableSubjectPresets.length > 0 && (
+            <div className="sk-topic-presets">
+              <p className="sk-preset-label">Quick presets</p>
+              <div className="sk-chips sk-topic-presets-list">
+                {availableSubjectPresets.map(({ subject, label }) => {
+                  const presetTopics = availableTopicsBySubject.get(subject) ?? [];
+                  const isActive =
+                    selectedTopics.length === presetTopics.length &&
+                    presetTopics.every((topic) => selectedTopicSet.has(topic));
+                  return (
+                    <button
+                      type="button"
+                      key={subject}
+                      onClick={() =>
+                        dispatch({ type: "set_topics", topics: presetTopics })
+                      }
+                      aria-pressed={isActive}
+                      className={`sk-chip sk-topic-preset ${
+                        isActive ? "sk-chip--active" : ""
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="sk-chips">
             {availableTopics.map((topic) => (
               <button

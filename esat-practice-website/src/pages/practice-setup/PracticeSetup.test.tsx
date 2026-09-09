@@ -160,6 +160,41 @@ describe("PracticeSetup", () => {
     });
   });
 
+  it("shows enabled subject presets and selects the preset's topics", () => {
+    storeMocks.questionState.availableTopics = [
+      "M4. Algebra",
+      "MM6. Differentiation",
+      "P3. Mechanics",
+      "C1. Atomic Structure",
+      "B1. Cells",
+    ];
+    useSettingsStore.setState({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        enabledSubjects: ["maths1", "maths2", "physics", "chemistry"],
+      },
+    });
+
+    renderPracticeSetup();
+
+    expect(screen.getByRole("button", { name: "Maths" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Maths 2" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Physics" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Chemistry" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Biology" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Physics" }));
+
+    expect(screen.getByRole("button", { name: "P3. Mechanics" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Physics" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
   it("lets the user resume an active session", async () => {
     storeMocks.sessionState.getActiveSessions.mockResolvedValue([
       makeSession("active-session"),

@@ -403,6 +403,25 @@
   gap: 8px;
 }
 
+.sk-topic-presets {
+  margin: 0 0 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--sk-mode-border);
+}
+
+.sk-preset-label {
+  margin: 0 0 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sk-mode-desc);
+}
+
+.sk-topic-preset {
+  font-weight: 700;
+}
+
 .sk-chip {
   min-height: 44px;
   display: inline-flex;
