@@ -7,6 +7,8 @@ import type {
 import { getDb } from "./db";
 import { generateId } from "./ids";
 import { normalizeAttemptResult } from "../engine/result";
+import { commitSyncWrites } from "./cloudSync";
+import type { SyncLocalWrite } from "./cloudSync";
 
 export function normalizeAttemptRecord(value: unknown): Attempt | null {
   if (typeof value !== "object" || value === null) {
@@ -75,7 +77,6 @@ function buildSessionConfig(input: CreateSessionInput): SessionConfig {
 export async function createSessionRecord(
   input: CreateSessionInput,
 ): Promise<Session> {
-  const database = await getDb();
   const session: Session = {
     id: generateId(),
     created_at: Date.now(),
@@ -84,7 +85,7 @@ export async function createSessionRecord(
     attempt_ids: [],
     state: "active",
   };
-  await database.put("sessions", session);
+  await commitSyncWrites([{ entity: "session", action: "upsert", value: session }]);
   return session;
 }
 
@@ -150,15 +151,12 @@ export async function sweepStaleActiveSessions(
     active.map((session) => getLastActivityTimestamp(database, session)),
   );
   const stale = active.filter((_, index) => now - lastActivity[index] > staleAfterMs);
-  await Promise.all(
-    stale.map((session) =>
-      database.put("sessions", {
-        ...session,
-        state: "abandoned",
-        completed_at: now,
-      }),
-    ),
-  );
+  if (stale.length === 0) return;
+  await commitSyncWrites(stale.map((session) => ({
+    entity: "session" as const,
+    action: "upsert" as const,
+    value: { ...session, state: "abandoned" as const, completed_at: now },
+  })));
 }
 
 export async function getAttemptsForSession(sessionId: string): Promise<Attempt[]> {
@@ -216,16 +214,18 @@ export async function getFlaggedQuestionIds(): Promise<Set<string>> {
 
 export async function upsertAttemptRecord(attempt: Attempt): Promise<void> {
   const database = await getDb();
-  const transaction = database.transaction(["attempts", "sessions"], "readwrite");
-  await transaction.objectStore("attempts").put(attempt);
-
-  const sessionStore = transaction.objectStore("sessions");
-  const session = await sessionStore.get(attempt.session_id);
+  const session = await database.get("sessions", attempt.session_id);
+  const writes: SyncLocalWrite[] = [
+    { entity: "attempt", action: "upsert", value: attempt },
+  ];
   if (session && !session.attempt_ids.includes(attempt.id)) {
-    session.attempt_ids = [...session.attempt_ids, attempt.id];
-    await sessionStore.put(session);
+    writes.push({
+      entity: "session" as const,
+      action: "upsert" as const,
+      value: { ...session, attempt_ids: [...session.attempt_ids, attempt.id] },
+    });
   }
-  await transaction.done;
+  await commitSyncWrites(writes);
 }
 
 export async function saveSessionAttempts(
@@ -233,19 +233,20 @@ export async function saveSessionAttempts(
   attempts: Attempt[],
 ): Promise<void> {
   const database = await getDb();
-  const transaction = database.transaction(["attempts", "sessions"], "readwrite");
-  const attemptStore = transaction.objectStore("attempts");
-
-  await Promise.all(attempts.map((attempt) => attemptStore.put(attempt)));
-
-  const sessionStore = transaction.objectStore("sessions");
-  const session = await sessionStore.get(sessionId);
+  const session = await database.get("sessions", sessionId);
+  const writes: SyncLocalWrite[] = attempts.map((value) => ({
+    entity: "attempt" as const,
+    action: "upsert" as const,
+    value,
+  }));
   if (session) {
-    session.attempt_ids = attempts.map((attempt) => attempt.id);
-    await sessionStore.put(session);
+    writes.push({
+      entity: "session" as const,
+      action: "upsert" as const,
+      value: { ...session, attempt_ids: attempts.map((attempt) => attempt.id) },
+    });
   }
-
-  await transaction.done;
+  await commitSyncWrites(writes);
 }
 
 export async function markSessionCompleted(sessionId: string): Promise<void> {
@@ -255,11 +256,11 @@ export async function markSessionCompleted(sessionId: string): Promise<void> {
     return;
   }
 
-  await database.put("sessions", {
+  await commitSyncWrites([{ entity: "session", action: "upsert", value: {
     ...session,
     state: "completed",
     completed_at: Date.now(),
-  });
+  } }]);
 }
 
 export async function markSessionAbandoned(sessionId: string): Promise<void> {
@@ -269,11 +270,11 @@ export async function markSessionAbandoned(sessionId: string): Promise<void> {
     return;
   }
 
-  await database.put("sessions", {
+  await commitSyncWrites([{ entity: "session", action: "upsert", value: {
     ...session,
     state: "abandoned",
     completed_at: Date.now(),
-  });
+  } }]);
 }
 
 export async function updateSessionQuestionIds(
@@ -286,14 +287,14 @@ export async function updateSessionQuestionIds(
     return;
   }
 
-  await database.put("sessions", {
+  await commitSyncWrites([{ entity: "session", action: "upsert", value: {
     ...session,
     config: {
       ...session.config,
       question_ids: questionIds,
       question_count: questionIds.length,
     },
-  });
+  } }]);
 }
 
 /**
@@ -311,10 +312,10 @@ export async function updateSessionCurrentIndex(
     return;
   }
 
-  await database.put("sessions", {
+  await commitSyncWrites([{ entity: "session", action: "upsert", value: {
     ...session,
     current_index: currentIndex,
-  });
+  } }]);
 }
 
 const sessionStoreApi = {

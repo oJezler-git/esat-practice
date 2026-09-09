@@ -12,7 +12,31 @@ import type {
 } from "../types/schema";
 
 const DB_NAME = "esat-practice-db";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
+
+export type SyncEntity = "session" | "attempt" | "excludedQuestion";
+export type SyncAction = "upsert" | "delete";
+
+export interface SyncOutboxRecord {
+  mutationId: string;
+  entity: SyncEntity;
+  entityId: string;
+  action: SyncAction;
+  value?: Session | Attempt | ExcludedQuestion;
+  createdAt: number;
+}
+
+export interface SyncMetaRecord {
+  id: "state";
+  deviceId: string;
+  key: string | null;
+  epoch: number | null;
+  cursor: number | null;
+  dirtyAt: number | null;
+  lastSuccessfulSync: number | null;
+  retryCount: number;
+  migrationComplete: boolean;
+}
 
 interface EsatPracticeDB extends DBSchema {
   questions: {
@@ -71,6 +95,15 @@ interface EsatPracticeDB extends DBSchema {
     indexes: {
       "by-excluded-at": number;
     };
+  };
+  syncOutbox: {
+    key: string;
+    value: SyncOutboxRecord;
+    indexes: { "by-created-at": number };
+  };
+  syncMeta: {
+    key: string;
+    value: SyncMetaRecord;
   };
 }
 
@@ -144,6 +177,17 @@ export const upgradeDatabase: NonNullable<
     );
     excludedQuestionsStore.createIndex("by-excluded-at", "excluded_at");
   }
+
+  if (!database.objectStoreNames.contains("syncOutbox")) {
+    const outbox = database.createObjectStore("syncOutbox", {
+      keyPath: "mutationId",
+    });
+    outbox.createIndex("by-created-at", "createdAt");
+  }
+
+  if (!database.objectStoreNames.contains("syncMeta")) {
+    database.createObjectStore("syncMeta", { keyPath: "id" });
+  }
 };
 
 export function getDb(): Promise<IDBPDatabase<EsatPracticeDB>> {
@@ -167,6 +211,8 @@ export async function clearAllStores(): Promise<void> {
       "categoryStats",
       "sessionSummaries",
       "excludedQuestions",
+      "syncOutbox",
+      "syncMeta",
     ],
     "readwrite",
   );
@@ -178,6 +224,8 @@ export async function clearAllStores(): Promise<void> {
     transaction.objectStore("categoryStats").clear(),
     transaction.objectStore("sessionSummaries").clear(),
     transaction.objectStore("excludedQuestions").clear(),
+    transaction.objectStore("syncOutbox").clear(),
+    transaction.objectStore("syncMeta").clear(),
   ]);
   await transaction.done;
 }

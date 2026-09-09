@@ -7,6 +7,7 @@ import { useExcludedQuestionStore } from "../../lib/excludedQuestionStore";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useSettingsStore } from "../../lib/settingsStore";
+import { useSyncDataRevision } from "../../lib/syncCoordinator";
 import type { Question, ScoredAttempt, Session } from "../../types/schema";
 
 interface ReviewItem {
@@ -37,6 +38,7 @@ function loadReducer(state: LoadState, action: LoadAction): LoadState {
 }
 
 export default function ResultsPage() {
+  const syncDataRevision = useSyncDataRevision();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getSession, getAttempts } = useSessionStore();
@@ -130,7 +132,7 @@ export default function ResultsPage() {
     return () => {
       mounted = false;
     };
-  }, [allQuestions, excludeQuestion, getAttempts, getQuestionsByIds, getSession, id, navigate, settings.autoExclude, settings.autoExcludeOn]);
+  }, [allQuestions, excludeQuestion, getAttempts, getQuestionsByIds, getSession, id, navigate, settings.autoExclude, settings.autoExcludeOn, syncDataRevision]);
 
   const flaggedCount = items.filter((item) => item.attempt.flagged).length;
   const reviewSegments: Array<"all" | "incorrect" | "flagged"> =

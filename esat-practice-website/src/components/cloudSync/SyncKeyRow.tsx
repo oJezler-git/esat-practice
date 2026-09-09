@@ -22,6 +22,7 @@ interface SyncKeyRowProps {
   onCreateWithWords: () => void;
   onGenerate: () => void;
   onCopy: () => void;
+  onDisconnect: () => void;
   onDismissNew: () => void;
 }
 
@@ -47,6 +48,7 @@ export function SyncKeyRow({
   onCreateWithWords,
   onGenerate,
   onCopy,
+  onDisconnect,
   onDismissNew,
 }: SyncKeyRowProps) {
   return (
@@ -105,6 +107,20 @@ export function SyncKeyRow({
                 title="Copy key"
               >
                 {copying ? "Copied!" : "Copy"}
+              </button>
+              <button
+                type="button"
+                onClick={onStartEdit}
+                className="px-3 py-1.5 text-sm border border-subtle text-secondary rounded-lg hover:border-strong transition-colors"
+              >
+                Change key
+              </button>
+              <button
+                type="button"
+                onClick={onDisconnect}
+                className="px-3 py-1.5 text-sm border border-subtle text-muted rounded-lg hover:border-danger hover:text-danger-text transition-colors"
+              >
+                Disconnect
               </button>
             </>
           ) : null}

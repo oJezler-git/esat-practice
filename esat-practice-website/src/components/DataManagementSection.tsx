@@ -6,6 +6,8 @@ import {
   clearProgressData,
   generateConfirmationPhrase,
 } from "../lib/dataManagement";
+import { getSyncKey } from "../lib/cloudSync";
+import { clearSyncedPracticeData } from "../lib/syncCoordinator";
 
 type Message = { type: "success" | "error"; text: string } | null;
 
@@ -82,6 +84,9 @@ export function DataManagementSection({
 
     dispatch({ type: "clear_start" });
     try {
+      if (getSyncKey()) {
+        await clearSyncedPracticeData();
+      }
       await clearAllData();
       dispatch({ type: "set_message", message: { type: "success", text: "All data cleared. Reloading..." } });
       setTimeout(() => {
@@ -96,6 +101,9 @@ export function DataManagementSection({
   async function handleClearProgress() {
     dispatch({ type: "clear_start" });
     try {
+      if (getSyncKey()) {
+        await clearSyncedPracticeData();
+      }
       await clearProgressData();
       dispatch({ type: "set_message", message: { type: "success", text: "Progress data cleared. Reloading..." } });
       setTimeout(() => {
@@ -167,8 +175,9 @@ export function DataManagementSection({
               <div className="sk-confirm-header">
                 <h3 className="sk-confirm-title">Clear everything?</h3>
                 <p className="sk-confirm-desc">
-                  This will delete all your data, including settings. This
-                  action cannot be undone.
+                  This will delete all your data, including settings. If sync
+                  is connected, practice progress is cleared on every connected
+                  device. This action cannot be undone.
                 </p>
               </div>
 
@@ -228,8 +237,9 @@ export function DataManagementSection({
               <div className="sk-confirm-header">
                 <h3 className="sk-confirm-title">Clear progress data?</h3>
                 <p className="sk-confirm-desc">
-                  Sessions, stats, and question cache will be removed. This
-                  action cannot be undone.
+                  Sessions, stats, and question cache will be removed. If sync
+                  is connected, practice progress is cleared on every connected
+                  device. This action cannot be undone.
                 </p>
               </div>
 
@@ -246,7 +256,7 @@ export function DataManagementSection({
                 {!message && (
                   <p>
                     Are you sure you want to clear your practice statistics and
-                    session history?
+                    session history on every connected device?
                   </p>
                 )}
               </div>

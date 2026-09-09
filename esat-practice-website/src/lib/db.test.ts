@@ -13,7 +13,7 @@ import { makeAttempt, makeQuestion, makeSession } from "../test-utils/factories"
 
 let dbCounter = 0;
 
-function openFreshDb(version = 4) {
+function openFreshDb(version = 5) {
   dbCounter += 1;
   return openDB<EsatPracticeDB>(`db-test-${dbCounter}`, version, {
     upgrade: upgradeDatabase,
@@ -69,6 +69,25 @@ describe("schema round-trips", () => {
       question_id: "q-round",
       excluded_at: 789,
     });
+    await database.put("syncOutbox", {
+      mutationId: "m-round",
+      entity: "session",
+      entityId: "s-round",
+      action: "upsert",
+      value: session,
+      createdAt: 790,
+    });
+    await database.put("syncMeta", {
+      id: "state",
+      deviceId: "device-round",
+      key: "amber-forest-1234",
+      epoch: 1,
+      cursor: 2,
+      dirtyAt: 790,
+      lastSuccessfulSync: null,
+      retryCount: 0,
+      migrationComplete: true,
+    });
 
     expect(await database.get("questions", "q-round")).toEqual(question);
     expect(await database.get("sessions", "s-round")).toEqual(session);
@@ -79,6 +98,8 @@ describe("schema round-trips", () => {
     );
     expect((await database.get("sessionSummaries", "s-round"))?.accuracy).toBe(0.5);
     expect((await database.get("excludedQuestions", "q-round"))?.excluded_at).toBe(789);
+    expect((await database.get("syncOutbox", "m-round"))?.entityId).toBe("s-round");
+    expect((await database.get("syncMeta", "state"))?.cursor).toBe(2);
   });
 
   it("answers index queries used by the app", async () => {
@@ -216,6 +237,13 @@ describe("clearAllStores", () => {
     await database.put("sessions", makeSession({ id: "s-clear" }));
     await database.put("attempts", makeAttempt({ id: "a-clear" }));
     await database.put("excludedQuestions", { question_id: "q-clear", excluded_at: 1 });
+    await database.put("syncOutbox", {
+      mutationId: "m-clear",
+      entity: "attempt",
+      entityId: "a-clear",
+      action: "delete",
+      createdAt: 1,
+    });
 
     await clearAllStores();
 
@@ -226,5 +254,7 @@ describe("clearAllStores", () => {
     expect(await database.count("stats")).toBe(0);
     expect(await database.count("categoryStats")).toBe(0);
     expect(await database.count("sessionSummaries")).toBe(0);
+    expect(await database.count("syncOutbox")).toBe(0);
+    expect(await database.count("syncMeta")).toBe(0);
   });
 });

@@ -10,6 +10,7 @@ import {
   restoreLastBackup,
   clearLastBackup,
   createSyncKeyWithWords,
+  createRandomSyncKey,
   pushToCloud,
   pullFromCloud,
   SYNC_KEY_STORAGE_KEY,
@@ -164,6 +165,17 @@ describe("createSyncKeyWithWords", () => {
         body: JSON.stringify({ words: "amber-forest" }),
       })
     );
+  });
+
+  it("allocates random keys through the server using a memorable word pair", async () => {
+    const fetchMock = mockFetchResponse({ key: "bright-river-4321" });
+    vi.stubGlobal("fetch", fetchMock);
+
+    expect(await createRandomSyncKey()).toBe("bright-river-4321");
+    const request = JSON.parse(fetchMock.mock.calls[0][1].body as string) as { words: string };
+    const [adjective, noun] = request.words.split("-");
+    expect(ADJECTIVES).toContain(adjective);
+    expect(NOUNS).toContain(noun);
   });
 
   it("stores the returned key in localStorage and returns it", async () => {

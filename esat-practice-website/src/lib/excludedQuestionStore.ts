@@ -3,6 +3,7 @@ import { create } from "zustand";
 import type { ExcludedQuestion, Question } from "../types/schema";
 import { getDb } from "./db";
 import { analyseNsaaDuplicates } from "./questionDedup";
+import { commitSyncWrites } from "./cloudSync";
 
 function sortExcludedQuestions(
   left: ExcludedQuestion,
@@ -25,16 +26,14 @@ export async function getExcludedQuestionIdsFromDb(): Promise<Set<string>> {
 }
 
 export async function excludeQuestionInDb(questionId: string): Promise<void> {
-  const database = await getDb();
-  await database.put("excludedQuestions", {
+  await commitSyncWrites([{ entity: "excludedQuestion", action: "upsert", value: {
     question_id: questionId,
     excluded_at: Date.now(),
-  });
+  } }]);
 }
 
 export async function includeQuestionInDb(questionId: string): Promise<void> {
-  const database = await getDb();
-  await database.delete("excludedQuestions", questionId);
+  await commitSyncWrites([{ entity: "excludedQuestion", action: "delete", entityId: questionId }]);
 }
 
 interface ExcludedQuestionStoreState {

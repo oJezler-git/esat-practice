@@ -30,6 +30,23 @@ function makeEnv({
   };
 }
 
+function withSyncDocuments(env, fetchImpl = vi.fn().mockResolvedValue(
+  new Response(JSON.stringify({ version: 2, epoch: 1, cursor: 0, hasMore: false, reset: true }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  }),
+)) {
+  const stub = { fetch: fetchImpl };
+  return {
+    ...env,
+    SYNC_DOCUMENTS: {
+      idFromName: vi.fn((key) => `id:${key}`),
+      get: vi.fn(() => stub),
+    },
+    __syncFetch: fetchImpl,
+  };
+}
+
 function makeRequest(path, { method = "GET", body, headers = {} } = {}) {
   const url = `https://sync.example.com${path}`;
   const allHeaders = { "CF-Connecting-IP": "1.2.3.4", ...headers };
@@ -257,6 +274,21 @@ describe("POST /sync/create — key generation", () => {
     expect(json.key).toMatch(/^cool-words-\d{4,5}$/);
   });
 
+  it("claims generated keys through their Durable Object", async () => {
+    const claimFetch = vi.fn().mockResolvedValue(new Response("Claimed", { status: 201 }));
+    const env = withSyncDocuments(makeEnv(), claimFetch);
+    const res = await worker.fetch(
+      makeRequest("/sync/create", { method: "POST", body: { words: "cool-words" } }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    const { key } = await res.json();
+    expect(env.SYNC_DOCUMENTS.idFromName).toHaveBeenCalledWith(key);
+    expect(claimFetch).toHaveBeenCalledTimes(1);
+    expect(claimFetch.mock.calls[0][1].headers["X-Sync-Key"]).toBe(key);
+    expect(env.KV.put).not.toHaveBeenCalled();
+  });
+
   it("trims whitespace from words before processing", async () => {
     const env = makeEnv({ kvGetResult: null });
     const res = await worker.fetch(
@@ -302,6 +334,78 @@ describe("POST /sync/create — key generation", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.key).toMatch(/^cool-words-\d{5}$/);
+  });
+});
+
+describe("v2 automatic sync routing", () => {
+  const validExchange = {
+    version: 2,
+    deviceId: "device-one",
+    epoch: null,
+    cursor: null,
+    mutations: [],
+  };
+
+  it("routes exchange requests to the normalized per-key Durable Object", async () => {
+    const env = withSyncDocuments(makeEnv());
+    const res = await worker.fetch(
+      makeRequest("/sync/v2/cool-words-1234/exchange", { method: "POST", body: validExchange }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    expect(env.SYNC_DOCUMENTS.idFromName).toHaveBeenCalledWith("cool-words-1234");
+    const forwarded = env.__syncFetch.mock.calls[0][0];
+    expect(new URL(forwarded.url).pathname).toBe("/exchange");
+    expect(forwarded.headers.get("X-Sync-Key")).toBe("cool-words-1234");
+    expect(await forwarded.json()).toEqual(validExchange);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
+  });
+
+  it("routes clear requests to the same document", async () => {
+    const env = withSyncDocuments(makeEnv());
+    const res = await worker.fetch(
+      makeRequest("/sync/v2/cool-words-1234/clear", { method: "POST", body: { epoch: 2 } }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    expect(new URL(env.__syncFetch.mock.calls[0][0].url).pathname).toBe("/clear");
+  });
+
+  it("rejects malformed keys before consulting Durable Objects", async () => {
+    const env = withSyncDocuments(makeEnv());
+    const res = await worker.fetch(
+      makeRequest("/sync/v2/not-a-key/exchange", { method: "POST", body: validExchange }),
+      env,
+    );
+    expect(res.status).toBe(400);
+    expect(env.__syncFetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 503 when the Durable Object binding has not been deployed", async () => {
+    const res = await worker.fetch(
+      makeRequest("/sync/v2/cool-words-1234/exchange", { method: "POST", body: validExchange }),
+      makeEnv(),
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("keeps v1 GET and PUT available through the compatibility adapter", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ version: 1, sessions: [], attempts: [], excludedQuestions: [] })))
+      .mockResolvedValueOnce(new Response("ok"));
+    const env = withSyncDocuments(makeEnv(), fetchImpl);
+    const getRes = await worker.fetch(makeRequest("/sync/cool-words-1234"), env);
+    const putRes = await worker.fetch(makeRequest("/sync/cool-words-1234", {
+      method: "PUT",
+      body: { version: 1, sessions: [], attempts: [], excludedQuestions: [] },
+    }), env);
+    expect(getRes.status).toBe(200);
+    expect(putRes.status).toBe(200);
+    expect(fetchImpl.mock.calls.map(([request]) => [request.method, new URL(request.url).pathname])).toEqual([
+      ["GET", "/legacy"],
+      ["PUT", "/legacy"],
+    ]);
   });
 });
 

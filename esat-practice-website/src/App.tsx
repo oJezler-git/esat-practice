@@ -7,6 +7,7 @@ import { InteractionSounds } from "./components/ui/InteractionSounds";
 import { KeyboardShortcutOverlay } from "./components/ui/KeyboardShortcutOverlay";
 import { UpdatePrompt } from "./components/ui/UpdatePrompt";
 import { LoadingProgressDisplay } from "./components/LoadingProgressDisplay";
+import { SyncCoordinator } from "./components/SyncCoordinator";
 import { useSettingsStore } from "./lib/settingsStore";
 import { sweepStaleActiveSessions } from "./lib/sessionStore";
 
@@ -132,6 +133,7 @@ export default function App() {
       <InteractionSounds />
       <KeyboardShortcutOverlay />
       <LoadingProgressDisplay />
+      <SyncCoordinator />
       <UpdatePrompt />
       <main id="app-main" className={`app-main ${isSession ? "app-main-session" : ""}`}>
         <Suspense fallback={<div className="route-loading" aria-busy="true" />}>

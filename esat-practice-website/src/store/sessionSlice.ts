@@ -213,6 +213,7 @@ interface SessionSlice extends SessionEngineState {
   submit: () => Promise<void>;
   quit: () => Promise<void>;
   pause: () => Promise<void>;
+  checkpoint: () => Promise<void>;
   tick: (elapsedMs: number) => Promise<void>;
 }
 
@@ -563,8 +564,14 @@ return {
       return;
     }
 
+    const { nextState, committed } = commitQuestionElapsed(state);
+    set(nextState);
+    if (committed) {
+      await upsertAttemptRecord(committed);
+    }
+    await persistCurrentIndex(nextState);
     await markSessionAbandoned(state.session.id);
-    const reduced = reduceSessionState(state, { type: "QUIT" });
+    const reduced = reduceSessionState(nextState, { type: "QUIT" });
     set(reduced);
   },
   pause: async () => {
@@ -579,6 +586,24 @@ return {
     if (committed) {
       await upsertAttemptRecord(committed);
     }
+    await persistCurrentIndex(nextState);
+  },
+  checkpoint: async () => {
+    const state = get();
+    if (!state.session || state.status !== "active") {
+      return;
+    }
+
+    // Move the elapsed interval into the durable attempt immediately. Updating
+    // state before awaiting means overlapping lifecycle/interval checkpoints
+    // see a zero interval and cannot count the same time twice.
+    const { nextState, committed } = commitQuestionElapsed(state);
+    set(nextState);
+
+    if (committed) {
+      await upsertAttemptRecord(committed);
+    }
+    await persistCurrentIndex(nextState);
   },
   tick: async (elapsedMs: number) => {
     const state = get();
@@ -621,6 +646,7 @@ export function useSessionEngine(sessionId: string) {
   const submit = useSessionSlice((state) => state.submit);
   const quit = useSessionSlice((state) => state.quit);
   const pause = useSessionSlice((state) => state.pause);
+  const checkpoint = useSessionSlice((state) => state.checkpoint);
 
   const currentQuestion = questions[currentIndex] ?? null;
   // "unanswered" surfaces as undefined: consumers treat a result as "the user has
@@ -653,6 +679,30 @@ export function useSessionEngine(sessionId: string) {
     };
   }, [session?.id, status]);
 
+  useEffect(() => {
+    if (!session?.id || status !== "active") {
+      return;
+    }
+
+    const checkpointCurrentSession = () => {
+      void useSessionSlice.getState().checkpoint();
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        checkpointCurrentSession();
+      }
+    };
+
+    const intervalId = window.setInterval(checkpointCurrentSession, 15_000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      checkpointCurrentSession();
+    };
+  }, [session?.id, status]);
+
   return useMemo(
     () => ({
       notFound,
@@ -676,6 +726,7 @@ export function useSessionEngine(sessionId: string) {
       submit,
       quit,
       pause,
+      checkpoint,
       responses,
       questions,
     }),
@@ -700,6 +751,7 @@ export function useSessionEngine(sessionId: string) {
       submit,
       quit,
       pause,
+      checkpoint,
       timeRemaining,
     ],
   );

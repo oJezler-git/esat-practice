@@ -6,8 +6,10 @@ import {
   includeQuestionInDb,
 } from "./excludedQuestionStore";
 import { getDb } from "./db";
+import { commitSyncWrites } from "./cloudSync";
 
 vi.mock("./db");
+vi.mock("./cloudSync", () => ({ commitSyncWrites: vi.fn().mockResolvedValue(undefined) }));
 
 function createMockDb(opts: { excludedQuestions?: unknown[] } = {}) {
   return {
@@ -18,6 +20,7 @@ function createMockDb(opts: { excludedQuestions?: unknown[] } = {}) {
 }
 
 afterEach(() => {
+  vi.clearAllMocks();
   vi.restoreAllMocks();
 });
 
@@ -80,10 +83,13 @@ describe("excludeQuestionInDb", () => {
 
     await excludeQuestionInDb("q-abc");
 
-    expect(db.put).toHaveBeenCalledWith("excludedQuestions", {
-      question_id: "q-abc",
-      excluded_at: expect.any(Number),
-    });
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      {
+        entity: "excludedQuestion",
+        action: "upsert",
+        value: { question_id: "q-abc", excluded_at: expect.any(Number) },
+      },
+    ]);
   });
 
   it("excluded_at is close to Date.now()", async () => {
@@ -93,7 +99,10 @@ describe("excludeQuestionInDb", () => {
     await excludeQuestionInDb("q-abc");
     const after = Date.now();
 
-    const record = vi.mocked(db.put).mock.calls[0][1] as { excluded_at: number };
+    const write = vi.mocked(commitSyncWrites).mock.calls[0][0][0];
+    expect(write.action).toBe("upsert");
+    if (write.action !== "upsert") throw new Error("Expected an upsert write.");
+    const record = write.value as { excluded_at: number };
     expect(record.excluded_at).toBeGreaterThanOrEqual(before);
     expect(record.excluded_at).toBeLessThanOrEqual(after);
   });
@@ -106,6 +115,8 @@ describe("includeQuestionInDb", () => {
 
     await includeQuestionInDb("q-abc");
 
-    expect(db.delete).toHaveBeenCalledWith("excludedQuestions", "q-abc");
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      { entity: "excludedQuestion", entityId: "q-abc", action: "delete" },
+    ]);
   });
 });

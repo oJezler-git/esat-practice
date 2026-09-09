@@ -7,12 +7,16 @@ import {
   clearProgressData,
   generateConfirmationPhrase,
 } from "../lib/dataManagement";
+import { getSyncKey } from "../lib/cloudSync";
+import { clearSyncedPracticeData } from "../lib/syncCoordinator";
 
 vi.mock("../lib/dataManagement", () => ({
   clearAllData: vi.fn(),
   clearProgressData: vi.fn(),
   generateConfirmationPhrase: vi.fn(),
 }));
+vi.mock("../lib/cloudSync", () => ({ getSyncKey: vi.fn() }));
+vi.mock("../lib/syncCoordinator", () => ({ clearSyncedPracticeData: vi.fn() }));
 
 const navigateMock = vi.fn();
 // Injected so the component's delayed reload timer never hits
@@ -41,6 +45,8 @@ describe("DataManagementSection", () => {
     navigateMock.mockClear();
     vi.mocked(clearAllData).mockResolvedValue(undefined);
     vi.mocked(clearProgressData).mockResolvedValue(undefined);
+    vi.mocked(clearSyncedPracticeData).mockResolvedValue(undefined);
+    vi.mocked(getSyncKey).mockReturnValue(null);
     vi.mocked(generateConfirmationPhrase).mockReturnValue("alpha bravo charlie");
     vi.spyOn(window, "setTimeout");
   });
@@ -127,5 +133,20 @@ describe("DataManagementSection", () => {
 
     expect(screen.queryByText("Clear progress data?")).not.toBeInTheDocument();
     expect(clearProgressData).not.toHaveBeenCalled();
+  });
+
+  it("clears connected cloud progress before clearing local progress", async () => {
+    vi.mocked(getSyncKey).mockReturnValue("alpha-bravo-charlie-delta");
+    renderSection();
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    expect(screen.getAllByText(/every connected device/i)).not.toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Clear Progress" }));
+
+    await waitFor(() => expect(clearProgressData).toHaveBeenCalled());
+    expect(clearSyncedPracticeData).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(clearSyncedPracticeData).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(clearProgressData).mock.invocationCallOrder[0],
+    );
   });
 });

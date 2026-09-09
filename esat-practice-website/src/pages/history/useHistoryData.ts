@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
+import { useSyncDataRevision } from "../../lib/syncCoordinator";
 import type { Session, SessionSummary } from "../../types/schema";
 
 export interface SessionRow {
@@ -22,6 +23,7 @@ function getMondayOfWeek(date: Date): Date {
 }
 
 export function useHistoryData() {
+  const syncDataRevision = useSyncDataRevision();
   const { getAllSessions } = useSessionStore();
   const { getSessionSummaries } = useStatsStore();
 
@@ -46,7 +48,7 @@ export function useHistoryData() {
     return () => {
       mounted = false;
     };
-  }, [getAllSessions, getSessionSummaries]);
+  }, [getAllSessions, getSessionSummaries, syncDataRevision]);
 
   const summaryMap = useMemo(
     () => new Map(summaries.map((s) => [s.session_id, s])),

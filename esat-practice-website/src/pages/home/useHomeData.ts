@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer } from "react";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
 import { getRandomQuote, getTimeBasedGreeting } from "../../lib/motivationalContent";
+import { useSyncDataRevision } from "../../lib/syncCoordinator";
 import type { Session, TopicStat } from "../../types/schema";
 
 interface CachedGreeting {
@@ -34,6 +35,7 @@ function homeDataReducer(state: HomeDataState, action: HomeDataAction): HomeData
 
 /** Loads the cached-per-hour greeting/quote and the recent-sessions/weak-topics summary. */
 export function useHomeData() {
+  const syncDataRevision = useSyncDataRevision();
   const { getRecentSessions } = useSessionStore();
   const { getAllStats } = useStatsStore();
 
@@ -72,7 +74,7 @@ export function useHomeData() {
       recentSessions: sessions,
       weakTopics: stats.filter((stat) => stat.ewma_accuracy < 0.5 && stat.attempts >= 3).slice(0, 3),
     });
-  }, [getAllStats, getRecentSessions]);
+  }, [getAllStats, getRecentSessions, syncDataRevision]);
 
   useEffect(() => {
     let mounted = true;

@@ -99,6 +99,7 @@ describe("sessionSlice", () => {
       questions: mockQuestions,
       status: "active",
       currentIndex: 0,
+      questionElapsed: 4_000,
       responses: {},
       flagged: new Set(),
     });
@@ -108,6 +109,10 @@ describe("sessionSlice", () => {
 
     const updatedState = useSessionSlice.getState();
     expect(updatedState.status).toBe("abandoned");
+    expect(sessionStore.upsertAttemptRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ question_id: "q1", time_ms: 4_000 }),
+    );
+    expect(sessionStore.updateSessionCurrentIndex).toHaveBeenCalledWith("s1", 0);
     expect(sessionStore.markSessionAbandoned).toHaveBeenCalledWith("s1");
   });
 
@@ -148,6 +153,28 @@ describe("sessionSlice", () => {
     await store.pause();
 
     expect(sessionStore.upsertAttemptRecord).not.toHaveBeenCalled();
+  });
+
+  it("checkpoints elapsed time and the resumable position", async () => {
+    useSessionSlice.setState({
+      session: mockSession,
+      questions: mockQuestions,
+      status: "active",
+      currentIndex: 1,
+      questionElapsed: 15_000,
+      responses: {},
+      flagged: new Set(),
+    });
+
+    await useSessionSlice.getState().checkpoint();
+
+    const updatedState = useSessionSlice.getState();
+    expect(updatedState.questionElapsed).toBe(0);
+    expect(updatedState.responses.q2.time_ms).toBe(15_000);
+    expect(sessionStore.upsertAttemptRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ question_id: "q2", time_ms: 15_000 }),
+    );
+    expect(sessionStore.updateSessionCurrentIndex).toHaveBeenCalledWith("s1", 1);
   });
 
   it("does nothing when quit is called with no active session", async () => {

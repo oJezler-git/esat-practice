@@ -10,8 +10,10 @@ import {
   sweepStaleActiveSessions,
 } from "./sessionStore";
 import { getDb } from "./db";
+import { commitSyncWrites } from "./cloudSync";
 
 vi.mock("./db");
+vi.mock("./cloudSync", () => ({ commitSyncWrites: vi.fn().mockResolvedValue(undefined) }));
 
 const SESSION_ID = "session-test-abc";
 
@@ -56,6 +58,7 @@ function makeRawAttempt(overrides: Record<string, unknown> = {}) {
 }
 
 afterEach(() => {
+  vi.clearAllMocks();
   vi.restoreAllMocks();
 });
 
@@ -245,7 +248,9 @@ describe("createSessionRecord", () => {
     expect(session.attempt_ids).toEqual([]);
     expect(typeof session.id).toBe("string");
     expect(typeof session.created_at).toBe("number");
-    expect(db.put).toHaveBeenCalledWith("sessions", session);
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      { entity: "session", action: "upsert", value: session },
+    ]);
   });
 });
 
@@ -281,17 +286,20 @@ describe("markSessionCompleted", () => {
 
     await markSessionCompleted(SESSION_ID);
 
-    expect(db.put).toHaveBeenCalledWith(
-      "sessions",
-      expect.objectContaining({ state: "completed", completed_at: expect.any(Number) }),
-    );
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      {
+        entity: "session",
+        action: "upsert",
+        value: expect.objectContaining({ state: "completed", completed_at: expect.any(Number) }),
+      },
+    ]);
   });
 
   it("does nothing when the session does not exist", async () => {
     const { db } = createMockDb({ session: null });
     vi.mocked(getDb).mockResolvedValue(db as any);
     await markSessionCompleted("nonexistent");
-    expect(db.put).not.toHaveBeenCalled();
+    expect(commitSyncWrites).not.toHaveBeenCalled();
   });
 });
 
@@ -303,17 +311,20 @@ describe("markSessionAbandoned", () => {
 
     await markSessionAbandoned(SESSION_ID);
 
-    expect(db.put).toHaveBeenCalledWith(
-      "sessions",
-      expect.objectContaining({ state: "abandoned", completed_at: expect.any(Number) }),
-    );
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      {
+        entity: "session",
+        action: "upsert",
+        value: expect.objectContaining({ state: "abandoned", completed_at: expect.any(Number) }),
+      },
+    ]);
   });
 
   it("does nothing when the session does not exist", async () => {
     const { db } = createMockDb({ session: null });
     vi.mocked(getDb).mockResolvedValue(db as any);
     await markSessionAbandoned("nonexistent");
-    expect(db.put).not.toHaveBeenCalled();
+    expect(commitSyncWrites).not.toHaveBeenCalled();
   });
 });
 
@@ -364,10 +375,17 @@ describe("sweepStaleActiveSessions", () => {
 
     await sweepStaleActiveSessions(6 * HOUR);
 
-    expect(db.put).toHaveBeenCalledWith(
-      "sessions",
-      expect.objectContaining({ id: "s1", state: "abandoned", completed_at: expect.any(Number) }),
-    );
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      {
+        entity: "session",
+        action: "upsert",
+        value: expect.objectContaining({
+          id: "s1",
+          state: "abandoned",
+          completed_at: expect.any(Number),
+        }),
+      },
+    ]);
   });
 
   it("leaves an active session alone when it has recent attempt activity", async () => {
@@ -378,7 +396,7 @@ describe("sweepStaleActiveSessions", () => {
 
     await sweepStaleActiveSessions(6 * HOUR);
 
-    expect(db.put).not.toHaveBeenCalled();
+    expect(commitSyncWrites).not.toHaveBeenCalled();
   });
 
   it("falls back to created_at when there are no attempts yet", async () => {
@@ -389,10 +407,13 @@ describe("sweepStaleActiveSessions", () => {
 
     await sweepStaleActiveSessions(6 * HOUR);
 
-    expect(db.put).toHaveBeenCalledWith(
-      "sessions",
-      expect.objectContaining({ id: "s1", state: "abandoned" }),
-    );
+    expect(commitSyncWrites).toHaveBeenCalledWith([
+      {
+        entity: "session",
+        action: "upsert",
+        value: expect.objectContaining({ id: "s1", state: "abandoned" }),
+      },
+    ]);
   });
 
   it("does not touch sessions that are already completed or abandoned", async () => {
@@ -406,6 +427,6 @@ describe("sweepStaleActiveSessions", () => {
 
     await sweepStaleActiveSessions(6 * HOUR);
 
-    expect(db.put).not.toHaveBeenCalled();
+    expect(commitSyncWrites).not.toHaveBeenCalled();
   });
 });

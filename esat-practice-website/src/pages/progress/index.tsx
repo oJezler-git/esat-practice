@@ -5,6 +5,7 @@ import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { useQuestionStore } from "../../lib/questionStore";
 import { useSessionStore } from "../../lib/sessionStore";
 import { useStatsStore } from "../../lib/statsStore";
+import { useSyncDataRevision } from "../../lib/syncCoordinator";
 import type {
   CategoryStat,
   Session,
@@ -48,6 +49,7 @@ const DIMENSION_LABELS: Record<StatDimension, string> = {
 };
 
 export default function Progress() {
+  const syncDataRevision = useSyncDataRevision();
   const navigate = useNavigate();
   const { getAllStats, getCategoryStats, getSessionSummaries } = useStatsStore();
   const { getRecentSessions, createSession } = useSessionStore();
@@ -84,7 +86,7 @@ export default function Progress() {
     return () => {
       mounted = false;
     };
-  }, [getAllStats, getCategoryStats, getRecentSessions, getSessionSummaries]);
+  }, [getAllStats, getCategoryStats, getRecentSessions, getSessionSummaries, syncDataRevision]);
 
   const totalAttempts = useMemo(
     () => stats.reduce((total, stat) => total + stat.attempts, 0),

@@ -3,14 +3,14 @@ import { SyncKeyRow } from "./cloudSync/SyncKeyRow";
 import { useCloudSync } from "./cloudSync/useCloudSync";
 
 export function CloudSyncSection() {
-  const { state, busy, showUndo, ...actions } = useCloudSync();
+  const { state, syncStatus, ...actions } = useCloudSync();
 
   return (
     <section className="mb-8 border border-subtle rounded-xl bg-soft overflow-hidden">
       <div className="px-4 py-3.5 border-b border-subtle">
         <h2 className="text-sm font-medium text-muted">Cloud Sync</h2>
         <p className="text-xs text-muted mt-1">
-          Sync your progress across devices using a personal sync key. No account needed. Cloud copies that go untouched for a year are automatically deleted.
+          Connect once and your practice progress saves automatically across devices. No account needed. Cloud copies that go untouched for a year are automatically deleted.
         </p>
       </div>
 
@@ -37,22 +37,16 @@ export function CloudSyncSection() {
           onCreateWithWords={() => { void actions.onCreateWithWords(); }}
           onGenerate={actions.onGenerate}
           onCopy={() => { void actions.onCopy(); }}
+          onDisconnect={() => { void actions.onDisconnect(); }}
           onDismissNew={actions.onDismissNew}
         />
 
         <SyncDataPanel
           hasKey={!!state.key}
-          busy={busy}
-          pushing={state.pushing}
-          pulling={state.pulling}
-          restoring={state.restoring}
-          lastPush={state.lastPush}
-          lastPull={state.lastPull}
-          showUndo={showUndo}
-          status={state.status}
-          onPush={() => { void actions.onPush(); }}
-          onPull={() => { void actions.onPull(); }}
-          onRestore={() => { void actions.onRestore(); }}
+          phase={syncStatus.status}
+          lastSyncedAt={syncStatus.lastSyncedAt}
+          error={syncStatus.error}
+          onRetry={() => { void actions.onRetry(); }}
         />
       </div>
     </section>

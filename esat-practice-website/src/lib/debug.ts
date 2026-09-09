@@ -3,6 +3,7 @@ import { getDecision, checkAlreadyPersisted } from "./persistentStorage";
 import { getDb } from "./db";
 import { generateId } from "./ids";
 import { recomputeAllStats } from "./statsStore";
+import { commitSyncWrites } from "./cloudSync";
 import type { Attempt, Session } from "../types/schema";
 
 interface EsatDebug {
@@ -129,12 +130,10 @@ async function seedProgress(): Promise<void> {
     });
   }
 
-  const tx = database.transaction(["sessions", "attempts"], "readwrite");
-  await Promise.all([
-    ...sessions.map(s => tx.objectStore("sessions").put(s)),
-    ...attempts.map(a => tx.objectStore("attempts").put(a)),
+  await commitSyncWrites([
+    ...sessions.map((value) => ({ entity: "session" as const, action: "upsert" as const, value })),
+    ...attempts.map((value) => ({ entity: "attempt" as const, action: "upsert" as const, value })),
   ]);
-  await tx.done;
 
   await recomputeAllStats();
   console.log(`[esat] Seeded ${TOTAL} synthetic sessions. Reloading...`);

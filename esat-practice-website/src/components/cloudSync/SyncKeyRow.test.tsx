@@ -14,6 +14,7 @@ const handlers = {
   onCreateWithWords: vi.fn(),
   onGenerate: vi.fn(),
   onCopy: vi.fn(),
+  onDisconnect: vi.fn(),
   onDismissNew: vi.fn(),
 };
 
