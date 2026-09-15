@@ -10,6 +10,7 @@ const storeMocks = vi.hoisted(() => ({
   sessionState: {
     getSession: vi.fn(),
     getAttempts: vi.fn(),
+    createSession: vi.fn(),
   },
   questionState: {
     getQuestionsByIds: vi.fn(),
@@ -110,6 +111,7 @@ function renderResultsPage() {
     <MemoryRouter initialEntries={["/results/completed-session"]}>
       <Routes>
         <Route path="/results/:id" element={<ResultsPage />} />
+        <Route path="/session/:id" element={<div data-testid="session-route">Session</div>} />
         <Route path="/" element={<div>Home</div>} />
       </Routes>
     </MemoryRouter>,
@@ -120,11 +122,13 @@ describe("ResultsPage", () => {
   beforeEach(() => {
     storeMocks.sessionState.getSession.mockResolvedValue(completedSession);
     storeMocks.sessionState.getAttempts.mockResolvedValue(attempts);
+    storeMocks.sessionState.createSession.mockResolvedValue({ id: "retest-session" });
     storeMocks.questionState.getQuestionsByIds.mockResolvedValue(questions);
     storeMocks.questionState.allQuestions = questions;
     storeMocks.excludedState.excludeQuestion.mockResolvedValue(undefined);
     storeMocks.sessionState.getSession.mockClear();
     storeMocks.sessionState.getAttempts.mockClear();
+    storeMocks.sessionState.createSession.mockClear();
     storeMocks.questionState.getQuestionsByIds.mockClear();
     storeMocks.excludedState.excludeQuestion.mockClear();
     useSettingsStore.setState({
@@ -187,5 +191,24 @@ describe("ResultsPage", () => {
     expect(within(item as HTMLElement).getByText("Answer:")).toBeInTheDocument();
     expect(within(item as HTMLElement).getAllByText("Mechanics")).toHaveLength(2);
     expect(within(item as HTMLElement).getByText("30s")).toBeInTheDocument();
+  });
+
+  it("retests only the questions marked incorrect in the completed session", async () => {
+    renderResultsPage();
+
+    const retestButton = await screen.findByRole("button", {
+      name: "Retest mistakes (1)",
+    });
+    fireEvent.click(retestButton);
+
+    await waitFor(() => {
+      expect(storeMocks.sessionState.createSession).toHaveBeenCalledWith({
+        mode: "untimed",
+        question_ids: ["q2"],
+        question_count: 1,
+        incorrect_only: true,
+      });
+    });
+    expect(await screen.findByTestId("session-route")).toBeInTheDocument();
   });
 });

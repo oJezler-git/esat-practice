@@ -60,6 +60,7 @@ export interface CreateSessionInput {
   paper_filter?: string[];
   year_filter?: number[];
   flagged_only?: boolean;
+  incorrect_only?: boolean;
 }
 
 function buildSessionConfig(input: CreateSessionInput): SessionConfig {
@@ -71,6 +72,7 @@ function buildSessionConfig(input: CreateSessionInput): SessionConfig {
     paper_filter: input.paper_filter,
     year_filter: input.year_filter,
     flagged_only: input.flagged_only,
+    incorrect_only: input.incorrect_only,
   };
 }
 
@@ -212,6 +214,36 @@ export async function getFlaggedQuestionIds(): Promise<Set<string>> {
   return flagged;
 }
 
+/**
+ * Returns the set of question IDs whose most recent attempt was incorrect.
+ * Once a student re-attempts the question and marks it correct, it is removed
+ * from this unresolved mistakes set.
+ */
+export async function getIncorrectQuestionIds(): Promise<Set<string>> {
+  const database = await getDb();
+  const attemptsRaw = await database.getAll("attempts");
+  const latestByQuestion = new Map<string, Attempt>();
+
+  for (const raw of attemptsRaw) {
+    const attempt = normalizeAttemptRecord(raw);
+    if (!attempt) {
+      continue;
+    }
+    const existing = latestByQuestion.get(attempt.question_id);
+    if (!existing || attempt.timestamp >= existing.timestamp) {
+      latestByQuestion.set(attempt.question_id, attempt);
+    }
+  }
+
+  const incorrect = new Set<string>();
+  for (const [questionId, attempt] of latestByQuestion) {
+    if (attempt.result === "incorrect") {
+      incorrect.add(questionId);
+    }
+  }
+  return incorrect;
+}
+
 export async function upsertAttemptRecord(attempt: Attempt): Promise<void> {
   const database = await getDb();
   const session = await database.get("sessions", attempt.session_id);
@@ -326,6 +358,7 @@ const sessionStoreApi = {
   getActiveSessions,
   getAttempts: getAttemptsForSession,
   getFlaggedQuestionIds,
+  getIncorrectQuestionIds,
   upsertAttempt: upsertAttemptRecord,
   saveAttempts: saveSessionAttempts,
   completeSession: markSessionCompleted,

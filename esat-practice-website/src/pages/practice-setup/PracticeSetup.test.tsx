@@ -19,6 +19,7 @@ const storeMocks = vi.hoisted(() => ({
     getActiveSessions: vi.fn(),
     abandonSession: vi.fn(),
     getFlaggedQuestionIds: vi.fn(),
+    getIncorrectQuestionIds: vi.fn(),
   },
   excludedState: {
     excludedQuestionIds: new Set<string>(),
@@ -117,6 +118,7 @@ describe("PracticeSetup", () => {
     storeMocks.sessionState.createSession.mockResolvedValue(makeSession("new-session"));
     storeMocks.sessionState.getActiveSessions.mockResolvedValue([]);
     storeMocks.sessionState.getFlaggedQuestionIds.mockResolvedValue(new Set<string>());
+    storeMocks.sessionState.getIncorrectQuestionIds.mockResolvedValue(new Set<string>());
     storeMocks.sessionState.abandonSession.mockResolvedValue(undefined);
     storeMocks.sessionState.createSession.mockClear();
     storeMocks.sessionState.getActiveSessions.mockClear();
@@ -156,6 +158,29 @@ describe("PracticeSetup", () => {
     await waitFor(() => {
       expect(screen.getByTestId("location")).toHaveTextContent(
         "/session/new-session",
+      );
+    });
+  });
+
+  it("shows the unresolved mistake count and starts a mistakes-only session", async () => {
+    storeMocks.sessionState.getIncorrectQuestionIds.mockResolvedValue(
+      new Set(["q1", "q3"]),
+    );
+    renderPracticeSetup();
+
+    const toggle = await screen.findByRole("switch", {
+      name: "Practise previous incorrect questions only",
+    });
+    expect(toggle).toHaveTextContent("2 questions");
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "Start session" }));
+
+    await waitFor(() => {
+      expect(storeMocks.sessionState.createSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          question_ids: expect.arrayContaining(["q1", "q3"]),
+          incorrect_only: true,
+        }),
       );
     });
   });

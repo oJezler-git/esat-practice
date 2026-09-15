@@ -75,6 +75,10 @@ export interface SessionConfig {
    * filters alone would let an unflagged question in.
    */
   flagged_only?: boolean;
+  /**
+   * Session was built from previous incorrect questions only.
+   */
+  incorrect_only?: boolean;
 }
 
 export interface Session {

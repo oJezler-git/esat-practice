@@ -41,7 +41,7 @@ export default function ResultsPage() {
   const syncDataRevision = useSyncDataRevision();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getSession, getAttempts } = useSessionStore();
+  const { getSession, getAttempts, createSession } = useSessionStore();
   const { getQuestionsByIds, allQuestions } = useQuestionStore();
   const { excludeQuestion } = useExcludedQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
@@ -143,6 +143,19 @@ export default function ResultsPage() {
       : reviewMode === "flagged"
         ? items.filter((item) => item.attempt.flagged)
         : items;
+
+  const incorrectItems = items.filter((item) => item.attempt.result === "incorrect");
+
+  async function retestMistakes() {
+    if (incorrectItems.length === 0) return;
+    const session = await createSession({
+      mode: "untimed",
+      question_ids: incorrectItems.map((item) => item.question.id),
+      question_count: incorrectItems.length,
+      incorrect_only: true,
+    });
+    navigate(`/session/${session.id}`);
+  }
 
   if (isLoading || !session) {
     return (
@@ -283,6 +296,15 @@ export default function ResultsPage() {
           <Link to="/practice" className="sk-cta">
             <span>New session</span>
           </Link>
+          {incorrectItems.length > 0 && (
+            <button
+              type="button"
+              onClick={() => { void retestMistakes(); }}
+              className="sk-tile"
+            >
+              Retest mistakes ({incorrectItems.length})
+            </button>
+          )}
           <Link to="/progress" className="sk-tile">
             View progress
           </Link>

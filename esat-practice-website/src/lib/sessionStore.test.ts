@@ -5,6 +5,7 @@ import {
   getRecentSessions,
   getActiveSessions,
   getFlaggedQuestionIds,
+  getIncorrectQuestionIds,
   markSessionCompleted,
   markSessionAbandoned,
   sweepStaleActiveSessions,
@@ -230,6 +231,65 @@ describe("getFlaggedQuestionIds", () => {
   });
 });
 
+describe("getIncorrectQuestionIds", () => {
+  function makeAttemptsDb(attempts: unknown[]) {
+    return {
+      getAll: vi.fn(async (store: string) => (store === "attempts" ? attempts : [])),
+    };
+  }
+
+  it("returns an empty set when there are no attempts", async () => {
+    const db = makeAttemptsDb([]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const result = await getIncorrectQuestionIds();
+    expect([...result]).toEqual([]);
+  });
+
+  it("returns question IDs whose most recent attempt was incorrect", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: "a1", question_id: "q-1", result: "incorrect", timestamp: 1000 }),
+      makeRawAttempt({ id: "a2", question_id: "q-2", result: "correct", timestamp: 1000 }),
+      makeRawAttempt({ id: "a3", question_id: "q-3", result: "skipped", timestamp: 1000 }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const result = await getIncorrectQuestionIds();
+    expect([...result]).toEqual(["q-1"]);
+  });
+
+  it("resolves a mistake when a subsequent attempt is correct", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: "a1", question_id: "q-1", result: "incorrect", timestamp: 1000 }),
+      makeRawAttempt({ id: "a2", question_id: "q-1", result: "correct", timestamp: 2000 }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const result = await getIncorrectQuestionIds();
+    expect([...result]).toEqual([]);
+  });
+
+  it("includes a question when a newer attempt becomes incorrect", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: "a1", question_id: "q-1", result: "correct", timestamp: 1000 }),
+      makeRawAttempt({ id: "a2", question_id: "q-1", result: "incorrect", timestamp: 2000 }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const result = await getIncorrectQuestionIds();
+    expect([...result]).toEqual(["q-1"]);
+  });
+
+  it("skips malformed attempt records", async () => {
+    const db = makeAttemptsDb([
+      makeRawAttempt({ id: undefined, question_id: "q-1", result: "incorrect" }),
+    ]);
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    expect([...(await getIncorrectQuestionIds())]).toEqual([]);
+  });
+});
+
 describe("createSessionRecord", () => {
   it("writes a session with the correct shape and returns it", async () => {
     const { db } = createMockDb();
@@ -251,6 +311,19 @@ describe("createSessionRecord", () => {
     expect(commitSyncWrites).toHaveBeenCalledWith([
       { entity: "session", action: "upsert", value: session },
     ]);
+  });
+
+  it("preserves incorrect_only flag in config", async () => {
+    const { db } = createMockDb();
+    vi.mocked(getDb).mockResolvedValue(db as any);
+
+    const session = await createSessionRecord({
+      mode: "untimed",
+      question_ids: ["q1"],
+      incorrect_only: true,
+    });
+
+    expect(session.config.incorrect_only).toBe(true);
   });
 });
 

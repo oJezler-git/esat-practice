@@ -23,6 +23,7 @@ import {
 import {
   getAttemptsForSession,
   getFlaggedQuestionIds,
+  getIncorrectQuestionIds,
   getSessionById,
   markSessionAbandoned,
   markSessionCompleted,
@@ -184,6 +185,13 @@ async function pickTopUpQuestions(
   if (pool.length > 0 && session.config.flagged_only) {
     const flaggedIds = await getFlaggedQuestionIds();
     pool = pool.filter((candidate) => flaggedIds.has(candidate.id));
+  }
+
+  // Mistakes-only sessions must also stay within the currently unresolved
+  // mistakes when a question is excluded and needs replacing.
+  if (pool.length > 0 && session.config.incorrect_only) {
+    const incorrectIds = await getIncorrectQuestionIds();
+    pool = pool.filter((candidate) => incorrectIds.has(candidate.id));
   }
 
   return pickReplacementQuestions(

@@ -28,6 +28,7 @@ type SetupState = {
   selectedYears: number[];
   questionCount: number;
   flaggedOnly: boolean;
+  incorrectOnly: boolean;
   setupError: string | null;
 };
 
@@ -39,6 +40,7 @@ type SetupAction =
   | { type: "set_count"; count: number }
   | { type: "set_count_exact"; count: number }
   | { type: "set_flagged_only"; value: boolean }
+  | { type: "set_incorrect_only"; value: boolean }
   | { type: "set_error"; error: string | null };
 
 function setupReducer(state: SetupState, action: SetupAction): SetupState {
@@ -65,6 +67,8 @@ function setupReducer(state: SetupState, action: SetupAction): SetupState {
       return { ...state, questionCount: clampExactCount(action.count) };
     case "set_flagged_only":
       return { ...state, flaggedOnly: action.value };
+    case "set_incorrect_only":
+      return { ...state, incorrectOnly: action.value };
     case "set_error":
       return { ...state, setupError: action.error };
     default:
@@ -138,11 +142,12 @@ export default function PracticeSetup() {
   const { questions, availableTopics, availableYears, isLoading, loaded } =
     useQuestionStore();
   const settings = useSettingsStore((state) => state.settings);
-  const { createSession, getActiveSessions, abandonSession, getFlaggedQuestionIds } =
+  const { createSession, getActiveSessions, abandonSession, getFlaggedQuestionIds, getIncorrectQuestionIds } =
     useSessionStore();
   const { excludedQuestionIds } = useExcludedQuestionStore();
   const [activeSession, setActiveSession] = useState<Session | null>(null);
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set());
+  const [incorrectIds, setIncorrectIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -168,6 +173,18 @@ export default function PracticeSetup() {
     };
   }, [getFlaggedQuestionIds]);
 
+  useEffect(() => {
+    let cancelled = false;
+    void getIncorrectQuestionIds().then((ids) => {
+      if (!cancelled) {
+        setIncorrectIds(ids);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [getIncorrectQuestionIds]);
+
   function handleResume() {
     if (activeSession) {
       navigate(`/session/${activeSession.id}`);
@@ -186,10 +203,11 @@ export default function PracticeSetup() {
     selectedYears: [],
     questionCount: settings.defaultQuestionCount,
     flaggedOnly: false,
+    incorrectOnly: false,
     setupError: null,
   }));
 
-  const { mode, selectedTopics, selectedYears, questionCount, flaggedOnly, setupError } =
+  const { mode, selectedTopics, selectedYears, questionCount, flaggedOnly, incorrectOnly, setupError } =
     state;
   // O(1) membership checks for the chip render loops below.
   const selectedTopicSet = useMemo(() => new Set(selectedTopics), [selectedTopics]);
@@ -227,6 +245,10 @@ export default function PracticeSetup() {
   const flaggedAvailableCount = availableQuestions.filter((q) =>
     flaggedIds.has(q.id),
   ).length;
+  // How many still-available questions have their last attempt marked incorrect.
+  const incorrectAvailableCount = availableQuestions.filter((q) =>
+    incorrectIds.has(q.id),
+  ).length;
 
   async function handleStart() {
     if (!isQuestionBankReady) {
@@ -248,17 +270,23 @@ export default function PracticeSetup() {
           ? questionCount * settings.timedSecondsPerQ * 1000
           : undefined,
       flagged_only: flaggedOnly ? true : undefined,
+      incorrect_only: incorrectOnly ? true : undefined,
     };
 
-    const pool = flaggedOnly
-      ? availableQuestions.filter((q) => flaggedIds.has(q.id))
-      : availableQuestions;
+    let pool = availableQuestions;
+    if (incorrectOnly) {
+      pool = availableQuestions.filter((q) => incorrectIds.has(q.id));
+    } else if (flaggedOnly) {
+      pool = availableQuestions.filter((q) => flaggedIds.has(q.id));
+    }
 
     const questionIds = buildSession(pool, config);
     if (questionIds.length === 0) {
       dispatch({
         type: "set_error",
-        error: flaggedOnly
+        error: incorrectOnly
+          ? "No previous incorrect questions match your filters. Answer some questions incorrectly first, or turn off “Mistakes only”."
+          : flaggedOnly
           ? "No flagged questions match your filters. Flag questions during a session, or turn off “Flagged only”."
           : "No questions match your filters. Try broadening your selection.",
       });
@@ -348,6 +376,37 @@ export default function PracticeSetup() {
             ))}
           </div>
         </section>
+
+        <button
+          type="button"
+          role="switch"
+          aria-checked={incorrectOnly}
+          aria-label="Practise previous incorrect questions only"
+          disabled={incorrectAvailableCount === 0}
+          onClick={() =>
+            dispatch({ type: "set_incorrect_only", value: !incorrectOnly })
+          }
+          className={`sk-flag-row ${incorrectOnly ? "sk-flag-row--on" : ""}`}
+        >
+          <span className="sk-flag-row-text">
+            <span className="sk-flag-row-label">Mistakes only</span>
+            <span className="sk-flag-row-count">
+              {incorrectAvailableCount === 0
+                ? "no mistakes yet"
+                : `${incorrectAvailableCount} question${
+                    incorrectAvailableCount === 1 ? "" : "s"
+                  }`}
+            </span>
+          </span>
+          <span
+            className={`settings-toggle ${
+              incorrectOnly ? "settings-toggle--on" : ""
+            }`}
+            aria-hidden="true"
+          >
+            <span className="settings-toggle__knob" />
+          </span>
+        </button>
 
         <button
           type="button"
